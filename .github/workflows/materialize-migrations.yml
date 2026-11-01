@@ -1,0 +1,46 @@
+name: Materializar migrations HML
+
+on:
+  push:
+    paths:
+      - '.github/workflows/materialize-migrations.yml'
+      - 'supabase/applied-history/contaos-hml-full-history.sql'
+      - 'supabase/scripts/materialize-migrations.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Materializar e validar migrations
+        run: node supabase/scripts/materialize-migrations.mjs
+
+      - name: Confirmar que não houve divergência
+        run: |
+          test -d supabase/migrations
+          echo "Migrations materializadas: $(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l)"
+
+      - name: Versionar migrations ausentes
+        run: |
+          git config user.name 'ContaOS HML Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add supabase/migrations
+          if git diff --cached --quiet; then
+            echo 'Nenhuma migration ausente.'
+            exit 0
+          fi
+          git commit -m 'db: materializa histórico completo do Supabase HML'
+          git push
