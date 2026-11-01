@@ -1,0 +1,44 @@
+name: Sincronizar histórico HML
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-hml-history.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Baixar histórico exato do Supabase HML
+        shell: bash
+        run: |
+          mkdir -p supabase/applied-history
+          curl --fail --location --silent --show-error \
+            'https://gklhhhyosgasnyoxlrui.supabase.co/storage/v1/object/sign/contaos-documentos/system/migrations/contaos-hml-full-history.sql?token=eyJraWQiOiIwOGNhMWFmMy02MzUzLTRjOTktYThmYy01OTgxY2NlMTE3MjYiLCJhbGciOiJIUzUxMiJ9.eyJ1cmwiOiJjb250YW9zLWRvY3VtZW50b3Mvc3lzdGVtL21pZ3JhdGlvbnMvY29udGFvcy1obWwtZnVsbC1oaXN0b3J5LnNxbCIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3OTM1NzM4MjMsImV4cCI6MTc5MzU3NTYyM30.44Q5PgJnoL0gN0LY8rc0N92awWOdzcpcHnFGP2GV2ipPCfMRApgKbR4rIu3x2JJMMPGhn2cBUbI3S1-_Ts1AGA&download=contaos-hml-full-history.sql' \
+            --output supabase/applied-history/contaos-hml-full-history.sql
+
+      - name: Validar integridade
+        shell: bash
+        run: |
+          echo 'efa8d6fcab76920b9f3699f90f37c8aa08e2a5f719536a79ca83f3d2c444d789  supabase/applied-history/contaos-hml-full-history.sql' | sha256sum --check --strict
+
+      - name: Versionar histórico no develop
+        shell: bash
+        run: |
+          git config user.name 'ContaOS HML Automation'
+          git config user.email 'actions@users.noreply.github.com'
+          git add supabase/applied-history/contaos-hml-full-history.sql
+          if git diff --cached --quiet; then
+            echo 'Histórico já está sincronizado.'
+            exit 0
+          fi
+          git commit -m 'db: sincroniza histórico completo aplicado no Supabase HML'
+          git push
