@@ -28,6 +28,14 @@ Nenhum arquivo de versionamento contém o valor de `OPENAI_API_KEY`, `SUPABASE_S
 
 A role `anon` possui somente leitura dos catálogos públicos de mensagens, status e localização. Dados de organizações, contratos, documentos, filas, notificações, auditoria e demais módulos dependem de autenticação e RLS.
 
+Todas as tabelas públicas do HML estão com RLS habilitada. As funções públicas `SECURITY DEFINER` de infraestrutura não são executáveis pelas roles `anon` ou `authenticated`; permanecem restritas ao `service_role`.
+
+O Advisor de segurança apresenta somente o aviso `extension_in_public` para a extensão `pg_net`, instalada no schema `public`. Trata-se de extensão de infraestrutura utilizada para as chamadas HTTP dos workers/Cron e mantida como exceção técnica controlada. Não foi forçada relocação para evitar quebra do runtime do Supabase.
+
+## Performance
+
+O Advisor de performance pode listar índices como `unused_index` enquanto o HML estiver sem carga operacional representativa. Esses índices não devem ser removidos antes dos testes de carga e do uso real das consultas, pois incluem cobertura de chaves estrangeiras, RLS, filtros operacionais e busca vetorial.
+
 ## Localização
 
 O padrão de produto é:
