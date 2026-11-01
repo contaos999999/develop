@@ -5,30 +5,40 @@ Este repositório é o ambiente oficial de **desenvolvimento e homologação (HM
 ## Regra de ambientes
 
 - `contaos9999/develop` = desenvolvimento e homologação.
-- `contaos9999/prod` = produção. Não recebe alterações diretamente durante o desenvolvimento.
-- Supabase HML atual: projeto `gklhhhyosgasnyoxlrui`.
-- Frontend HML: Lovable conectado ao ambiente de homologação.
+- `contaos9999/prod` = produção. Não recebe alterações durante o desenvolvimento e homologação.
+- Supabase HML: projeto `gklhhhyosgasnyoxlrui`.
+- Frontend HML: será conectado ao Lovable após o fechamento do backend.
 
 ## Fonte de verdade
 
-1. PRD e pacote mestre ContaOS Arquitetura 4.1.
-2. Migrations versionadas em `supabase/migrations/`.
-3. Banco Supabase HML efetivamente validado.
-4. Código do frontend e Edge Functions homologados.
+1. PRD, premissas e pacote mestre ContaOS Arquitetura 4.1.
+2. Histórico de migrations do Supabase HML.
+3. Código das Edge Functions em `supabase/functions/`.
+4. Banco Supabase HML validado.
+5. Frontend Lovable homologado, quando conectado.
 
-## Fluxo
+## Estado atual do backend HML
 
-`develop` → Supabase HML → testes/QA → homologação → promoção controlada para `prod`.
+- 46 migrations registradas no Supabase.
+- Última migration: `20261101233244_0042_hardening_grants_anon`.
+- 117 tabelas públicas com RLS habilitada.
+- Storage `contaos-documentos` privado.
+- Filas: `documents`, `ocr`, `ai`, `embeddings`, `finance_imports`, `reports`, `integrations` e `webhooks`.
+- Workers e Crons ativos.
+- OpenAI configurada no backend para IA e OCR, sem segredo versionado.
+- Padrão de interface e mensagens: português do Brasil.
+- Datas e horários: `America/Sao_Paulo`, formato brasileiro.
 
-Nunca copiar dados fictícios ou credenciais do HML para produção. Nenhuma secret key deve ser versionada neste repositório.
+## Versionamento
 
-## Migrations HML já aplicadas
+As migrations iniciais permanecem individualizadas em `supabase/migrations/`.
 
-- `20261101205846_0001_extensoes_schemas.sql`
-- `20261101205936_0002_identidade_organizacoes.sql`
-- `20261101210017_0003_contratantes_contratos_core.sql`
-- `20261101210030_0003b_acesso_contratos_rls.sql`
-- `20261101210053_0004_fontes_orcamento_listas.sql`
-- `20261101210110_0005_storage_documentos.sql`
+O histórico posterior, extraído diretamente do Supabase, está em `supabase/applied-history/`. O arquivo `contaos-hml-full-history.sql` contém o snapshot até a migration `0038`; as migrations posteriores permanecem como deltas cronológicos nessa mesma pasta.
 
-As próximas migrations devem ser criadas primeiro aqui e aplicadas somente no Supabase HML até a homologação.
+Não alterar migrations já aplicadas. Toda correção deve ser uma nova migration com timestamp único.
+
+## Fluxo de promoção
+
+`develop` → Supabase HML → testes/QA → frontend Lovable HML → homologação → promoção controlada para `prod`.
+
+Nunca copiar dados fictícios, segredos ou credenciais do HML para produção. `OPENAI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, tokens internos e segredos de webhooks devem permanecer exclusivamente nos Secrets/Vault do ambiente correspondente.
