@@ -1,20 +1,42 @@
 # Histórico aplicado no Supabase HML
 
-Esta pasta contém o histórico SQL **exatamente como registrado em `supabase_migrations.schema_migrations`** no projeto HML do ContaOS.
+Esta pasta preserva o histórico SQL do projeto HML do ContaOS exatamente como registrado em `supabase_migrations.schema_migrations`.
+
+## Ambiente oficial
+
+- Supabase HML: `gklhhhyosgasnyoxlrui`
+- GitHub HML: `contaos9999/develop`
+- Produção: `contaos9999/prod`, sem alterações durante a homologação
+- Localização: `pt-BR`, timezone `America/Sao_Paulo`
+
+## Estado atual
+
+O HML possui 45 migrations registradas. A versão mais recente é:
+
+`20261101230710_0041_auth_onboarding_timezone_brasilia`
+
+O arquivo `contaos-hml-full-history.sql` é um snapshot integral extraído diretamente do Supabase e já inclui o histórico até `20261101225646_0038_exportacao_historico_migrations`.
+
+Para reproduzir o estado atual após esse snapshot, aplicar também:
+
+`05_0041_auth_onboarding_timezone_brasilia.sql`
+
+A exportação integral mais recente do HML gerada pelo backend possui SHA-256 do SQL:
+
+`f11dd51912cf959d141dff717b9e0defa3938d8d43beeb9249cda63a661059b4`
+
+Esse hash corresponde ao histórico atual completo, incluindo a migration `0041`. O snapshot versionado anterior e o delta devem ser preservados como histórico, sem reescrita retroativa.
 
 ## Regras
 
-- Ambiente: Supabase HML `gklhhhyosgasnyoxlrui`.
-- Repositório: `contaos9999/develop`.
-- O repositório `contaos9999/prod` não deve receber alterações durante a homologação.
-- Os blocos desta pasta preservam a ordem cronológica, os timestamps e os nomes das migrations efetivamente aplicadas.
-- Não editar migrations históricas já aplicadas. Toda correção deve entrar como nova migration.
-- Os blocos de histórico não devem ser reaplicados sobre o HML existente.
-- Para reconstrução de um ambiente vazio, os blocos devem ser executados em ordem cronológica após as migrations individuais anteriores correspondentes.
-- Nenhuma credencial ou segredo é versionado aqui.
+- Não editar migrations históricas já aplicadas.
+- Toda correção entra como nova migration com timestamp único.
+- Não reaplicar os blocos desta pasta sobre o HML existente.
+- Em ambiente vazio, executar o histórico em ordem cronológica.
+- Nenhuma credencial, `service_role`, token interno ou `OPENAI_API_KEY` deve ser versionada.
+- Edge Functions ativas ficam em `supabase/functions/`.
+- Valores de Secrets permanecem exclusivamente no Supabase Secrets/Vault.
 
-## Estratégia
+## Observação sobre numeração
 
-As primeiras migrations permanecem em `supabase/migrations/`. O histórico posterior também é preservado nesta pasta em blocos cronológicos extraídos diretamente do banco, evitando reconstrução manual e drift.
-
-As Edge Functions ativas ficam em `supabase/functions/` e utilizam apenas nomes de variáveis de ambiente. Valores como `OPENAI_API_KEY` permanecem exclusivamente nos Secrets do Supabase.
+Existem nomes legados repetidos como `0030`, `0031` e `0032`. Isso não representa colisão de migration, porque o identificador de ordenação do Supabase é o timestamp, e todos os timestamps registrados são únicos. Esses nomes não devem ser alterados retroativamente.
