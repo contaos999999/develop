@@ -15,16 +15,18 @@ O ambiente oficial de homologação é o Supabase `gklhhhyosgasnyoxlrui` e o rep
 
 ## Estado sincronizado
 
-- Quantidade atual de migrations no HML: 45
-- Última migration: `20261101230710_0041_auth_onboarding_timezone_brasilia`
+- Quantidade atual de migrations no HML: 46
+- Última migration: `20261101233244_0042_hardening_grants_anon`
 - Snapshot integral versionado: `supabase/applied-history/contaos-hml-full-history.sql`
 - O snapshot integral já contém o histórico até `20261101225646_0038_exportacao_historico_migrations`.
-- Delta posterior: `supabase/applied-history/05_0041_auth_onboarding_timezone_brasilia.sql`
-- SHA-256 da exportação completa atual do histórico SQL: `f11dd51912cf959d141dff717b9e0defa3938d8d43beeb9249cda63a661059b4`
+- Deltas posteriores: `05_0041_auth_onboarding_timezone_brasilia.sql` e `06_0042_hardening_grants_anon.sql`.
+- SHA-256 da exportação completa atual do histórico SQL: `9a40763031b5d022416523ae28c9c3ed666860946d618191d02f65dd05af9230`
 
 ## Segurança
 
 Nenhum arquivo de versionamento contém o valor de `OPENAI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, token interno dos workers ou segredos de webhooks. O `.env.example` contém apenas nomes de variáveis e valores não secretos de configuração.
+
+A role `anon` possui somente leitura dos catálogos públicos de mensagens, status e localização. Dados de organizações, contratos, documentos, filas, notificações, auditoria e demais módulos dependem de autenticação e RLS.
 
 ## Localização
 
