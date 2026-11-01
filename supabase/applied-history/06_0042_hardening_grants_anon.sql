@@ -1,4 +1,4 @@
--- MIGRATION 20261101233319_0042_hardening_grants_anon
+-- MIGRATION 20261101233244_0042_hardening_grants_anon
 begin;
 
 -- Menor privilégio para visitantes não autenticados.
