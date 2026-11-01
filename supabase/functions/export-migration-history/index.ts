@@ -5,16 +5,21 @@ const URL=Deno.env.get('SUPABASE_URL')!
 const SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const sb=createClient(URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}})
 
-async function gzipBase64(text:string){
-  const input=new TextEncoder().encode(text)
-  const stream=new Blob([input]).stream().pipeThrough(new CompressionStream('gzip'))
-  const compressed=new Uint8Array(await new Response(stream).arrayBuffer())
-  let binary=''
-  const chunk=0x8000
-  for(let i=0;i<compressed.length;i+=chunk){
-    binary+=String.fromCharCode(...compressed.subarray(i,Math.min(i+chunk,compressed.length)))
-  }
-  return {base64:btoa(binary),bytes:compressed.byteLength}
+async function sha256(bytes:Uint8Array){
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('')
+}
+async function gzip(bytes:Uint8Array){
+  const cs=new CompressionStream('gzip')
+  const writer=cs.writable.getWriter()
+  await writer.write(bytes)
+  await writer.close()
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer())
+}
+function base64(bytes:Uint8Array){
+  let bin=''
+  const passo=0x8000
+  for(let i=0;i<bytes.length;i+=passo) bin+=String.fromCharCode(...bytes.subarray(i,Math.min(i+passo,bytes.length)))
+  return btoa(bin)
 }
 
 Deno.serve(async(req:Request)=>{
@@ -25,12 +30,11 @@ Deno.serve(async(req:Request)=>{
   let body:any={}; try{body=await req.json()}catch{}
   const {data:sql,error}=await sb.rpc('worker_exportar_historico_migrations')
   if(error||!sql) return Response.json({ok:false,codigo:'EXPORTACAO_FALHOU',titulo:'Histórico não exportado',mensagem:'Não foi possível gerar o histórico de migrations do HML.'},{status:500})
-  const texto=String(sql)
-  const bytes=new TextEncoder().encode(texto)
-  const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('')
-  if(body?.modo==='gzip_base64'){
-    const gz=await gzipBase64(texto)
-    return Response.json({ok:true,codigo:'HISTORICO_COMPACTADO',titulo:'Histórico compactado',mensagem:'O histórico exato de migrations do HML foi compactado para versionamento.',arquivo:'contaos-hml-full-history.sql.gz',bytes_originais:bytes.byteLength,bytes_comprimidos:gz.bytes,sha256_sql:hash,conteudo_base64:gz.base64})
+  const bytes=new TextEncoder().encode(String(sql))
+  const hash=await sha256(bytes)
+  if(body.mode==='gzip_base64'){
+    const gz=await gzip(bytes)
+    return Response.json({ok:true,codigo:'HISTORICO_COMPACTADO',arquivo:'contaos-hml-full-history.sql.gz',bytes_originais:bytes.byteLength,bytes_gzip:gz.byteLength,sha256_sql:hash,sha256_gzip:await sha256(gz),data_base64:base64(gz)})
   }
   const path='system/migrations/contaos-hml-full-history.sql'
   const {error:up}=await sb.storage.from('contaos-documentos').upload(path,bytes,{contentType:'text/plain; charset=utf-8',upsert:true})
