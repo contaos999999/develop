@@ -1,45 +1,82 @@
 {
-  "id": "TRANSVERSAL-ADMIN-MASTER-GLOBAL-2026-11-02",
-  "title": "Administrador Master global",
-  "status": "planejado_em_execucao_backend_tdd",
+  "id": "PROMPT-26-V1-05-NOVO-CONTRATO-2026-11-02",
+  "title": "PROMPT 26 / V1-05 — Novo contrato",
+  "status": "backend_certificado_pronto_para_plan_frontend",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar Administrador Master global com acesso transversal a todas as organizações, contratos, usuários, configurações, auditorias e módulos, sem depender de vinculos_usuarios e sem service_role no frontend.",
-  "decision_source": "docs/decisions/2026-11-02-administrador-master-global.md",
-  "spec": "docs/superpowers/specs/2026-11-02-administrador-master-global-design.md",
-  "plan": "docs/superpowers/plans/2026-11-02-administrador-master-global.md",
-  "allowed_backend_changes": [
-    "nova tabela privada administradores_master",
-    "helper privado usuario_e_administrador_master",
-    "helpers centrais de autorizacao",
-    "RPC publica de leitura de organizacoes disponiveis",
-    "testes SQL e documentacao"
+  "objective": "Implementar /contratos/novo para administrador/gestor usando Data API + RLS, sem RPC/Edge nova, com criação auditada e acesso imediato do criador restrito.",
+  "canonical_sources": [
+    "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx#PROMPT26",
+    "05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx#V1-05",
+    "02_BACKEND_SUPABASE/Backend_Supabase_v3_0_Manual_Integral_Production_Readiness.docx",
+    "07_ZERO_DRIFT/ZeroDrift_v2_Lovable_Supabase.docx"
   ],
-  "allowed_frontend_changes": [
-    "SYS-01 login",
-    "SYS-04 selecao de organizacao",
-    "tipos Supabase gerados",
-    "testes relacionados"
+  "requirements": [
+    "PROMPT-26",
+    "V1-05",
+    "administrador/gestor",
+    "Data API + RLS",
+    "sem .select() no INSERT",
+    "situacao rascunho por default",
+    "criticidade media por default",
+    "auditoria ContratoCriado",
+    "1440/1280/768/390",
+    "acessibilidade",
+    "Zero-Drift",
+    "Administrador Master global"
   ],
-  "forbidden": [
-    "PROD",
-    "service_role no navegador",
-    "remover RLS",
-    "transformar administrador organizacional em global",
-    "refatoracoes nao relacionadas"
-  ],
-  "tests_required": [
-    "Master sem vinculo acessa Org A e Org B",
-    "Master acessa contratos de ambas as organizacoes",
-    "Master usa ADM-01 em organizacao sem vinculo",
-    "usuario comum sem vinculo continua negado",
-    "administrador Org A continua negado na Org B",
-    "Master inativo/expirado negado",
-    "frontend login/SYS-04 funciona sem vinculo fisico",
-    "regressao completa e Teste C"
-  ],
-  "paused_task": "PROMPT-26-V1-05-NOVO-CONTRATO-2026-11-02",
+  "backend_hml": {
+    "project_ref": "gklhhhyosgasnyoxlrui",
+    "table": "public.contratos",
+    "rls_enabled": true,
+    "insert_policy": "contratos_insert -> privado.usuario_possui_perfil(id_organizacao, ['administrador','gestor_contrato'])",
+    "backend_gap_closed": true,
+    "new_rpc_needed": false,
+    "new_edge_needed": false,
+    "migrations": [
+      "20261102173500_v105_contrato_criado_escopo_auditoria.sql",
+      "20261102174200_v105_confiar_mutacao_interna_escopo.sql"
+    ],
+    "synthetic_backend_test": "PASS 11/11 com ROLLBACK",
+    "security_advisor": "sem novo finding; apenas auth_leaked_password_protection preexistente",
+    "prod_untouched": true
+  },
+  "frontend_contract": {
+    "insert_mode": "supabase.from('contratos').insert(payload) sem .select()/RETURNING",
+    "creator_restricted_scope_granted_server_side": true,
+    "audit_event": "ContratoCriado",
+    "defaults": {
+      "situacao": "rascunho",
+      "criticidade": "media",
+      "versao_registro": 1
+    },
+    "base_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9"
+  },
+  "completed_transversal": {
+    "id": "TRANSVERSAL-ADMIN-MASTER-GLOBAL-2026-11-02",
+    "status": "CERTIFICADO",
+    "backend_main": "afa89603bc0bd1c9369e9c24e2193b6cb1780fe2",
+    "backend_pr": 21,
+    "backend_tests": "20/20 principal + ADM-01 write/audit PASS + 6/6 pos-hardening",
+    "frontend_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9",
+    "frontend_focused_tests": "40/40",
+    "frontend_full_suite": "274/274",
+    "typecheck": "PASS exit 0",
+    "build": "PASS exit 0",
+    "test_c": "PASS 18/18",
+    "responsive": "PASS 1440/1280/768/390",
+    "security_scan": "0 Critical, 0 High",
+    "prod_untouched": true
+  },
+  "previous_prompt": {
+    "id": "PROMPT-25-V1-04",
+    "test_c": "PASS 18/18",
+    "frontend_head_before_master": "8a809e2e8600ec8616e5d5fe0c1f299b07469548",
+    "focused_tests": "26/26",
+    "full_suite": "264/264"
+  },
+  "next_step": "PLAN MODE Lovable minimo para V1-05 sobre o HEAD Master certificado, sem redescobrir backend",
   "prod_untouched": true
 }
