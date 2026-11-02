@@ -86,6 +86,8 @@ Em caso de conflito, aplicar esta ordem:
 - Toda conclusão relevante deve apontar fonte/evidência/versão/competência/execução.
 - Mensagens ao usuário em PT-BR, amigáveis e sem stack trace.
 - Datas/horas exibidas no padrão brasileiro e fuso oficial definido para o produto; persistência em `timestamptz` quando aplicável.
+- **Economia de créditos do Lovable é regra canônica:** entre alternativas igualmente conformes ao pacote 4.1, usar sempre a que consome menos créditos do Lovable.
+- Economia de créditos nunca pode reduzir ou contornar PRD, segurança, TDD, Teste C, Zero-Drift, rastreabilidade, cobertura, acessibilidade, responsividade, evidência ou critério de aceite.
 
 ## 5. Condições obrigatórias para modificar o backend certificado
 
@@ -108,3 +110,20 @@ Não alterar nomes de tabelas, colunas, enums, status, funções, rotas, estrutu
 ## 7. Regra de parada
 
 Se houver qualquer dúvida sobre conflito, escopo, segurança, fonte normativa, status, portão, tenant, migration ou efeito em produção: **não editar**. Produzir diagnóstico e plano mínimo primeiro.
+
+## 8. Regra canônica de eficiência de créditos Lovable
+
+A execução deve minimizar o consumo de créditos do Lovable sem reduzir qualidade ou prova. Para isso:
+
+1. usar GitHub diretamente para documentação, diff, rastreabilidade, commits e inspeção de arquivos quando o editor Lovable não for necessário;
+2. usar Supabase diretamente para inspeção, evidências de backend, RLS, RPC, Edge, logs e testes de banco quando não houver dependência do frontend;
+3. reservar Lovable para alteração de frontend, preview/runtime, integração visual e validações que realmente dependam do ambiente Lovable;
+4. agrupar instruções compatíveis em um único turno Lovable e evitar mensagens fragmentadas;
+5. inspecionar antes de enviar BUILD para reduzir retrabalho;
+6. não reenviar prompt enquanto um turno estiver processando; recuperar o estado antes de qualquer retry;
+7. evitar repetir planos, scans, builds ou testes já válidos quando não houve mudança que os invalide;
+8. executar correções por delta mínimo em vez de reconstruir módulos inteiros;
+9. reutilizar contratos, componentes, helpers e evidências certificados quando aplicável;
+10. se duas estratégias forem tecnicamente equivalentes e ambas 100% conformes, a de menor custo de créditos Lovable tem precedência obrigatória.
+
+A otimização de crédito é **subordinada à conformidade**. Uma solução mais barata que reduza segurança, testes, rastreabilidade ou fidelidade ao pacote 4.1 deve ser rejeitada.
