@@ -86,6 +86,7 @@ Em caso de conflito, aplicar esta ordem:
 - Toda conclusão relevante deve apontar fonte/evidência/versão/competência/execução.
 - Mensagens ao usuário em PT-BR, amigáveis e sem stack trace.
 - Datas/horas exibidas no padrão brasileiro e fuso oficial definido para o produto; persistência em `timestamptz` quando aplicável.
+- **Administrador Master global é regra canônica:** existe uma identidade global distinta do `administrador` organizacional, com acesso administrativo transversal a todas as organizações, contratos, usuários, vínculos, configurações, auditorias e módulos. O Master não depende de `vinculos_usuarios`, mas continua sujeito a sessão ativa, RLS, auditoria e operações críticas protegidas. O papel Master equivale a `administrador` para autorização administrativa e **não** concede automaticamente papéis humanos especializados como `direcao_aprovador`, preservando segregação de funções. `service_role` nunca é usado para representar o Master no navegador.
 - **Economia de créditos do Lovable é regra canônica:** entre alternativas igualmente conformes ao pacote 4.1, usar sempre a que consome menos créditos do Lovable.
 - Economia de créditos nunca pode reduzir ou contornar PRD, segurança, TDD, Teste C, Zero-Drift, rastreabilidade, cobertura, acessibilidade, responsividade, evidência ou critério de aceite.
 
