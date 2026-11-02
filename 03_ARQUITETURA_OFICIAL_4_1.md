@@ -154,3 +154,15 @@ Uma mudança não está pronta se criar qualquer um destes:
 - falta de teste A/B;
 - migration aplicada reescrita;
 - divergência entre HML e repositório.
+
+## 14. Identidade Visual Oficial — camada complementar BRAND-01
+
+A **ContaOS Brand v1.0** passa a ser a fonte oficial exclusivamente para identidade visual: logomarca, símbolo, favicon, PWA, aplicações horizontal/vertical, fundo claro/escuro, versões monocromáticas, paleta institucional, proporções, proteção e tamanhos mínimos.
+
+Essa camada **não altera a decisão arquitetural** deste documento. O pacote 4.1 continua soberano para arquitetura, Design System estrutural, UX funcional, componentes, layout estrutural, navegação, comportamento, responsividade, acessibilidade, segurança, backend, banco e regras de negócio.
+
+O `PROMPT 000 / BRAND-01`, versionado em `00_BRAND_01_IDENTIDADE_VISUAL_OFICIAL.md`, é obrigatório para tarefas de implantação ou alteração visual da marca. Ele não pode ser usado para justificar tabela, migration, RLS, grant, RPC, Database Function, Edge Function, Auth, cliente Supabase, variável de ambiente, API, integração, rota, permissão, RBAC, regra de negócio, status, cálculo ou estrutura de dados.
+
+A marca deve ser integrada ao Design System existente com a prioridade **REUTILIZAR > ESTENDER > CRIAR**. É proibido criar Design System paralelo ou reconstruir telas para acomodar a logomarca.
+
+Em conflito entre decisão estética e arquitetura/comportamento, **a Arquitetura 4.1 prevalece**.
