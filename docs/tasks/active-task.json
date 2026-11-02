@@ -1,7 +1,7 @@
 {
-  "id": "SEC-BACKEND-HOTFIX-FINANCE-WORKER-2026-11-02",
-  "title": "Hotfix de segurança e continuidade do worker financeiro dedicado",
-  "branch": "security/backend-hotfix-finance-dedicated-worker",
+  "id": "SEC-BACKEND-HARDENING-2026-11-02",
+  "title": "Hardening integral de segurança do backend ContaOS HML",
+  "branch": "main",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
@@ -33,45 +33,69 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "objective": "Remover a dependência interna do queue-worker-finance em relação ao worker genérico aposentado, preservando a importação financeira certificada e reforçando a autenticação service-to-service diretamente no worker dedicado.",
-  "requirements_impacted": ["NFR-010", "NFR-011"],
-  "attack_classes_covered": ["Internal API Exposure", "Deprecated API Exploitation", "Workflow Bypass", "Authentication Bypass"],
-  "allowed_paths": ["docs/tasks/active-task.json", "supabase/functions/queue-worker-finance/index.ts"],
+  "objective": "Auditar e endurecer o backend HML do ContaOS contra vetores de ataque aplicáveis, priorizando isolamento multiempresa, BOLA/IDOR, RLS, escalada de privilégio, funções privilegiadas, injeções, SSRF, uploads maliciosos, Auth/JWT, segredos, filas, webhooks, DoS, supply chain e exposição indevida, sem alterar PROD e sem violar o Zero-Drift.",
+  "requirements_impacted": ["NFR-010", "NFR-011", "seguranca_backend", "isolamento_multiempresa", "rastreabilidade"],
+  "attack_classes_covered": [
+    "SQL Injection",
+    "BOLA/IDOR",
+    "Broken Access Control",
+    "Privilege Escalation",
+    "Tenant Isolation Bypass",
+    "SSRF",
+    "Malicious File Upload",
+    "Zip Bomb",
+    "Authentication/Authorization Bypass",
+    "JWT/Token Abuse",
+    "Secret Leakage",
+    "Queue Poisoning",
+    "Webhook Abuse",
+    "Resource Exhaustion",
+    "Supply Chain Attack"
+  ],
+  "allowed_paths": [
+    "docs/tasks/active-task.json",
+    "supabase/migrations/**",
+    "supabase/functions/**",
+    "supabase/tests/**",
+    "supabase/config.toml",
+    "supabase/README_HML.md",
+    "supabase/applied-history/**",
+    "scripts/**",
+    "package.json",
+    "package-lock.json"
+  ],
   "forbidden_paths": [
     "contaos9999/prod/**",
-    "supabase/migrations/**",
-    "supabase/functions/contaos-worker/**",
-    "supabase/functions/deliver-webhook/**",
-    "supabase/functions/generate-report/**",
-    "supabase/functions/queue-worker-documents/**"
+    "frontend/**",
+    "lovable/**"
   ],
-  "database_changes_allowed": false,
-  "rls_changes_allowed": false,
+  "database_changes_allowed": true,
+  "rls_changes_allowed": true,
   "edge_function_changes_allowed": true,
-  "auth_changes_allowed": false,
-  "storage_changes_allowed": false,
-  "root_cause": "O queue-worker-finance homologado era apenas um proxy para /functions/v1/contaos-worker?queue=finance_imports. A aposentadoria segura do worker genérico revelou essa dependência indireta. Nenhum cron chamava diretamente o worker legado, mas o consumidor financeiro o utilizava internamente.",
+  "auth_changes_allowed": true,
+  "storage_changes_allowed": true,
+  "root_cause": "Auditoria defensiva ampla solicitada após certificação inicial do backend identificou superfícies residuais de autorização, consistência multi-tenant, processamento de arquivos, workers privilegiados e integrações que exigem hardening adicional por defesa em profundidade.",
   "implemented": [
-    "Lógica de importação financeira certificada movida para queue-worker-finance.",
-    "Token interno agora é validado pelo RPC validar_token_interno diretamente no worker financeiro.",
-    "Consumo direto da fila finance_imports com worker_pull_job e worker_finalizar_job.",
-    "Parsing XLSX/CSV, normalização de cabeçalhos, datas e valores, hash de origem e upsert idempotente preservados.",
-    "Nenhuma chamada ao contaos-worker permanece no worker financeiro.",
-    "contaos-worker permanece aposentado."
+    "Revogado EXECUTE de anon/authenticated nos helpers internos privado.enfileirar_job e privado.marcar_execucao_assincrona.",
+    "Wrappers worker_* permanecem restritos a service_role/postgres.",
+    "Treze policies UPDATE tiveram WITH CHECK endurecido para repetir acesso e perfil do USING.",
+    "Migrations 0050 e 0051 de limites/MIME/ZIP de upload foram recuperadas do histórico aplicado e sincronizadas no repositório HML.",
+    "PROD permanece intocado."
   ],
   "test_evidence": [
-    "HML queue-worker-finance versão 3 publicada com sucesso.",
-    "Fila finance_imports estava vazia antes do teste.",
-    "Sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
-    "Com token interno válido e fila vazia: HTTP 200, fila=finance_imports, processados=0.",
-    "Nenhum job de negócio foi consumido durante o teste."
+    "Security Advisor após as mudanças sem novos alertas de RLS; permanece somente pg_net em public para tratamento específico.",
+    "anon/authenticated sem EXECUTE nos dois helpers assíncronos internos.",
+    "service_role mantém EXECUTE nos wrappers worker_enfileirar_job e worker_finalizar_job.",
+    "13/13 policies UPDATE verificadas com USING = WITH CHECK.",
+    "Verificação de histórico GitHub concluída com sucesso no commit de sincronização."
   ],
-  "rollback": "Reverter queue-worker-finance/index.ts para o proxy anterior e, somente se estritamente necessário para continuidade, restaurar temporariamente a versão anterior do worker genérico. O caminho preferencial é manter o worker genérico desativado.",
+  "rollback": "Não reescrever migrations históricas. Qualquer correção ou reversão deve ocorrer por nova migration explícita e auditável, preservando histórico, rastreabilidade e o isolamento do PROD.",
   "acceptance_results": {
-    "without_internal_token_401": "PASS",
-    "with_internal_token_empty_queue_200": "PASS",
-    "no_generic_worker_dependency": "PASS",
-    "generic_worker_remains_retired": "PASS",
-    "prod_untouched": "PASS"
+    "prod_untouched": "PASS",
+    "async_helpers_not_executable_by_clients": "PASS",
+    "worker_service_role_path_preserved": "PASS",
+    "rls_update_postcondition_hardened": "PASS",
+    "security_advisor_no_new_rls_findings": "PASS",
+    "zero_drift": "PENDING_REVALIDATION"
   }
 }
