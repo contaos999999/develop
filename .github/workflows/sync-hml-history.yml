@@ -6,12 +6,14 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/applied-history/**'
       - 'supabase/scripts/materialize-migrations.mjs'
+      - '.github/workflows/sync-hml-history.yml'
   push:
     branches: [main]
     paths:
       - 'supabase/migrations/**'
       - 'supabase/applied-history/**'
       - 'supabase/scripts/materialize-migrations.mjs'
+      - '.github/workflows/sync-hml-history.yml'
 
 permissions:
   contents: read
@@ -33,7 +35,7 @@ jobs:
       - name: Garantir ausência de URL assinada/token hardcoded
         shell: bash
         run: |
-          if git grep -nE 'storage/v1/object/sign/.+token=' -- '.github/**'; then
+          if git grep -nE 'storage/v1/object/sign/.+token=' -- '.github/**' ':!.github/workflows/sync-hml-history.yml'; then
             echo 'URL assinada hardcoded detectada em workflow.'
             exit 1
           fi
