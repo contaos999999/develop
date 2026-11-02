@@ -34,6 +34,12 @@ values
 ('22222222-2222-4222-8222-222222222222','authenticated','authenticated','teste.b@contaos.invalid','{}','{"nome":"Teste B"}',now(),now()),
 ('33333333-3333-4333-8333-333333333333','authenticated','authenticated','teste.leitor@contaos.invalid','{}','{"nome":"Teste Leitor"}',now(),now());
 
+insert into auth.sessions(id,user_id,created_at,updated_at,aal,not_after)
+values
+('aaaaaaaa-1111-4111-8111-111111111111','11111111-1111-4111-8111-111111111111',now(),now(),'aal1',now()+interval '1 hour'),
+('bbbbbbbb-2222-4222-8222-222222222222','22222222-2222-4222-8222-222222222222',now(),now(),'aal1',now()+interval '1 hour'),
+('cccccccc-3333-4333-8333-333333333333','33333333-3333-4333-8333-333333333333',now(),now(),'aal1',now()+interval '1 hour');
+
 insert into public.organizacoes(id,razao_social,nome_fantasia)
 values
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Organização Teste A','Teste A'),
@@ -111,7 +117,7 @@ update public.requisitos_competencia set descricao='Requisito alterado após a a
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
-select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
 
 insert into contaos_testes select 'RLS','A só vê organização A',count(*)=1 and bool_and(id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid),'linhas='||count(*) from public.organizacoes;
 insert into contaos_testes select 'RLS','A não vê organização B',count(*)=0,'linhas='||count(*) from public.organizacoes where id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -133,11 +139,11 @@ insert into contaos_testes select 'REAPRESENTACAO','Status PODE REAPRESENTAR AO 
 insert into contaos_testes select 'CONCORRENCIA','Versão obsoleta rejeitada',r<>'SEM_ERRO',r from (select pg_temp.capturar_update_obsoleto('aaaaaaaa-0000-4000-8000-000000000001') r) x;
 
 select set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
-select set_config('request.jwt.claims','{"sub":"33333333-3333-4333-8333-333333333333","role":"authenticated"}',true);
+select set_config('request.jwt.claims','{"sub":"33333333-3333-4333-8333-333333333333","role":"authenticated","session_id":"cccccccc-3333-4333-8333-333333333333","aal":"aal1"}',true);
 insert into contaos_testes select 'PERFIL','Leitor não aprova',r<>'SEM_ERRO',r from (select pg_temp.capturar_aprovacao('aaaaaaaa-2000-4000-8000-000000000002') r) x;
 
 select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
-select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated"}',true);
+select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated","session_id":"bbbbbbbb-2222-4222-8222-222222222222","aal":"aal1"}',true);
 insert into contaos_testes select 'RLS','B não vê contrato A',count(*)=0,'linhas='||count(*) from public.contratos where id='aaaaaaaa-1000-4000-8000-000000000001';
 
 reset role;
