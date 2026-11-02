@@ -46,40 +46,65 @@ insert into v105_testes values(
  and exists(select 1 from pg_trigger where tgname='contaos_contrato_pos_insert_v105' and not tgisinternal)
  and not has_function_privilege('authenticated','privado.pos_processar_contrato_criado_v105()','EXECUTE')
  and not has_function_privilege('anon','privado.pos_processar_contrato_criado_v105()','EXECUTE'), null);
+insert into v105_testes values(
+ '02 cliente sem INSERT escopo',
+ not has_table_privilege('authenticated','public.vinculos_usuario_contratos','INSERT'), null);
 
-set local role authenticated;
+-- Gestor com escopo restrito: cria sem RETURNING; após a instrução, o trigger
+-- deve conceder escopo e a leitura subsequente deve funcionar.
 select set_config('request.jwt.claim.sub','b7050505-1111-4111-8111-111111111111',true);
 select set_config('request.jwt.claims','{"sub":"b7050505-1111-4111-8111-111111111111","role":"authenticated","session_id":"b7050505-1111-4111-8111-aaaaaaaaaaaa","aal":"aal1"}',true);
-insert into v105_testes select '02 restrito cria',r='OK',r from (select pg_temp.v105_try(
+set local role authenticated;
+insert into v105_testes select '03 restrito cria',r='OK',r from (select pg_temp.v105_try(
  'b7050505-3000-4000-8000-000000000001','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
  'b7050505-2000-4000-8000-000000000001','V105-001','Contrato restrito','2026-01-01','2026-12-31') r)x;
-insert into v105_testes select '03 escopo + acesso',
- exists(select 1 from public.vinculos_usuario_contratos where id_vinculo_usuario='b7050505-1000-4000-8000-000000000001' and id_contrato='b7050505-3000-4000-8000-000000000001' and ativo and revogado_em is null)
+reset role;
+insert into v105_testes select '04 restrito escopo + acesso',
+ exists(select 1 from public.vinculos_usuario_contratos
+   where id_vinculo_usuario='b7050505-1000-4000-8000-000000000001'
+     and id_contrato='b7050505-3000-4000-8000-000000000001'
+     and ativo and revogado_em is null)
  and privado.usuario_tem_acesso_contrato('b7050505-3000-4000-8000-000000000001'), null;
-insert into v105_testes select '04 auditoria única',
- count(*)=1 and bool_and(depois->>'numero'='V105-001') and bool_and(depois->>'situacao'='rascunho')
- and bool_and(depois->>'criticidade'='media') and bool_and(metadados->>'origem_operacao'='v105.data_api_insert'),
+insert into v105_testes select '05 auditoria única',
+ count(*)=1 and bool_and(depois->>'numero'='V105-001')
+ and bool_and(depois->>'situacao'='rascunho')
+ and bool_and(depois->>'criticidade'='media')
+ and bool_and(metadados->>'origem_operacao'='v105.data_api_insert'),
  jsonb_agg(jsonb_build_object('depois',depois,'meta',metadados))::text
  from public.eventos_auditoria where evento='ContratoCriado' and entidade='contratos'
  and id_entidade='b7050505-3000-4000-8000-000000000001';
-reset role;
 
-set local role authenticated;
+-- Administrador com escopo total: já vê todos os contratos da organização e
+-- não deve ganhar vínculo explícito redundante.
 select set_config('request.jwt.claim.sub','b7050505-2222-4222-8222-222222222222',true);
 select set_config('request.jwt.claims','{"sub":"b7050505-2222-4222-8222-222222222222","role":"authenticated","session_id":"b7050505-2222-4222-8222-bbbbbbbbbbbb","aal":"aal1"}',true);
-insert into v105_testes select '05 total sem vínculo redundante',r='OK'
- and not exists(select 1 from public.vinculos_usuario_contratos where id_vinculo_usuario='b7050505-1000-4000-8000-000000000002' and id_contrato='b7050505-3000-4000-8000-000000000002')
- and privado.usuario_tem_acesso_contrato('b7050505-3000-4000-8000-000000000002'),r
- from (select pg_temp.v105_try('b7050505-3000-4000-8000-000000000002','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b7050505-2000-4000-8000-000000000001','V105-002','Contrato total') r)x;
-insert into v105_testes select '06 duplicado 23505',left(r,5)='23505',r from (select pg_temp.v105_try('b7050505-3000-4000-8000-000000000003','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b7050505-2000-4000-8000-000000000001','V105-002','Duplicado') r)x;
-insert into v105_testes select '07 vigência 23514',left(r,5)='23514',r from (select pg_temp.v105_try('b7050505-3000-4000-8000-000000000004','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b7050505-2000-4000-8000-000000000001','V105-004','Vigência','2026-12-31','2026-01-01') r)x;
-insert into v105_testes select '08 FK cruzada 23503',left(r,5)='23503',r from (select pg_temp.v105_try('b7050505-3000-4000-8000-000000000005','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b7050505-2000-4000-8000-000000000002','V105-005','Cruzado') r)x;
-reset role;
-
 set local role authenticated;
+insert into v105_testes select '06 total cria',r='OK',r from (select pg_temp.v105_try(
+ 'b7050505-3000-4000-8000-000000000002','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ 'b7050505-2000-4000-8000-000000000001','V105-002','Contrato total') r)x;
+insert into v105_testes select '08 duplicado 23505',left(r,5)='23505',r from (select pg_temp.v105_try(
+ 'b7050505-3000-4000-8000-000000000003','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ 'b7050505-2000-4000-8000-000000000001','V105-002','Duplicado') r)x;
+insert into v105_testes select '09 vigência 23514',left(r,5)='23514',r from (select pg_temp.v105_try(
+ 'b7050505-3000-4000-8000-000000000004','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ 'b7050505-2000-4000-8000-000000000001','V105-004','Vigência','2026-12-31','2026-01-01') r)x;
+insert into v105_testes select '10 FK cruzada 23503',left(r,5)='23503',r from (select pg_temp.v105_try(
+ 'b7050505-3000-4000-8000-000000000005','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ 'b7050505-2000-4000-8000-000000000002','V105-005','Cruzado') r)x;
+reset role;
+insert into v105_testes select '07 total sem vínculo redundante + acesso',
+ not exists(select 1 from public.vinculos_usuario_contratos
+   where id_vinculo_usuario='b7050505-1000-4000-8000-000000000002'
+     and id_contrato='b7050505-3000-4000-8000-000000000002')
+ and privado.usuario_tem_acesso_contrato('b7050505-3000-4000-8000-000000000002'), null;
+
+-- Leitor permanece bloqueado pela RLS de INSERT.
 select set_config('request.jwt.claim.sub','b7050505-3333-4333-8333-333333333333',true);
 select set_config('request.jwt.claims','{"sub":"b7050505-3333-4333-8333-333333333333","role":"authenticated","session_id":"b7050505-3333-4333-8333-cccccccccccc","aal":"aal1"}',true);
-insert into v105_testes select '09 leitor 42501',left(r,5)='42501',r from (select pg_temp.v105_try('b7050505-3000-4000-8000-000000000006','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b7050505-2000-4000-8000-000000000001','V105-006','Leitor') r)x;
+set local role authenticated;
+insert into v105_testes select '11 leitor 42501',left(r,5)='42501',r from (select pg_temp.v105_try(
+ 'b7050505-3000-4000-8000-000000000006','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ 'b7050505-2000-4000-8000-000000000001','V105-006','Leitor') r)x;
 reset role;
 
 select jsonb_build_object(
