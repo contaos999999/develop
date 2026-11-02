@@ -9,6 +9,7 @@ const TOKEN_RE=/^ev_[a-f0-9]{64}$/
 const resp=(b,s=200)=>Response.json(b,{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
 async function hash(v){const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v??''));return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 function dataHoraBR(v){if(!v)return null;return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(new Date(v)).replace(',','')}
+function nomeDownloadSeguro(v){const original=String(v??'arquivo').normalize('NFKC');const limpo=original.replace(/[^\p{L}\p{N} ._()\[\]-]+/gu,'_').replace(/\s+/g,' ').replace(/^\.+/,'').trim().slice(0,160).trim();return limpo||'arquivo'}
 async function jsonLimitado(req){
  const tipo=(req.headers.get('content-type')??'').toLowerCase()
  if(!tipo.startsWith('application/json'))throw new Error('content-type')
@@ -36,7 +37,7 @@ Deno.serve(async(req)=>{
  let download=null
  if(pacote.id_arquivo_exportacao){
    const {data:arq}=await sb.from('arquivos').select('bucket,path,nome_original').eq('id',pacote.id_arquivo_exportacao).maybeSingle()
-   if(arq){const {data:signed}=await sb.storage.from(arq.bucket).createSignedUrl(arq.path,600,{download:arq.nome_original});if(signed)download={nome_arquivo:arq.nome_original,url:signed.signedUrl,valido_por_segundos:600}}
+   if(arq){const nomeSeguro=nomeDownloadSeguro(arq.nome_original);const {data:signed}=await sb.storage.from(arq.bucket).createSignedUrl(arq.path,600,{download:nomeSeguro});if(signed)download={nome_arquivo:nomeSeguro,url:signed.signedUrl,valido_por_segundos:600}}
  }
  return resp({ok:true,titulo:'Pacote de evidências',mensagem:'Acesso temporário validado com segurança.',pacote:{id:pacote.id,hash:pacote.hash,escopo:pacote.escopo,congelado_em:dataHoraBR(pacote.congelado_em),expira_em:dataHoraBR(validacao.expira_em),timezone:'Horário de Brasília'},itens:itens??[],download,acessos_restantes:validacao.acessos_restantes})
 })
