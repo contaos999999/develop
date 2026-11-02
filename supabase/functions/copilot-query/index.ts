@@ -4,14 +4,33 @@ import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 const URL = Deno.env.get('SUPABASE_URL')!
 const ANON = Deno.env.get('SUPABASE_ANON_KEY')!
 const SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const LIMITE_JSON = 64 * 1024
+const LIMITE_PERGUNTA = 12000
 const admin = createClient(URL, SERVICE, { auth: { persistSession: false, autoRefreshToken: false } })
 const embeddingModel = new Supabase.ai.Session('gte-small')
 
 function respostaErro(status:number,codigo:string,titulo:string,mensagem:string,orientacao?:string){
-  return Response.json({ok:false,codigo,titulo,mensagem,orientacao:orientacao??null},{status,headers:{'content-type':'application/json; charset=utf-8'}})
+  return Response.json({ok:false,codigo,titulo,mensagem,orientacao:orientacao??null},{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
 }
 function dataBR(v:string|null|undefined){ if(!v) return null; const d=v.slice(0,10).split('-'); return d.length===3?`${d[2]}/${d[1]}/${d[0]}`:v }
 function classeDesfecho(v:string|null|undefined){ const s=(v??'').toLowerCase(); if(/aprov|aceit|favor|procedente para a organização|defer/.test(s)) return 'favoravel'; if(/rejeit|glosa|desfavor|improcedente|indefer/.test(s)) return 'desfavoravel'; return 'neutro' }
+async function lerJsonLimitado(req:Request,limite:number){
+  const informado=Number(req.headers.get('content-length')??0)
+  if(Number.isFinite(informado)&&informado>limite) throw new Error('PAYLOAD_GRANDE')
+  if(!req.body) return {}
+  const reader=req.body.getReader(); const partes:Uint8Array[]=[]; let total=0
+  try{
+    while(true){
+      const {done,value}=await reader.read(); if(done) break
+      total+=value.byteLength
+      if(total>limite){try{await reader.cancel()}catch{}; throw new Error('PAYLOAD_GRANDE')}
+      partes.push(value)
+    }
+  }finally{try{reader.releaseLock()}catch{}}
+  const bytes=new Uint8Array(total); let pos=0
+  for(const parte of partes){bytes.set(parte,pos);pos+=parte.byteLength}
+  return JSON.parse(new TextDecoder().decode(bytes))
+}
 
 Deno.serve(async(req:Request)=>{
   if(req.method!=='POST') return respostaErro(405,'METODO_INVALIDO','Ação não permitida','Use uma solicitação POST para consultar o copiloto.')
@@ -20,12 +39,17 @@ Deno.serve(async(req:Request)=>{
   const userClient=createClient(URL,ANON,{global:{headers:{Authorization:auth}},auth:{persistSession:false,autoRefreshToken:false}})
   const {data:userData,error:userErr}=await userClient.auth.getUser()
   if(userErr||!userData.user) return respostaErro(401,'AUTH_SESSAO_INVALIDA','Sessão expirada','Sua sessão não é mais válida.','Entre novamente no ContaOS.')
-  let body:any={}; try{body=await req.json()}catch{return respostaErro(400,'DADOS_INVALIDOS','Não foi possível ler a consulta','Envie a pergunta novamente.')}
+  let body:any={}
+  try{body=await lerJsonLimitado(req,LIMITE_JSON)}catch(e){
+    if(e instanceof Error&&e.message==='PAYLOAD_GRANDE') return respostaErro(413,'REQUISICAO_MUITO_GRANDE','Consulta acima do limite','Os dados enviados ao copiloto ultrapassam o limite permitido.','Reduza o tamanho da pergunta e tente novamente.')
+    return respostaErro(400,'DADOS_INVALIDOS','Não foi possível ler a consulta','Envie a pergunta novamente.')
+  }
   const idContrato=String(body.id_contrato??'')
   const pergunta=String(body.pergunta??'').trim()
   const idSessaoInformada=body.id_sessao?String(body.id_sessao):null
   const dataReferencia=body.data_referencia?String(body.data_referencia).slice(0,10):null
   if(!idContrato||!pergunta) return respostaErro(400,'DADOS_OBRIGATORIOS','Informe o contrato e a pergunta','Selecione um contrato e escreva sua pergunta.')
+  if(pergunta.length>LIMITE_PERGUNTA) return respostaErro(413,'PERGUNTA_MUITO_GRANDE','Pergunta acima do limite','A pergunta ultrapassa o tamanho máximo permitido para uma consulta.','Resuma a pergunta em até 12.000 caracteres e tente novamente.')
 
   const {data:contrato,error:ec}=await userClient.from('contratos').select('id,id_organizacao,id_contratante,numero,objeto').eq('id',idContrato).single()
   if(ec||!contrato) return respostaErro(403,'AUTH_ACESSO_NEGADO','Acesso não permitido','Você não possui acesso ao contrato informado.')
@@ -80,7 +104,7 @@ Deno.serve(async(req:Request)=>{
     if(em||!msg) throw new Error(em?.message??'Falha ao registrar a mensagem.')
     if(fontes.length) await admin.from('fontes_resposta_copiloto').insert(fontes.map((f:any)=>({id_organizacao:contrato.id_organizacao,id_contrato:idContrato,id_mensagem:msg.id,...f})))
     await admin.from('consultas_semanticas').update({status:'concluida'}).eq('id',consulta.id)
-    return Response.json({ok:true,id_sessao:idSessao,id_consulta:consulta.id,id_mensagem:msg.id,resposta:conteudo,incerteza:incerta,conflito_historico:conflito,baixa_confianca:baixaConfianca,data_referencia:dataReferencia?dataBR(dataReferencia):null,fontes},{headers:{'content-type':'application/json; charset=utf-8'}})
+    return Response.json({ok:true,id_sessao:idSessao,id_consulta:consulta.id,id_mensagem:msg.id,resposta:conteudo,incerteza:incerta,conflito_historico:conflito,baixa_confianca:baixaConfianca,data_referencia:dataReferencia?dataBR(dataReferencia):null,fontes},{headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
   }catch(e){
     await admin.from('consultas_semanticas').update({status:'falhou'}).eq('id',consulta.id)
     return respostaErro(500,'COPILOTO_FALHOU','Não foi possível concluir a consulta','O copiloto encontrou um problema durante a recuperação das fontes. Nenhuma conclusão foi inventada.','Tente novamente ou encaminhe a análise para revisão humana.')
