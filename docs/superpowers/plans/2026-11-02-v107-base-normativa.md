@@ -20,7 +20,7 @@ Spec: pacote4.1, 08A requisitos001/002/004/005, diagnóstico docs/frontend/V107_
 
 ## Arquivos
 
-- supabase/migrations/20261102213512_v107_base_normativa_autorizada.sql (nome criado peloCLI2.108.0)
+- supabase/migrations/20261102215515_v107_base_normativa_autorizada.sql (nome criado peloCLI2.108.0)
 - supabase/tests/v107_base_normativa.sql
 - docs/backend/V107_BASE_NORMATIVA_2026-11-02.md
 - docs/tasks/active-task.json
@@ -32,8 +32,9 @@ Spec: pacote4.1, 08A requisitos001/002/004/005, diagnóstico docs/frontend/V107_
 - [x] Executar RED antes deDDL e registrar ausência real dos comandos/controles.
 - [x] Implementar migration sem reescrever histórico, executar focused GREEN; corrigir somente por migrations compensatórias se já aplicada.
 - [x] Revisão independente; regressão SQL pertinente, Advisor security, ContextGate/ZeroDrift/ArchitectureGuard/SQLguard/secrets.
-- [ ] PR, CI, integração autorizada e restore limpo automático; sem certificar até todos gates passarem.
-- [ ] Registrar contrato/evidências GitHub e só então corrigir PLAN28 noLovable, BUILD, testes completos e TesteC separado18/18.
+- [x] PRs #26/#27/#28, CI, integração autorizada e restore limpo automático: run 41538249128 verde; V107 32/32 e concorrência real 2573ms/Depois:2. Zero-Drift 41538249093 verde no head 06d65093746a584efa3b7d9f72bede1ccb38172d.
+- [x] Registrar contrato/evidências backend no GitHub e corrigir PLAN28 no Lovable (commit de plano 2d815d6c2d5c30ea8eab99b21ab4c3f683456f89).
+- [ ] Após decisão humana exigida pelo `plan--show`, executar BUILD, testes completos, Security Scan e Teste C separado18/18.
 
 ## Pontos de revisão
 

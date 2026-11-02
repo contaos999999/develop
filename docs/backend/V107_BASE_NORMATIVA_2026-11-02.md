@@ -1,6 +1,6 @@
 # V1-07 — certificação do backend normativo HML
 
-Data:02/11/2026. Issue: #25. Autorização específica do usuário: «autorizo». Ambiente: HML `gklhhhyosgasnyoxlrui`; PROD intocado.
+Data:02/11/2026. Issue: #25. Autorização específica do usuário: «autorizo». Ambiente: HML `gklhhhyosgasnyoxlrui`; PROD intocado. Head final certificado: `06d65093746a584efa3b7d9f72bede1ccb38172d` (PRs #26, #27 e #28).
 
 ## Contrato entregue
 
@@ -36,8 +36,8 @@ Grants comprovados: wrappers públicos SECURITY INVOKER, privados SECURITY DEFIN
 
 O conector Supabase serializou duas chamadas concorrentes; essa tentativa não é contada como prova temporal. Ela gerou três eventos de auditoria imutáveis, uma organização e um usuário sintéticos inertes (`d707...`), sem sessões, vínculos, fontes, contratos ou competências. Não foi burlado o trigger de imutabilidade para apagá-los.
 
-A prova temporal real foi adicionada a `supabase/tests/v107_concurrency.sh` e ao restore isolado: duas sessões PostgreSQL, lock de 3s na competência e mutação que deve esperar pelo menos 2s e terminar em `Depois:2`. O restore também executará a suíte V107 32/32. Certificação final fica pendente até CI/restore verdes no commit integrado.
+A prova temporal real está verde no restore isolado final: duas sessões PostgreSQL, lock de 3s na competência, mutação aguardou **2.573 ms** e terminou em `Depois:2`. A mesma reconstrução executou a suíte V107 em **32/32**, todos os testes históricos do workflow e registrou o histórico reconstruído. Evidências: [Restore Isolado 41538249128](https://github.com/contaos9999/develop/actions/runs/41538249128) e [Zero-Drift 41538249093](https://github.com/contaos9999/develop/actions/runs/41538249093), ambos `success` no head final. O run anterior 41537026213 já havia provado a concorrência (2.545 ms), mas falhou depois do PASS por um CR residual no fim do shell; a PR #28 normalizou somente esse byte e o rerun final ficou verde.
 
 ## Limites
 
-Nenhuma tabela, Edge Function, Auth, Storage ou bucket novo. Nenhum segredo. Nenhuma edição no frontend fora do Lovable. PROMPT 28 BUILD continua bloqueado até o restore verde e o PLAN Lovable corrigido.
+Nenhuma tabela, Edge Function, Auth, Storage ou bucket novo. Nenhum segredo. Nenhuma edição no frontend fora do Lovable. Backend V1-07 certificado em HML; o PROMPT 28 segue para o plano corrigido do Lovable. PROD permaneceu intocado.
