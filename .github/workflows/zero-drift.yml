@@ -38,6 +38,8 @@ jobs:
         run: node scripts/zero-drift-check.mjs
       - name: Architecture Guard
         run: node scripts/architecture-guard.mjs
+      - name: SQL Security Guard
+        run: node scripts/sql-security-guard.mjs
       - name: Migrations reproduzíveis
         run: |
           node supabase/scripts/materialize-migrations.mjs
