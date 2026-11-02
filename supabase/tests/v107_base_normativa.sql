@@ -102,5 +102,6 @@ insert into v107_resultados select '31 vigência futura preserva hash e portão 
 insert into v107_resultados select '32 captura inclui competência ainda em análise para coordenar liberação',
   privado.v107_capturar('c7070707-aaaa-4000-8000-000000000001','c7070707-2000-4000-8000-000000000001') ? 'c7070707-6000-4000-8000-000000000001',null;
 select jsonb_build_object('total',count(*),'passou',count(*)filter(where passou),'falhas',coalesce(jsonb_agg(jsonb_build_object('teste',teste,'detalhe',detalhe)order by teste)filter(where not passou),'[]')) from v107_resultados;
+select count(*) filter(where passou) as passou,count(*) as total from v107_resultados;
 rollback;
 
