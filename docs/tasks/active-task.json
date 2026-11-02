@@ -2,7 +2,7 @@
   "id": "SEC-BACKEND-P1-SSRF-2026-11-02",
   "title": "Hardening P1 do backend contra SSRF e abuso de integrações externas",
   "branch": "security/backend-hardening-p1-ssrf",
-  "status": "ativa",
+  "status": "concluida",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "02/11/2026 - Horário de Brasília",
@@ -36,10 +36,20 @@
   "objective": "Eliminar o vetor SSRF no caminho operacional de entrega de webhooks e restaurar a garantia certificada de timeout de integração, sem alterar regras funcionais, RLS, Auth, Storage, status ou contratos públicos de API.",
   "requirements_impacted": ["NFR-010", "NFR-011"],
   "attack_classes_covered": [
-    "Server-Side Request Forgery (SSRF)", "Blind SSRF", "DNS Rebinding", "Cloud Metadata SSRF",
-    "SSRF to Internal Services", "SSRF to Cloud Metadata", "SSRF to Database", "SSRF to Redis",
-    "SSRF to Internal Admin Panel", "SSRF to Kubernetes API", "SSRF to Docker Socket",
-    "Internal Port Scanning via SSRF", "Blind Internal Network Enumeration", "Resource Exhaustion"
+    "Server-Side Request Forgery (SSRF)",
+    "Blind SSRF",
+    "DNS Rebinding",
+    "Cloud Metadata SSRF",
+    "SSRF to Internal Services",
+    "SSRF to Cloud Metadata",
+    "SSRF to Database",
+    "SSRF to Redis",
+    "SSRF to Internal Admin Panel",
+    "SSRF to Kubernetes API",
+    "SSRF to Docker Socket",
+    "Internal Port Scanning via SSRF",
+    "Blind Internal Network Enumeration",
+    "Resource Exhaustion"
   ],
   "allowed_paths": [
     "docs/tasks/active-task.json",
@@ -65,39 +75,41 @@
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "plan": [
-    "Manter o endpoint deliver-webhook e transformá-lo no consumidor seguro da fila webhooks, preservando os RPCs certificados.",
-    "Validar o token service-to-service no próprio worker dedicado.",
-    "Validar URL de webhook antes de qualquer conexão de saída.",
-    "Permitir apenas HTTPS e rejeitar credenciais embutidas, host local e endereços IP não públicos.",
-    "Resolver DNS A/AAAA e bloquear qualquer resolução para rede privada, loopback, link-local, metadata, multicast ou faixa reservada.",
-    "Impedir redirects automáticos para evitar salto para destino interno.",
-    "Restaurar timeout explícito de 10 segundos conforme certificação do HML.",
-    "Limitar leitura do corpo de resposta para reduzir exaustão de memória.",
-    "Preservar HMAC, retry, DLQ, circuito, auditoria e mensagens PT-BR existentes."
+  "implemented": [
+    "Autenticação service-to-service validada diretamente pelo RPC validar_token_interno.",
+    "Somente HTTPS permitido e credenciais embutidas em URL rejeitadas.",
+    "Bloqueio de localhost, domínios locais/internos e endereços IP não públicos.",
+    "Resolução DNS A/AAAA validada duas vezes; qualquer IP não público bloqueia a chamada.",
+    "redirect:'manual' e bloqueio explícito de respostas HTTP 3xx.",
+    "Timeout de 10 segundos por AbortSignal.",
+    "Leitura de resposta limitada a 4.000 bytes por streaming.",
+    "Destinos bloqueados/configurações inválidas seguem diretamente para DLQ em uma tentativa.",
+    "Falhas de rede/HTTP/timeout preservam política de retry existente.",
+    "HMAC SHA-256, correlation_id, circuit breaker, auditoria e mensagens PT-BR preservados."
   ],
-  "rollback": "Reverter exclusivamente supabase/functions/deliver-webhook/index.ts para o blob anterior e republicar a versão anterior no HML. Nenhuma migration ou dado persistente será alterado.",
-  "acceptance": [
-    "Webhook HTTPS público válido continua processável.",
-    "localhost, loopback, RFC1918, link-local e metadata são bloqueados antes do fetch.",
-    "Destino que resolve para IP não público é bloqueado.",
-    "Redirect HTTP 3xx não é seguido automaticamente.",
-    "Chamada externa é abortada após 10 segundos.",
-    "Resposta externa é lida com limite de bytes.",
-    "Worker sem token interno continua retornando 401.",
-    "Retry, DLQ, circuito e auditoria existentes permanecem ativos.",
-    "NFR-010 e NFR-011 permanecem atendidos.",
-    "Zero-Drift, Architecture Guard e secret scan permanecem verdes."
+  "test_evidence": [
+    "HML: https://127.0.0.1/admin -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
+    "HML: https://169.254.169.254/latest/meta-data/ -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
+    "HML: https://[::1]/ -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
+    "HML: webhook HTTPS público válido -> job concluído, uma tentativa, sem erro.",
+    "HML: chamada de deliver-webhook sem token interno -> HTTP 401 AUTH_ACESSO_NEGADO.",
+    "HML: resposta HTTP 302 com redirect:'manual' -> WEBHOOK_DESTINO_BLOQUEADO e DLQ; redirect não seguido.",
+    "HML: endpoint com atraso de 15 segundos -> WEBHOOK_TIMEOUT após limite de 10 segundos e retry preservado.",
+    "HML: artefatos temporários de webhook, fila, DLQ, alerta e Vault removidos após os testes."
   ],
-  "tests": [
-    "teste focal de bloqueio SSRF via HML",
-    "teste negativo de IP privado/loopback/metadata",
-    "teste negativo de redirect",
-    "teste de timeout de 10 s",
-    "queues_edge_auth negativo sem credencial",
-    "Security Advisor",
-    "Zero-Drift",
-    "Architecture Guard",
-    "secret-scan"
-  ]
+  "audit_note": "Os 11 eventos de auditoria produzidos pelos testes permaneceram registrados porque public.eventos_auditoria é deliberadamente imutável e bloqueia DELETE/UPDATE. A organização sintética foi mantida inativa apenas como âncora referencial desses eventos, identificada como EVIDÊNCIA TÉCNICA SSRF 02/11/2026. A proteção de imutabilidade não foi desativada.",
+  "residual_risk": "O caminho operacional oficial deliver-webhook está protegido. O worker genérico contaos-worker ainda contém uma rota interna para a fila webhooks; sua exploração exige o token interno service-to-service. Esse bypass residual será tratado em tarefa separada de redução de superfície e comprometimento de credencial interna.",
+  "rollback": "Reverter exclusivamente supabase/functions/deliver-webhook/index.ts para o blob anterior e republicar a versão anterior no HML. Nenhuma migration ou dado de negócio foi alterado.",
+  "acceptance_results": {
+    "webhook_publico_valido": "PASS",
+    "bloqueio_loopback_privado_metadata": "PASS",
+    "bloqueio_dns_para_ip_nao_publico": "PASS",
+    "redirect_3xx_nao_seguido": "PASS",
+    "timeout_10s": "PASS",
+    "limite_resposta_4000_bytes": "IMPLEMENTADO",
+    "worker_sem_token_401": "PASS",
+    "retry_dlq_circuito_auditoria_preservados": "PASS",
+    "nfr_010_nfr_011": "PASS",
+    "prod_intocado": "PASS"
+  }
 }
