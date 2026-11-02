@@ -1,9 +1,8 @@
 {
-  "id": "GOV-AI-CONTEXT-4.1",
-  "title": "Instalar contexto canônico obrigatório do pacote mestre 4.1 na raiz",
-  "branch": "main",
-  "status": "concluida",
-  "concluida_em": "02/11/2026 - Horário de Brasília",
+  "id": "SEC-BACKEND-P1-SSRF-2026-11-02",
+  "title": "Hardening P1 do backend contra SSRF e abuso de integrações externas",
+  "branch": "security/backend-hardening-p1-ssrf",
+  "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "02/11/2026 - Horário de Brasília",
@@ -34,41 +33,76 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
+  "objective": "Eliminar o vetor SSRF no envio de webhooks do ContaOS e restaurar a garantia certificada de timeout de integração, sem alterar regras funcionais, RLS, Auth, Storage, status ou contratos de API.",
+  "requirements_impacted": [
+    "NFR-010",
+    "NFR-011"
+  ],
+  "attack_classes_covered": [
+    "Server-Side Request Forgery (SSRF)",
+    "Blind SSRF",
+    "DNS Rebinding",
+    "Cloud Metadata SSRF",
+    "SSRF to Internal Services",
+    "SSRF to Cloud Metadata",
+    "SSRF to Database",
+    "SSRF to Redis",
+    "SSRF to Internal Admin Panel",
+    "SSRF to Kubernetes API",
+    "SSRF to Docker Socket",
+    "Internal Port Scanning via SSRF",
+    "Blind Internal Network Enumeration",
+    "Resource Exhaustion"
+  ],
   "allowed_paths": [
-    "*.md",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "GEMINI.md",
-    "LOVABLE.md",
-    "README_ZERO_DRIFT.md",
-    "README.md",
-    "docs/**",
-    "prompts/**",
-    "scripts/**",
-    ".github/**",
-    "supabase/**",
-    ".env.example"
+    "docs/tasks/active-task.json",
+    "supabase/functions/contaos-worker/index.ts",
+    "supabase/tests/security_ssrf_webhooks.sql",
+    "supabase/tests/queues_edge_auth.sql"
   ],
   "forbidden_paths": [
-    "contaos9999/prod/**"
+    "contaos9999/prod/**",
+    "supabase/migrations/**",
+    "supabase/functions/**/index.*"
+  ],
+  "allowed_path_exceptions": [
+    "supabase/functions/contaos-worker/index.ts"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
+  "storage_changes_allowed": false,
+  "plan": [
+    "Validar URL de webhook no runtime antes de qualquer conexão de saída.",
+    "Permitir apenas HTTPS e rejeitar credenciais embutidas, host local e endereços IP não públicos.",
+    "Resolver DNS A/AAAA e bloquear qualquer resolução para rede privada, loopback, link-local, metadata, multicast ou faixa reservada.",
+    "Impedir redirects automáticos para evitar salto para destino interno.",
+    "Restaurar timeout explícito de 10 segundos conforme certificação do HML.",
+    "Limitar leitura do corpo de resposta para reduzir exaustão de memória.",
+    "Preservar HMAC, retry, DLQ, circuito, auditoria e mensagens PT-BR existentes."
+  ],
+  "rollback": "Reverter exclusivamente a alteração da Edge Function contaos-worker para o blob anterior e republicar a versão anterior no HML. Nenhuma migration ou dado persistente será alterado.",
   "acceptance": [
-    "23 documentos canônicos obrigatórios na raiz",
-    "matriz 96/96 preservada integralmente em quatro partes",
-    "manifesto SHA-256",
-    "AGENTS/Claude/Gemini/Lovable/Copilot apontam para leitura obrigatória",
-    "Context Gate integrado ao CI",
-    "Zero-Drift CI PASS"
+    "Webhook HTTPS público válido continua processável.",
+    "localhost, loopback, RFC1918, link-local e metadata são bloqueados antes do fetch.",
+    "Destino que resolve para IP não público é bloqueado.",
+    "Redirect HTTP 3xx não é seguido automaticamente.",
+    "Chamada externa é abortada após 10 segundos.",
+    "Resposta externa é lida com limite de bytes.",
+    "Worker sem token interno continua retornando 401.",
+    "NFR-010 e NFR-011 permanecem atendidos.",
+    "Zero-Drift, Architecture Guard e secret scan permanecem verdes."
   ],
   "tests": [
-    "ai-context-gate",
-    "zero-drift",
-    "architecture-guard",
-    "migration-reproducibility",
+    "teste unitário/focal da validação SSRF",
+    "teste negativo de IP privado/loopback/metadata",
+    "teste negativo de redirect",
+    "teste de timeout de 10 s",
+    "queues_edge_auth negativo sem credencial",
+    "Security Advisor",
+    "Zero-Drift",
+    "Architecture Guard",
     "secret-scan"
   ]
 }
