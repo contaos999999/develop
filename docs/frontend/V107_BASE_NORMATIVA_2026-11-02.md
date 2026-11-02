@@ -39,3 +39,37 @@ Objetivo: fechar somente os comandos necessários à base normativaV1-07, consum
 
 ## Decisão
 Parar o caminho deBUILD doPROMPT28. A autonomia autorizada resolve revisão/frontend dentro do pacote, mas não autoriza alteração de backendcertificado: 00/AGENTS/18 exigem tarefa eautorização específicas. Solicitar somente essaautorizaçãoextra; não repetir aprovação dePROMPT27nem deescopofrontendjádelegado.
+
+---
+
+# Atualização de certificação — BUILD Lovable concluído
+
+Data: 02/11/2026. O plano corrigido foi aprovado e o BUILD foi executado exclusivamente no Lovable, sobre o backend HML V107 certificado. PROD permaneceu intocado.
+
+## Frontend entregue
+
+- Repositório: `contaos9999/contaos-hml-control`
+- HEAD final no `main`: `3ac193a57efb69e7a9982184a8916c197909dca1`
+- Rota pública: `/contratos/:id/base-normativa`
+- Arquivo de rota canônico TanStack: `src/routes/contratos_.$id_.base-normativa.tsx`
+- Acesso 403/404: classificação `classificar_acesso_contrato_v106` somente após SELECT RLS sem linhas
+- Sem pré-carregamento de documentos/competências pesadas; listas sob paginação/carga sob demanda
+- Escritas normativas somente pelos quatro RPCs V107; sem DML local de autoridade
+- Upload/download reutilizam os Edge Functions certificados; upload resumível encerra com segurança quando o backend sinaliza suporte não implementado
+
+## Verificações finais
+
+- TDD focado V1-07: **62/62 PASS**
+- Suíte completa: **361/361 PASS**
+- Typecheck: **PASS**
+- Build: **PASS**
+- Validação responsiva/browser: **PASS** em 1440/1280/768/390
+- Teste C separado, read-only: **18/18 PASS**, HEAD estável durante a execução
+- Security Scan: **0 Critical / 0 High**; somente aviso informativo preexistente
+- Zero-Drift: **PASS**; `src/integrations/supabase/types.ts` não contém `_v107` e preserva `confirmar_upload_arquivo`
+- Diferença funcional limitada aos oito arquivos V1-07 previstos; o merge documental BRAND/PROMPT 000 concorrente foi preservado sem alteração
+
+## Rastreabilidade e limites
+
+O backend permanece no head certificado `06d65093746a584efa3b7d9f72bede1ccb38172d`, com Restore Isolado `41538249128`, Zero-Drift `41538249093`, focused 32/32, regressão SQL 18/18, concorrência real 2.573 ms/estado final `Depois:2`, e Advisor 0 Critical/0 High. Nenhuma tabela, migration, RLS, Edge Function, Auth, Storage ou segredo foi criado no frontend. O próximo passo é o próximo prompt canônico; não há ação pendente para PROMPT 28/V1-07.
+
