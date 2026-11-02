@@ -1,7 +1,7 @@
 {
-  "id": "SEC-BACKEND-P2B-RETIRE-GENERIC-WORKER-2026-11-02",
-  "title": "Hardening P2B contra bypass por worker genérico legado",
-  "branch": "security/backend-hardening-p2b-retire-generic-worker",
+  "id": "SEC-BACKEND-HOTFIX-FINANCE-WORKER-2026-11-02",
+  "title": "Hotfix de segurança e continuidade do worker financeiro dedicado",
+  "branch": "security/backend-hotfix-finance-dedicated-worker",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
@@ -33,65 +33,45 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "objective": "Aposentar o worker genérico legado e eliminar caminhos duplicados capazes de contornar hardenings aplicados aos workers oficiais dedicados, preservando autenticação service-to-service, filas oficiais e crons homologados.",
+  "objective": "Remover a dependência interna do queue-worker-finance em relação ao worker genérico aposentado, preservando a importação financeira certificada e reforçando a autenticação service-to-service diretamente no worker dedicado.",
   "requirements_impacted": ["NFR-010", "NFR-011"],
-  "attack_classes_covered": [
-    "Authentication Bypass",
-    "Authorization Bypass",
-    "Business Logic Bypass",
-    "Workflow Bypass",
-    "SSRF Security Control Bypass",
-    "Internal API Exposure",
-    "Hidden Endpoint Abuse",
-    "Deprecated API Exploitation",
-    "Shadow API Exploitation"
-  ],
-  "allowed_paths": ["docs/tasks/active-task.json", "supabase/functions/contaos-worker/index.ts"],
+  "attack_classes_covered": ["Internal API Exposure", "Deprecated API Exploitation", "Workflow Bypass", "Authentication Bypass"],
+  "allowed_paths": ["docs/tasks/active-task.json", "supabase/functions/queue-worker-finance/index.ts"],
   "forbidden_paths": [
     "contaos9999/prod/**",
     "supabase/migrations/**",
+    "supabase/functions/contaos-worker/**",
     "supabase/functions/deliver-webhook/**",
     "supabase/functions/generate-report/**",
-    "supabase/functions/process-document/**",
-    "supabase/functions/queue-worker-*/**",
-    "supabase/functions/notify-user/**",
-    "supabase/functions/evidence-access/**",
-    "supabase/functions/storage-sign-*/**"
+    "supabase/functions/queue-worker-documents/**"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "preconditions_verified": [
-    "Cron oficial contaos-workers-rapidos chama queue-worker-documents, queue-worker-embeddings, queue-worker-ai e deliver-webhook.",
-    "Cron oficial contaos-workers-pesados chama queue-worker-finance, generate-report, notify-user e queue-worker-ocr.",
-    "privado.invocar_edge_oficial permite somente os oito workers dedicados e não permite contaos-worker.",
-    "Documento canônico 18 determina separação de workloads por filas/workers e autenticação service-to-service.",
-    "Nenhum cron homologado depende do contaos-worker genérico."
-  ],
+  "root_cause": "O queue-worker-finance homologado era apenas um proxy para /functions/v1/contaos-worker?queue=finance_imports. A aposentadoria segura do worker genérico revelou essa dependência indireta. Nenhum cron chamava diretamente o worker legado, mas o consumidor financeiro o utilizava internamente.",
   "implemented": [
-    "Toda lógica de consumo de filas e processamento do worker genérico foi removida.",
-    "O endpoint preserva validação do token interno para não revelar comportamento a chamadas anônimas.",
-    "Sem token válido, retorna 401 AUTH_ACESSO_NEGADO.",
-    "Com token interno válido, retorna 410 WORKER_LEGADO_DESATIVADO.",
-    "Resposta usa cache-control no-store e não expõe nomes de filas, segredos ou stack trace.",
-    "Nenhuma migration, cron, fila, RLS, Auth ou Storage foi alterado."
+    "Lógica de importação financeira certificada movida para queue-worker-finance.",
+    "Token interno agora é validado pelo RPC validar_token_interno diretamente no worker financeiro.",
+    "Consumo direto da fila finance_imports com worker_pull_job e worker_finalizar_job.",
+    "Parsing XLSX/CSV, normalização de cabeçalhos, datas e valores, hash de origem e upsert idempotente preservados.",
+    "Nenhuma chamada ao contaos-worker permanece no worker financeiro.",
+    "contaos-worker permanece aposentado."
   ],
   "test_evidence": [
-    "HML contaos-worker versão 3 publicada com sucesso.",
-    "HML sem token interno, mesmo solicitando queue=webhooks: HTTP 401 AUTH_ACESSO_NEGADO.",
-    "HML com token interno válido e queue=webhooks: HTTP 410 WORKER_LEGADO_DESATIVADO.",
-    "Crons contaos-workers-rapidos e contaos-workers-pesados permanecem ativos.",
-    "privado.invocar_edge_oficial continua restrito aos oito workers dedicados."
+    "HML queue-worker-finance versão 3 publicada com sucesso.",
+    "Fila finance_imports estava vazia antes do teste.",
+    "Sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
+    "Com token interno válido e fila vazia: HTTP 200, fila=finance_imports, processados=0.",
+    "Nenhum job de negócio foi consumido durante o teste."
   ],
-  "rollback": "Reverter exclusivamente contaos-worker/index.ts para a implementação anterior e republicar a versão anterior no HML. Nenhuma migration, fila, dado ou cron será alterado.",
+  "rollback": "Reverter queue-worker-finance/index.ts para o proxy anterior e, somente se estritamente necessário para continuidade, restaurar temporariamente a versão anterior do worker genérico. O caminho preferencial é manter o worker genérico desativado.",
   "acceptance_results": {
     "without_internal_token_401": "PASS",
-    "with_internal_token_410": "PASS",
-    "no_queue_processing": "PASS",
-    "official_crons_active": "PASS",
-    "official_edge_allowlist_dedicated_only": "PASS",
+    "with_internal_token_empty_queue_200": "PASS",
+    "no_generic_worker_dependency": "PASS",
+    "generic_worker_remains_retired": "PASS",
     "prod_untouched": "PASS"
   }
 }
