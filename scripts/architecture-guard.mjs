@@ -15,6 +15,10 @@ for(const f of textFiles){
   if(isEnv && /^(?:SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY|SERVICE_ROLE_KEY|DB_PASSWORD|OPENAI_API_KEY)\s*=\s*(?!$|<|\$\{|CHANGE_ME|SEU_|YOUR_).+/im.test(s)) errors.push(`${f}: possível secret literal em arquivo de ambiente`);
   if(/(?:sb_service_role_|sb_secret_|sk-)[A-Za-z0-9_-]{20,}/.test(s)) errors.push(`${f}: padrão de chave secreta detectado`);
   if(/Authorization\s*[:=]\s*[`'\"]Bearer\s+(?!\$\{|\$|<)[A-Za-z0-9._-]{20,}/i.test(s)) errors.push(`${f}: bearer token literal detectado`);
+  if(/-----BEGIN (?:RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/.test(s)) errors.push(`${f}: chave privada PEM/OpenSSH detectada`);
+  if(/(?:github_pat_[A-Za-z0-9_]{30,}|gh[pousr]_[A-Za-z0-9]{30,})/.test(s)) errors.push(`${f}: token GitHub detectado`);
+  if(/(?:AKIA|ASIA)[A-Z0-9]{16}/.test(s)) errors.push(`${f}: access key AWS detectada`);
+  if(/(?:cos_|whs_|ev_)[a-f0-9]{64}/i.test(s)) errors.push(`${f}: token secreto ContaOS de uso único detectado`);
   if((f.startsWith('src/')||f.startsWith('public/')) && /service[_-]?role|SUPABASE_SECRET_KEY/i.test(s)) errors.push(`${f}: credencial privilegiada referenciada no cliente`);
   if((f.startsWith('src/')||f.startsWith('app/')) && /(pode_apresentar_contratante|pode_reapresentar_contratante|\bvalidada\b)/i.test(s) && /update\s*\(|\.update\s*\(/i.test(s)) errors.push(`${f}: possível update direto de status crítico`);
   if((f.startsWith('src/')||f.startsWith('app/')) && /PODE APRESENTAR AO CONTRATANTE|PODE REAPRESENTAR AO CONTRATANTE/.test(s) && /percentual|100\s*%|===\s*100/.test(s)) errors.push(`${f}: possível cálculo local de portão crítico`);
