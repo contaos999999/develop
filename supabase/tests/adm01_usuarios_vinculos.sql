@@ -120,7 +120,7 @@ select 'Idempotência devolve mesmo resultado sem novo efeito',
 
 insert into adm01_testes
 select 'Escopo contratual foi sincronizado atomicamente',
-       count(*)=2 and bool_and(ativo), string_agg(id_contrato::text,',')
+       count(*)=2 and bool_and(vc.ativo), string_agg(vc.id_contrato::text,',')
 from public.vinculos_usuario_contratos vc
 join public.vinculos_usuarios vu on vu.id=vc.id_vinculo_usuario
 where vu.id_organizacao='d1d1d1d1-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
