@@ -2,13 +2,29 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 const URL=Deno.env.get('SUPABASE_URL')!
 const ANON=Deno.env.get('SUPABASE_ANON_KEY')!
-const resp=(b:unknown,s=200)=>Response.json(b,{status:s,headers:{'content-type':'application/json; charset=utf-8'}})
+const LIMITE_JSON=8*1024
+const resp=(b:unknown,s=200)=>Response.json(b,{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
 function dataHoraBR(d:Date){return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(d).replace(',','')}
+async function lerJsonLimitado(req:Request,limite:number){
+ const informado=Number(req.headers.get('content-length')??0)
+ if(Number.isFinite(informado)&&informado>limite) throw new Error('PAYLOAD_GRANDE')
+ if(!req.body) return {}
+ const reader=req.body.getReader(); const partes:Uint8Array[]=[]; let total=0
+ try{
+  while(true){const {done,value}=await reader.read(); if(done) break; total+=value.byteLength; if(total>limite){try{await reader.cancel()}catch{}; throw new Error('PAYLOAD_GRANDE')} partes.push(value)}
+ }finally{try{reader.releaseLock()}catch{}}
+ const bytes=new Uint8Array(total); let pos=0; for(const parte of partes){bytes.set(parte,pos);pos+=parte.byteLength}
+ return JSON.parse(new TextDecoder().decode(bytes))
+}
 Deno.serve(async(req:Request)=>{
  if(req.method!=='POST') return resp({ok:false,codigo:'METODO_INVALIDO',titulo:'Ação não permitida',mensagem:'Use esta função apenas para solicitar autorização de download.'},405)
  const authorization=req.headers.get('authorization')??''
  if(!authorization) return resp({ok:false,codigo:'AUTH_NAO_AUTENTICADO',titulo:'Sessão necessária',mensagem:'Para continuar, faça login novamente.'},401)
- let body:any={}; try{body=await req.json()}catch{return resp({ok:false,codigo:'DADOS_INVALIDOS',titulo:'Revise as informações',mensagem:'Não foi possível ler a solicitação.'},400)}
+ let body:any={}
+ try{body=await lerJsonLimitado(req,LIMITE_JSON)}catch(e){
+  if(e instanceof Error&&e.message==='PAYLOAD_GRANDE') return resp({ok:false,codigo:'REQUISICAO_MUITO_GRANDE',titulo:'Solicitação acima do limite',mensagem:'Os dados enviados para preparar o download ultrapassam o limite permitido.'},413)
+  return resp({ok:false,codigo:'DADOS_INVALIDOS',titulo:'Revise as informações',mensagem:'Não foi possível ler a solicitação.'},400)
+ }
  const id=String(body.id_arquivo??''); if(!id) return resp({ok:false,codigo:'CAMPO_OBRIGATORIO',titulo:'Informação obrigatória',mensagem:'Informe o arquivo que deseja baixar.'},400)
  const client=createClient(URL,ANON,{global:{headers:{Authorization:authorization}},auth:{persistSession:false,autoRefreshToken:false}})
  const {data:arq,error:ea}=await client.from('arquivos').select('id,bucket,path,nome_original').eq('id',id).maybeSingle()
