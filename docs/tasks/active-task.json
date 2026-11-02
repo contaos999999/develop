@@ -32,14 +32,18 @@
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
     "base_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
-    "status": "EM_PLAN_LOVABLE",
+    "status": "PLAN_REVISADO_LACUNA_BACKEND_BUILD_NAO_APROVADO",
     "constraints": [
       "backend certificado autoridade",
       "sem approved_por/em/ativação material pelo React",
       "não omitir lacuna para certificar tela incompleta",
       "frontend exclusivamente Lovable",
       "sem editar cliente/Auth/SYS/ADM ou módulos alheios"
-    ]
+    ],
+    "plan_commit": "ab8cd8d49559d57d252501d7bbb6480d944d57ba",
+    "plan_message": "umsg_01m6f1spx9fmssvpgr096akj9p",
+    "blocker": "Ausência de comando autenticado de aprovação/aplicabilidade normativa; aplicabilidades_fonte só SELECT. Recorte readonly não certificado como V1-07 integral.",
+    "diagnostic_doc": "docs/frontend/V107_BASE_NORMATIVA_2026-11-02.md"
   },
   "backend_branch": null,
   "backend_doc": "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
@@ -50,7 +54,7 @@
     "test_c": "PASS18/18",
     "doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
   },
-  "next_step": "PLAN Lovable e revisão exata do escopo, contratos eeventuais lacunas antes deBUILD.",
+  "next_step": "Aguardar autorização específica da tarefa backend mínima registrada no diagnóstico; sem BUILD frontend e sem DDL até autorização. Depois certificar backend, corrigir PLAN28 e prosseguir autonomamente com TDD/TesteC.",
   "prod_untouched": true,
   "context_read_acknowledged_at": "2026-11-02",
   "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
