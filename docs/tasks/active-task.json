@@ -51,7 +51,7 @@
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
     "base_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
-    "status": "PLAN_REVISADO_APROVADO",
+    "status": "CERTIFICADO_TESTE_C_18_18",
     "constraints": [
       "não consultar documentos/competências no primeiro paint",
       "não inferir acesso pela organização local",
@@ -61,7 +61,29 @@
       "403 para negado; 404 para nao_encontrado; permitido após zero linhas = erro de consistência"
     ],
     "plan_commit": "33b8942c34c8a112028a0de394d0c85210d175eb",
-    "types_delta": "somente assinatura oficial classificar_acesso_contrato_v106, sem casts"
+    "types_delta": "somente assinatura oficial classificar_acesso_contrato_v106, sem casts",
+    "certified_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
+    "test_c": {
+      "result": "PASS",
+      "passed": 18,
+      "total": 18,
+      "message_id": "umsg_01m6f0wjhjebebznv9g11d2082",
+      "focused": "32/32",
+      "regression": "331/331 em 15 arquivos",
+      "typecheck_exit": 0,
+      "build_exit": 0,
+      "security_critical": 0,
+      "security_high": 0,
+      "head_unchanged": true,
+      "git_clean": true,
+      "browser": "CONTROLADO 1440/1280/768/390",
+      "limitations": [
+        "RLS real reutilizada da certificação backend; browser usa mocks runtime",
+        "Aborto na rede não observado pelo Playwright, mesmo signal/aborto provados em unidade",
+        "Primeira regressão histórica321/322 sem teste identificado; regressões frescas posteriores331/331 PASS"
+      ]
+    },
+    "certification_doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
   },
   "backend_branch": "backend/v106-contrato-visao-geral-acesso",
   "backend_doc": "docs/backend/V106_CONTRATO_VISAO_GERAL_2026-11-02.md",
@@ -71,7 +93,7 @@
     "frontend_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
     "test_c": "PASS 18/18"
   },
-  "next_step": "Validar Context Gate após correção documental autorizada e retomar BUILD Lovable pelo gate plan--show já aprovado.",
+  "next_step": "Validar CI do registro documental e encerrar PROMPT27; PROMPT28 não iniciado nesta tarefa.",
   "prod_untouched": true,
   "context_read_acknowledged_at": "2026-11-02",
   "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
