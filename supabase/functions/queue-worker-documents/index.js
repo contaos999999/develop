@@ -16,6 +16,7 @@ const mensagens = {
   ARQUIVO_INTEGRIDADE: 'Não foi possível confirmar a integridade do arquivo. Envie o documento novamente.',
   ARQUIVO_TIPO_NAO_SUPORTADO: 'Este formato de arquivo não pode ser processado pelo ContaOS.',
   ARQUIVO_BLOQUEADO_SEGURANCA: 'O arquivo foi bloqueado pela validação de segurança e não será utilizado na análise.',
+  ARQUIVO_LIMITE_PROCESSAMENTO: 'O arquivo ultrapassa o limite seguro para processamento automático neste ambiente.',
   DOCUMENTO_PROCESSAMENTO_FALHOU: 'Não foi possível concluir a leitura do documento. Tente novamente.',
 }
 const mensagem = (codigo) => mensagens[codigo] ?? mensagens.DOCUMENTO_PROCESSAMENTO_FALHOU
@@ -25,6 +26,138 @@ async function sha256Hex(bytes) {
   return Array.from(new Uint8Array(h)).map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 function extensao(nome) { return (nome.split('.').pop() ?? '').toLowerCase() }
+function numeroSeguro(v, padrao, minimo = 1) {
+  const n = Number(v)
+  return Number.isFinite(n) && n >= minimo ? Math.floor(n) : padrao
+}
+function u16(view, off) { return view.getUint16(off, true) }
+function u32(view, off) { return view.getUint32(off, true) }
+function caminhoZipSeguro(nome) {
+  if (!nome || nome.includes('\0')) return false
+  const normalizado = nome.replace(/\\/g, '/')
+  if (normalizado.startsWith('/') || /^[a-zA-Z]:/.test(normalizado)) return false
+  const partes = normalizado.split('/')
+  return !partes.some((p) => p === '..')
+}
+function localizarEocd(bytes) {
+  if (bytes.byteLength < 22) return -1
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const inicio = Math.max(0, bytes.byteLength - (22 + 0xffff))
+  for (let i = bytes.byteLength - 22; i >= inicio; i--) {
+    if (u32(view, i) !== 0x06054b50) continue
+    const comentario = u16(view, i + 20)
+    if (i + 22 + comentario === bytes.byteLength) return i
+  }
+  return -1
+}
+function validarZipOoxml(nomeArquivo, bytes, cfg) {
+  const ext = extensao(nomeArquivo)
+  if (!['docx', 'xlsx'].includes(ext)) return null
+
+  const maxEntradas = numeroSeguro(cfg?.max_entradas_compactadas, 5000)
+  const maxDescompactado = numeroSeguro(cfg?.tamanho_maximo_descompactado_bytes, 104857600)
+  const maxRazao = numeroSeguro(cfg?.razao_maxima_compactacao, 200)
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+  const eocd = localizarEocd(bytes)
+  if (eocd < 0) throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Estrutura ZIP inválida ou incompleta.')
+
+  const disco = u16(view, eocd + 4)
+  const discoCentral = u16(view, eocd + 6)
+  const entradasDisco = u16(view, eocd + 8)
+  const entradasTotal = u16(view, eocd + 10)
+  const tamanhoCentral = u32(view, eocd + 12)
+  const offsetCentral = u32(view, eocd + 16)
+
+  if (entradasDisco === 0xffff || entradasTotal === 0xffff || tamanhoCentral === 0xffffffff || offsetCentral === 0xffffffff) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'ZIP64 não é aceito no processamento documental.')
+  }
+  if (disco !== 0 || discoCentral !== 0 || entradasDisco !== entradasTotal) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Arquivos ZIP multidisco não são aceitos.')
+  }
+  if (entradasTotal < 1 || entradasTotal > maxEntradas) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Quantidade de entradas compactadas fora do limite seguro.')
+  }
+  if (offsetCentral + tamanhoCentral > eocd || offsetCentral < 0 || tamanhoCentral < 0) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Diretório central ZIP inconsistente.')
+  }
+
+  let pos = offsetCentral
+  let totalCompactado = 0
+  let totalDescompactado = 0
+  const nomes = new Set()
+
+  for (let i = 0; i < entradasTotal; i++) {
+    if (pos + 46 > bytes.byteLength || u32(view, pos) !== 0x02014b50) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Entrada ZIP inválida.')
+    }
+    const flags = u16(view, pos + 8)
+    const metodo = u16(view, pos + 10)
+    const tamCompactado = u32(view, pos + 20)
+    const tamDescompactado = u32(view, pos + 24)
+    const tamNome = u16(view, pos + 28)
+    const tamExtra = u16(view, pos + 30)
+    const tamComentario = u16(view, pos + 32)
+    const discoInicio = u16(view, pos + 34)
+    const offsetLocal = u32(view, pos + 42)
+    const fimCabecalho = pos + 46 + tamNome + tamExtra + tamComentario
+
+    if (fimCabecalho > bytes.byteLength || discoInicio !== 0 || offsetLocal === 0xffffffff ||
+        tamCompactado === 0xffffffff || tamDescompactado === 0xffffffff) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Metadados ZIP fora do formato seguro suportado.')
+    }
+    if ((flags & 0x0001) !== 0) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Arquivos compactados criptografados não são aceitos.')
+    }
+    if (![0, 8].includes(metodo)) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Método de compressão não permitido.')
+    }
+
+    const nomeBytes = bytes.subarray(pos + 46, pos + 46 + tamNome)
+    const nome = new TextDecoder('utf-8', { fatal: false }).decode(nomeBytes).replace(/\\/g, '/')
+    if (!caminhoZipSeguro(nome)) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Caminho interno inseguro detectado no arquivo compactado.')
+    }
+
+    const nomeLower = nome.toLowerCase()
+    if (nomeLower.endsWith('/vbaproject.bin') || nomeLower.includes('/activex/') || nomeLower.startsWith('activex/')) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Conteúdo ativo ou macro não é aceito neste formato.')
+    }
+
+    totalCompactado += tamCompactado
+    totalDescompactado += tamDescompactado
+    if (totalDescompactado > maxDescompactado) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Conteúdo descompactado acima do limite seguro.')
+    }
+    if (tamDescompactado > 0 && tamCompactado === 0) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Razão de compressão inválida.')
+    }
+    if (tamCompactado > 0 && tamDescompactado / tamCompactado > maxRazao) {
+      throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Razão de compressão suspeita detectada.')
+    }
+
+    nomes.add(nome)
+    pos = fimCabecalho
+  }
+
+  if (pos > offsetCentral + tamanhoCentral) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Diretório central ZIP ultrapassa o tamanho declarado.')
+  }
+  if (totalCompactado > 0 && totalDescompactado / totalCompactado > maxRazao) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Razão global de compressão suspeita detectada.')
+  }
+
+  if (!nomes.has('[Content_Types].xml')) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'Pacote OOXML sem estrutura obrigatória.')
+  }
+  if (ext === 'docx' && !nomes.has('word/document.xml')) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'O arquivo não possui a estrutura esperada de um DOCX.')
+  }
+  if (ext === 'xlsx' && !nomes.has('xl/workbook.xml')) {
+    throw new AppError('ARQUIVO_BLOQUEADO_SEGURANCA', 'O arquivo não possui a estrutura esperada de um XLSX.')
+  }
+
+  return { entradas: entradasTotal, total_compactado: totalCompactado, total_descompactado: totalDescompactado }
+}
 function assinaturaValida(nome, mime, bytes) {
   const ext = extensao(nome)
   if (bytes.length >= 2 && bytes[0] === 0x4d && bytes[1] === 0x5a) return false
@@ -53,7 +186,7 @@ async function extrairPaginas(nome, mime, bytes) {
   const ext = extensao(nome)
   if (['txt', 'csv', 'json', 'xml'].includes(ext) || (mime ?? '').startsWith('text/')) return [{ pagina: 1, texto: new TextDecoder('utf-8', { fatal: false }).decode(bytes) }]
   if (ext === 'docx') {
-    const mammoth = await import('npm:mammoth@1.10.0')
+    const mammoth = await import('npm:mammoth@1.13.0')
     const result = await mammoth.extractRawText({ arrayBuffer: bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) })
     return [{ pagina: 1, texto: result.value ?? '' }]
   }
@@ -78,10 +211,23 @@ async function processarDocumento(payload) {
   if (erroVersao || !versao) throw new AppError('DOCUMENTO_PROCESSAMENTO_FALHOU', 'Versão documental não encontrada.')
   const { data: arquivo, error: erroArquivo } = await sb.from('arquivos').select('*').eq('id', versao.id_arquivo).single()
   if (erroArquivo || !arquivo) throw new AppError('DOCUMENTO_PROCESSAMENTO_FALHOU', 'Arquivo não encontrado.')
+  const { data: cfg, error: erroCfg } = await sb.from('configuracao_upload').select('tamanho_maximo_processamento_bytes,tamanho_maximo_descompactado_bytes,max_entradas_compactadas,razao_maxima_compactacao').eq('id', true).single()
+  if (erroCfg || !cfg) throw new AppError('DOCUMENTO_PROCESSAMENTO_FALHOU', 'Configuração de segurança de arquivos indisponível.')
+  const maxProcessamento = numeroSeguro(cfg.tamanho_maximo_processamento_bytes, 50331648)
+  if (Number(arquivo.tamanho ?? 0) > maxProcessamento) {
+    await sb.from('arquivos').update({ status_seguranca: 'bloqueado' }).eq('id', arquivo.id)
+    await sb.from('processamentos_documento').update({ status: 'cancelado', erro_codigo: 'ARQUIVO_LIMITE_PROCESSAMENTO', erro_detalhe: 'Arquivo acima do limite de processamento automático.', resultado: { codigo: 'ARQUIVO_LIMITE_PROCESSAMENTO', titulo: 'Arquivo acima do limite de processamento', mensagem: mensagem('ARQUIVO_LIMITE_PROCESSAMENTO') }, concluido_em: new Date().toISOString() }).eq('id_versao_documento', idVersao).eq('etapa', 'documents')
+    return { bloqueado: true, codigo: 'ARQUIVO_LIMITE_PROCESSAMENTO' }
+  }
   await sb.from('processamentos_documento').update({ status: 'processando', iniciado_em: new Date().toISOString(), erro_codigo: null, erro_detalhe: null }).eq('id_versao_documento', idVersao).eq('etapa', 'documents')
   const { data: blob, error: erroDownload } = await sb.storage.from(arquivo.bucket).download(arquivo.path)
   if (erroDownload || !blob) throw new AppError('DOCUMENTO_PROCESSAMENTO_FALHOU', 'Não foi possível ler o arquivo no armazenamento.')
-  const bytes = new Uint8Array(await blob.arrayBuffer()); const hashCalculado = await sha256Hex(bytes)
+  const bytes = new Uint8Array(await blob.arrayBuffer())
+  if (bytes.byteLength > maxProcessamento || bytes.byteLength !== Number(arquivo.tamanho ?? bytes.byteLength)) {
+    await sb.from('arquivos').update({ status_seguranca: 'quarentena' }).eq('id', arquivo.id)
+    throw new AppError('ARQUIVO_INTEGRIDADE', 'Tamanho real divergente ou acima do limite de processamento.')
+  }
+  const hashCalculado = await sha256Hex(bytes)
   if (hashCalculado.toLowerCase() !== String(arquivo.sha256).toLowerCase()) {
     await sb.from('arquivos').update({ status_seguranca: 'quarentena' }).eq('id', arquivo.id)
     throw new AppError('ARQUIVO_INTEGRIDADE', 'Hash do arquivo divergente.')
@@ -90,6 +236,17 @@ async function processarDocumento(payload) {
     await sb.from('arquivos').update({ status_seguranca: 'bloqueado' }).eq('id', arquivo.id)
     await sb.from('processamentos_documento').update({ status: 'cancelado', erro_codigo: 'ARQUIVO_BLOQUEADO_SEGURANCA', resultado: { codigo: 'ARQUIVO_BLOQUEADO_SEGURANCA', titulo: 'Arquivo bloqueado', mensagem: mensagem('ARQUIVO_BLOQUEADO_SEGURANCA') }, concluido_em: new Date().toISOString() }).eq('id_versao_documento', idVersao).eq('etapa', 'documents')
     return { bloqueado: true }
+  }
+  let zipInfo = null
+  try {
+    zipInfo = validarZipOoxml(arquivo.nome_original, bytes, cfg)
+  } catch (erro) {
+    if (erro instanceof AppError) {
+      await sb.from('arquivos').update({ status_seguranca: 'bloqueado' }).eq('id', arquivo.id)
+      await sb.from('processamentos_documento').update({ status: 'cancelado', erro_codigo: erro.codigo, erro_detalhe: erro.message, resultado: { codigo: erro.codigo, titulo: 'Arquivo bloqueado', mensagem: mensagem(erro.codigo) }, concluido_em: new Date().toISOString() }).eq('id_versao_documento', idVersao).eq('etapa', 'documents')
+      return { bloqueado: true, codigo: erro.codigo }
+    }
+    throw erro
   }
   await sb.from('arquivos').update({ status_seguranca: 'aprovado' }).eq('id', arquivo.id)
   const paginas = await extrairPaginas(arquivo.nome_original, arquivo.mime, bytes)
@@ -110,7 +267,7 @@ async function processarDocumento(payload) {
     const { data, error } = await sb.from('fragmentos_documento').insert(fragmentosInsert).select('id,id_organizacao,id_contrato'); if (error) throw error; fragmentos = data ?? []
     for (const frag of fragmentos) await sb.rpc('worker_enfileirar_job', { p_fila: 'embeddings', p_id_organizacao: frag.id_organizacao, p_id_contrato: frag.id_contrato, p_entidade_tipo: 'fragmento_documento', p_entidade_id: frag.id, p_payload: { entidade_tipo: 'fragmento_documento', entidade_id: frag.id }, p_chave_idempotencia: `embed:fragmento:${frag.id}` })
   }
-  await sb.from('processamentos_documento').update({ status: 'concluido', resultado: { codigo: 'DOCUMENTO_PROCESSADO', titulo: 'Documento processado', mensagem: 'O documento foi validado e processado com sucesso.', paginas: paginas.length, fragmentos: fragmentos.length, validacao_seguranca: 'integridade_e_assinatura' }, concluido_em: new Date().toISOString() }).eq('id_versao_documento', idVersao).eq('etapa', 'documents')
+  await sb.from('processamentos_documento').update({ status: 'concluido', resultado: { codigo: 'DOCUMENTO_PROCESSADO', titulo: 'Documento processado', mensagem: 'O documento foi validado e processado com sucesso.', paginas: paginas.length, fragmentos: fragmentos.length, validacao_seguranca: zipInfo ? 'integridade_assinatura_zip_ooxml' : 'integridade_e_assinatura', zip: zipInfo }, concluido_em: new Date().toISOString() }).eq('id_versao_documento', idVersao).eq('etapa', 'documents')
   return { paginas: paginas.length, fragmentos: fragmentos.length }
 }
 
