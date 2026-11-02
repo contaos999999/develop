@@ -1,7 +1,7 @@
 {
-  "id": "SEC-BACKEND-P1-SSRF-2026-11-02",
-  "title": "Hardening P1 do backend contra SSRF e abuso de integrações externas",
-  "branch": "security/backend-hardening-p1-ssrf",
+  "id": "SEC-BACKEND-P2A-CSV-FORMULA-2026-11-02",
+  "title": "Hardening P2A contra CSV Injection e Formula Injection",
+  "branch": "security/backend-hardening-p2a-csv-formula",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
@@ -33,42 +33,24 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "objective": "Eliminar o vetor SSRF no caminho operacional de entrega de webhooks e restaurar a garantia certificada de timeout de integração, sem alterar regras funcionais, RLS, Auth, Storage, status ou contratos públicos de API.",
-  "requirements_impacted": ["NFR-010", "NFR-011"],
-  "attack_classes_covered": [
-    "Server-Side Request Forgery (SSRF)",
-    "Blind SSRF",
-    "DNS Rebinding",
-    "Cloud Metadata SSRF",
-    "SSRF to Internal Services",
-    "SSRF to Cloud Metadata",
-    "SSRF to Database",
-    "SSRF to Redis",
-    "SSRF to Internal Admin Panel",
-    "SSRF to Kubernetes API",
-    "SSRF to Docker Socket",
-    "Internal Port Scanning via SSRF",
-    "Blind Internal Network Enumeration",
-    "Resource Exhaustion"
-  ],
+  "objective": "Neutralizar fórmulas maliciosas em exportações CSV de pacotes de evidências sem alterar o conteúdo lógico dos dados, o formato de exportação, RLS, Auth, Storage, filas ou regras funcionais.",
+  "requirements_impacted": ["NFR-010"],
+  "attack_classes_covered": ["CSV Injection", "Formula Injection"],
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "supabase/functions/deliver-webhook/index.ts",
-    "supabase/tests/security_ssrf_webhooks.sql",
-    "supabase/tests/queues_edge_auth.sql"
+    "supabase/functions/generate-report/index.js",
+    "scripts/security-csv-formula-check.mjs"
   ],
   "forbidden_paths": [
     "contaos9999/prod/**",
     "supabase/migrations/**",
     "supabase/functions/contaos-worker/**",
+    "supabase/functions/deliver-webhook/**",
     "supabase/functions/process-document/**",
     "supabase/functions/queue-worker-*/**",
-    "supabase/functions/generate-report/**",
     "supabase/functions/notify-user/**",
     "supabase/functions/evidence-access/**",
-    "supabase/functions/copilot-query/**",
-    "supabase/functions/storage-sign-*/**",
-    "supabase/functions/openai-*/**"
+    "supabase/functions/storage-sign-*/**"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
@@ -76,40 +58,30 @@
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "implemented": [
-    "Autenticação service-to-service validada diretamente pelo RPC validar_token_interno.",
-    "Somente HTTPS permitido e credenciais embutidas em URL rejeitadas.",
-    "Bloqueio de localhost, domínios locais/internos e endereços IP não públicos.",
-    "Resolução DNS A/AAAA validada duas vezes; qualquer IP não público bloqueia a chamada.",
-    "redirect:'manual' e bloqueio explícito de respostas HTTP 3xx.",
-    "Timeout de 10 segundos por AbortSignal.",
-    "Leitura de resposta limitada a 4.000 bytes por streaming.",
-    "Destinos bloqueados/configurações inválidas seguem diretamente para DLQ em uma tentativa.",
-    "Falhas de rede/HTTP/timeout preservam política de retry existente.",
-    "HMAC SHA-256, correlation_id, circuit breaker, auditoria e mensagens PT-BR preservados."
+    "Detecção de fórmula apenas para valores textuais, preservando números negativos reais como números.",
+    "Normalização NFKC usada somente para detecção, cobrindo variantes Unicode equivalentes de =, + e @ sem alterar o conteúdo original.",
+    "Espaços e caracteres de controle iniciais são ignorados na detecção para evitar bypass por prefixo invisível.",
+    "Células perigosas recebem apóstrofo de neutralização antes do conteúdo original.",
+    "Escape CSV de aspas, separador ponto e vírgula e BOM UTF-8 foram preservados.",
+    "Teste determinístico lê a lógica do generate-report e valida entradas maliciosas e benignas."
   ],
   "test_evidence": [
-    "HML: https://127.0.0.1/admin -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
-    "HML: https://169.254.169.254/latest/meta-data/ -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
-    "HML: https://[::1]/ -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
-    "HML: webhook HTTPS público válido -> job concluído, uma tentativa, sem erro.",
-    "HML: chamada de deliver-webhook sem token interno -> HTTP 401 AUTH_ACESSO_NEGADO.",
-    "HML: resposta HTTP 302 com redirect:'manual' -> WEBHOOK_DESTINO_BLOQUEADO e DLQ; redirect não seguido.",
-    "HML: endpoint com atraso de 15 segundos -> WEBHOOK_TIMEOUT após limite de 10 segundos e retry preservado.",
-    "HML: artefatos temporários de webhook, fila, DLQ, alerta e Vault removidos após os testes."
+    "Teste determinístico local: PASS para 11 entradas perigosas e 6 entradas benignas.",
+    "Cobertos =, +, -, @, espaços antes da fórmula, tab, CR, LF e variantes Unicode de largura cheia.",
+    "Número -42 permaneceu serializado como número textual CSV sem apóstrofo de segurança, evitando falso positivo em valor numérico real.",
+    "HML generate-report versão 4 publicada com sucesso.",
+    "HML sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
+    "HML com token interno e fila reports vazia: HTTP 200, processados=0, confirmando runtime/autenticação sem consumir dados de negócio."
   ],
-  "audit_note": "Os 11 eventos de auditoria produzidos pelos testes permaneceram registrados porque public.eventos_auditoria é deliberadamente imutável e bloqueia DELETE/UPDATE. A organização sintética foi mantida inativa apenas como âncora referencial desses eventos, identificada como EVIDÊNCIA TÉCNICA SSRF 02/11/2026. A proteção de imutabilidade não foi desativada.",
-  "residual_risk": "O caminho operacional oficial deliver-webhook está protegido. O worker genérico contaos-worker ainda contém uma rota interna para a fila webhooks; sua exploração exige o token interno service-to-service. Esse bypass residual será tratado em tarefa separada de redução de superfície e comprometimento de credencial interna.",
-  "rollback": "Reverter exclusivamente supabase/functions/deliver-webhook/index.ts para o blob anterior e republicar a versão anterior no HML. Nenhuma migration ou dado de negócio foi alterado.",
+  "rollback": "Reverter exclusivamente generate-report/index.js e o teste P2A para o estado anterior e republicar a versão anterior da Edge Function no HML.",
   "acceptance_results": {
-    "webhook_publico_valido": "PASS",
-    "bloqueio_loopback_privado_metadata": "PASS",
-    "bloqueio_dns_para_ip_nao_publico": "PASS",
-    "redirect_3xx_nao_seguido": "PASS",
-    "timeout_10s": "PASS",
-    "limite_resposta_4000_bytes": "IMPLEMENTADO",
-    "worker_sem_token_401": "PASS",
-    "retry_dlq_circuito_auditoria_preservados": "PASS",
-    "nfr_010_nfr_011": "PASS",
-    "prod_intocado": "PASS"
+    "formula_prefixes": "PASS",
+    "unicode_and_control_bypass": "PASS",
+    "benign_values_preserved": "PASS",
+    "quotes_escaped": "PASS",
+    "bom_and_separator_preserved": "PASS",
+    "worker_without_internal_token_401": "PASS",
+    "hml_runtime": "PASS",
+    "prod_untouched": "PASS"
   }
 }
