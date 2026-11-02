@@ -50,10 +50,13 @@
     "Queue Poisoning",
     "Webhook Abuse",
     "Resource Exhaustion",
-    "Supply Chain Attack"
+    "Supply Chain Attack",
+    "GitHub Actions Abuse",
+    "CI/CD Pipeline Attack"
   ],
   "allowed_paths": [
     "docs/tasks/active-task.json",
+    ".github/workflows/**",
     "supabase/migrations/**",
     "supabase/functions/**",
     "supabase/tests/**",
@@ -74,20 +77,31 @@
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": true,
   "storage_changes_allowed": true,
-  "root_cause": "Auditoria defensiva ampla solicitada após certificação inicial do backend identificou superfícies residuais de autorização, consistência multi-tenant, processamento de arquivos, workers privilegiados e integrações que exigem hardening adicional por defesa em profundidade.",
+  "root_cause": "Auditoria defensiva ampla solicitada após certificação inicial do backend identificou superfícies residuais de autorização, consistência multi-tenant, processamento de arquivos, workers privilegiados, integrações, autenticação e cadeia de suprimentos do CI que exigem hardening adicional por defesa em profundidade.",
   "implemented": [
     "Revogado EXECUTE de anon/authenticated nos helpers internos privado.enfileirar_job e privado.marcar_execucao_assincrona.",
     "Wrappers worker_* permanecem restritos a service_role/postgres.",
     "Treze policies UPDATE tiveram WITH CHECK endurecido para repetir acesso e perfil do USING.",
     "Migrations 0050 e 0051 de limites/MIME/ZIP de upload foram recuperadas do histórico aplicado e sincronizadas no repositório HML.",
+    "Privilégios padrão de novas funções em public foram endurecidos para impedir EXECUTE automático por anon/authenticated.",
+    "Autorização central de organização, contrato e perfil passou a validar session_id contra auth.sessions.",
+    "Storage deixou de aceitar INSERT direto de authenticated e SELECT passou a exigir arquivo catalogado mais escopo organizacional/contratual.",
+    "Worker financeiro vulnerável foi alinhado à versão segura versionada, removendo xlsx@0.18.5.",
+    "Webhooks passaram a assinar timestamp, delivery_id e corpo para proteção explícita contra replay.",
+    "Fila de análises passou a impedir execuções pendentes/processando duplicadas por competência.",
+    "GitHub Actions de terceiros foram fixadas por commit SHA imutável nos workflows HML.",
     "PROD permanece intocado."
   ],
   "test_evidence": [
     "Security Advisor após as mudanças sem novos alertas de RLS; permanece somente pg_net em public para tratamento específico.",
-    "anon/authenticated sem EXECUTE nos dois helpers assíncronos internos.",
-    "service_role mantém EXECUTE nos wrappers worker_enfileirar_job e worker_finalizar_job.",
+    "anon/authenticated sem EXECUTE nos helpers internos restritos.",
+    "service_role mantém EXECUTE nos wrappers worker_* necessários.",
     "13/13 policies UPDATE verificadas com USING = WITH CHECK.",
-    "Verificação de histórico GitHub concluída com sucesso no commit de sincronização."
+    "Validação de sessão sem JWT retorna false e helpers centrais exigem sessao_usuario_ativa().",
+    "Storage validado sem policy INSERT para authenticated e SELECT condicionado a public.arquivos mais escopo.",
+    "queue-worker-finance ativo sem dependência xlsx@0.18.5 e com parser seguro versionado.",
+    "Índice único parcial impede mais de uma análise ativa por competência.",
+    "Actions checkout/setup-node/upload-artifact/setup-cli resolvidas e fixadas por commit SHA oficial."
   ],
   "rollback": "Não reescrever migrations históricas. Qualquer correção ou reversão deve ocorrer por nova migration explícita e auditável, preservando histórico, rastreabilidade e o isolamento do PROD.",
   "acceptance_results": {
@@ -96,6 +110,10 @@
     "worker_service_role_path_preserved": "PASS",
     "rls_update_postcondition_hardened": "PASS",
     "security_advisor_no_new_rls_findings": "PASS",
+    "active_session_authorization": "PASS",
+    "storage_contract_scope": "PASS",
+    "analysis_queue_idempotency": "PASS",
+    "ci_actions_pinned": "PASS",
     "zero_drift": "PENDING_REVALIDATION"
   }
 }
