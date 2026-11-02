@@ -1,49 +1,43 @@
 {
-  "id": "PROMPT-23-V1-02-NOVO-CONTRATANTE-2026-11-02",
-  "title": "PROMPT 23 / V1-02 — Novo contratante",
-  "branch": "main",
-  "status": "concluida",
-  "completed_at": "02/11/2026 - Horário de Brasília",
+  "id": "PROMPT-24-V1-03-EDITAR-CONTRATANTE-2026-11-02",
+  "title": "PROMPT 24 / V1-03 — Editar contratante",
+  "branch": "backend/v103-editar-contratante",
+  "status": "backend_gap_em_correcao",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Certificar /contratantes/novo em HML via Data API + RLS, sem backend paralelo, com gate UX do próprio vínculo e INSERT direto autorizado.",
-  "result": {
-    "test_c": "18/18 PASS",
-    "frontend_head": "90c148b137f7a0f2664495d5368f87cc58113534",
-    "v1_02_tests": "35/35 PASS",
-    "full_suite": "208/208 PASS",
-    "typecheck": "exit 0",
-    "build": "PASS por equivalência de árvore com último build OK do commit 0cf26296adee22b3dc72c71096763f953be8d8cd",
-    "security_scan_new_critical": 0,
-    "test_turn_had_code_edits": false,
+  "objective": "Implementar e certificar V1-03 com controle otimista real, conflito 409 sem overwrite, recarga explícita e auditoria material, consumindo o backend Supabase HML oficial.",
+  "requirements": ["PROMPT-24","V1-03","NFR-007","auditoria_material","isolamento_multiempresa","Zero-Drift"],
+  "canonical_evidence": {
+    "route": "/contratantes/:id/editar",
+    "access": "admin/gestor",
+    "optimistic_concurrency": "enviar versao_registro lida; 409 nunca sobrescreve; recarregar versão atual",
+    "backend_manual": "mudança material registra auditoria; tabela editável exige teste de concorrência"
+  },
+  "backend_gap": {
+    "existing_update_rls": true,
+    "existing_update_grant": true,
+    "existing_version_trigger": "contaos_versao_contratantes -> privado.controlar_versao_registro",
+    "existing_conflict_sqlstate": "40001",
+    "update_audit_trigger": false,
+    "reason": "O contrato V1-03 exige versão esperada do GET e conflito 409; backend atual exige cliente enviar old+1 e não audita UPDATE."
+  },
+  "approved_backend_solution": {
+    "public_rpc": "public.atualizar_contratante",
+    "private_function": "privado.atualizar_contratante",
+    "security": "public SECURITY INVOKER wrapper + private SECURITY DEFINER com validação auth/org/perfil",
+    "concurrency": "SELECT FOR UPDATE + comparação p_versao_esperada + PT409",
+    "version_increment": "server-side pelo trigger existente",
+    "audit_event": "ContratanteAtualizado",
     "prod_untouched": true
   },
-  "backend_verified": {
-    "insert_policy": "privado.usuario_possui_perfil(id_organizacao, ARRAY['administrador','gestor_contrato'])",
-    "authenticated_insert": true,
-    "authenticated_delete": false,
-    "document_unique_index": "contratantes_org_documento_uidx",
-    "audit_trigger": "contratantes_auditoria_insert",
-    "audit_migration_commit": "9d0abcdf546fc04cf1fde7b86f4e37aff07226db",
-    "own_vinculo_readable_by_rls": true
-  },
-  "acceptance_criteria": {
-    "route_session_org": "pass",
-    "ux_gate_and_rls_authority": "pass",
-    "payload_exact_7_keys": "pass",
-    "local_validation_and_focus": "pass",
-    "double_submit_protected": "pass",
-    "friendly_error_mapping": "pass",
-    "denied_insert_state": "pass",
-    "success_and_navigation": "pass",
-    "responsive_1440_1280_768_390": "pass",
-    "accessibility_keyboard_tooltips_targets": "pass",
-    "network_source_security": "pass",
-    "security_scan": "pass_sem_novo_critical",
-    "zero_drift": "pass"
-  },
-  "known_technical_debt": "Frontend issue #6 registra teste ADM-01 intermitente por UUID aleatório contendo substring c9; não pertence à V1-02.",
+  "allowed_backend_paths": [
+    "supabase/migrations/*v103*",
+    "supabase/tests/v103_editar_contratante.sql",
+    "docs/backend/V103_EDITAR_CONTRATANTE_2026-11-02.md",
+    "docs/tasks/active-task.json"
+  ],
+  "frontend_build_authorized_after_backend_certification": false,
   "prod_untouched": true
 }
