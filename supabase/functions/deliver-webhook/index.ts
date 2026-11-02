@@ -108,8 +108,6 @@ async function validarDestinoWebhook(valor: unknown): Promise<URL> {
     throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Destino local ou interno não é permitido para webhook.')
   }
 
-  // Duas validações consecutivas reduzem a janela de DNS rebinding sem exigir
-  // que CDNs retornem exatamente o mesmo conjunto de IPs entre consultas.
   await resolverIpsPublicos(url.hostname)
   await resolverIpsPublicos(url.hostname)
   return url
@@ -165,7 +163,7 @@ function erroEhTimeout(e: unknown): boolean {
 }
 
 async function processarWebhook(payload: any) {
-  const idEvento = payload?.id_evento_webhook ?? payload?.entidade_id
+  const idEvento = String(payload?.id_evento_webhook ?? payload?.entidade_id ?? '')
   if (!idEvento) throw new WebhookError('WEBHOOK_CONFIGURACAO_INVALIDA', 'Evento de webhook não informado.')
 
   const { data: cfg, error: ec } = await sb.rpc('worker_obter_webhook', { p_id_evento: idEvento })
@@ -180,13 +178,17 @@ async function processarWebhook(payload: any) {
     throw erro
   }
 
+  const timestamp = new Date().toISOString()
+  const deliveryId = idEvento
   const body = JSON.stringify({
+    delivery_id: deliveryId,
     evento: cfg.evento,
     dados: cfg.payload,
     correlation_id: cfg.correlation_id,
-    enviado_em: new Date().toISOString(),
+    enviado_em: timestamp,
   })
-  const assinatura = await hmacSha256Hex(cfg.secret, body)
+  const assinaturaBase = `${timestamp}.${deliveryId}.${body}`
+  const assinatura = await hmacSha256Hex(cfg.secret, assinaturaBase)
   let respostaTexto = ''
 
   try {
@@ -197,7 +199,10 @@ async function processarWebhook(payload: any) {
       headers: {
         'content-type': 'application/json',
         'x-contaos-evento': String(cfg.evento ?? ''),
-        'x-contaos-assinatura': `sha256=${assinatura}`,
+        'x-contaos-assinatura': `v1=${assinatura}`,
+        'x-contaos-signature-version': 'v1',
+        'x-contaos-timestamp': timestamp,
+        'x-contaos-delivery-id': deliveryId,
         'x-contaos-correlation-id': String(cfg.correlation_id ?? ''),
       },
       body,
@@ -222,7 +227,7 @@ async function processarWebhook(payload: any) {
     })
 
     if (!sucesso) throw new WebhookError('WEBHOOK_FALHOU', `Webhook respondeu HTTP ${res.status}.`, res.status)
-    return { status_http: res.status }
+    return { status_http: res.status, delivery_id: deliveryId, enviado_em: timestamp }
   } catch (e) {
     if (e instanceof WebhookError) throw e
     const timeout = erroEhTimeout(e)
