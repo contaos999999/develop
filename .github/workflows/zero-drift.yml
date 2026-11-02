@@ -40,6 +40,8 @@ jobs:
         run: node scripts/architecture-guard.mjs
       - name: SQL Security Guard
         run: node scripts/sql-security-guard.mjs
+      - name: Download Filename Security
+        run: node scripts/security-download-filename-check.mjs
       - name: Migrations reproduzíveis
         run: |
           node supabase/scripts/materialize-migrations.mjs
