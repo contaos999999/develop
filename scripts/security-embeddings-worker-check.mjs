@@ -39,13 +39,15 @@ if (/\bfetch\s*\(/.test(fonte)) {
   throw new Error('Embeddings Worker Guard: o worker dedicado não deve fazer chamadas HTTP externas ou internas.')
 }
 
-const chamadasFrom = [...fonte.matchAll(/\.from\s*\(\s*(['"])([^'"]+)\1/g)].map((m) => m[2])
+const todasFrom = [...fonte.matchAll(/\.from\s*\(/g)]
+const literaisFrom = [...fonte.matchAll(/\.from\s*\(\s*(['"])([^'"]+)\1\s*\)/g)]
 const tabelasPermitidas = new Set(['fragmentos_documento', 'precedentes'])
-if (chamadasFrom.some((tabela) => !tabelasPermitidas.has(tabela))) {
-  throw new Error('Embeddings Worker Guard: foi detectado acesso a tabela fora da allowlist do worker.')
+
+if (todasFrom.length !== literaisFrom.length) {
+  throw new Error('Embeddings Worker Guard: existe chamada .from() cujo nome de tabela não é literal.')
 }
-if (/\.from\s*\(\s*(?!['"])/.test(fonte)) {
-  throw new Error('Embeddings Worker Guard: foi detectado nome de tabela dinâmico.')
+if (literaisFrom.some((m) => !tabelasPermitidas.has(m[2]))) {
+  throw new Error('Embeddings Worker Guard: foi detectado acesso a tabela fora da allowlist do worker.')
 }
 
 console.log('Embeddings Worker Security PASS: autenticação antes do body, fila/tipos fixos, gte-small 384, limites e finalização segura preservados.')
