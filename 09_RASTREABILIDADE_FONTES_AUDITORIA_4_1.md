@@ -95,3 +95,23 @@ A certificação do pacote dizia “coberto pela especificação”, não “có
 ## 12. Manifesto SHA do pacote
 
 O pacote usado na certificação possui SHA-256 externo registrado no certificado do backend. Os hashes não autorreferentes do manifesto foram verificados. O hash autorreferente do próprio manifesto é uma exceção documental inerente e não altera regras do produto.
+
+## 13. Rastreabilidade complementar da identidade visual
+
+A Identidade Visual Oficial **ContaOS Brand v1.0** é uma fonte complementar versionada, destinada exclusivamente à camada visual.
+
+A rastreabilidade dessa camada deve preservar:
+- versão da marca;
+- pacote oficial de assets;
+- Manual de Identidade Visual;
+- `PROMPT 000 / BRAND-01` integral;
+- hash dos assets oficiais quando transportados entre pacotes/repositórios;
+- arquivos frontend efetivamente alterados na implantação;
+- evidências visuais 1440 / 1280 / 768 / 390;
+- evidências de claro/escuro, favicon e PWA quando aplicável;
+- resultado dos 72 itens do teste BRAND-01;
+- diff GitHub comprovando ausência de backend/alteração funcional.
+
+O BRAND-01 é **transversal e fora da contagem PRD 96/96**. A matriz original 001–096 permanece íntegra; a camada de marca deve ser registrada em matriz/anexo complementar, não pela criação de um requisito funcional 097.
+
+Para a integração documental inicial da Brand v1.0, a prova exigida inclui preservação byte a byte dos assets oficiais no pacote mestre, preservação integral dos prompts 001–096 e ausência de alteração em Supabase/backend.
