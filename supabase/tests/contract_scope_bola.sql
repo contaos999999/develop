@@ -26,10 +26,10 @@ insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_tod
 values('b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b1b1b1b1-1111-4111-8111-111111111111','gestor_contrato',false,true);
 insert into public.contratantes(id,id_organizacao,razao_social,nome_fantasia)
 values('b1b1b1b1-0000-4000-8000-000000000001','b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Contratante BOLA','Contratante BOLA');
-insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,situacao)
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao)
 values
-('b1b1b1b1-1000-4000-8000-000000000001','b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b1b1b1b1-0000-4000-8000-000000000001','A','Contrato permitido','ativo'),
-('b1b1b1b1-1000-4000-8000-000000000002','b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b1b1b1b1-0000-4000-8000-000000000001','B','Contrato proibido','ativo');
+('b1b1b1b1-1000-4000-8000-000000000001','b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b1b1b1b1-0000-4000-8000-000000000001','A','Contrato permitido','2026-01-01','ativo'),
+('b1b1b1b1-1000-4000-8000-000000000002','b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa','b1b1b1b1-0000-4000-8000-000000000001','B','Contrato proibido','2026-01-01','ativo');
 insert into public.vinculos_usuario_contratos(id_organizacao,id_vinculo_usuario,id_contrato,ativo)
 select 'b1b1b1b1-aaaa-4aaa-8aaa-aaaaaaaaaaaa',vu.id,'b1b1b1b1-1000-4000-8000-000000000001',true
 from public.vinculos_usuarios vu
