@@ -81,4 +81,15 @@ describe("SYS-02 Esqueci a senha", () => {
     enviar("a@b.com");
     await waitFor(() => expect(screen.getByText(MENSAGENS_SYS02.falha)).toBeTruthy());
   });
+
+  it("toque/clique na dica de segurança abre e mantém a dica visível", async () => {
+    m.reset.mockResolvedValue({ data: {}, error: null });
+    render(<ForgotPasswordForm />);
+    enviar("a@b.com");
+    const gatilho = await screen.findByLabelText("Por que não confirmamos o cadastro");
+    fireEvent.focus(gatilho);
+    fireEvent.click(gatilho);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.getAllByText(MENSAGENS_SYS02.tooltipNeutro).length).toBeGreaterThan(0);
+  });
 });
