@@ -4,14 +4,15 @@ const URL=Deno.env.get('SUPABASE_URL')!
 const SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const KEY=Deno.env.get('OPENAI_API_KEY')??''
 const sb=createClient(URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}})
-async function testar(model:string){
-  const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,input:'Responda apenas: OK',max_output_tokens:8,store:false})})
-  if(r.ok){const j=await r.json();return{ok:true,model:j.model??model,id:j.id??null}}
-  const t=await r.text();return{ok:false,model,status:r.status,erro:t.slice(0,700)}
+async function testar(finalidade:string,model:string){
+  const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model,input:'Responda apenas: OK',max_output_tokens:16,store:false})})
+  if(r.ok){const j=await r.json();return{ok:true,finalidade,model:j.model??model,id:j.id??null}}
+  const t=await r.text();return{ok:false,finalidade,model,status:r.status,erro:t.slice(0,700)}
 }
 Deno.serve(async(req:Request)=>{
- if(req.method!=='POST')return Response.json({ok:false},{status:405})
- const token=req.headers.get('x-contaos-internal-token')??'';const{data:v}=await sb.rpc('validar_token_interno',{p_token:token});if(v!==true)return Response.json({ok:false,codigo:'AUTH_ACESSO_NEGADO'},{status:401})
- if(!KEY)return Response.json({ok:false,codigo:'OPENAI_CHAVE_AUSENTE'},{status:503})
- const modelos=['gpt-6-luna','gpt-6.1-sol'];const resultados=[];for(const m of modelos)resultados.push(await testar(m));return Response.json({ok:resultados.every(x=>x.ok),resultados})
+ if(req.method!=='POST')return Response.json({ok:false,codigo:'METODO_INVALIDO',mensagem:'Este endpoint aceita somente validações internas do ContaOS.'},{status:405})
+ const token=req.headers.get('x-contaos-internal-token')??'';const{data:v}=await sb.rpc('validar_token_interno',{p_token:token});if(v!==true)return Response.json({ok:false,codigo:'AUTH_ACESSO_NEGADO',mensagem:'Esta validação interna não está autorizada.'},{status:401})
+ if(!KEY)return Response.json({ok:false,codigo:'OPENAI_CHAVE_AUSENTE',mensagem:'A chave da OpenAI ainda não está disponível no ambiente.'},{status:503})
+ const resultados=[await testar('ocr','gpt-6-luna'),await testar('analise','gpt-6-luna')]
+ return Response.json({ok:resultados.every(x=>x.ok),modelo_operacional:'gpt-6-luna',modelo_preferencial_futuro:'gpt-6.1-sol',resultados})
 })
