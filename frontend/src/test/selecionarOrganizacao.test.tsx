@@ -67,6 +67,13 @@ describe("SYS-04 Selecionar organização", () => {
     await waitFor(() => expect(m.nav).toHaveBeenCalledWith({ to: "/login", replace: true }));
   });
 
+  it("AuthSessionMissingError (sem sessão real do SDK) redireciona para /login sem erro genérico", async () => {
+    m.getUser.mockResolvedValue({ data: { user: null }, error: { name: "AuthSessionMissingError", status: 400 } });
+    montar();
+    await waitFor(() => expect(m.nav).toHaveBeenCalledWith({ to: "/login", replace: true }));
+    expect(screen.queryByText(MENSAGENS_SYS04.erro)).toBeNull();
+  });
+
   it("loading bloqueia a ação e a consulta filtra id_usuario e ativo", async () => {
     let resolver!: (v: unknown) => void;
     m.resultado.mockReturnValue(new Promise((r) => (resolver = r)));
