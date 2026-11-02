@@ -1,6 +1,6 @@
 {
-  "id": "PROMPT-28-V1-07-BASE-NORMATIVA-2026-11-02",
-  "title": "PROMPT 28 / V1-07 — Contrato: base normativa",
+  "id": "V107-BACKEND-NORMATIVO-HML-2026-11-02",
+  "title": "V1-07 — tarefa backend mínima autorizada",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
@@ -25,7 +25,7 @@
       "public.versoes_fontes_normativas",
       "public.aplicabilidades_fonte"
     ],
-    "inspection": "somente leitura no catálogo/RLS/grants/constraints; aplicabilidades_fonte só SELECT para authenticated; semRPCpública de aprovação identificada; não pressupor escrita material autorizada",
+    "inspection": "Catálogo inspecionado; autorizada correção mínima com novos gates, sem mudança de Auth/Storage/Edge.",
     "new_edge_needed": false,
     "prod_untouched": true
   },
@@ -45,7 +45,7 @@
     "blocker": "Ausência de comando autenticado de aprovação/aplicabilidade normativa; aplicabilidades_fonte só SELECT. Recorte readonly não certificado como V1-07 integral.",
     "diagnostic_doc": "docs/frontend/V107_BASE_NORMATIVA_2026-11-02.md"
   },
-  "backend_branch": null,
+  "backend_branch": "hml/v107-backend-normativo-20261102",
   "backend_doc": "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
   "previous_prompt": {
     "id": "PROMPT-27-V1-06",
@@ -54,7 +54,7 @@
     "test_c": "PASS18/18",
     "doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
   },
-  "next_step": "Aguardar autorização específica da tarefa backend mínima registrada no diagnóstico; sem BUILD frontend e sem DDL até autorização. Depois certificar backend, corrigir PLAN28 e prosseguir autonomamente com TDD/TesteC.",
+  "next_step": "Formalizar contrato, TDD RED, migration nova, provas e certificação antes de corrigir PLAN28.",
   "prod_untouched": true,
   "context_read_acknowledged_at": "2026-11-02",
   "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
@@ -83,7 +83,7 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "branch": "main",
+  "branch": "hml/v107-backend-normativo-20261102",
   "requirements_impacted": [
     "V1-CON-001",
     "V1-CON-002",
@@ -110,10 +110,12 @@
     "src/test/baseNormativa.test.tsx",
     "src/routeTree.gen.ts",
     "src/components/contratos/VisaoGeralContrato.tsx",
-    "src/test/contratoDetalhe.test.tsx"
+    "src/test/contratoDetalhe.test.tsx",
+    "supabase/migrations/*_v107_*.sql",
+    "supabase/tests/v107_*.sql",
+    "docs/backend/V107_*.md"
   ],
   "forbidden_paths": [
-    "supabase/**",
     "src/integrations/supabase/**",
     ".env",
     "package.json",
@@ -127,10 +129,12 @@
     "src/components/contratos/NovoContrato.tsx",
     "src/lib/contratos/contratosDados.ts",
     "src/lib/contratos/novoContratoDados.ts",
-    "src/lib/contratos/contratoDetalheDados.ts"
+    "src/lib/contratos/contratoDetalheDados.ts",
+    "supabase/functions/**",
+    "supabase/config.toml"
   ],
-  "database_changes_allowed": false,
-  "rls_changes_allowed": false,
+  "database_changes_allowed": true,
+  "rls_changes_allowed": true,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "approved_tables": [
@@ -138,7 +142,10 @@
     "public.contratantes SELECT leve do helper certificado",
     "public.fontes_normativas (inspeção/leitura; escritas exigem contrato confirmado no plano)",
     "public.versoes_fontes_normativas (inspeção/leitura; escritas exigem contrato confirmado no plano)",
-    "public.aplicabilidades_fonte SELECT"
+    "public.aplicabilidades_fonte SELECT",
+    "public.comandos_idempotentes reutilização",
+    "public.eventos_auditoria via helper",
+    "public.competencias invalidação material pelo helper certificado"
   ],
   "approved_rpcs": [
     "public.classificar_acesso_contrato_v106(uuid) somente fallback zero linhas viahelper existente"
@@ -167,5 +174,11 @@
     "SecurityScan",
     "ContextGate",
     "ZeroDrift"
-  ]
+  ],
+  "authorization": {
+    "date": "2026-11-02",
+    "by": "usuário",
+    "text": "autorizo",
+    "scope": "Tarefa mínima descrita no diagnóstico V107, issue25; HML somente"
+  }
 }
