@@ -37,7 +37,9 @@ Impedir que uma tarefa localizada altere arquitetura, domínio, segurança ou co
 10. nenhum update genérico de status crítico;
 11. documentos/evidências em Storage privado;
 12. migration aplicada não é reescrita;
-13. falha de teste não autoriza corrigir componente não relacionado.
+13. falha de teste não autoriza corrigir componente não relacionado;
+14. entre alternativas igualmente conformes, a execução deve usar a que consome menos créditos do Lovable;
+15. economia de crédito nunca autoriza reduzir teste, segurança, rastreabilidade, acessibilidade, responsividade, evidência, fidelidade ao PRD ou qualquer gate do pacote 4.1.
 
 ## 4. Ciclo obrigatório
 
@@ -56,6 +58,8 @@ Impedir que uma tarefa localizada altere arquitetura, domínio, segurança ou co
 13. evidência de aceite;
 14. concluir tarefa.
 
+Durante esse ciclo, usar Lovable apenas quando a etapa realmente depender do editor/runtime/frontend Lovable. GitHub e Supabase devem ser usados diretamente para tarefas de documentação, inspeção, rastreabilidade e evidência que não exijam o Lovable.
+
 ## 5. Sinais clássicos de drift
 
 - tabela não pedida;
@@ -70,7 +74,10 @@ Impedir que uma tarefa localizada altere arquitetura, domínio, segurança ou co
 - precedente transversal entrando no portão;
 - texto oficial alterado;
 - novo backend ou serviço de estado paralelo;
-- remoção de auditoria/hash/versionamento para simplificar.
+- remoção de auditoria/hash/versionamento para simplificar;
+- repetição desnecessária de turns, builds, scans ou testes no Lovable quando a evidência já é válida;
+- reenvio de prompt Lovable enquanto o turno anterior ainda está processando;
+- uso do Lovable para tarefa que poderia ser concluída diretamente via GitHub ou Supabase sem perda de evidência.
 
 ## 6. Manifesto de tarefa
 
@@ -94,6 +101,20 @@ O repositório deve manter um gate automatizado que:
 
 O gate não prova biologicamente que uma IA “leu”, mas transforma a leitura em obrigação explícita, verificável e ligada ao hash da versão do contexto.
 
-## 8. Critério final
+## 8. Disciplina canônica de economia de créditos Lovable
 
-O agente pode propor. O manifesto autoriza. RLS limita. RPC protege. O diff revela. O teste prova. O CI bloqueia. O humano decide.
+A eficiência de créditos faz parte da governança operacional do projeto:
+
+1. preferir ferramentas diretas e de menor custo quando produzirem a mesma evidência e conformidade;
+2. consolidar instruções compatíveis em um único turno Lovable;
+3. evitar duplicação de prompts, planos, builds, testes e scans;
+4. recuperar o estado de um turno em processamento antes de reenviar qualquer instrução;
+5. validar contratos, backend e diffs fora do Lovable sempre que possível;
+6. usar mudanças incrementais mínimas, evitando reconstrução sem necessidade;
+7. reutilizar testes e evidências ainda válidos, reexecutando apenas o que uma mudança realmente invalidou;
+8. manter separação BUILD/Teste C quando exigida, mesmo que isso consuma crédito adicional;
+9. nunca trocar qualidade por economia.
+
+## 9. Critério final
+
+O agente pode propor. O manifesto autoriza. RLS limita. RPC protege. O diff revela. O teste prova. O CI bloqueia. O humano decide. A eficiência de créditos otimiza o caminho, mas nunca enfraquece o resultado.
