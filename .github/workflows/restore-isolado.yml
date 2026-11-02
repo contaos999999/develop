@@ -11,6 +11,7 @@ on:
       - 'supabase/tests/workflow_bopla.sql'
       - 'supabase/tests/alert_task_bopla.sql'
       - 'supabase/tests/user_membership_authz.sql'
+      - 'supabase/tests/contract_scope_bola.sql'
       - '.github/workflows/restore-isolado.yml'
 
 permissions:
@@ -66,6 +67,12 @@ jobs:
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/user_membership_authz.sql | tee restore-proof/user-membership-authz.txt
           if grep -Eq '\|f\|' restore-proof/user-membership-authz.txt; then
             echo 'A suíte de autorização de vínculos contém teste com passou=false.'
+            exit 1
+          fi
+
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/contract_scope_bola.sql | tee restore-proof/contract-scope-bola.txt
+          if grep -Eq '\|f\|' restore-proof/contract-scope-bola.txt; then
+            echo 'A suíte BOLA entre contratos contém teste com passou=false.'
             exit 1
           fi
 
