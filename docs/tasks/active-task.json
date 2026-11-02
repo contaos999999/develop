@@ -1,99 +1,56 @@
 {
-  "id": "PROMPT-27-V1-06-CONTRATO-VISAO-GERAL-2026-11-02",
-  "title": "PROMPT 27 / V1-06 — Contrato - visão geral",
+  "id": "PROMPT-28-V1-07-BASE-NORMATIVA-2026-11-02",
+  "title": "PROMPT 28 / V1-07 — Contrato: base normativa",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "Codex — leitura integral e revisão paralela nesta sessão",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar e certificar /contratos/:id com resumo oficial do contrato, navegação de abas e distinção segura 403/404, sem pré-carregar documentos ou competências e sem inventar edição de contrato.",
+  "objective": "Planejar e implementar V1-07 em HML conforme pacote4.1 e contratos certificados, com fontes/versões/vigência/origem/aplicabilidade corretas; identificar lacunas antes de qualquer escrita material e preservar backend/PROD.",
   "canonical_requirements": [
-    "PROMPT-27",
-    "V1-06",
-    "rota /contratos/:id",
-    "Data API + RLS no happy path",
-    "404 e 403 distintos",
-    "StatusBadge e ContractSummaryCard",
-    "abas sem carga pesada no primeiro paint",
-    "nenhuma regra crítica local",
-    "responsividade 1440/1280/768/390",
-    "acessibilidade",
+    "PROMPT-28",
+    "V1-07",
+    "/contratos/:id/base-normativa",
+    "fontes/versões/vigências e origem oficiais",
+    "aprovação/aplicabilidade sem autoridade local",
+    "paginação e carga sob demanda",
     "TDD",
-    "Teste C separado",
-    "Zero Drift"
+    "Teste C separado18/18",
+    "GitHub e economia canônica"
   ],
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
-    "table": "public.contratos",
-    "select_policy": "contratos_select -> privado.usuario_tem_acesso_contrato(id)",
-    "happy_path": "Data API SELECT sob RLS por id do contrato",
-    "zero_row_classifier_rpc": "public.classificar_acesso_contrato_v106(p_id_contrato uuid) -> text",
-    "classifier_usage": "somente após SELECT do detalhe retornar zero linhas",
-    "classifier_results": {
-      "permitido": "acesso contratual existe",
-      "negado": "contrato existe no mesmo tenant, mas fora do escopo",
-      "nao_encontrado": "inexistente ou contrato cross-tenant mascarado"
-    },
-    "privileges": "authenticated EXECUTE; anon sem EXECUTE",
-    "new_edge_needed": false,
-    "migrations": [
-      "20261102192500_v106_classificar_acesso_contrato_detalhe.sql",
-      "20261102193500_v106_corrigir_bola_aprovar_parecer_interno.sql"
+    "tables": [
+      "public.fontes_normativas",
+      "public.versoes_fontes_normativas",
+      "public.aplicabilidades_fonte"
     ],
-    "v106_test": "PASS 10/10 com ROLLBACK após hardening",
-    "bola_regression": "RED 5/7 revelou falha preexistente em aprovar_parecer_interno; após correção PASS 7/7 com ROLLBACK",
-    "bola_hardening": "privado.aprovar_parecer_interno agora exige usuario_tem_acesso_contrato(v.id_contrato) + perfil autorizado; negação 42501",
-    "fixture_maintenance": "contract_scope_bola.sql atualizado somente para preencher inicio obrigatório do schema atual",
-    "typescript_contract": "classificar_acesso_contrato_v106 Args { p_id_contrato: string } Returns string",
-    "security_advisor": "sem novo finding relacionado às migrations; apenas auth_leaked_password_protection preexistente",
+    "inspection": "somente leitura no catálogo/RLS/grants/constraints; aplicabilidades_fonte só SELECT para authenticated; semRPCpública de aprovação identificada; não pressupor escrita material autorizada",
+    "new_edge_needed": false,
     "prod_untouched": true
   },
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
-    "base_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
-    "status": "CERTIFICADO_TESTE_C_18_18",
+    "base_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
+    "status": "EM_PLAN_LOVABLE",
     "constraints": [
-      "não consultar documentos/competências no primeiro paint",
-      "não inferir acesso pela organização local",
-      "não implementar edição sem contrato canônico específico",
-      "sincronizar tipo oficial da nova RPC sem cast",
-      "RPC classificadora apenas após zero linhas",
-      "403 para negado; 404 para nao_encontrado; permitido após zero linhas = erro de consistência"
-    ],
-    "plan_commit": "33b8942c34c8a112028a0de394d0c85210d175eb",
-    "types_delta": "somente assinatura oficial classificar_acesso_contrato_v106, sem casts",
-    "certified_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
-    "test_c": {
-      "result": "PASS",
-      "passed": 18,
-      "total": 18,
-      "message_id": "umsg_01m6f0wjhjebebznv9g11d2082",
-      "focused": "32/32",
-      "regression": "331/331 em 15 arquivos",
-      "typecheck_exit": 0,
-      "build_exit": 0,
-      "security_critical": 0,
-      "security_high": 0,
-      "head_unchanged": true,
-      "git_clean": true,
-      "browser": "CONTROLADO 1440/1280/768/390",
-      "limitations": [
-        "RLS real reutilizada da certificação backend; browser usa mocks runtime",
-        "Aborto na rede não observado pelo Playwright, mesmo signal/aborto provados em unidade",
-        "Primeira regressão histórica321/322 sem teste identificado; regressões frescas posteriores331/331 PASS"
-      ]
-    },
-    "certification_doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
+      "backend certificado autoridade",
+      "sem approved_por/em/ativação material pelo React",
+      "não omitir lacuna para certificar tela incompleta",
+      "frontend exclusivamente Lovable",
+      "sem editar cliente/Auth/SYS/ADM ou módulos alheios"
+    ]
   },
-  "backend_branch": "backend/v106-contrato-visao-geral-acesso",
-  "backend_doc": "docs/backend/V106_CONTRATO_VISAO_GERAL_2026-11-02.md",
+  "backend_branch": null,
+  "backend_doc": "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
   "previous_prompt": {
-    "id": "PROMPT-26-V1-05",
+    "id": "PROMPT-27-V1-06",
     "status": "CERTIFICADO",
-    "frontend_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
-    "test_c": "PASS 18/18"
+    "frontend_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
+    "test_c": "PASS18/18",
+    "doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
   },
-  "next_step": "Validar CI do registro documental e encerrar PROMPT27; PROMPT28 não iniciado nesta tarefa.",
+  "next_step": "PLAN Lovable e revisão exata do escopo, contratos eeventuais lacunas antes deBUILD.",
   "prod_untouched": true,
   "context_read_acknowledged_at": "2026-11-02",
   "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
@@ -124,34 +81,36 @@
   ],
   "branch": "main",
   "requirements_impacted": [
-    "PROMPT-27",
-    "V1-CON-001 (parcial)",
-    "V1-CON-002 (parcial)",
-    "V1-CON-004 (dependência de telas correlatas)",
-    "V1-CON-005 (dependência de telas correlatas)",
+    "V1-CON-001",
+    "V1-CON-002",
+    "V1-CON-004",
+    "V1-CON-005",
     "NFR-005",
+    "NFR-007 quando edição",
+    "NFR-008 quando comando repetível",
     "NFR-009"
   ],
   "screens_impacted": [
-    "V1-06"
+    "V1-07",
+    "V1-06 somente link/navegação canônica necessário"
   ],
   "allowed_paths": [
-    "src/routes/contratos_.$id.tsx",
-    "src/components/contratos/VisaoGeralContrato.tsx",
-    "src/lib/contratos/contratoDetalheDados.ts",
-    "src/test/contratoDetalhe.test.tsx",
-    "src/integrations/supabase/types.ts",
-    "src/routeTree.gen.ts",
+    "docs/tasks/active-task.json",
+    "docs/frontend/V107_BASE_NORMATIVA_2026-11-02.md",
+    "docs/superpowers/plans/2026-11-02-v107-base-normativa.md",
     ".lovable/plan.md",
     ".lovable/plan/**",
-    "docs/tasks/active-task.json",
-    "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md",
-    "docs/superpowers/plans/2026-11-02-v106-contrato-visao-geral.md",
-    "AI_CONTEXT_MANIFEST.md"
+    "src/routes/contratos_.$id.base-normativa.tsx",
+    "src/components/contratos/BaseNormativaContrato.tsx",
+    "src/lib/contratos/baseNormativaDados.ts",
+    "src/test/baseNormativa.test.tsx",
+    "src/routeTree.gen.ts",
+    "src/components/contratos/VisaoGeralContrato.tsx",
+    "src/test/contratoDetalhe.test.tsx"
   ],
   "forbidden_paths": [
     "supabase/**",
-    "src/integrations/supabase/client.ts",
+    "src/integrations/supabase/**",
     ".env",
     "package.json",
     "src/components/auth/**",
@@ -163,18 +122,22 @@
     "src/components/contratos/ListaContratos.tsx",
     "src/components/contratos/NovoContrato.tsx",
     "src/lib/contratos/contratosDados.ts",
-    "src/lib/contratos/novoContratoDados.ts"
+    "src/lib/contratos/novoContratoDados.ts",
+    "src/lib/contratos/contratoDetalheDados.ts"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "approved_tables": [
-    "public.contratos (SELECT)",
-    "public.contratantes (SELECT leve embutido)"
+    "public.contratos SELECT pelo helper certificado",
+    "public.contratantes SELECT leve do helper certificado",
+    "public.fontes_normativas (inspeção/leitura; escritas exigem contrato confirmado no plano)",
+    "public.versoes_fontes_normativas (inspeção/leitura; escritas exigem contrato confirmado no plano)",
+    "public.aplicabilidades_fonte SELECT"
   ],
   "approved_rpcs": [
-    "public.classificar_acesso_contrato_v106(uuid) (somente após zero linhas)"
+    "public.classificar_acesso_contrato_v106(uuid) somente fallback zero linhas viahelper existente"
   ],
   "approved_edge_functions": [],
   "acceptance": [
@@ -188,19 +151,16 @@
     "GitHub com evidências e PROD intocado"
   ],
   "tests": [
-    "contratoDetalhe.test.tsx",
-    "regressão completa frontend",
-    "npx tsgo --noEmit",
+    "baseNormativa.test.tsx",
+    "contratoDetalhe.test.tsx se navegação mudar",
+    "regressão completa",
+    "typecheck",
     "build",
-    "browser controlado 1440/1280/768/390",
-    "source scan",
-    "Teste C 18 gates",
-    "Security Scan",
-    "ai-context-gate",
-    "zero-drift"
-  ],
-  "governance_maintenance_authorization": {
-    "scope": "Somente sincronização dos 4 hashes do manifesto e completude da tarefa, autorizada explicitamente pelo usuário nesta sessão em 02/11/2026",
-    "canonical_documents_modified": false
-  }
+    "browser1440/1280/768/390",
+    "RLSnegativo/backend certificado",
+    "TesteC18gates",
+    "SecurityScan",
+    "ContextGate",
+    "ZeroDrift"
+  ]
 }
