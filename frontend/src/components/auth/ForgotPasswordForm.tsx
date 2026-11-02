@@ -98,7 +98,11 @@ export function ForgotPasswordForm() {
                       <button
                         type="button"
                         aria-label="Por que não confirmamos o cadastro"
-                        onClick={() => setDicaAberta((v) => !v)}
+                        onClick={(e) => {
+                          // Toque: abre de forma idempotente e impede o fechamento padrão do Radix no clique.
+                          e.preventDefault();
+                          setDicaAberta(true);
+                        }}
                         className="rounded text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <Info className="h-4 w-4" aria-hidden />
