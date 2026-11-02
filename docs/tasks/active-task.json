@@ -1,12 +1,12 @@
 {
   "id": "PROMPT-26-V1-05-NOVO-CONTRATO-2026-11-02",
   "title": "PROMPT 26 / V1-05 — Novo contrato",
-  "status": "backend_certificado_pronto_para_plan_frontend",
+  "status": "CERTIFICADO",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar /contratos/novo para administrador/gestor usando Data API + RLS, sem RPC/Edge nova, com criação auditada e acesso imediato do criador restrito.",
+  "objective": "Implementar e certificar /contratos/novo para administrador/gestor, incluindo Administrador Master, usando Data API + RLS, sem RPC/Edge nova, com criação auditada e acesso imediato do criador restrito.",
   "canonical_sources": [
     "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx#PROMPT26",
     "05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx#V1-05",
@@ -17,15 +17,17 @@
     "PROMPT-26",
     "V1-05",
     "administrador/gestor",
+    "Administrador Master global",
     "Data API + RLS",
+    "ContratanteCombobox paginado",
     "sem .select() no INSERT",
-    "situacao rascunho por default",
-    "criticidade media por default",
+    "defaults server-side",
     "auditoria ContratoCriado",
+    "TDD",
+    "Teste C separado",
     "1440/1280/768/390",
     "acessibilidade",
-    "Zero-Drift",
-    "Administrador Master global"
+    "Zero-Drift"
   ],
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
@@ -43,40 +45,44 @@
     "security_advisor": "sem novo finding; apenas auth_leaked_password_protection preexistente",
     "prod_untouched": true
   },
-  "frontend_contract": {
+  "frontend": {
+    "repository": "contaos9999/contaos-hml-control",
+    "base_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9",
+    "certified_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
+    "route": "/contratos/novo",
     "insert_mode": "supabase.from('contratos').insert(payload) sem .select()/RETURNING",
-    "creator_restricted_scope_granted_server_side": true,
-    "audit_event": "ContratoCriado",
-    "defaults": {
+    "defaults_server_side": {
+      "periodicidade": "mensal",
       "situacao": "rascunho",
       "criticidade": "media",
       "versao_registro": 1
     },
-    "base_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9"
+    "contratante_combobox": "paginação server-side de 20 itens, busca segura, ativos e inativos sem bloqueio inventado",
+    "focused_tests": "PASS 25/25",
+    "full_suite": "PASS 299/299 em 14 arquivos",
+    "typecheck": "PASS exit 0",
+    "build": "PASS exit 0",
+    "responsive": "PASS 1440/1280/768/390",
+    "test_c": "PASS 18/18",
+    "security_scan": "0 Critical, 0 High; 1 informativo preexistente",
+    "zero_drift": "PASS; somente plano, 4 arquivos V1-05 e routeTree.gen.ts desde o HEAD base",
+    "test_c_read_only_proof": "HEAD final igual ao inicial 113fb94660281d2f486d0779fc9981e3c3eaa216",
+    "prod_untouched": true
   },
   "completed_transversal": {
     "id": "TRANSVERSAL-ADMIN-MASTER-GLOBAL-2026-11-02",
     "status": "CERTIFICADO",
     "backend_main": "afa89603bc0bd1c9369e9c24e2193b6cb1780fe2",
     "backend_pr": 21,
-    "backend_tests": "20/20 principal + ADM-01 write/audit PASS + 6/6 pos-hardening",
     "frontend_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9",
-    "frontend_focused_tests": "40/40",
-    "frontend_full_suite": "274/274",
-    "typecheck": "PASS exit 0",
-    "build": "PASS exit 0",
     "test_c": "PASS 18/18",
-    "responsive": "PASS 1440/1280/768/390",
-    "security_scan": "0 Critical, 0 High",
     "prod_untouched": true
   },
   "previous_prompt": {
     "id": "PROMPT-25-V1-04",
     "test_c": "PASS 18/18",
-    "frontend_head_before_master": "8a809e2e8600ec8616e5d5fe0c1f299b07469548",
-    "focused_tests": "26/26",
-    "full_suite": "264/264"
+    "frontend_head_before_master": "8a809e2e8600ec8616e5d5fe0c1f299b07469548"
   },
-  "next_step": "PLAN MODE Lovable minimo para V1-05 sobre o HEAD Master certificado, sem redescobrir backend",
+  "next_step": "PROMPT 27: ler requisito canônico e requisitos transversais aplicáveis, auditar backend HML primeiro e somente depois planejar frontend Lovable sobre o HEAD 113fb94660281d2f486d0779fc9981e3c3eaa216",
   "prod_untouched": true
 }
