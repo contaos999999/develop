@@ -180,3 +180,20 @@ Para cada tela/fluxo:
 - teste happy path + negativo;
 - vínculo com requisito(s) e tela(s) da matriz;
 - Zero-Drift verde.
+
+## 17. Regra canônica de eficiência de créditos Lovable
+
+O desenvolvimento frontend deve minimizar o consumo de créditos do Lovable sem reduzir a qualidade do produto nem a força das evidências.
+
+Aplicação obrigatória:
+- usar GitHub diretamente para documentação, diff, commits, rastreabilidade e leitura de arquivos quando não for necessário editar pelo Lovable;
+- usar Supabase diretamente para inspeção e provas de backend/RLS/RPC/Edge/logs quando o frontend não for necessário;
+- enviar ao Lovable prompts consolidados, objetivos e completos, evitando mensagens fragmentadas;
+- inspecionar código e contratos antes do BUILD para reduzir retrabalho;
+- não reenviar turno que ainda esteja processando; recuperar o estado primeiro;
+- não repetir plano, build, scan ou suíte que continue válida após mudança não relacionada;
+- preferir alteração mínima por delta, preservando componentes/helpers certificados;
+- executar no Lovable somente o que realmente depende do editor, runtime, preview, integração visual ou testes frontend específicos;
+- entre duas soluções 100% conformes e tecnicamente equivalentes, escolher obrigatoriamente a de menor consumo de créditos Lovable.
+
+A economia é subordinada à conformidade: é proibido economizar créditos reduzindo TDD, Teste C, segurança, Zero-Drift, acessibilidade, responsividade, rastreabilidade, cobertura, evidência ou fidelidade ao PRD 4.1.
