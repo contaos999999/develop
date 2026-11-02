@@ -1,43 +1,51 @@
 {
-  "id": "BACKEND-SYS05-DASHBOARD-SUMMARY-2026-11-02",
-  "title": "Resolver lacuna de backend do PROMPT 20 / SYS-05 Dashboard",
-  "branch": "backend/sys05-dashboard-summary",
-  "status": "concluida",
-  "completed_at": "02/11/2026 - Horário de Brasília",
+  "id": "PROMPT-22-V1-01-CONTRATANTES-2026-11-02",
+  "title": "PROMPT 22 / V1-01 — Contratantes",
+  "branch": "main",
+  "status": "teste_c_em_execucao",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
-  "objective": "Criar no HML um endpoint read-only oficial de resumo operacional para o SYS-05, preservando RLS por organização e contrato, sem antecipar o Painel Executivo V5-12/PROMPT 88 e sem tocar em PROD.",
-  "requirements_impacted": ["PROMPT-20", "SYS-05", "NFR-010", "NFR-011", "isolamento_multiempresa", "rastreabilidade"],
-  "scope": [
-    "public.obter_resumo_dashboard(uuid)",
-    "supabase/migrations/20261102114500_sys05_dashboard_summary.sql",
-    "supabase/tests/sys05_dashboard_summary.sql",
-    "docs/backend/SYS05_DASHBOARD_BACKEND_2026-11-02.md"
+  "context_reanchored_after_credit_canonicalization": true,
+  "canonical_credit_rule": "Minimizar créditos Lovable entre alternativas igualmente conformes; nunca reduzir PRD, segurança, TDD, Teste C, Zero-Drift, rastreabilidade, acessibilidade, responsividade ou evidência.",
+  "objective": "Certificar a tela V1-01 Contratantes em HML, somente leitura via Data API com RLS, paginação server-side e zero mutação de backend/PROD.",
+  "allowed_frontend_paths": [
+    "src/routes/contratantes.tsx",
+    "src/components/contratantes/ListaContratantes.tsx",
+    "src/lib/contratantes/contratantesDados.ts",
+    "src/test/contratantes.test.tsx",
+    "src/routeTree.gen.ts"
   ],
-  "result": {
-    "backend_gap_prompt20": "resolvida",
-    "rpc": "public.obter_resumo_dashboard(uuid)",
-    "migration_hml": "20261102114958_sys05_dashboard_summary",
-    "regression_tests": "6/6 PASS",
-    "security_advisor_new_findings": 0,
-    "prod_untouched": true
+  "backend_changes_authorized": false,
+  "rls_changes_authorized": false,
+  "edge_changes_authorized": false,
+  "auth_changes_authorized": false,
+  "prod_untouched": true,
+  "build_evidence": {
+    "v1_01_tests": "34/34 PASS",
+    "full_suite": "173/173 PASS",
+    "typecheck": "exit 0",
+    "build_log": "build OK",
+    "frontend_head_reported_by_lovable": "890f3d6f3492be6affdd08fcdeb82ff6d81f60b0"
   },
-  "acceptance_criteria": {
-    "rpc_security_invoker": "pass",
-    "rls_organization_and_contract_preserved": "pass",
-    "anon_execute_revoked": "pass",
-    "authenticated_execute_granted": "pass",
-    "authorized_org_positive_test": "pass",
-    "unlinked_org_negative_test": "pass",
-    "security_advisor": "pass_sem_novo_finding",
-    "prod_untouched": "pass"
+  "hml_backend_evidence": {
+    "contratantes_rls_enabled": true,
+    "select_policy_uses_usuario_tem_acesso_organizacao": true,
+    "authenticated_select": true,
+    "authenticated_delete": false,
+    "contratantes_rows_at_check": 0
   },
-  "evidence": [
-    "supabase/migrations/20261102114500_sys05_dashboard_summary.sql",
-    "supabase/tests/sys05_dashboard_summary.sql",
-    "docs/backend/SYS05_DASHBOARD_BACKEND_2026-11-02.md"
-  ],
-  "rollback": "Somente por migration compensatória; não reescrever histórico.",
-  "prod_untouched": true
+  "test_c_required": [
+    "rota e estados",
+    "isolamento/autorizacao RLS",
+    "zero DML/RPC/Edge no dominio V1-01",
+    "paginacao e filtros server-side",
+    "responsividade 1440/1280/768/390",
+    "teclado/foco/labels/alvos de toque",
+    "console/network sem erro sensivel",
+    "regressao completa",
+    "typecheck/build",
+    "Security Scan sem novo Critical",
+    "diff/Zero-Drift/GitHub"
+  ]
 }
