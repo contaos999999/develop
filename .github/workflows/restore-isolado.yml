@@ -15,6 +15,8 @@ on:
       - 'supabase/tests/webhook_rpc_auth.sql'
       - 'supabase/tests/sql_injection_regression.sql'
       - 'supabase/tests/reanalysis_authz.sql'
+      - 'supabase/tests/v107_base_normativa.sql'
+      - 'supabase/tests/v107_concurrency.sh'
       - '.github/workflows/restore-isolado.yml'
 
 permissions:
@@ -132,6 +134,25 @@ jobs:
             echo 'A suíte de autorização de reanálise contém teste com passou=false.'
             exit 1
           fi
+
+      - name: Teste 9 - Backend normativo V1-07
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/v107_base_normativa.sql | tee restore-proof/v107-base-normativa.txt
+          if ! grep -Eq '"falhas"[[:space:]]*:[[:space:]]*\\[\\]' restore-proof/v107-base-normativa.txt || \
+             ! grep -Eq '"passou"[[:space:]]*:[[:space:]]*32' restore-proof/v107-base-normativa.txt; then
+            echo 'A suíte V107 não concluiu 32/32.'
+            exit 1
+          fi
+
+      - name: Teste 10 - Concorrência real V1-07
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          bash supabase/tests/v107_concurrency.sh | tee restore-proof/v107-concurrency.txt
 
       - name: Registrar histórico reconstruído
         shell: bash

@@ -81,16 +81,16 @@ select set_config('request.jwt.claims','{"sub":"b7050505-2222-4222-8222-22222222
 set local role authenticated;
 insert into v105_testes select '06 total cria',r='OK',r from (select pg_temp.v105_try(
  'b7050505-3000-4000-8000-000000000002','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- 'b7050505-2000-4000-8000-000000000001','V105-002','Contrato total') r)x;
+ 'b7050505-2000-4000-8000-000000000001','V105-002','Contrato total','2026-01-01',null) r)x;
 insert into v105_testes select '08 duplicado 23505',left(r,5)='23505',r from (select pg_temp.v105_try(
  'b7050505-3000-4000-8000-000000000003','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- 'b7050505-2000-4000-8000-000000000001','V105-002','Duplicado') r)x;
+ 'b7050505-2000-4000-8000-000000000001','V105-002','Duplicado','2026-01-01',null) r)x;
 insert into v105_testes select '09 vigência 23514',left(r,5)='23514',r from (select pg_temp.v105_try(
  'b7050505-3000-4000-8000-000000000004','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
  'b7050505-2000-4000-8000-000000000001','V105-004','Vigência','2026-12-31','2026-01-01') r)x;
 insert into v105_testes select '10 FK cruzada 23503',left(r,5)='23503',r from (select pg_temp.v105_try(
  'b7050505-3000-4000-8000-000000000005','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- 'b7050505-2000-4000-8000-000000000002','V105-005','Cruzado') r)x;
+ 'b7050505-2000-4000-8000-000000000002','V105-005','Cruzado','2026-01-01',null) r)x;
 reset role;
 insert into v105_testes select '07 total sem vínculo redundante + acesso',
  not exists(select 1 from public.vinculos_usuario_contratos
@@ -104,7 +104,7 @@ select set_config('request.jwt.claims','{"sub":"b7050505-3333-4333-8333-33333333
 set local role authenticated;
 insert into v105_testes select '11 leitor 42501',left(r,5)='42501',r from (select pg_temp.v105_try(
  'b7050505-3000-4000-8000-000000000006','b7050505-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- 'b7050505-2000-4000-8000-000000000001','V105-006','Leitor') r)x;
+ 'b7050505-2000-4000-8000-000000000001','V105-006','Leitor','2026-01-01',null) r)x;
 reset role;
 
 select jsonb_build_object(

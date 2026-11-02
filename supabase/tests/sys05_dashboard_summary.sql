@@ -43,10 +43,10 @@ values('c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa','c5c5c5c5-1111-4111-8111-111111111
 insert into public.contratantes(id,id_organizacao,razao_social,nome_fantasia)
 values('c5c5c5c5-0000-4000-8000-000000000001','c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Contratante SYS05','Contratante SYS05');
 
-insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,situacao,criticidade)
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao,criticidade)
 values
-('c5c5c5c5-1000-4000-8000-000000000001','c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa','c5c5c5c5-0000-4000-8000-000000000001','SYS05-A','Contrato permitido','ativo','alta'),
-('c5c5c5c5-1000-4000-8000-000000000002','c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa','c5c5c5c5-0000-4000-8000-000000000001','SYS05-B','Contrato fora do escopo','ativo','critica');
+('c5c5c5c5-1000-4000-8000-000000000001','c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa','c5c5c5c5-0000-4000-8000-000000000001','SYS05-A','Contrato permitido','2026-01-01','ativo','alta'),
+('c5c5c5c5-1000-4000-8000-000000000002','c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa','c5c5c5c5-0000-4000-8000-000000000001','SYS05-B','Contrato fora do escopo','2026-01-01','ativo','critica');
 
 insert into public.vinculos_usuario_contratos(id_organizacao,id_vinculo_usuario,id_contrato,ativo)
 select 'c5c5c5c5-aaaa-4aaa-8aaa-aaaaaaaaaaaa', vu.id, 'c5c5c5c5-1000-4000-8000-000000000001', true

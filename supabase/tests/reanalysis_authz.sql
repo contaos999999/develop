@@ -66,10 +66,10 @@ values('76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','76111111-1111-4111-8111-111111111
 insert into public.contratantes(id,id_organizacao,razao_social,nome_fantasia)
 values('76aaaaaa-0000-4000-8000-000000000001','76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Contratante Reanálise','Contratante Reanálise');
 
-insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,situacao)
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao)
 values
-('76aaaaaa-1000-4000-8000-000000000001','76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','76aaaaaa-0000-4000-8000-000000000001','RA-A','Contrato permitido','ativo'),
-('76aaaaaa-1000-4000-8000-000000000002','76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','76aaaaaa-0000-4000-8000-000000000001','RA-B','Contrato bloqueado','ativo');
+('76aaaaaa-1000-4000-8000-000000000001','76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','76aaaaaa-0000-4000-8000-000000000001','RA-A','Contrato permitido','2026-01-01','ativo'),
+('76aaaaaa-1000-4000-8000-000000000002','76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','76aaaaaa-0000-4000-8000-000000000001','RA-B','Contrato bloqueado','2026-01-01','ativo');
 
 insert into public.vinculos_usuario_contratos(id_organizacao,id_vinculo_usuario,id_contrato,ativo)
 select '76aaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',vu.id,'76aaaaaa-1000-4000-8000-000000000001',true

@@ -49,9 +49,9 @@ insert into public.vinculos_usuarios(id,id_organizacao,id_usuario,perfil,escopo_
 
 insert into public.contratantes(id,id_organizacao,razao_social,nome_fantasia)
 values('a6060606-2000-4000-8000-000000000001','a6060606-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Contratante Final 2','Contratante Final 2');
-insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,situacao,criticidade) values
-('a6060606-3000-4000-8000-000000000001','a6060606-aaaa-4aaa-8aaa-aaaaaaaaaaaa','a6060606-2000-4000-8000-000000000001','FINAL2-C1','Permitido','ativo','media'),
-('a6060606-3000-4000-8000-000000000002','a6060606-aaaa-4aaa-8aaa-aaaaaaaaaaaa','a6060606-2000-4000-8000-000000000001','FINAL2-C2','Segundo','ativo','media');
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao,criticidade) values
+('a6060606-3000-4000-8000-000000000001','a6060606-aaaa-4aaa-8aaa-aaaaaaaaaaaa','a6060606-2000-4000-8000-000000000001','FINAL2-C1','Permitido','2026-01-01','ativo','media'),
+('a6060606-3000-4000-8000-000000000002','a6060606-aaaa-4aaa-8aaa-aaaaaaaaaaaa','a6060606-2000-4000-8000-000000000001','FINAL2-C2','Segundo','2026-01-01','ativo','media');
 
 insert into public.vinculos_usuario_contratos(id_organizacao,id_vinculo_usuario,id_contrato,ativo)
 values('a6060606-aaaa-4aaa-8aaa-aaaaaaaaaaaa','a6060606-1000-4000-8000-000000000004','a6060606-3000-4000-8000-000000000001',true);

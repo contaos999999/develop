@@ -26,8 +26,8 @@ insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_tod
 values('ffffffff-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ffffffff-1111-4111-8111-111111111111','administrador',true);
 insert into public.contratantes(id,id_organizacao,razao_social,nome_fantasia)
 values('ffffffff-0000-4000-8000-000000000001','ffffffff-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Contratante Alerta','Contratante Alerta');
-insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,situacao)
-values('ffffffff-1000-4000-8000-000000000001','ffffffff-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ffffffff-0000-4000-8000-000000000001','AL-001','Contrato alerta','ativo');
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao)
+values('ffffffff-1000-4000-8000-000000000001','ffffffff-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ffffffff-0000-4000-8000-000000000001','AL-001','Contrato alerta','2026-01-01','ativo');
 insert into public.alertas_preventivos(id,id_organizacao,id_contrato,regra,severidade,status,descricao)
 values('ffffffff-4000-4000-8000-000000000001','ffffffff-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ffffffff-1000-4000-8000-000000000001','regra_teste','media','em_tratamento','Alerta sintético');
 insert into public.tarefas_alerta(id,id_organizacao,id_contrato,id_alerta,descricao,responsavel,status)

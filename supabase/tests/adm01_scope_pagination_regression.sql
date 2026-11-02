@@ -33,11 +33,11 @@ values
 insert into public.contratantes(id,id_organizacao,razao_social,nome_fantasia)
 values('e2e2e2e2-0100-4000-8000-000000000001','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','Contratante ADM01 Scope','Contratante ADM01 Scope');
 
-insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,situacao,criticidade)
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao,criticidade)
 values
-('e2e2e2e2-1000-4000-8000-000000000001','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','e2e2e2e2-0100-4000-8000-000000000001','ADM01-S-001','Contrato 1','ativo','media'),
-('e2e2e2e2-1000-4000-8000-000000000002','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','e2e2e2e2-0100-4000-8000-000000000001','ADM01-S-002','Contrato 2','ativo','media'),
-('e2e2e2e2-1000-4000-8000-000000000003','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','e2e2e2e2-0100-4000-8000-000000000001','ADM01-S-003','Contrato 3','ativo','alta');
+('e2e2e2e2-1000-4000-8000-000000000001','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','e2e2e2e2-0100-4000-8000-000000000001','ADM01-S-001','Contrato 1','2026-01-01','ativo','media'),
+('e2e2e2e2-1000-4000-8000-000000000002','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','e2e2e2e2-0100-4000-8000-000000000001','ADM01-S-002','Contrato 2','2026-01-01','ativo','media'),
+('e2e2e2e2-1000-4000-8000-000000000003','e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa','e2e2e2e2-0100-4000-8000-000000000001','ADM01-S-003','Contrato 3','2026-01-01','ativo','alta');
 
 insert into public.vinculos_usuario_contratos(id_organizacao,id_vinculo_usuario,id_contrato,ativo)
 select 'e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa',vu.id,'e2e2e2e2-1000-4000-8000-000000000003',true
@@ -106,7 +106,7 @@ select 'Revogação delta não afeta seleção não informada',
 from public.vinculos_usuario_contratos vc
 join public.vinculos_usuarios vu on vu.id=vc.id_vinculo_usuario
 where vu.id_organizacao='e2e2e2e2-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
-  and vu.id_usuario='e2e2e2-0002-4000-8000-000000000002';
+  and vu.id_usuario='e2e2e2e2-0002-4000-8000-000000000002';
 
 reset role;
 select teste,passou,detalhe from adm01_scope_testes order by teste;
