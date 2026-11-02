@@ -21,8 +21,7 @@ Impedir que uma tarefa localizada altere arquitetura, domínio, segurança ou co
 - scan de secrets;
 - CI Zero-Drift;
 - restore/reprodutibilidade;
-- revisão humana;
-- gate transversal BRAND-01 para qualquer mudança de identidade visual.
+- revisão humana.
 
 ## 3. Regras absolutas
 
@@ -40,32 +39,26 @@ Impedir que uma tarefa localizada altere arquitetura, domínio, segurança ou co
 12. migration aplicada não é reescrita;
 13. falha de teste não autoriza corrigir componente não relacionado;
 14. entre alternativas igualmente conformes, a execução deve usar a que consome menos créditos do Lovable;
-15. economia de crédito nunca autoriza reduzir teste, segurança, rastreabilidade, acessibilidade, responsividade, evidência, fidelidade ao PRD ou qualquer gate do pacote 4.1;
-16. qualquer alteração visual deve ler `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md` e executar `20_PROMPT_000_BRAND_01.md` antes do Build;
-17. BRAND-01 não autoriza backend, arquitetura, regras funcionais, rotas, permissões, estados, cálculos ou integrações;
-18. não criar Design System paralelo, não redesenhar asset oficial e não reconstruir tela apenas para adaptar a marca.
+15. economia de crédito nunca autoriza reduzir teste, segurança, rastreabilidade, acessibilidade, responsividade, evidência, fidelidade ao PRD ou qualquer gate do pacote 4.1.
 
 ## 4. Ciclo obrigatório
 
-1. ler integralmente o contexto raiz 00–20, incluindo as quatro partes 08A–08D da matriz 96/96 e a camada Brand v1.0;
+1. ler integralmente o contexto raiz 00–18, incluindo as quatro partes 08A–08D da matriz 96/96;
 2. ler `active-task.json`;
 3. inspecionar código/banco relacionado;
 4. elaborar plano mínimo;
 5. verificar se banco/RLS/RPC/Edge/Auth serão tocados;
-6. se a tarefa for visual, executar o PLAN do PROMPT 000 e classificar `PLAN: APROVÁVEL` ou `PLAN: NÃO APROVÁVEL`;
-7. obter autorização conforme manifesto;
-8. executar Build mínimo;
-9. rodar testes sem autoexpansão de escopo;
-10. auditar diff;
-11. validar migrations quando aplicável;
-12. scan de secrets/segurança;
-13. CI;
-14. evidência de aceite;
-15. concluir tarefa.
+6. obter autorização conforme manifesto;
+7. executar Build mínimo;
+8. rodar testes sem autoexpansão de escopo;
+9. auditar diff;
+10. validar migrations;
+11. scan de secrets/segurança;
+12. CI;
+13. evidência de aceite;
+14. concluir tarefa.
 
 Durante esse ciclo, usar Lovable apenas quando a etapa realmente depender do editor/runtime/frontend Lovable. GitHub e Supabase devem ser usados diretamente para tarefas de documentação, inspeção, rastreabilidade e evidência que não exijam o Lovable.
-
-Em BRAND-01, se o PLAN indicar necessidade de alteração funcional, backend ou arquitetura, o plano é **NÃO APROVÁVEL** e a tarefa deve parar.
 
 ## 5. Sinais clássicos de drift
 
@@ -84,12 +77,7 @@ Em BRAND-01, se o PLAN indicar necessidade de alteração funcional, backend ou 
 - remoção de auditoria/hash/versionamento para simplificar;
 - repetição desnecessária de turns, builds, scans ou testes no Lovable quando a evidência já é válida;
 - reenvio de prompt Lovable enquanto o turno anterior ainda está processando;
-- uso do Lovable para tarefa que poderia ser concluída diretamente via GitHub ou Supabase sem perda de evidência;
-- criação de segunda paleta ou Design System para aplicar a marca;
-- redesenho manual de SVG existente;
-- hardcode de cores da marca em múltiplos componentes;
-- alteração de layout, conteúdo, rotas ou comportamento justificada apenas pela identidade visual;
-- uso de BRAND-01 para corrigir bug ou refatorar área fora do escopo.
+- uso do Lovable para tarefa que poderia ser concluída diretamente via GitHub ou Supabase sem perda de evidência.
 
 ## 6. Manifesto de tarefa
 
@@ -102,17 +90,10 @@ Toda tarefa que altere implementação deve registrar no `active-task.json`, no 
 - critérios de aceite;
 - testes obrigatórios.
 
-Quando a tarefa for visual, registrar também:
-- `brand_context = ContaOS Brand v1.0`;
-- `prompt_000_brand_01_read = true`;
-- assets oficiais que serão utilizados;
-- arquivos visuais permitidos;
-- confirmação explícita de que backend e comportamento funcional estão fora do escopo.
-
 ## 7. Context Gate
 
 O repositório deve manter um gate automatizado que:
-- confirma presença de todos os documentos canônicos, incluindo 08A–08D, `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md` e `20_PROMPT_000_BRAND_01.md`;
+- confirma presença de todos os documentos canônicos, incluindo 08A–08D;
 - calcula fingerprint SHA-256 do conjunto;
 - exige declaração de leitura do contexto em tarefa ativa quando houver alteração de implementação;
 - bloqueia alteração de implementação usando manifesto desatualizado;
@@ -134,12 +115,26 @@ A eficiência de créditos faz parte da governança operacional do projeto:
 8. manter separação BUILD/Teste C quando exigida, mesmo que isso consuma crédito adicional;
 9. nunca trocar qualidade por economia.
 
-## 9. Regra transversal BRAND-01
+## 9. Critério final
 
-A faixa de prompts atômicos passa a ser **000–096**. O 000 é BRAND-01, exclusivamente visual; 001–096 permanecem os 96 requisitos PRD/NFR sem renumeração. A cobertura de requisitos continua 96/96.
+O agente pode propor. O manifesto autoriza. RLS limita. RPC protege. O diff revela. O teste prova. O CI bloqueia. O humano decide. A eficiência de créditos otimiza o caminho, mas nunca enfraquece o resultado.
 
-A fase TESTE de BRAND-01 é read-only. O diff final deve conter somente alterações visuais/documentais previstas no plano aprovado.
+## 10. Complemento canônico — BRAND-01 / Identidade Visual Oficial v1.0
 
-## 10. Critério final
+A partir de 02/11/2026, qualquer tarefa com impacto de identidade visual deve ler integralmente `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md` e `20_PROMPT_000_BRAND_01.md` **antes do PLAN**.
 
-O agente pode propor. O manifesto autoriza. RLS limita. RPC protege. O diff revela. O teste prova. O CI bloqueia. O humano decide. A eficiência de créditos otimiza o caminho, mas nunca enfraquece o resultado. A marca oficial complementa o produto, mas não pode alterar sua constituição funcional.
+O PROMPT 000 / BRAND-01 é um gate transversal exclusivamente visual. Ele complementa estas regras Zero-Drift e não as substitui.
+
+Para BRAND-01:
+- a faixa atômica é 000–096; 001–096 permanecem inalterados;
+- a cobertura do PRD continua 96/96;
+- backend, arquitetura, regras funcionais, rotas, permissões, estados, cálculos e integrações ficam fora do escopo;
+- o Design System existente deve ser preservado;
+- não criar segunda paleta, Design System paralelo ou hardcodes visuais espalhados;
+- não redesenhar nem deformar assets oficiais;
+- a marca deve se adaptar ao ContaOS, não o contrário;
+- se o PLAN exigir mudança fora do escopo visual, classificar `PLAN: NÃO APROVÁVEL` e parar;
+- a fase TESTE não altera código;
+- o diff final deve conter somente alterações visuais/documentais previstas no plano aprovado.
+
+No manifesto de uma tarefa visual, registrar também `brand_context = ContaOS Brand v1.0` e `prompt_000_brand_01_read = true`.
