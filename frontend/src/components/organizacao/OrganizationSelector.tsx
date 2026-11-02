@@ -262,8 +262,12 @@ export function OrganizationSelector() {
       .getUser()
       .then(({ data, error }) => {
         if (!ativo) return;
-        if (error) setErroSessao(true);
-        else if (!data.user) navigate({ to: "/login", replace: true });
+        const semSessao =
+          !!error &&
+          ((error as { name?: string }).name === "AuthSessionMissingError" ||
+            (error as { code?: string }).code === "session_not_found");
+        if (semSessao || (!error && !data.user)) navigate({ to: "/login", replace: true });
+        else if (error) setErroSessao(true);
         else setIdUsuario(data.user.id);
       })
       .catch(() => {
