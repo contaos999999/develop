@@ -30,7 +30,7 @@ create or replace function pg_temp.tentar_salvar(
 as $$ declare v jsonb; begin
   v := public.salvar_vinculo_usuario_adm(
     p_org,p_user,null,'financeiro',false,true,
-    array['d1d1d1d1-1000-4000-8000-000000000001'::uuid],p_ver,p_key
+    array['d1d1d1d1-1000-4000-8000-000000000001'::uuid],array[]::uuid[],p_ver,p_key
   );
   return 'OK:' || coalesce(v->>'schema_versao','');
 exception when others then return sqlstate || ':' || sqlerrm; end $$;
@@ -95,6 +95,7 @@ select public.salvar_vinculo_usuario_adm(
   'd1d1d1d1-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   'd1d1d1d1-0002-4000-8000-000000000002',null,'financeiro',false,true,
   array['d1d1d1d1-1000-4000-8000-000000000001'::uuid,'d1d1d1d1-1000-4000-8000-000000000002'::uuid],
+  array[]::uuid[],
   (select versao_registro from adm01_versao_inicial),'adm01-save-0001'
 ) r;
 
@@ -108,6 +109,7 @@ select public.salvar_vinculo_usuario_adm(
   'd1d1d1d1-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   'd1d1d1d1-0002-4000-8000-000000000002',null,'financeiro',false,true,
   array['d1d1d1d1-1000-4000-8000-000000000001'::uuid,'d1d1d1d1-1000-4000-8000-000000000002'::uuid],
+  array[]::uuid[],
   (select versao_registro from adm01_versao_inicial),'adm01-save-0001'
 ) r;
 
@@ -155,8 +157,8 @@ insert into adm01_testes
 select 'RPCs novas: anon sem EXECUTE e authenticated com EXECUTE',
        not has_function_privilege('anon','public.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean)','EXECUTE')
        and has_function_privilege('authenticated','public.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean)','EXECUTE')
-       and not has_function_privilege('anon','public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text)','EXECUTE')
-       and has_function_privilege('authenticated','public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text)','EXECUTE'), null;
+       and not has_function_privilege('anon','public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],uuid[],bigint,text)','EXECUTE')
+       and has_function_privilege('authenticated','public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],uuid[],bigint,text)','EXECUTE'), null;
 
 insert into adm01_testes
 select 'Wrappers legados não permitem bypass por authenticated',
