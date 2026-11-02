@@ -99,6 +99,8 @@ insert into v107_valores values('hash_futuro',to_jsonb(privado.hash_contexto_com
 insert into v107_valores values('aprovar_futura',pg_temp.v107_tentar($q$select public.aprovar_versao_fonte_v107('c7070707-aaaa-4000-8000-000000000001','c7070707-5000-4000-8000-000000000002',repeat('b',64),'Vigência futura','futura-aprovacao')$q$));
 insert into v107_valores values('aplicar_futura',pg_temp.v107_tentar($q$select public.definir_aplicabilidade_fonte_v107('c7070707-aaaa-4000-8000-000000000001','c7070707-2000-4000-8000-000000000001','c7070707-5000-4000-8000-000000000002',true,'Aplicação futura',null,'futura-aplicar')$q$));
 insert into v107_resultados select '31 vigência futura preserva hash e portão atual',coalesce((select (j->>'ok')::boolean from v107_valores where k='aplicar_futura') and situacao='pode_apresentar_contratante' and to_jsonb(privado.hash_contexto_competencia(id))=(select j from v107_valores where k='hash_futuro'),false),null from public.competencias where id='c7070707-6000-4000-8000-000000000001';
+insert into v107_resultados select '32 captura inclui competência ainda em análise para coordenar liberação',
+  privado.v107_capturar('c7070707-aaaa-4000-8000-000000000001','c7070707-2000-4000-8000-000000000001') ? 'c7070707-6000-4000-8000-000000000001',null;
 select jsonb_build_object('total',count(*),'passou',count(*)filter(where passou),'falhas',coalesce(jsonb_agg(jsonb_build_object('teste',teste,'detalhe',detalhe)order by teste)filter(where not passou),'[]')) from v107_resultados;
 rollback;
 

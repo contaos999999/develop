@@ -50,8 +50,9 @@ create or replace function privado.v107_capturar(p_org uuid,p_contrato uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare r record; v jsonb:='{}';
 begin
+  -- Trava também as ainda em análise, coordenando com a liberação concorrente.
   for r in select id from public.competencias where id_organizacao=p_org and (p_contrato is null or id_contrato=p_contrato)
-    and situacao in ('pode_apresentar_contratante','pode_reapresentar_contratante') order by id for update loop
+    order by id for update loop
     v:=v||jsonb_build_object(r.id::text,privado.snapshot_normativo_v107(r.id));
   end loop;
   return v;
@@ -278,10 +279,20 @@ begin
       select jsonb_agg((to_jsonb(c)-'criado_em'-'concluido_em'-'concluido_por') order by c.periodo,c.tipo,c.id)
       from public.conciliacoes c where c.id_contrato=v.id_contrato and c.periodo between date_trunc('month',v.periodo_inicio)::date and date_trunc('month',v.periodo_fim)::date
     ),'[]'::jsonb),
-    'base_normativa',privado.snapshot_normativo_v107(v.id),
     'motor','contaos','versao_snapshot','4.1','idioma','pt-BR','timezone','America/Sao_Paulo'
-  );
+  ) || case when privado.snapshot_normativo_v107(v.id)='[]'::jsonb then '{}'::jsonb
+       else jsonb_build_object('base_normativa',privado.snapshot_normativo_v107(v.id)) end;
 end;
-$function$
+$function$;
+
+-- A extensão do hash só altera contextos com base normativa efetiva.
+-- Portões legados desses contextos exigem reanálise; demais hashes são preservados.
+do $$ declare r record;
+begin
+  for r in select id from public.competencias where situacao in('pode_apresentar_contratante','pode_reapresentar_contratante')
+    and privado.snapshot_normativo_v107(id)<>'[]'::jsonb order by id for update loop
+    perform privado.invalidar_portao_competencia(r.id,'Contexto normativo incorporado ao hash oficial V1-07.','base_normativa',null);
+  end loop;
+end $$;
 
 

@@ -49,10 +49,9 @@ insert into authz_testes
 select 'INSERT direto de vínculo é negado',r<>'SEM_ERRO',r
 from (select pg_temp.tentar_insert_vinculo() r) x;
 
-select public.definir_vinculo_usuario(
-  'abababab-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-  'abababab-2222-4222-8222-222222222222',
-  'leitor',false,true
+select public.salvar_vinculo_usuario_adm(
+  'abababab-aaaa-4aaa-8aaa-aaaaaaaaaaaa','abababab-2222-4222-8222-222222222222',null,
+  'leitor',false,true,array[]::uuid[],array[]::uuid[],null,'authz-criar'
 );
 
 insert into authz_testes
@@ -65,10 +64,11 @@ insert into authz_testes
 select 'UPDATE direto de privilégio é negado',r<>'SEM_ERRO',r
 from (select pg_temp.tentar_update_vinculo() r) x;
 
-select public.definir_vinculo_usuario(
-  'abababab-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-  'abababab-2222-4222-8222-222222222222',
-  'auditor',true,true
+select public.salvar_vinculo_usuario_adm(
+  'abababab-aaaa-4aaa-8aaa-aaaaaaaaaaaa','abababab-2222-4222-8222-222222222222',null,
+  'auditor',true,true,array[]::uuid[],array[]::uuid[],
+  (select versao_registro from public.vinculos_usuarios where id_organizacao='abababab-aaaa-4aaa-8aaa-aaaaaaaaaaaa' and id_usuario='abababab-2222-4222-8222-222222222222'),
+  'authz-atualizar'
 );
 
 insert into authz_testes
@@ -82,7 +82,7 @@ insert into authz_testes
 select 'RPC registra auditoria',count(*)=2,'eventos='||count(*)
 from public.eventos_auditoria
 where id_organizacao='abababab-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
-  and evento='VinculoUsuarioDefinido'
+  and evento='VinculoUsuarioAdministrativoSalvo'
   and entidade='vinculos_usuarios';
 
 select teste,passou,detalhe from authz_testes order by teste;

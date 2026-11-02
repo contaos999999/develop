@@ -28,10 +28,10 @@ Spec: pacote4.1, 08A requisitos001/002/004/005, diagnóstico docs/frontend/V107_
 
 ## Execução e evidências
 
-- [ ] Criar testes de comportamento com fixtures sintéticas BEGIN/ROLLBACK: criação/edição+1, obsoleto409, versões sequenciais/imutáveis, vigência/hash, aprovação e aplicabilidade, tenant/contrato/leitor/anon/sessão expirada, Master, replay e mudança de payload, auditoria única, bypass DML, invalidação/hash material e não influência de fonte sem aplicação.
-- [ ] Executar RED antes deDDL e registrar ausência real dos comandos/controles.
-- [ ] Implementar migration sem reescrever histórico, executar focused GREEN; corrigir somente por migrations compensatórias se já aplicada.
-- [ ] Revisão independente; regressão SQL pertinente, Advisor security, ContextGate/ZeroDrift/ArchitectureGuard/SQLguard/secrets.
+- [x] Criar testes de comportamento com fixtures sintéticas BEGIN/ROLLBACK: criação/edição+1, obsoleto409, versões sequenciais/imutáveis, vigência/hash, aprovação e aplicabilidade, tenant/contrato/leitor/anon/sessão expirada, Master, replay e mudança de payload, auditoria única, bypass DML, invalidação/hash material e não influência de fonte sem aplicação.
+- [x] Executar RED antes deDDL e registrar ausência real dos comandos/controles.
+- [x] Implementar migration sem reescrever histórico, executar focused GREEN; corrigir somente por migrations compensatórias se já aplicada.
+- [x] Revisão independente; regressão SQL pertinente, Advisor security, ContextGate/ZeroDrift/ArchitectureGuard/SQLguard/secrets.
 - [ ] PR, CI, integração autorizada e restore limpo automático; sem certificar até todos gates passarem.
 - [ ] Registrar contrato/evidências GitHub e só então corrigir PLAN28 noLovable, BUILD, testes completos e TesteC separado18/18.
 
