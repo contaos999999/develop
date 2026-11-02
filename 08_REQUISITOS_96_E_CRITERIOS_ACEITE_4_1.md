@@ -17,3 +17,15 @@ Fonte: `MATRIZ_RASTREABILIDADE_PRD_96_v1_0.docx` do pacote mestre 4.1. Para mant
 - A certificação exige **84 RF + 12 NFR = 96/96**.
 
 A divisão física não altera conteúdo, prioridade ou efeito da matriz.
+
+## PROMPT 000 / BRAND-01 — fora da contagem 96/96
+
+A adoção da Identidade Visual Oficial ContaOS Brand v1.0 acrescenta o **PROMPT TRANSVERSAL 000 — BRAND-01** ao caderno operacional, cuja faixa passa a ser **000–096**.
+
+Isso **não cria o requisito 097** e não altera a matriz funcional:
+- `001–096` continuam correspondendo exatamente aos 96 requisitos explícitos do PRD;
+- `000` é regra transversal exclusivamente visual;
+- a certificação permanece **84 RF + 12 NFR = 96/96**;
+- BRAND-01 deve ser tratado em rastreabilidade separada, sem modificar o conteúdo dos IDs existentes.
+
+A fonte canônica integral do PROMPT 000 é `00_BRAND_01_IDENTIDADE_VISUAL_OFICIAL.md`.
