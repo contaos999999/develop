@@ -2,7 +2,8 @@
   "id": "SEC-BACKEND-ALERTS-HML-2026-11-02",
   "title": "Correção dos alertas de segurança do backend ContaOS HML",
   "branch": "security/backend-alerts-hml-2026-11-02",
-  "status": "ativa",
+  "status": "concluida_com_pendencia_externa",
+  "completed_at": "02/11/2026 - Horário de Brasília",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "02/11/2026 - Horário de Brasília",
@@ -10,26 +11,6 @@
   "context_manifest_sha256": "01d17aa3f71b8b4e4b67395f3d70fdcb158bc6d7b31dca1126aea49bc86ad4df",
   "objective": "Corrigir no HML os alertas de segurança de RLS/exposição, o warning pg_net em public quando seguro e documentar a limitação de Leaked Password Protection do plano Free, sem tocar no frontend ou em PROD.",
   "requirements_impacted": ["NFR-010", "NFR-011", "seguranca_backend", "isolamento_multiempresa", "rastreabilidade"],
-  "allowed_paths": [
-    "docs/tasks/active-task.json",
-    "docs/tasks/SEC_BACKEND_ALERTS_HML_2026-11-02.md",
-    "docs/security/**",
-    "supabase/migrations/**",
-    "supabase/tests/**",
-    "supabase/applied-history/**",
-    "supabase/README_HML.md"
-  ],
-  "forbidden_paths": [
-    "frontend/**",
-    "lovable/**",
-    "supabase/functions/**",
-    "contaos9999/prod/**"
-  ],
-  "database_changes_allowed": true,
-  "rls_changes_allowed": true,
-  "edge_function_changes_allowed": false,
-  "auth_changes_allowed": true,
-  "storage_changes_allowed": false,
   "scope": [
     "configuracao_api",
     "configuracao_upload",
@@ -40,17 +21,34 @@
     "pg_net",
     "leaked_password_protection"
   ],
-  "acceptance_criteria": [
-    "Nenhuma policy USING(true) de configuração sensível disponível indiscriminadamente a authenticated.",
-    "Nenhuma leitura anon de catálogos/configurações sem necessidade formal comprovada.",
-    "Funções existentes que dependem das tabelas continuam operacionais.",
-    "pg_net deixa o schema public se a migração for compatível com as dependências reais.",
-    "Security Advisor reexecutado após DDL.",
-    "Testes positivos e negativos de RLS documentados.",
-    "Frontend SYS-01/SYS-02 não sofre regressão funcional.",
-    "Leaked Password Protection fica habilitada se suportada pelo plano; caso contrário, pendência de plano fica documentada sem workaround inseguro.",
-    "PROD permanece intocado."
+  "result": {
+    "rls_broad_policies": "corrigido",
+    "anonymous_catalog_access": "corrigido",
+    "pg_net_public_warning": "corrigido_removido_sem_dependencias",
+    "lovable_previous_rls_findings": "0_reincidencias",
+    "sys01_sys02_smoke": "pass",
+    "prod_untouched": true,
+    "remaining_external_dependency": "Supabase Leaked Password Protection requer plano Pro ou superior; organização atual Free/tier_free"
+  },
+  "evidence": [
+    "docs/security/SEC_BACKEND_ALERTS_HML_2026-11-02_BASELINE.md",
+    "docs/security/SEC_BACKEND_ALERTS_HML_2026-11-02_RESULTADO_FINAL.md",
+    "supabase/tests/security_alerts_visibility.sql",
+    "supabase/migrations/20261102103000_hardening_security_alert_visibility.sql",
+    "supabase/migrations/20261102104000_remove_unused_pg_net.sql",
+    "supabase/applied-history/2026-11-02_security_alerts_hml.md"
   ],
-  "rollback": "Toda mudança de banco deve ocorrer por nova migration reversível/auditável; não reescrever migrations históricas. Em falha, aplicar migration compensatória e preservar evidências.",
+  "acceptance_criteria": {
+    "no_using_true_sensitive_config": "pass",
+    "no_unnecessary_anon_reads": "pass",
+    "dependent_functions_operational": "pass",
+    "pg_net_warning_removed": "pass",
+    "security_advisor_rerun": "pass",
+    "rls_positive_negative_tests": "pass",
+    "frontend_sys01_sys02_regression": "pass",
+    "leaked_password_protection": "blocked_by_plan_documented",
+    "prod_untouched": "pass"
+  },
+  "rollback": "Mudanças aplicadas por migrations novas e auditáveis. Em eventual regressão, criar migration compensatória; não reescrever histórico.",
   "prod_untouched": true
 }
