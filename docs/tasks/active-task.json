@@ -1,10 +1,10 @@
 {
   "id": "PROMPT-27-V1-06-CONTRATO-VISAO-GERAL-2026-11-02",
   "title": "PROMPT 27 / V1-06 — Contrato - visão geral",
-  "status": "BACKEND_CERTIFICADO_FRONTEND_PENDENTE",
+  "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_by": "ChatGPT / GPT-5.6 Sol",
+  "context_read_by": "Codex — leitura integral e revisão paralela nesta sessão",
   "canonical_credit_rule_applied": true,
   "objective": "Implementar e certificar /contratos/:id com resumo oficial do contrato, navegação de abas e distinção segura 403/404, sem pré-carregar documentos ou competências e sem inventar edição de contrato.",
   "canonical_requirements": [
@@ -51,7 +51,7 @@
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
     "base_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
-    "status": "PENDENTE_PLAN_LOVABLE",
+    "status": "PLAN_REVISADO_APROVADO",
     "constraints": [
       "não consultar documentos/competências no primeiro paint",
       "não inferir acesso pela organização local",
@@ -59,7 +59,9 @@
       "sincronizar tipo oficial da nova RPC sem cast",
       "RPC classificadora apenas após zero linhas",
       "403 para negado; 404 para nao_encontrado; permitido após zero linhas = erro de consistência"
-    ]
+    ],
+    "plan_commit": "33b8942c34c8a112028a0de394d0c85210d175eb",
+    "types_delta": "somente assinatura oficial classificar_acesso_contrato_v106, sem casts"
   },
   "backend_branch": "backend/v106-contrato-visao-geral-acesso",
   "backend_doc": "docs/backend/V106_CONTRATO_VISAO_GERAL_2026-11-02.md",
@@ -69,6 +71,109 @@
     "frontend_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
     "test_c": "PASS 18/18"
   },
-  "next_step": "Abrir/revisar/mergear PR backend; depois auditar frontend certificado e enviar um único PLAN Lovable para V1-06.",
-  "prod_untouched": true
+  "next_step": "Validar Context Gate após correção documental autorizada e retomar BUILD Lovable pelo gate plan--show já aprovado.",
+  "prod_untouched": true,
+  "context_read_acknowledged_at": "2026-11-02",
+  "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
+  "context_documents_read": [
+    "00_AI_LEIA_ANTES_DE_ALTERAR.md",
+    "01_PRD_MESTRE_4_1.md",
+    "02_PREMISSAS_FUNCIONAIS_TECNICAS_4_1.md",
+    "03_ARQUITETURA_OFICIAL_4_1.md",
+    "04_MANUAL_AMBIENTE_E_PROMOCAO_4_1.md",
+    "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
+    "06_FRONTEND_LOVABLE_ESPECIFICACAO_4_1.md",
+    "07_ZERO_DRIFT_GOVERNANCA_4_1.md",
+    "08_REQUISITOS_96_E_CRITERIOS_ACEITE_4_1.md",
+    "08A_REQUISITOS_001_024_4_1.md",
+    "08B_REQUISITOS_025_048_4_1.md",
+    "08C_REQUISITOS_049_072_4_1.md",
+    "08D_REQUISITOS_073_096_4_1.md",
+    "09_RASTREABILIDADE_FONTES_AUDITORIA_4_1.md",
+    "10_IA_OCR_RAG_E_PRECEDENTES_4_1.md",
+    "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md",
+    "12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md",
+    "13_MAPA_DOCUMENTOS_PACOTE_4_1.md",
+    "14_CHECKLIST_PRE_ALTERACAO.md",
+    "15_ESTADO_CERTIFICADO_HML_4_1.md",
+    "16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md",
+    "17_FONTES_TECNICAS_E_QA_4_1.md",
+    "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
+  ],
+  "branch": "main",
+  "requirements_impacted": [
+    "PROMPT-27",
+    "V1-CON-001 (parcial)",
+    "V1-CON-002 (parcial)",
+    "V1-CON-004 (dependência de telas correlatas)",
+    "V1-CON-005 (dependência de telas correlatas)",
+    "NFR-005",
+    "NFR-009"
+  ],
+  "screens_impacted": [
+    "V1-06"
+  ],
+  "allowed_paths": [
+    "src/routes/contratos_.$id.tsx",
+    "src/components/contratos/VisaoGeralContrato.tsx",
+    "src/lib/contratos/contratoDetalheDados.ts",
+    "src/test/contratoDetalhe.test.tsx",
+    "src/integrations/supabase/types.ts",
+    "src/routeTree.gen.ts",
+    ".lovable/plan.md",
+    ".lovable/plan/**",
+    "docs/tasks/active-task.json",
+    "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md",
+    "docs/superpowers/plans/2026-11-02-v106-contrato-visao-geral.md"
+  ],
+  "forbidden_paths": [
+    "supabase/**",
+    "src/integrations/supabase/client.ts",
+    ".env",
+    "package.json",
+    "src/components/auth/**",
+    "src/components/organizacao/**",
+    "src/components/administracao/**",
+    "src/components/dashboard/**",
+    "src/components/contratantes/**",
+    "src/components/ui/**",
+    "src/components/contratos/ListaContratos.tsx",
+    "src/components/contratos/NovoContrato.tsx",
+    "src/lib/contratos/contratosDados.ts",
+    "src/lib/contratos/novoContratoDados.ts"
+  ],
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
+  "edge_function_changes_allowed": false,
+  "auth_changes_allowed": false,
+  "approved_tables": [
+    "public.contratos (SELECT)",
+    "public.contratantes (SELECT leve embutido)"
+  ],
+  "approved_rpcs": [
+    "public.classificar_acesso_contrato_v106(uuid) (somente após zero linhas)"
+  ],
+  "approved_edge_functions": [],
+  "acceptance": [
+    "PLAN revisado conforme pacote 4.1 e aprovado pelo usuário",
+    "TDD RED antes da produção",
+    "Resumo oficial sem edição ou carga pesada",
+    "403/404 seguros e sem bypass",
+    "Focado/regressão/typecheck/build e browser 1440/1280/768/390",
+    "Teste C separado read-only 18/18, parar em qualquer FAIL",
+    "Security Scan sem novo Critical",
+    "GitHub com evidências e PROD intocado"
+  ],
+  "tests": [
+    "contratoDetalhe.test.tsx",
+    "regressão completa frontend",
+    "npx tsgo --noEmit",
+    "build",
+    "browser controlado 1440/1280/768/390",
+    "source scan",
+    "Teste C 18 gates",
+    "Security Scan",
+    "ai-context-gate",
+    "zero-drift"
+  ]
 }
