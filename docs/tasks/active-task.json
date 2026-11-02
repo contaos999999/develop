@@ -113,7 +113,8 @@
     "src/test/contratoDetalhe.test.tsx",
     "supabase/migrations/*_v107_*.sql",
     "supabase/tests/v107_*.sql",
-    "docs/backend/V107_*.md"
+    "docs/backend/V107_*.md",
+    "docs/superpowers/plans/2026-11-02-v107-base-normativa.md"
   ],
   "forbidden_paths": [
     "src/integrations/supabase/**",
