@@ -57,21 +57,31 @@
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "plan": [
-    "Neutralizar células cujo primeiro conteúdo significativo possa ser interpretado como fórmula por planilhas.",
-    "Cobrir =, +, -, @ e controles tab/CR/LF sem remover o valor original.",
-    "Continuar escapando aspas conforme CSV atual e preservar separador ponto e vírgula e BOM UTF-8.",
-    "Adicionar teste determinístico no repositório para entradas maliciosas e benignas.",
-    "Publicar somente no HML e validar o gerador de relatórios antes do merge."
+  "implemented": [
+    "Detecção de fórmula apenas para valores textuais, preservando números negativos reais como números.",
+    "Normalização NFKC usada somente para detecção, cobrindo variantes Unicode equivalentes de =, + e @ sem alterar o conteúdo original.",
+    "Espaços e caracteres de controle iniciais são ignorados na detecção para evitar bypass por prefixo invisível.",
+    "Células perigosas recebem apóstrofo de neutralização antes do conteúdo original.",
+    "Escape CSV de aspas, separador ponto e vírgula e BOM UTF-8 foram preservados.",
+    "Teste determinístico lê a lógica do generate-report e valida entradas maliciosas e benignas."
+  ],
+  "test_evidence": [
+    "Teste determinístico local: PASS para 11 entradas perigosas e 6 entradas benignas.",
+    "Cobertos =, +, -, @, espaços antes da fórmula, tab, CR, LF e variantes Unicode de largura cheia.",
+    "Número -42 permaneceu serializado como número textual CSV sem apóstrofo de segurança, evitando falso positivo em valor numérico real.",
+    "HML generate-report versão 4 publicada com sucesso.",
+    "HML sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
+    "HML com token interno e fila reports vazia: HTTP 200, processados=0, confirmando runtime/autenticação sem consumir dados de negócio."
   ],
   "rollback": "Reverter exclusivamente generate-report/index.js e o teste P2A para o estado anterior e republicar a versão anterior da Edge Function no HML.",
-  "acceptance": [
-    "Valores iniciados por =, +, -, @, tab, CR ou LF não podem iniciar fórmula na célula exportada.",
-    "Texto comum, números serializados e JSON comum permanecem semanticamente preservados.",
-    "Aspas internas continuam corretamente duplicadas no CSV.",
-    "BOM UTF-8 e separador ponto e vírgula permanecem inalterados.",
-    "Worker sem token interno continua retornando 401.",
-    "Zero-Drift, Architecture Guard, migrations reproduzíveis e secret scan permanecem verdes.",
-    "PROD permanece intocado."
-  ]
+  "acceptance_results": {
+    "formula_prefixes": "PASS",
+    "unicode_and_control_bypass": "PASS",
+    "benign_values_preserved": "PASS",
+    "quotes_escaped": "PASS",
+    "bom_and_separator_preserved": "PASS",
+    "worker_without_internal_token_401": "PASS",
+    "hml_runtime": "PASS",
+    "prod_untouched": "PASS"
+  }
 }
