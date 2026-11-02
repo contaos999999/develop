@@ -1,0 +1,37 @@
+# Segredos e configurações locais
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+.mcp.json
+
+# Supabase local / temporários
+.supabase/
+supabase/.temp/
+
+# Dependências, builds e cobertura
+node_modules/
+dist/
+build/
+coverage/
+
+# Logs, caches e temporários
+*.log
+*.tmp
+*.temp
+.tmp/
+tmp/
+.cache/
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
