@@ -1,9 +1,9 @@
 # ContaOS — Design System Oficial
 
-**Versão:** 1.0  
+**Versão:** 1.1  
 **Data:** 02/11/2026  
 **Direção visual:** Executive Command Center + Audit Workspace  
-**Status:** aprovado para prototipação  
+**Status:** aprovado para prototipação e implementação  
 **Fonte funcional:** PRD 4.1, Premissas 4.1, Arquitetura 4.1, Frontend Lovable 4.1 e Frontend Master Design
 
 ## 1. Princípio visual
@@ -235,6 +235,37 @@ Usar apenas quando a ação exige foco total e curta duração.
 
 Ao fechar, devolver foco ao elemento de origem.
 
+### 9.8 Tooltip e ajuda contextual
+O componente solicitado pelo produto como “lint” corresponde tecnicamente ao **tooltip**.
+
+Deve ser usado sempre que acrescentar compreensão real ao usuário, principalmente em:
+- botões somente com ícone;
+- campos de significado, formato ou efeito não óbvio;
+- termos técnicos e siglas;
+- indicadores, métricas, scores, risco e confiança;
+- badges/estados que mereçam contexto adicional;
+- ações cuja consequência não seja evidente;
+- ícones de evidência, fonte, IA, histórico e auditoria;
+- controles desabilitados, quando uma explicação curta for adequada;
+- cabeçalhos de coluna técnicos/abreviados.
+
+Regras obrigatórias:
+- desktop: abrir em `hover` e em `focus` por teclado;
+- tablet/mobile: disponibilizar a mesma ajuda por toque, ícone de informação, popover ou padrão equivalente;
+- texto curto, objetivo e em PT-BR;
+- usar primitiva acessível, com associação equivalente a `aria-describedby` quando aplicável;
+- fechamento previsível, incluindo `Escape` quando permanecer aberto;
+- não prender foco;
+- evitar clipping e posicionar-se dentro da viewport;
+- respeitar `prefers-reduced-motion`;
+- ser componente reutilizável do Design System.
+
+Tooltip é complementar e **não substitui** label, indicação de obrigatório, erro, aviso de segurança, status crítico, motivo material de bloqueio, consequência relevante nem fonte/evidência exigida pelo PRD.
+
+Não usar indiscriminadamente em texto autoexplicativo. Nunca colocar secret, token, stack trace, SQL, payload sensível ou PII desnecessária dentro de tooltip.
+
+O componente-base deve possuir teste Playwright para hover, foco por teclado, fechamento por `Escape` quando aplicável, interação em viewport mobile e conteúdo acessível.
+
 ## 10. IA e explicabilidade
 
 Toda saída de IA material deve separar visualmente:
@@ -336,7 +367,8 @@ Obrigatório:
 - contraste adequado;
 - modal/drawer com foco controlado;
 - mensagens de erro associadas ao campo;
-- alvos de toque adequados no mobile.
+- alvos de toque adequados no mobile;
+- toda ajuda em tooltip disponível também por teclado e, quando aplicável, por toque.
 
 ## 16. Segurança visual e funcional
 
@@ -365,8 +397,13 @@ Uma tela só está pronta quando:
 - ação crítica reflete backend;
 - copy está em PT-BR;
 - datas, moeda e horários seguem padrão brasileiro;
+- tooltips pertinentes funcionam por hover, foco e toque quando aplicável;
 - Playwright cobre happy path e pelo menos um fluxo negativo material.
 
 ## 18. Regra de evolução
 
 Mudança global de token, navegação, componente-base ou padrão visual deve ser registrada como decisão de design antes de ser aplicada em lote. O Lovable não pode inventar novo padrão visual para resolver uma tela isolada.
+
+## 19. Regra de precedência
+
+Este Design System governa apresentação e interação, mas não pode sobrepor PRD, Premissas, Arquitetura, matriz 96/96, prompts oficiais ou contratos do backend HML. Em qualquer conflito, prevalece a fonte funcional/técnica superior definida no pacote 4.1.
