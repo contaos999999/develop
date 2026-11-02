@@ -50,7 +50,7 @@ select set_config('request.jwt.claims','{"sub":"e2e2e2e2-0001-4000-8000-00000000
 -- Requisito 1: formulário de vínculo novo consegue listar contratos sem vínculo-alvo prévio.
 insert into adm01_scope_testes
 select 'Vínculo novo lista contratos com p_id_usuario null',
-       (r->>'schema_versao')='adm01-v1'
+       (r->>'schema_versao')='adm01-v2'
        and (r->>'total')::int=3
        and jsonb_array_length(r->'itens')=1
        and (r->'itens'->0->>'selecionado')::boolean=false,
@@ -75,8 +75,8 @@ with atual as (
     'leitor',
     false,
     true,
-    array['e2e2e2e2-1000-4000-8000-000000000001'::uuid], -- ativar
-    array[]::uuid[], -- revogar
+    array['e2e2e2e2-1000-4000-8000-000000000001'::uuid],
+    array[]::uuid[],
     (select versao_registro from atual),
     'adm01-scope-delta-001'
   ) r
