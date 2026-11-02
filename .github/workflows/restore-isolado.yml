@@ -9,6 +9,7 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/tests/hml_acceptance.sql'
       - 'supabase/tests/workflow_bopla.sql'
+      - 'supabase/tests/alert_task_bopla.sql'
       - '.github/workflows/restore-isolado.yml'
 
 permissions:
@@ -55,7 +56,13 @@ jobs:
             exit 1
           fi
 
-          echo 'Suítes oficiais HML e workflow BOPLA: PASS.'
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/alert_task_bopla.sql | tee restore-proof/alert-task-bopla.txt
+          if grep -Eq '\|f\|' restore-proof/alert-task-bopla.txt; then
+            echo 'A suíte de segurança de tarefa de alerta contém teste com passou=false.'
+            exit 1
+          fi
+
+          echo 'Suítes oficiais HML e de segurança BOPLA: PASS.'
 
       - name: Registrar histórico reconstruído
         shell: bash
@@ -64,7 +71,7 @@ jobs:
           supabase migration list --local | tee restore-proof/migration-list.txt
           printf 'commit=%s\n' "${GITHUB_SHA}" > restore-proof/resultado.txt
           printf 'status=PASS\n' >> restore-proof/resultado.txt
-          printf 'criterio=db reset local + suites HML/workflow concluídas sem erro\n' >> restore-proof/resultado.txt
+          printf 'criterio=db reset local + suites HML/BOPLA concluídas sem erro\n' >> restore-proof/resultado.txt
           printf 'cli=2.122.0\n' >> restore-proof/resultado.txt
           printf 'postgres_major=17\n' >> restore-proof/resultado.txt
 
