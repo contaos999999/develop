@@ -1,8 +1,8 @@
 # CONTAOS 4.1 — LEITURA OBRIGATÓRIA ANTES DE QUALQUER ALTERAÇÃO
 
-> **REGRA DE BLOQUEIO:** nenhum agente de IA, pessoa, IDE assistida, Lovable, Codex, Claude, Gemini, Copilot, Cursor ou automação pode alterar código, banco, migration, RLS, RPC, Edge Function, Storage, Queue, Cron, Auth, frontend, workflow, regra de negócio, status, prompt ou documentação operacional sem concluir a leitura integral dos documentos canônicos `00` a `18` desta raiz.
+> **REGRA DE BLOQUEIO:** nenhum agente de IA, pessoa, IDE assistida, Lovable, Codex, Claude, Gemini, Copilot, Cursor ou automação pode alterar código, banco, migration, RLS, RPC, Edge Function, Storage, Queue, Cron, Auth, frontend, workflow, regra de negócio, status, prompt ou documentação operacional sem concluir a leitura integral dos documentos canônicos `00` a `20` desta raiz.
 
-Este repositório é o ambiente oficial de homologação do ContaOS. O objetivo desta camada é impedir que uma alteração tecnicamente “boa” quebre regra funcional, segurança, rastreabilidade, temporalidade, multi-organização ou uma premissa já certificada.
+Este repositório é o ambiente oficial de homologação do ContaOS. O objetivo desta camada é impedir que uma alteração tecnicamente “boa” quebre regra funcional, segurança, rastreabilidade, temporalidade, multi-organização, identidade visual oficial ou uma premissa já certificada.
 
 ## 1. Ordem obrigatória de leitura
 
@@ -31,8 +31,12 @@ Leia **nesta ordem, sem pular**:
 21. `16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md`
 22. `17_FONTES_TECNICAS_E_QA_4_1.md`
 23. `18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md`
+24. `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`
+25. `20_PROMPT_000_BRAND_01.md`
 
 Depois leia também o escopo ativo em `docs/tasks/active-task.json`, o certificado em `docs/CERTIFICACAO_BACKEND_HML_4_1.md`, as migrations afetadas e os testes relacionados.
+
+**Regra especial de frontend visual:** antes de qualquer alteração de logo, símbolo, cores, tipografia, favicon, PWA, sidebar, login, header, tokens, manifest, metadata ou outra aplicação visual, a leitura integral de `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md` e `20_PROMPT_000_BRAND_01.md` é obrigatória e deve ocorrer antes do PLAN.
 
 ## 2. Declaração obrigatória antes de editar
 
@@ -45,7 +49,8 @@ Antes da primeira alteração, o agente deve registrar no manifesto da tarefa:
 - objetivo exato da tarefa;
 - arquivos permitidos e proibidos;
 - se banco, RLS, Edge Function ou Auth podem ser alterados;
-- testes que provarão que a mudança não criou drift.
+- testes que provarão que a mudança não criou drift;
+- quando houver escopo visual, `brand_context = ContaOS Brand v1.0` e `prompt_000_brand_01_read = true`.
 
 Sem essa declaração, a tarefa deve ser tratada como **NO-GO**.
 
@@ -60,9 +65,13 @@ Em caso de conflito, aplicar esta ordem:
 5. regras Zero-Drift;
 6. matriz oficial de 96 requisitos e critérios de aceite;
 7. schema, migrations, RLS, RPCs, Edge Functions e testes versionados já certificados;
-8. documentação auxiliar e prompts.
+8. especificação frontend e Design System 4.1;
+9. **ContaOS Brand v1.0 somente para identidade visual**;
+10. documentação auxiliar e prompts.
 
 **Nenhuma IA pode mudar uma premissa funcional para facilitar implementação.** Se código existente e PRD divergirem, o agente deve parar, apontar a divergência e pedir decisão. Não deve “harmonizar” silenciosamente.
+
+A ContaOS Brand v1.0 **complementa** o pacote 4.1 e nunca o substitui. Em qualquer conflito estético que afete comportamento, arquitetura, segurança, UX estrutural, Design System ou backend, **o pacote 4.1 prevalece**.
 
 ## 4. Regras que nunca podem ser quebradas
 
@@ -89,6 +98,10 @@ Em caso de conflito, aplicar esta ordem:
 - **Administrador Master global é regra canônica:** existe uma identidade global distinta do `administrador` organizacional, com acesso administrativo transversal a todas as organizações, contratos, usuários, vínculos, configurações, auditorias e módulos. O Master não depende de `vinculos_usuarios`, mas continua sujeito a sessão ativa, RLS, auditoria e operações críticas protegidas. O papel Master equivale a `administrador` para autorização administrativa e **não** concede automaticamente papéis humanos especializados como `direcao_aprovador`, preservando segregação de funções. `service_role` nunca é usado para representar o Master no navegador.
 - **Economia de créditos do Lovable é regra canônica:** entre alternativas igualmente conformes ao pacote 4.1, usar sempre a que consome menos créditos do Lovable.
 - Economia de créditos nunca pode reduzir ou contornar PRD, segurança, TDD, Teste C, Zero-Drift, rastreabilidade, cobertura, acessibilidade, responsividade, evidência ou critério de aceite.
+- **Identidade Visual Oficial é regra canônica:** `ContaOS Brand v1.0` é fonte oficial para logomarca, símbolo, favicon, PWA, versões clara/escura/monocromática, paleta institucional e regras de aplicação visual.
+- **PROMPT 000 / BRAND-01 é gate transversal obrigatório:** qualquer tarefa de identidade visual deve obedecer integralmente `20_PROMPT_000_BRAND_01.md`.
+- BRAND-01 é exclusivamente visual. Não autoriza tabela, migration, RLS, grant, RPC, Database Function, Edge Function, Auth, variável de ambiente, integração, rota, RBAC, regra de negócio, status, cálculo ou conteúdo funcional.
+- Não criar Design System paralelo, não redesenhar SVG oficial, não espalhar cores hardcoded e não refatorar componente fora do escopo da marca.
 
 ## 5. Condições obrigatórias para modificar o backend certificado
 
@@ -104,13 +117,19 @@ O backend HML foi certificado. Portanto uma IA **não começa “melhorando” o
 8. restore limpo a partir das migrations;
 9. Zero-Drift e Architecture Guard verdes.
 
+**Em tarefa BRAND-01, backend não é escopo. Se a implantação visual exigir backend, o PLAN deve ser classificado como NÃO APROVÁVEL e a tarefa deve parar.**
+
 ## 6. Proibição de “refatoração por conveniência”
 
 Não alterar nomes de tabelas, colunas, enums, status, funções, rotas, estruturas de Storage, filas, payloads ou contratos de API apenas para deixar o código “mais bonito”. Mudanças estruturais só podem ocorrer quando houver necessidade funcional/técnica expressamente autorizada e migração compatível.
 
+Em BRAND-01 também é proibido substituir componentes existentes apenas por preferência estética ou reconstruir telas para adaptar o produto à logomarca. **A identidade visual deve se adaptar ao ContaOS.**
+
 ## 7. Regra de parada
 
-Se houver qualquer dúvida sobre conflito, escopo, segurança, fonte normativa, status, portão, tenant, migration ou efeito em produção: **não editar**. Produzir diagnóstico e plano mínimo primeiro.
+Se houver qualquer dúvida sobre conflito, escopo, segurança, fonte normativa, status, portão, tenant, migration, efeito em produção ou conflito entre marca e Design System: **não editar**. Produzir diagnóstico e plano mínimo primeiro.
+
+No escopo BRAND-01, se qualquer alteração necessária ultrapassar a camada visual: **PARE e reporte como LACUNA ou CONFLITO. Não improvise.**
 
 ## 8. Regra canônica de eficiência de créditos Lovable
 
@@ -128,3 +147,14 @@ A execução deve minimizar o consumo de créditos do Lovable sem reduzir qualid
 10. se duas estratégias forem tecnicamente equivalentes e ambas 100% conformes, a de menor custo de créditos Lovable tem precedência obrigatória.
 
 A otimização de crédito é **subordinada à conformidade**. Uma solução mais barata que reduza segurança, testes, rastreabilidade ou fidelidade ao pacote 4.1 deve ser rejeitada.
+
+## 9. Regra canônica BRAND-01
+
+A faixa de prompts atômicos passa a ser **000–096**:
+
+- `000`: BRAND-01 — Identidade Visual Oficial ContaOS v1.0, transversal;
+- `001–096`: 96 prompts originais dos requisitos PRD/NFR, sem renumeração.
+
+A cobertura do PRD continua **96/96**. Não declarar 97/97 requisitos.
+
+Antes de implantar identidade visual, executar rigorosamente as fases PLAN → aprovação → BUILD → TESTE de `20_PROMPT_000_BRAND_01.md`. O teste BRAND-01 é read-only: não alterar código durante a fase de teste.
