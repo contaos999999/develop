@@ -1,6 +1,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
-import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs'
+import { ZipReader, Uint8ArrayReader, TextWriter } from 'npm:@zip.js/zip.js@2.24.0'
+import { XMLParser } from 'npm:fast-xml-parser@5.11.2'
 
 const URL = Deno.env.get('SUPABASE_URL')!
 const KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -111,46 +112,224 @@ function validarZipXlsx(bytes: Uint8Array, cfg: any) {
     if (fim > bytes.byteLength || discoInicio !== 0 || offsetLocal === 0xffffffff || tamCompactado === 0xffffffff || tamDescompactado === 0xffffffff) {
       throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Metadados ZIP fora do formato seguro suportado.')
     }
-    if ((flags & 0x0001) !== 0) {
-      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Planilhas compactadas criptografadas não são aceitas.')
-    }
-    if (![0, 8].includes(metodo)) {
-      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Método de compressão não permitido.')
-    }
+    if ((flags & 0x0001) !== 0) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Planilhas criptografadas não são aceitas.')
+    if (![0, 8].includes(metodo)) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Método de compressão não permitido.')
 
     const nome = new TextDecoder('utf-8', { fatal: false }).decode(bytes.subarray(pos + 46, pos + 46 + tamNome)).replace(/\\/g, '/')
-    if (!caminhoZipSeguro(nome)) {
-      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Caminho interno inseguro detectado na planilha.')
-    }
+    if (!caminhoZipSeguro(nome)) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Caminho interno inseguro detectado na planilha.')
     const lower = nome.toLowerCase()
-    if (lower.endsWith('/vbaproject.bin') || lower.includes('/activex/') || lower.startsWith('activex/') || lower.includes('/embeddings/') || lower.startsWith('embeddings/')) {
-      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Conteúdo ativo ou incorporado não é aceito na planilha.')
+    if (lower.endsWith('/vbaproject.bin') || lower.includes('/activex/') || lower.startsWith('activex/') || lower.includes('/embeddings/') || lower.startsWith('embeddings/') || lower.includes('/oleobjects/') || lower.startsWith('oleobjects/') || lower.includes('/externallinks/') || lower.startsWith('externallinks/') || lower.endsWith('/connections.xml')) {
+      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Conteúdo ativo, incorporado ou externo não é aceito na planilha.')
     }
 
     totalCompactado += tamCompactado
     totalDescompactado += tamDescompactado
-    if (totalDescompactado > maxDescompactado) {
-      throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Conteúdo descompactado acima do limite seguro.')
-    }
-    if (tamDescompactado > 0 && tamCompactado === 0) {
-      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Razão de compressão inválida.')
-    }
-    if (tamCompactado > 0 && tamDescompactado / tamCompactado > maxRazao) {
-      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Razão de compressão suspeita detectada.')
-    }
+    if (totalDescompactado > maxDescompactado) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Conteúdo descompactado acima do limite seguro.')
+    if (tamDescompactado > 0 && tamCompactado === 0) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Razão de compressão inválida.')
+    if (tamCompactado > 0 && tamDescompactado / tamCompactado > maxRazao) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Razão de compressão suspeita detectada.')
 
     nomes.add(nome)
     pos = fim
   }
 
   if (pos > offsetCentral + tamanhoCentral) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Diretório central ZIP inválido.')
-  if (totalCompactado > 0 && totalDescompactado / totalCompactado > maxRazao) {
-    throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Razão global de compressão suspeita detectada.')
-  }
-  if (!nomes.has('[Content_Types].xml') || !nomes.has('xl/workbook.xml')) {
+  if (totalCompactado > 0 && totalDescompactado / totalCompactado > maxRazao) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Razão global de compressão suspeita detectada.')
+  if (!nomes.has('[Content_Types].xml') || !nomes.has('xl/workbook.xml') || !nomes.has('xl/_rels/workbook.xml.rels')) {
     throw new AppError('PLANILHA_TIPO_INVALIDO', 'O arquivo não possui a estrutura esperada de uma planilha XLSX.')
   }
-  return { entradas: entradasTotal, totalCompactado, totalDescompactado }
+  return { entradas: entradasTotal, totalCompactado, totalDescompactado, nomes }
+}
+
+function validarXmlSeguro(xml: string, maxChars = 20_000_000): string {
+  if (xml.length > maxChars) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'XML interno acima do limite seguro.')
+  const inicio = xml.slice(0, 4096).toUpperCase()
+  if (inicio.includes('<!DOCTYPE') || inicio.includes('<!ENTITY')) {
+    throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'DOCTYPE e entidades XML não são aceitos.')
+  }
+  return xml
+}
+
+const xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  parseTagValue: false,
+  parseAttributeValue: false,
+  processEntities: false,
+  trimValues: false,
+  allowBooleanAttributes: false,
+  maxNestedTags: 128,
+})
+
+function arr<T>(v: T | T[] | null | undefined): T[] {
+  if (v == null) return []
+  return Array.isArray(v) ? v : [v]
+}
+
+function textoNode(v: any): string {
+  if (v == null) return ''
+  if (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return String(v)
+  if (Array.isArray(v)) return v.map(textoNode).join('')
+  if (typeof v === 'object') {
+    if (v['#text'] != null) return textoNode(v['#text'])
+    if (v.t != null) return textoNode(v.t)
+    if (v.r != null) return arr(v.r).map((x: any) => textoNode(x?.t ?? x)).join('')
+  }
+  return ''
+}
+
+function colunaPorReferencia(ref: string): number {
+  const m = String(ref ?? '').match(/^([A-Z]+)\d+$/i)
+  if (!m) return -1
+  let n = 0
+  for (const ch of m[1].toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64
+  return n - 1
+}
+
+function caminhoAlvoXlsx(target: string): string {
+  let p = String(target ?? '').replace(/\\/g, '/').replace(/^\/+/, '')
+  if (!p.startsWith('xl/')) p = `xl/${p}`
+  const partes = p.split('/')
+  const normalizadas: string[] = []
+  for (const parte of partes) {
+    if (!parte || parte === '.') continue
+    if (parte === '..') {
+      if (normalizadas.length <= 1) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Relacionamento XLSX fora do pacote permitido.')
+      normalizadas.pop()
+    } else normalizadas.push(parte)
+  }
+  p = normalizadas.join('/')
+  if (!p.startsWith('xl/worksheets/')) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'A primeira planilha aponta para um recurso inesperado.')
+  return p
+}
+
+function excelSerialParaISO(v: number): string | null {
+  if (!Number.isFinite(v) || v < 1 || v > 2958465) return null
+  const dias = Math.floor(v)
+  const ms = Date.UTC(1899, 11, 30) + dias * 86400000
+  const d = new Date(ms)
+  if (Number.isNaN(d.getTime())) return null
+  return d.toISOString().slice(0, 10)
+}
+
+function dataISO(v: unknown): string | null {
+  if (v instanceof Date && !Number.isNaN(v.getTime())) return v.toISOString().slice(0, 10)
+  if (typeof v === 'number') return excelSerialParaISO(v)
+  const s = String(v ?? '').trim()
+  let m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`
+  return null
+}
+
+async function lerXlsxSeguro(bytes: Uint8Array, cfg: any, maxLinhas: number, maxColunas: number): Promise<Record<string, unknown>[]> {
+  validarZipXlsx(bytes, cfg)
+  const reader = new ZipReader(new Uint8ArrayReader(bytes))
+  try {
+    const entries = await reader.getEntries()
+    const mapa = new Map<string, any>()
+    for (const entry of entries) {
+      const nome = String(entry.filename ?? '').replace(/\\/g, '/')
+      if (!caminhoZipSeguro(nome)) throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Caminho ZIP inseguro.')
+      mapa.set(nome, entry)
+    }
+
+    const lerXml = async (nome: string, maxChars = 20_000_000): Promise<string> => {
+      const entry = mapa.get(nome)
+      if (!entry || entry.directory) throw new AppError('PLANILHA_TIPO_INVALIDO', `Componente obrigatório ausente: ${nome}`)
+      const texto = await entry.getData(new TextWriter())
+      return validarXmlSeguro(String(texto ?? ''), maxChars)
+    }
+
+    const workbook = xmlParser.parse(await lerXml('xl/workbook.xml', 2_000_000))
+    const sheets = arr(workbook?.workbook?.sheets?.sheet)
+    if (!sheets.length) throw new AppError('PLANILHA_TIPO_INVALIDO', 'A planilha não possui aba disponível.')
+    const primeira = sheets[0] as any
+    const rid = primeira?.['@_r:id'] ?? primeira?.['@_id']
+    if (!rid) throw new AppError('PLANILHA_TIPO_INVALIDO', 'Relacionamento da primeira aba ausente.')
+
+    const rels = xmlParser.parse(await lerXml('xl/_rels/workbook.xml.rels', 2_000_000))
+    const relationships = arr(rels?.Relationships?.Relationship)
+    const rel = relationships.find((r: any) => String(r?.['@_Id'] ?? '') === String(rid)) as any
+    if (!rel || String(rel?.['@_TargetMode'] ?? '').toLowerCase() === 'external') {
+      throw new AppError('ARQUIVO_FINANCEIRO_BLOQUEADO', 'Relacionamento externo ou inválido na planilha.')
+    }
+    const sheetPath = caminhoAlvoXlsx(String(rel?.['@_Target'] ?? ''))
+
+    let sharedStrings: string[] = []
+    if (mapa.has('xl/sharedStrings.xml')) {
+      const shared = xmlParser.parse(await lerXml('xl/sharedStrings.xml', 20_000_000))
+      sharedStrings = arr(shared?.sst?.si).map((si: any) => textoNode(si))
+      if (sharedStrings.length > maxLinhas * Math.max(2, maxColunas)) {
+        throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Tabela de textos compartilhados acima do limite seguro.')
+      }
+    }
+
+    const sheet = xmlParser.parse(await lerXml(sheetPath, 40_000_000))
+    const rows = arr(sheet?.worksheet?.sheetData?.row)
+    if (rows.length > maxLinhas + 1) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de linhas acima do limite.')
+    if (!rows.length) return []
+
+    const converterCelula = (c: any): unknown => {
+      const tipo = String(c?.['@_t'] ?? '')
+      if (tipo === 'inlineStr') return textoNode(c?.is)
+      const bruto = c?.v
+      if (bruto == null) return null
+      const s = textoNode(bruto)
+      if (tipo === 's') {
+        const idx = Number(s)
+        return Number.isInteger(idx) && idx >= 0 && idx < sharedStrings.length ? sharedStrings[idx] : null
+      }
+      if (tipo === 'str') return s
+      if (tipo === 'b') return s === '1'
+      if (tipo === 'e') return null
+      const n = Number(s)
+      return s !== '' && Number.isFinite(n) ? n : s
+    }
+
+    const linhaParaMapa = (row: any): Map<number, unknown> => {
+      const m = new Map<number, unknown>()
+      for (const c of arr(row?.c)) {
+        const col = colunaPorReferencia(String((c as any)?.['@_r'] ?? ''))
+        if (col < 0 || col >= maxColunas) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de colunas acima do limite.')
+        m.set(col, converterCelula(c))
+      }
+      return m
+    }
+
+    const headerMap = linhaParaMapa(rows[0])
+    if (!headerMap.size) throw new AppError('PLANILHA_TIPO_INVALIDO', 'Cabeçalho da planilha vazio.')
+    const maxHeaderCol = Math.max(...headerMap.keys())
+    if (maxHeaderCol + 1 > maxColunas) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de colunas acima do limite.')
+
+    const cabecalhos: string[] = []
+    const usados = new Map<string, number>()
+    for (let i = 0; i <= maxHeaderCol; i++) {
+      let nome = String(headerMap.get(i) ?? '').trim() || `coluna_${i + 1}`
+      const base = nome
+      const n = (usados.get(base) ?? 0) + 1
+      usados.set(base, n)
+      if (n > 1) nome = `${base}_${n}`
+      cabecalhos[i] = nome
+    }
+
+    const out: Record<string, unknown>[] = []
+    for (let r = 1; r < rows.length; r++) {
+      const mapaLinha = linhaParaMapa(rows[r])
+      const obj: Record<string, unknown> = Object.create(null)
+      let possuiValor = false
+      for (let c = 0; c < cabecalhos.length; c++) {
+        const valor = mapaLinha.get(c) ?? null
+        if (valor !== null && String(valor).trim() !== '') possuiValor = true
+        obj[cabecalhos[c]] = valor
+      }
+      if (possuiValor) out.push(obj)
+      if (out.length > maxLinhas) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de registros acima do limite.')
+    }
+    return out
+  } finally {
+    await reader.close()
+  }
 }
 
 function validarCsv(texto: string): string {
@@ -184,6 +363,57 @@ function detectarSeparadorCsv(texto: string): string {
   return melhor
 }
 
+function parseCsvSeguro(texto: string, sep: string, maxLinhas: number, maxColunas: number): Record<string, unknown>[] {
+  const linhas: string[][] = []
+  let linha: string[] = []
+  let campo = ''
+  let aspas = false
+  for (let i = 0; i <= texto.length; i++) {
+    const ch = i < texto.length ? texto[i] : '\n'
+    if (aspas) {
+      if (ch === '"') {
+        if (texto[i + 1] === '"') { campo += '"'; i++ }
+        else aspas = false
+      } else campo += ch
+      continue
+    }
+    if (ch === '"') { aspas = true; continue }
+    if (ch === sep) {
+      linha.push(campo); campo = ''
+      if (linha.length > maxColunas) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de colunas acima do limite.')
+      continue
+    }
+    if (ch === '\r' && texto[i + 1] === '\n') continue
+    if (ch === '\n' || ch === '\r') {
+      linha.push(campo); campo = ''
+      if (linha.some((x) => x !== '')) linhas.push(linha)
+      linha = []
+      if (linhas.length > maxLinhas + 1) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de linhas acima do limite.')
+      continue
+    }
+    campo += ch
+  }
+  if (aspas) throw new AppError('PLANILHA_TIPO_INVALIDO', 'CSV contém aspas não encerradas.')
+  if (!linhas.length) return []
+
+  const usados = new Map<string, number>()
+  const cabecalhos = linhas[0].map((x, i) => {
+    let nome = String(x ?? '').trim() || `coluna_${i + 1}`
+    const base = nome
+    const n = (usados.get(base) ?? 0) + 1
+    usados.set(base, n)
+    if (n > 1) nome = `${base}_${n}`
+    return nome
+  })
+  if (cabecalhos.length > maxColunas) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de colunas acima do limite.')
+
+  return linhas.slice(1).map((vals) => {
+    const obj: Record<string, unknown> = Object.create(null)
+    for (let i = 0; i < cabecalhos.length; i++) obj[cabecalhos[i]] = vals[i] ?? null
+    return obj
+  })
+}
+
 function normalizarCabecalho(v: unknown): string {
   return String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
 }
@@ -194,31 +424,6 @@ function valorBR(v: unknown): number | null {
   const s = String(v).trim().replace(/R\$/gi, '').replace(/\s/g, '')
   const n = s.includes(',') ? Number(s.replace(/\./g, '').replace(',', '.')) : Number(s)
   return Number.isFinite(n) ? n : null
-}
-
-function dataISO(v: unknown): string | null {
-  if (v instanceof Date && !Number.isNaN(v.getTime())) return v.toISOString().slice(0, 10)
-  if (typeof v === 'number') {
-    const d = XLSX.SSF.parse_date_code(v)
-    if (d) return `${d.y}-${String(d.m).padStart(2, '0')}-${String(d.d).padStart(2, '0')}`
-  }
-  const s = String(v ?? '').trim()
-  let m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
-  if (m) return `${m[3]}-${m[2]}-${m[1]}`
-  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
-  if (m) return `${m[1]}-${m[2]}-${m[3]}`
-  return null
-}
-
-function validarDimensoes(ws: any, maxLinhas: number, maxColunas: number) {
-  const ref = ws?.['!fullref'] ?? ws?.['!ref']
-  if (!ref) return
-  const range = XLSX.utils.decode_range(ref)
-  const linhas = range.e.r - range.s.r + 1
-  const colunas = range.e.c - range.s.c + 1
-  if (linhas > maxLinhas + 1 || colunas > maxColunas) {
-    throw new AppError('PLANILHA_LIMITE_EXCEDIDO', `Planilha com ${linhas} linhas e ${colunas} colunas.`)
-  }
 }
 
 async function processarImportacaoFinanceira(payload: any) {
@@ -234,12 +439,8 @@ async function processarImportacaoFinanceira(payload: any) {
   try {
     const { data: arq, error: ea } = await sb.from('arquivos').select('*').eq('id', imp.id_arquivo).single()
     if (ea || !arq) throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Arquivo financeiro não encontrado.')
-    if (arq.id_organizacao !== imp.id_organizacao || arq.id_contrato !== imp.id_contrato) {
-      throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Arquivo fora do escopo da importação.')
-    }
-    if (String(arq.sha256 ?? '').toLowerCase() !== String(imp.hash ?? '').toLowerCase()) {
-      throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Hash da importação divergente do arquivo confirmado.')
-    }
+    if (arq.id_organizacao !== imp.id_organizacao || arq.id_contrato !== imp.id_contrato) throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Arquivo fora do escopo da importação.')
+    if (String(arq.sha256 ?? '').toLowerCase() !== String(imp.hash ?? '').toLowerCase()) throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Hash da importação divergente do arquivo confirmado.')
 
     const { data: cfg, error: ecfg } = await sb.from('configuracao_upload').select('tamanho_maximo_processamento_bytes,tamanho_maximo_descompactado_bytes,max_entradas_compactadas,razao_maxima_compactacao,max_linhas_planilha,max_colunas_planilha').eq('id', true).single()
     if (ecfg || !cfg) throw new AppError('IMPORTACAO_FINANCEIRA_FALHOU', 'Configuração de segurança indisponível.')
@@ -258,44 +459,18 @@ async function processarImportacaoFinanceira(payload: any) {
     const { data: blob, error: ed } = await sb.storage.from(arq.bucket).download(arq.path)
     if (ed || !blob) throw new AppError('IMPORTACAO_FINANCEIRA_FALHOU', 'Falha ao baixar arquivo financeiro.')
     const bytes = new Uint8Array(await blob.arrayBuffer())
-    if (bytes.byteLength > maxProcessamento || bytes.byteLength !== Number(arq.tamanho ?? bytes.byteLength)) {
-      throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Tamanho real divergente ou acima do limite.')
-    }
+    if (bytes.byteLength > maxProcessamento || bytes.byteLength !== Number(arq.tamanho ?? bytes.byteLength)) throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Tamanho real divergente ou acima do limite.')
     const hashReal = await sha256Hex(bytes)
-    if (hashReal.toLowerCase() !== String(arq.sha256).toLowerCase() || hashReal.toLowerCase() !== String(imp.hash).toLowerCase()) {
-      throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Hash real do arquivo divergente.')
-    }
+    if (hashReal.toLowerCase() !== String(arq.sha256).toLowerCase() || hashReal.toLowerCase() !== String(imp.hash).toLowerCase()) throw new AppError('ARQUIVO_FINANCEIRO_INTEGRIDADE', 'Hash real do arquivo divergente.')
 
-    let wb: any
-    const opcoesBase: any = {
-      cellDates: true,
-      dense: true,
-      sheetRows: maxLinhas + 2,
-      sheets: 0,
-      cellFormula: false,
-      cellHTML: false,
-      cellStyles: false,
-      bookDeps: false,
-      bookFiles: false,
-      bookVBA: false,
-      WTF: true,
-    }
+    let raw: Record<string, unknown>[]
     if (ext === 'xlsx') {
       if (bytes.length < 4 || bytes[0] !== 0x50 || bytes[1] !== 0x4b) throw new AppError('PLANILHA_TIPO_INVALIDO', 'Assinatura XLSX inválida.')
-      validarZipXlsx(bytes, cfg)
-      wb = XLSX.read(bytes, { ...opcoesBase, type: 'array' })
+      raw = await lerXlsxSeguro(bytes, cfg, maxLinhas, maxColunas)
     } else {
       const texto = validarCsv(new TextDecoder('utf-8', { fatal: false }).decode(bytes))
-      const fs = detectarSeparadorCsv(texto)
-      wb = XLSX.read(texto, { ...opcoesBase, type: 'string', raw: true, FS: fs })
+      raw = parseCsvSeguro(texto, detectarSeparadorCsv(texto), maxLinhas, maxColunas)
     }
-
-    const ws = wb.Sheets[wb.SheetNames[0]]
-    if (!ws) throw new AppError('PLANILHA_TIPO_INVALIDO', 'A planilha não contém uma aba válida para importação.')
-    validarDimensoes(ws, maxLinhas, maxColunas)
-
-    const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: null, raw: true })
-    if (raw.length > maxLinhas) throw new AppError('PLANILHA_LIMITE_EXCEDIDO', 'Quantidade de linhas acima do limite.')
 
     const transacoes: any[] = []
     let rejeitados = 0
@@ -342,15 +517,11 @@ async function processarImportacaoFinanceira(payload: any) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method !== 'POST') {
-    return Response.json({ ok: false, codigo: 'METODO_INVALIDO', titulo: 'Ação não permitida', mensagem: 'Este processador aceita somente chamadas internas do ContaOS.' }, { status: 405 })
-  }
+  if (req.method !== 'POST') return Response.json({ ok: false, codigo: 'METODO_INVALIDO', titulo: 'Ação não permitida', mensagem: 'Este processador aceita somente chamadas internas do ContaOS.' }, { status: 405 })
 
   const token = req.headers.get('x-contaos-internal-token') ?? ''
   const { data: valido, error: erroToken } = await sb.rpc('validar_token_interno', { p_token: token })
-  if (erroToken || valido !== true) {
-    return Response.json({ ok: false, codigo: 'AUTH_ACESSO_NEGADO', titulo: 'Acesso não permitido', mensagem: 'Esta operação interna não está autorizada.' }, { status: 401 })
-  }
+  if (erroToken || valido !== true) return Response.json({ ok: false, codigo: 'AUTH_ACESSO_NEGADO', titulo: 'Acesso não permitido', mensagem: 'Esta operação interna não está autorizada.' }, { status: 401 })
 
   let body: any = {}
   try { body = await req.json() } catch { body = {} }
@@ -359,9 +530,7 @@ Deno.serve(async (req: Request) => {
 
   for (let i = 0; i < maxJobs; i++) {
     const { data: job, error } = await sb.rpc('worker_pull_job', { p_fila: 'finance_imports', p_visibility_seconds: 180 })
-    if (error) {
-      return Response.json({ ok: false, codigo: 'IMPORTACAO_FINANCEIRA_FALHOU', titulo: 'Importação temporariamente indisponível', mensagem: 'O processamento financeiro encontrou uma indisponibilidade temporária.' }, { status: 500 })
-    }
+    if (error) return Response.json({ ok: false, codigo: 'IMPORTACAO_FINANCEIRA_FALHOU', titulo: 'Importação temporariamente indisponível', mensagem: 'O processamento financeiro encontrou uma indisponibilidade temporária.' }, { status: 500 })
     if (!job) break
 
     const msgId = Number(job.msg_id)
