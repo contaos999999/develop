@@ -1,109 +1,162 @@
-# V1-04 / PROMPT 25 — Lista de contratos
+# V1-04 / PROMPT 25 — Contratos
 
 Data: 02/11/2026. Ambiente alvo: HML. PROD intocado.
 
+## Fontes canônicas
+
+Este design usa exclusivamente o pacote `ContaOS_Pacote_Mestre_Arquitetura_4_1_Lovable_Supabase_100_PRD_2026-11-01`:
+
+- `06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx` — PROMPT 25;
+- `05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx` — V1-04;
+- `08_REQUISITOS_NAO_FUNCIONAIS/ContaOS_RNF_Escalabilidade_Concorrencia_Performance_v2_0_Supabase.docx`;
+- `07_ZERO_DRIFT/ZeroDrift_v2_Lovable_Supabase.docx`;
+- backend HML real, apenas para confirmar que as operações citadas existem e estão autorizadas.
+
+Materiais de arquiteturas anteriores não são fonte de requisitos para este prompt.
+
 ## Intenção
 
-Construir `/contratos` para listar, de forma paginada e responsiva, somente contratos que o backend Supabase autoriza para o usuário na organização ativa. A tela deve cumprir o contrato canônico V1-04: `FilterBar`, `DataTable`, `StatusBadge`, `Pagination`, `PageHeader`, estados loading/empty/error/success, ações Novo contrato/Abrir contrato, paginação server-side e ausência de N+1.
+Construir a tela **V1-04 — Contratos** na rota `/contratos`, usando o cliente Supabase existente e **Data API com RLS**. A tela lista somente linhas que o backend autoriza e trata explicitamente `loading`, `empty`, `success`, `denied` e `error`.
 
-## Objetivos
+## Objetivos obrigatórios do pacote 4.1
 
-- RLS é autoridade de acesso a cada contrato.
-- Organização selecionada é somente contexto/filtro, nunca autorização local.
-- Paginação ocorre no servidor com `select(..., { count: "exact" })` + `range`.
-- Um único request de lista por chave de consulta, sem request por linha.
-- Filtros apenas em colunas reais/expostas da Data API: `situacao` e `criticidade`.
-- Exibir informações críticas sem buscar detalhe: número, objeto, situação, criticidade, vigência e valor global.
-- PT-BR, datas brasileiras e valor em BRL.
-- 1440/1280/768/390 sem esconder informação crítica.
+- rota `/contratos`;
+- acesso `autorizado`;
+- backend autorizado: Data API com RLS + RPCs específicas somente quando crítico;
+- não criar tabela, RPC ou Edge Function nova se o backend necessário já existir;
+- nenhuma secret key no frontend;
+- RLS permanece autoridade;
+- nenhum status crítico é calculado localmente;
+- não alterar layout global, auth, cliente Supabase ou outra feature fora do plano;
+- responsividade em 1440, 1280, 768 e 390;
+- teclado, foco, labels e status acessíveis;
+- Teste C separado, sem auto-fix.
 
-## Não objetivos
+## Requisito transversal aplicável
 
-- Criar contrato (V1-05).
-- Implementar detalhe do contrato (V1-06).
-- Editar contrato.
-- Buscar documentos, competências, orçamento ou histórico por linha.
-- Criar RPC ou backend paralelo para listagem.
-- Alterar RLS, Auth, Storage, `client.ts`, V1-01/V1-02/V1-03, SYS ou ADM.
+O RNF 4.1 torna **paginação obrigatória** em coleções, com tamanho padrão inicial de **25**, filtros/ordenação executados no servidor e nenhum dataset inteiro retornado por padrão. Para V1-04, portanto, a listagem usará paginação server-side de 25 registros e ordenação determinística no backend.
 
-## Restrições e evidência backend
+Não serão adicionados filtros de interface que o PROMPT 25 não exige. Se um filtro vier a ser previsto por prompt posterior, ele será implementado no prompt correspondente.
 
-`public.contratos` tem RLS ativa e SELECT apenas para `authenticated`. A policy `contratos_select` usa `privado.usuario_tem_acesso_contrato(id)`, que exige sessão ativa e vínculo válido; quando o vínculo não cobre todos os contratos, exige vínculo ativo em `vinculos_usuario_contratos`.
+## Evidência backend HML
 
-Teste sintético com rollback no HML passou em três cenários:
-- vínculo restrito na organização A viu apenas A1;
-- vínculo com escopo total na organização A viu A1 e A2;
-- usuário da organização B viu apenas B1.
+`public.contratos` existe e possui:
 
-A policy de `vinculos_usuarios` permite ao usuário autenticado ler o próprio vínculo. Isso permite um gate UX único para verificar vínculo ativo e derivar se o CTA Novo contrato pode aparecer; a autorização real da lista continua na RLS de `contratos`.
+- RLS habilitada;
+- `SELECT` concedido a `authenticated`;
+- policy `contratos_select` com `privado.usuario_tem_acesso_contrato(id)`;
+- índices de organização/situação/vigência;
+- campos adequados à lista, incluindo `numero`, `objeto`, `situacao`, `criticidade`, `inicio`, `fim` e `valor_global`.
+
+A função `privado.usuario_tem_acesso_contrato(id)` exige sessão ativa e vínculo válido. Para vínculo com escopo restrito, exige ainda vínculo ativo do usuário com o contrato.
+
+Teste sintético com `ROLLBACK` no HML confirmou:
+
+- usuário com escopo restrito vê somente o contrato explicitamente autorizado;
+- usuário com escopo total vê todos os contratos autorizados de sua organização;
+- usuário de outra organização não vê contratos da organização anterior.
+
+Não há lacuna backend para a listagem V1-04. Nenhuma RPC nova é necessária.
 
 ## Abordagens consideradas
 
-### 1. Inferir contratos pela organização local
+### 1. Inferir autorização no React pela organização selecionada
 
-Rejeitada. Filtrar somente por `id_organizacao` não prova autorização por contrato e violaria o requisito de não inferir acesso no React.
+Rejeitada. A organização selecionada pode ser contexto de navegação, mas não substitui a policy RLS por contrato.
 
-### 2. Criar uma RPC de listagem
+### 2. Criar RPC própria de listagem
 
-Rejeitada. É desnecessária para um SELECT não crítico: a arquitetura 4.1 manda usar Data API + RLS para CRUD/leitura comum, e a policy já implementa o escopo por contrato.
+Rejeitada. O pacote 4.1 autoriza Data API com RLS para V1-04 e o backend HML já cumpre o escopo de leitura por contrato. Criar RPC seria backend paralelo desnecessário.
 
-### 3. Data API paginada + contexto de organização + RLS
+### 3. Data API paginada + RLS existente
 
-Escolhida. A query aplica `id_organizacao` apenas como contexto da organização ativa e filtros `situacao`/`criticidade`; a RLS continua decidindo quais linhas chegam. Usa `count: "exact"`, ordenação determinística e `range`, sem joins nem pré-carregamento de detalhes.
+Escolhida. É a solução mínima, alinhada ao pacote 4.1 e com menor consumo de Lovable. A consulta usa somente a tabela `contratos`, paginação server-side e ordenação determinística. Nenhuma consulta por linha é necessária.
 
-## Fluxo
+## Fluxo proposto
 
-1. `getUser()` valida sessão; ausência real de sessão -> `/login`; erro técnico -> estado de retry, sem logout automático.
-2. Ler preferência de organização; ausência -> `/selecionar-organizacao`.
-3. Consultar o próprio vínculo para a organização ativa.
-   - vínculo ausente/inativo/fora da vigência -> acesso negado;
-   - vínculo válido -> pode listar;
-   - perfil administrador/gestor_contrato -> CTA Novo contrato visível;
-   - demais perfis -> CTA oculto.
-4. Query de lista em `contratos`:
-   - `id_organizacao = organização ativa` como contexto;
-   - `situacao = filtro` quando diferente de todos;
-   - `criticidade = filtro` quando diferente de todas;
-   - `order(numero asc).order(id asc)`;
-   - `range(from,to)` com 25 por página;
-   - `count: exact`.
-5. Estados vazios distinguem lista realmente vazia de filtros sem resultado. Erro/403 nunca viram empty.
+1. Reutilizar o mecanismo de sessão e organização já existente, sem alterá-lo.
+2. Se não houver sessão real, redirecionar para `/login`; erro técnico de sessão gera estado recuperável, sem logout automático.
+3. Se o contexto organizacional exigido pela aplicação estiver ausente, redirecionar para `/selecionar-organizacao`.
+4. Confirmar acesso de contexto usando dado oficial do backend já disponível ao próprio usuário; isso serve apenas para distinguir `denied` de `empty`, não para substituir RLS.
+5. Executar uma única consulta paginada em `public.contratos`, filtrada pelo contexto de organização somente como contexto e sempre sujeita à RLS.
+6. Mostrar exatamente as linhas devolvidas pelo backend.
 
-## Dados exibidos
+## Consulta de lista
 
-Campos selecionados: `id,id_organizacao,numero,objeto,situacao,criticidade,inicio,fim,valor_global`.
+Selecionar somente os campos necessários para a listagem:
 
-Não selecionar `configuracao_*`, `versao_registro`, documentos, competências ou detalhes pesados. Não buscar contratante por linha.
+`id,id_organizacao,numero,objeto,situacao,criticidade,inicio,fim,valor_global`
 
-## Filtros
+Paginação:
 
-- Situação: Todos, Rascunho, Ativo, Suspenso, Encerrado, Cancelado.
-- Criticidade: Todas, Baixa, Média, Alta, Crítica.
-- Alterar filtro volta à página 1.
-- Não haverá busca textual neste prompt, evitando inventar parâmetro não exigido pelo contrato e evitando `.or()` desnecessário.
+- página inicial 1;
+- 25 registros por página;
+- `count: "exact"`;
+- `range(from, to)`;
+- ordenação `numero ASC`, depois `id ASC` para estabilidade.
 
-## Navegação incremental
+Não selecionar `configuracao_*`, documentos, competências, histórico, orçamento ou outros módulos. Não pré-carregar detalhe por linha.
 
-O contrato canônico exige ações `Novo contrato` e `Abrir contrato`, mas V1-05 e V1-06 serão construídas nos prompts seguintes. A V1-04 deve renderizar links simples para os destinos canônicos `/contratos/novo` e `/contratos/{id}` sem pré-carregar dados. Isso não cria rota fictícia nem consulta antecipada; os destinos passam a funcionar quando V1-05/V1-06 forem implementados.
+## Estados
+
+- `loading`: sessão/contexto/lista em carregamento;
+- `empty`: usuário autorizado no contexto, mas a RLS devolveu zero contratos;
+- `success`: lista paginada recebida;
+- `denied`: backend/RLS ou gate de contexto oficial indica ausência de acesso;
+- `error`: falha técnica distinta de permissão.
+
+Erro de permissão nunca aparece como simples lista vazia quando houver evidência backend de `denied`.
+
+## Apresentação mínima
+
+A V1-04 exibirá dados oficiais do contrato já presentes na linha retornada:
+
+- número;
+- objeto;
+- situação;
+- criticidade;
+- vigência;
+- valor global.
+
+`Situacao` e `criticidade` são apenas apresentados a partir do dado oficial retornado pelo backend; não são recalculados no React.
+
+Não serão implementadas neste prompt as funcionalidades de criação (V1-05), detalhe (V1-06) ou edição de contrato.
 
 ## Responsividade
 
-- 1440/1280: tabela completa com número, objeto, situação, criticidade, vigência, valor e ação.
-- 768: tabela pode manter scroll horizontal controlado ou reorganizar sem esconder dados críticos.
-- 390: cards com todos os dados críticos e ação Abrir contrato; filtros empilhados.
-- Nenhum overflow da página; somente container de tabela pode ter scroll controlado se necessário.
+- 1440/1280: lista completa e legível;
+- 768: reorganização sem ocultar situação, criticidade, vigência ou valor;
+- 390: cards ou layout compacto preservando todos os dados críticos;
+- nenhum overflow horizontal da página.
 
 ## Acessibilidade
 
-Um H1 `Contratos`; labels reais para filtros; status com ícone + texto; paginação com nomes acessíveis; foco visível; teclado no fluxo principal; alvo de ação >=44px; estado de erro/negado com semântica apropriada.
+- um H1 `Contratos`;
+- nomes/labels acessíveis;
+- status expresso por texto, não apenas cor;
+- foco visível;
+- fluxo principal utilizável por teclado;
+- estados de erro e acesso negado com semântica apropriada.
 
-## Critérios de sucesso
+## Testes obrigatórios do PROMPT 25
 
-- somente linhas devolvidas pela Data API/RLS;
-- paginação server-side real;
-- zero N+1;
-- filtros somente em `situacao` e `criticidade`;
-- denied != empty;
-- quatro larguras validadas;
-- regressão, typecheck, build e Security Scan verdes;
-- zero drift fora do escopo.
+Teste Oficial C, em turno separado e sem edição:
+
+1. rota abre;
+2. perfil autorizado funciona;
+3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;
+4. loading/empty/error funcionam;
+5. nenhuma request usa secret key;
+6. nenhuma ação crítica é update direto;
+7. desktop 1440 e 1280 ok;
+8. tablet 768 ok;
+9. mobile 390 preserva dados críticos;
+10. teclado/foco/labels ok;
+11. console sem erro e sem log sensível;
+12. Security Scan sem novo Critical.
+
+Além disso, por governança geral do projeto: regressão completa, typecheck/build frescos, git clean e Zero-Drift devem ser comprovados antes da certificação final.
+
+## Regra canônica de crédito
+
+Entre alternativas igualmente conformes, escolher sempre a que consome menos créditos do Lovable. Isso não pode reduzir fidelidade ao pacote 4.1, segurança, TDD, Teste C, Zero-Drift, rastreabilidade ou qualidade da evidência.
