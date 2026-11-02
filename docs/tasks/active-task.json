@@ -2,7 +2,7 @@
   "id": "PROMPT-24-V1-03-EDITAR-CONTRATANTE-2026-11-02",
   "title": "PROMPT 24 / V1-03 — Editar contratante",
   "branch": "backend/v103-editar-contratante",
-  "status": "backend_gap_em_correcao",
+  "status": "backend_certificado_frontend_pendente",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
@@ -16,28 +16,40 @@
     "backend_manual": "mudança material registra auditoria; tabela editável exige teste de concorrência"
   },
   "backend_gap": {
-    "existing_update_rls": true,
-    "existing_update_grant": true,
-    "existing_version_trigger": "contaos_versao_contratantes -> privado.controlar_versao_registro",
-    "existing_conflict_sqlstate": "40001",
-    "update_audit_trigger": false,
-    "reason": "O contrato V1-03 exige versão esperada do GET e conflito 409; backend atual exige cliente enviar old+1 e não audita UPDATE."
+    "resolved": true,
+    "original_existing_update_rls": true,
+    "original_existing_update_grant": true,
+    "original_version_trigger": "contaos_versao_contratantes -> privado.controlar_versao_registro",
+    "original_conflict_sqlstate": "40001",
+    "original_update_audit_trigger": false,
+    "double_increment_found": true,
+    "double_increment_resolution": "contratantes_touch agora usa privado.tocar_atualizado_em_contratante(), que atualiza somente atualizado_em"
   },
-  "approved_backend_solution": {
-    "public_rpc": "public.atualizar_contratante",
+  "backend_contract": {
+    "public_rpc": "public.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text)",
     "private_function": "privado.atualizar_contratante",
     "security": "public SECURITY INVOKER wrapper + private SECURITY DEFINER com validação auth/org/perfil",
-    "concurrency": "SELECT FOR UPDATE + comparação p_versao_esperada + PT409",
-    "version_increment": "server-side pelo trigger existente",
+    "concurrency": "SELECT FOR UPDATE + p_versao_esperada + PT409",
+    "version_increment": "server-side somente por contaos_versao_contratantes",
     "audit_event": "ContratanteAtualizado",
+    "schema_version": "v103-v1"
+  },
+  "backend_evidence": {
+    "red": "RPC ausente antes da migration",
+    "final_tests": "9/9 PASS com ROLLBACK integral",
+    "security_advisor_new_v103_findings": 0,
+    "security_advisor_preexisting_warning": "auth_leaked_password_protection",
+    "typescript_rpc_generated": true,
     "prod_untouched": true
   },
-  "allowed_backend_paths": [
-    "supabase/migrations/*v103*",
+  "versioned_files": [
+    "supabase/migrations/20261102163500_v103_editar_contratante_concorrencia_auditoria.sql",
+    "supabase/migrations/20261102164200_v103_corrigir_incremento_duplo_contratante.sql",
     "supabase/tests/v103_editar_contratante.sql",
     "docs/backend/V103_EDITAR_CONTRATANTE_2026-11-02.md",
     "docs/tasks/active-task.json"
   ],
-  "frontend_build_authorized_after_backend_certification": false,
+  "frontend_build_authorized_after_backend_certification": true,
+  "frontend_plan_pending": true,
   "prod_untouched": true
 }
