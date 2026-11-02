@@ -12,6 +12,7 @@ on:
       - 'supabase/tests/alert_task_bopla.sql'
       - 'supabase/tests/user_membership_authz.sql'
       - 'supabase/tests/contract_scope_bola.sql'
+      - 'supabase/tests/webhook_rpc_auth.sql'
       - '.github/workflows/restore-isolado.yml'
 
 permissions:
@@ -94,6 +95,17 @@ jobs:
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/contract_scope_bola.sql | tee restore-proof/contract-scope-bola.txt
           if grep -Eq '\|f\|' restore-proof/contract-scope-bola.txt; then
             echo 'A suíte BOLA entre contratos contém teste com passou=false.'
+            exit 1
+          fi
+
+      - name: Teste 6 - Autorização da RPC de webhook
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/webhook_rpc_auth.sql | tee restore-proof/webhook-rpc-auth.txt
+          if grep -Eq '\|f\|' restore-proof/webhook-rpc-auth.txt; then
+            echo 'A suíte de autorização da RPC de webhook contém teste com passou=false.'
             exit 1
           fi
 
