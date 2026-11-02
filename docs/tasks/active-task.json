@@ -1,9 +1,8 @@
 {
-  "id": "GOV-AI-CONTEXT-4.1",
-  "title": "Instalar contexto canônico obrigatório do pacote mestre 4.1 na raiz",
-  "branch": "main",
-  "status": "concluida",
-  "concluida_em": "02/11/2026 - Horário de Brasília",
+  "id": "SEC-BACKEND-P1-SSRF-2026-11-02",
+  "title": "Hardening P1 do backend contra SSRF e abuso de integrações externas",
+  "branch": "security/backend-hardening-p1-ssrf",
+  "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "02/11/2026 - Horário de Brasília",
@@ -34,41 +33,83 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
+  "objective": "Eliminar o vetor SSRF no caminho operacional de entrega de webhooks e restaurar a garantia certificada de timeout de integração, sem alterar regras funcionais, RLS, Auth, Storage, status ou contratos públicos de API.",
+  "requirements_impacted": ["NFR-010", "NFR-011"],
+  "attack_classes_covered": [
+    "Server-Side Request Forgery (SSRF)",
+    "Blind SSRF",
+    "DNS Rebinding",
+    "Cloud Metadata SSRF",
+    "SSRF to Internal Services",
+    "SSRF to Cloud Metadata",
+    "SSRF to Database",
+    "SSRF to Redis",
+    "SSRF to Internal Admin Panel",
+    "SSRF to Kubernetes API",
+    "SSRF to Docker Socket",
+    "Internal Port Scanning via SSRF",
+    "Blind Internal Network Enumeration",
+    "Resource Exhaustion"
+  ],
   "allowed_paths": [
-    "*.md",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "GEMINI.md",
-    "LOVABLE.md",
-    "README_ZERO_DRIFT.md",
-    "README.md",
-    "docs/**",
-    "prompts/**",
-    "scripts/**",
-    ".github/**",
-    "supabase/**",
-    ".env.example"
+    "docs/tasks/active-task.json",
+    "supabase/functions/deliver-webhook/index.ts",
+    "supabase/tests/security_ssrf_webhooks.sql",
+    "supabase/tests/queues_edge_auth.sql"
   ],
   "forbidden_paths": [
-    "contaos9999/prod/**"
+    "contaos9999/prod/**",
+    "supabase/migrations/**",
+    "supabase/functions/contaos-worker/**",
+    "supabase/functions/process-document/**",
+    "supabase/functions/queue-worker-*/**",
+    "supabase/functions/generate-report/**",
+    "supabase/functions/notify-user/**",
+    "supabase/functions/evidence-access/**",
+    "supabase/functions/copilot-query/**",
+    "supabase/functions/storage-sign-*/**",
+    "supabase/functions/openai-*/**"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
-  "acceptance": [
-    "23 documentos canônicos obrigatórios na raiz",
-    "matriz 96/96 preservada integralmente em quatro partes",
-    "manifesto SHA-256",
-    "AGENTS/Claude/Gemini/Lovable/Copilot apontam para leitura obrigatória",
-    "Context Gate integrado ao CI",
-    "Zero-Drift CI PASS"
+  "storage_changes_allowed": false,
+  "implemented": [
+    "Autenticação service-to-service validada diretamente pelo RPC validar_token_interno.",
+    "Somente HTTPS permitido e credenciais embutidas em URL rejeitadas.",
+    "Bloqueio de localhost, domínios locais/internos e endereços IP não públicos.",
+    "Resolução DNS A/AAAA validada duas vezes; qualquer IP não público bloqueia a chamada.",
+    "redirect:'manual' e bloqueio explícito de respostas HTTP 3xx.",
+    "Timeout de 10 segundos por AbortSignal.",
+    "Leitura de resposta limitada a 4.000 bytes por streaming.",
+    "Destinos bloqueados/configurações inválidas seguem diretamente para DLQ em uma tentativa.",
+    "Falhas de rede/HTTP/timeout preservam política de retry existente.",
+    "HMAC SHA-256, correlation_id, circuit breaker, auditoria e mensagens PT-BR preservados."
   ],
-  "tests": [
-    "ai-context-gate",
-    "zero-drift",
-    "architecture-guard",
-    "migration-reproducibility",
-    "secret-scan"
-  ]
+  "test_evidence": [
+    "HML: https://127.0.0.1/admin -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
+    "HML: https://169.254.169.254/latest/meta-data/ -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
+    "HML: https://[::1]/ -> WEBHOOK_DESTINO_BLOQUEADO e DLQ na primeira tentativa.",
+    "HML: webhook HTTPS público válido -> job concluído, uma tentativa, sem erro.",
+    "HML: chamada de deliver-webhook sem token interno -> HTTP 401 AUTH_ACESSO_NEGADO.",
+    "HML: resposta HTTP 302 com redirect:'manual' -> WEBHOOK_DESTINO_BLOQUEADO e DLQ; redirect não seguido.",
+    "HML: endpoint com atraso de 15 segundos -> WEBHOOK_TIMEOUT após limite de 10 segundos e retry preservado.",
+    "HML: artefatos temporários de webhook, fila, DLQ, alerta e Vault removidos após os testes."
+  ],
+  "audit_note": "Os 11 eventos de auditoria produzidos pelos testes permaneceram registrados porque public.eventos_auditoria é deliberadamente imutável e bloqueia DELETE/UPDATE. A organização sintética foi mantida inativa apenas como âncora referencial desses eventos, identificada como EVIDÊNCIA TÉCNICA SSRF 02/11/2026. A proteção de imutabilidade não foi desativada.",
+  "residual_risk": "O caminho operacional oficial deliver-webhook está protegido. O worker genérico contaos-worker ainda contém uma rota interna para a fila webhooks; sua exploração exige o token interno service-to-service. Esse bypass residual será tratado em tarefa separada de redução de superfície e comprometimento de credencial interna.",
+  "rollback": "Reverter exclusivamente supabase/functions/deliver-webhook/index.ts para o blob anterior e republicar a versão anterior no HML. Nenhuma migration ou dado de negócio foi alterado.",
+  "acceptance_results": {
+    "webhook_publico_valido": "PASS",
+    "bloqueio_loopback_privado_metadata": "PASS",
+    "bloqueio_dns_para_ip_nao_publico": "PASS",
+    "redirect_3xx_nao_seguido": "PASS",
+    "timeout_10s": "PASS",
+    "limite_resposta_4000_bytes": "IMPLEMENTADO",
+    "worker_sem_token_401": "PASS",
+    "retry_dlq_circuito_auditoria_preservados": "PASS",
+    "nfr_010_nfr_011": "PASS",
+    "prod_intocado": "PASS"
+  }
 }
