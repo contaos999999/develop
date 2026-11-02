@@ -1,88 +1,74 @@
 {
-  "id": "PROMPT-26-V1-05-NOVO-CONTRATO-2026-11-02",
-  "title": "PROMPT 26 / V1-05 — Novo contrato",
-  "status": "CERTIFICADO",
+  "id": "PROMPT-27-V1-06-CONTRATO-VISAO-GERAL-2026-11-02",
+  "title": "PROMPT 27 / V1-06 — Contrato - visão geral",
+  "status": "BACKEND_CERTIFICADO_FRONTEND_PENDENTE",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar e certificar /contratos/novo para administrador/gestor, incluindo Administrador Master, usando Data API + RLS, sem RPC/Edge nova, com criação auditada e acesso imediato do criador restrito.",
-  "canonical_sources": [
-    "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx#PROMPT26",
-    "05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx#V1-05",
-    "02_BACKEND_SUPABASE/Backend_Supabase_v3_0_Manual_Integral_Production_Readiness.docx",
-    "07_ZERO_DRIFT/ZeroDrift_v2_Lovable_Supabase.docx"
-  ],
-  "requirements": [
-    "PROMPT-26",
-    "V1-05",
-    "administrador/gestor",
-    "Administrador Master global",
-    "Data API + RLS",
-    "ContratanteCombobox paginado",
-    "sem .select() no INSERT",
-    "defaults server-side",
-    "auditoria ContratoCriado",
+  "objective": "Implementar e certificar /contratos/:id com resumo oficial do contrato, navegação de abas e distinção segura 403/404, sem pré-carregar documentos ou competências e sem inventar edição de contrato.",
+  "canonical_requirements": [
+    "PROMPT-27",
+    "V1-06",
+    "rota /contratos/:id",
+    "Data API + RLS no happy path",
+    "404 e 403 distintos",
+    "StatusBadge e ContractSummaryCard",
+    "abas sem carga pesada no primeiro paint",
+    "nenhuma regra crítica local",
+    "responsividade 1440/1280/768/390",
+    "acessibilidade",
     "TDD",
     "Teste C separado",
-    "1440/1280/768/390",
-    "acessibilidade",
-    "Zero-Drift"
+    "Zero Drift"
   ],
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
     "table": "public.contratos",
-    "rls_enabled": true,
-    "insert_policy": "contratos_insert -> privado.usuario_possui_perfil(id_organizacao, ['administrador','gestor_contrato'])",
-    "backend_gap_closed": true,
-    "new_rpc_needed": false,
+    "select_policy": "contratos_select -> privado.usuario_tem_acesso_contrato(id)",
+    "happy_path": "Data API SELECT sob RLS por id do contrato",
+    "zero_row_classifier_rpc": "public.classificar_acesso_contrato_v106(p_id_contrato uuid) -> text",
+    "classifier_usage": "somente após SELECT do detalhe retornar zero linhas",
+    "classifier_results": {
+      "permitido": "acesso contratual existe",
+      "negado": "contrato existe no mesmo tenant, mas fora do escopo",
+      "nao_encontrado": "inexistente ou contrato cross-tenant mascarado"
+    },
+    "privileges": "authenticated EXECUTE; anon sem EXECUTE",
     "new_edge_needed": false,
     "migrations": [
-      "20261102173500_v105_contrato_criado_escopo_auditoria.sql",
-      "20261102174200_v105_confiar_mutacao_interna_escopo.sql"
+      "20261102192500_v106_classificar_acesso_contrato_detalhe.sql",
+      "20261102193500_v106_corrigir_bola_aprovar_parecer_interno.sql"
     ],
-    "synthetic_backend_test": "PASS 11/11 com ROLLBACK",
-    "security_advisor": "sem novo finding; apenas auth_leaked_password_protection preexistente",
+    "v106_test": "PASS 10/10 com ROLLBACK após hardening",
+    "bola_regression": "RED 5/7 revelou falha preexistente em aprovar_parecer_interno; após correção PASS 7/7 com ROLLBACK",
+    "bola_hardening": "privado.aprovar_parecer_interno agora exige usuario_tem_acesso_contrato(v.id_contrato) + perfil autorizado; negação 42501",
+    "fixture_maintenance": "contract_scope_bola.sql atualizado somente para preencher inicio obrigatório do schema atual",
+    "typescript_contract": "classificar_acesso_contrato_v106 Args { p_id_contrato: string } Returns string",
+    "security_advisor": "sem novo finding relacionado às migrations; apenas auth_leaked_password_protection preexistente",
     "prod_untouched": true
   },
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
-    "base_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9",
-    "certified_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
-    "route": "/contratos/novo",
-    "insert_mode": "supabase.from('contratos').insert(payload) sem .select()/RETURNING",
-    "defaults_server_side": {
-      "periodicidade": "mensal",
-      "situacao": "rascunho",
-      "criticidade": "media",
-      "versao_registro": 1
-    },
-    "contratante_combobox": "paginação server-side de 20 itens, busca segura, ativos e inativos sem bloqueio inventado",
-    "focused_tests": "PASS 25/25",
-    "full_suite": "PASS 299/299 em 14 arquivos",
-    "typecheck": "PASS exit 0",
-    "build": "PASS exit 0",
-    "responsive": "PASS 1440/1280/768/390",
-    "test_c": "PASS 18/18",
-    "security_scan": "0 Critical, 0 High; 1 informativo preexistente",
-    "zero_drift": "PASS; somente plano, 4 arquivos V1-05 e routeTree.gen.ts desde o HEAD base",
-    "test_c_read_only_proof": "HEAD final igual ao inicial 113fb94660281d2f486d0779fc9981e3c3eaa216",
-    "prod_untouched": true
+    "base_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
+    "status": "PENDENTE_PLAN_LOVABLE",
+    "constraints": [
+      "não consultar documentos/competências no primeiro paint",
+      "não inferir acesso pela organização local",
+      "não implementar edição sem contrato canônico específico",
+      "sincronizar tipo oficial da nova RPC sem cast",
+      "RPC classificadora apenas após zero linhas",
+      "403 para negado; 404 para nao_encontrado; permitido após zero linhas = erro de consistência"
+    ]
   },
-  "completed_transversal": {
-    "id": "TRANSVERSAL-ADMIN-MASTER-GLOBAL-2026-11-02",
-    "status": "CERTIFICADO",
-    "backend_main": "afa89603bc0bd1c9369e9c24e2193b6cb1780fe2",
-    "backend_pr": 21,
-    "frontend_head": "cee162dca96c8d0bedf77df31b9ae6d3841f4db9",
-    "test_c": "PASS 18/18",
-    "prod_untouched": true
-  },
+  "backend_branch": "backend/v106-contrato-visao-geral-acesso",
+  "backend_doc": "docs/backend/V106_CONTRATO_VISAO_GERAL_2026-11-02.md",
   "previous_prompt": {
-    "id": "PROMPT-25-V1-04",
-    "test_c": "PASS 18/18",
-    "frontend_head_before_master": "8a809e2e8600ec8616e5d5fe0c1f299b07469548"
+    "id": "PROMPT-26-V1-05",
+    "status": "CERTIFICADO",
+    "frontend_head": "113fb94660281d2f486d0779fc9981e3c3eaa216",
+    "test_c": "PASS 18/18"
   },
-  "next_step": "PROMPT 27: ler requisito canônico e requisitos transversais aplicáveis, auditar backend HML primeiro e somente depois planejar frontend Lovable sobre o HEAD 113fb94660281d2f486d0779fc9981e3c3eaa216",
+  "next_step": "Abrir/revisar/mergear PR backend; depois auditar frontend certificado e enviar um único PLAN Lovable para V1-06.",
   "prod_untouched": true
 }
