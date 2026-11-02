@@ -6,7 +6,7 @@
   "context_read_acknowledged": true,
   "context_read_by": "Codex — leitura integral e revisão paralela nesta sessão",
   "canonical_credit_rule_applied": true,
-  "objective": "Planejar e implementar V1-07 em HML conforme pacote4.1 e contratos certificados, com fontes/versões/vigência/origem/aplicabilidade corretas; identificar lacunas antes de qualquer escrita material e preservar backend/PROD.",
+  "objective": "Implementar e certificar o frontend V1-07 em HML sobre o backend normativo V107 já certificado, preservando autoridade Supabase, pacote 4.1, TDD, Teste C 18/18, economia Lovable e PROD intocado.",
   "canonical_requirements": [
     "PROMPT-28",
     "V1-07",
@@ -25,10 +25,10 @@
       "public.versoes_fontes_normativas",
       "public.aplicabilidades_fonte"
     ],
-    "inspection": "Catálogo inspecionado; autorizada correção mínima com novos gates, sem mudança de Auth/Storage/Edge.",
+    "inspection": "Catálogo inspecionado; correção mínima autorizada, aplicada e certificada sem mudança de Auth/Storage/Edge.",
     "new_edge_needed": false,
     "prod_untouched": true,
-    "status": "APLICADO_HML_TESTES_PASS_CI_RESTORE_PENDENTE",
+    "status": "CERTIFICADO_HML_CI_RESTORE_VERDE",
     "migration": "20261102215515_v107_base_normativa_autorizada",
     "commands": [
       "public.salvar_fonte_normativa_v107",
@@ -40,14 +40,22 @@
       "focused": "32/32 PASS com BEGIN/ROLLBACK",
       "regression": "18/18 arquivos SQL PASS após alinhar fixtures ao schema vigente",
       "security_advisor": "0 Critical, 0 High; WARN preexistente auth_leaked_password_protection",
-      "concurrency": "prova real adicionada ao restore isolado; execução CI pendente",
-      "prod_untouched": true
-    }
+      "concurrency": "PASS real em duas sessões PostgreSQL: 2573ms de espera e estado final Depois:2",
+      "prod_untouched": true,
+      "restore": "PASS run 41538249128 no head 06d65093746a584efa3b7d9f72bede1ccb38172d",
+      "zero_drift": "PASS run 41538249093"
+    },
+    "head": "06d65093746a584efa3b7d9f72bede1ccb38172d",
+    "pull_requests": [
+      26,
+      27,
+      28
+    ]
   },
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
     "base_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
-    "status": "PLAN_REVISADO_LACUNA_BACKEND_BUILD_NAO_APROVADO",
+    "status": "PLAN_V107_CORRIGIDO_AUDITADO_AGUARDA_DECISAO_PLAN_SHOW",
     "constraints": [
       "backend certificado autoridade",
       "sem approved_por/em/ativação material pelo React",
@@ -55,12 +63,13 @@
       "frontend exclusivamente Lovable",
       "sem editar cliente/Auth/SYS/ADM ou módulos alheios"
     ],
-    "plan_commit": "ab8cd8d49559d57d252501d7bbb6480d944d57ba",
-    "plan_message": "umsg_01m6f1spx9fmssvpgr096akj9p",
-    "blocker": "Ausência de comando autenticado de aprovação/aplicabilidade normativa; aplicabilidades_fonte só SELECT. Recorte readonly não certificado como V1-07 integral.",
-    "diagnostic_doc": "docs/frontend/V107_BASE_NORMATIVA_2026-11-02.md"
+    "plan_commit": "2d815d6c2d5c30ea8eab99b21ab4c3f683456f89",
+    "plan_message": "umsg_01m6f6em3gf9jrw6nxm6j3cg2n",
+    "blocker": "A ferramenta Lovable exige decisão humana no plan--show (event main:agent#00000000008236#tcb:QVZZBBUI, path .lovable/plan.md). O plano corrigido foi auditado; nenhum BUILD iniciado.",
+    "diagnostic_doc": "docs/frontend/V107_BASE_NORMATIVA_2026-11-02.md",
+    "backend_contract": "Quatro RPCs V107, upload/download existentes apenas por fluxo certificado, paginação/lazy load e contrato V106 para 403/404."
   },
-  "backend_branch": "hml/v107-backend-normativo-20261102",
+  "backend_branch": "integrado em main pelas PRs #26/#27/#28",
   "backend_doc": "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
   "previous_prompt": {
     "id": "PROMPT-27-V1-06",
@@ -69,7 +78,7 @@
     "test_c": "PASS18/18",
     "doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
   },
-  "next_step": "PR, Context/ZeroDrift/guards, merge main autorizado e restore isolado com V10732/32 + concorrência real; somente então corrigir PLAN28 no Lovable.",
+  "next_step": "Decisão humana exigida pelo plan--show do Lovable; se aprovado, BUILD TDD do PROMPT28, focused/regressão/typecheck/build/browser, Teste C separado 18/18, Security Scan e certificação GitHub.",
   "prod_untouched": true,
   "context_read_acknowledged_at": "2026-11-02",
   "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
@@ -98,7 +107,7 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "branch": "hml/v107-backend-normativo-20261102",
+  "branch": "Lovable plan 2d815d6c2d5c30ea8eab99b21ab4c3f683456f89; BUILD ainda não iniciado",
   "requirements_impacted": [
     "V1-CON-001",
     "V1-CON-002",
@@ -159,8 +168,8 @@
     "supabase/functions/**",
     "supabase/config.toml"
   ],
-  "database_changes_allowed": true,
-  "rls_changes_allowed": true,
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "approved_tables": [
@@ -178,9 +187,14 @@
     "public.salvar_fonte_normativa_v107",
     "public.registrar_versao_fonte_v107",
     "public.aprovar_versao_fonte_v107",
-    "public.definir_aplicabilidade_fonte_v107"
+    "public.definir_aplicabilidade_fonte_v107",
+    "public.confirmar_upload_arquivo",
+    "storage-sign-upload e storage-sign-download somente via Edge existente"
   ],
-  "approved_edge_functions": [],
+  "approved_edge_functions": [
+    "storage-sign-upload (reuso; upload simples somente; parar quando usar_upload_resumivel=true)",
+    "storage-sign-download (reuso sob ação explícita)"
+  ],
   "acceptance": [
     "PROMPT28 e atômicos aplicáveis rastreados sem cobertura fictícia",
     "PLAN revisado contra4.1 antes de BUILD, por autonomia expressamente delegada",
@@ -210,5 +224,15 @@
     "by": "usuário",
     "text": "autorizo",
     "scope": "Tarefa mínima descrita no diagnóstico V107, issue25; HML somente"
+  },
+  "backend_certification": {
+    "head": "06d65093746a584efa3b7d9f72bede1ccb38172d",
+    "restore_run": 41538249128,
+    "zero_drift_run": 41538249093,
+    "focused": "32/32",
+    "sql_regression": "18/18 arquivos",
+    "concurrency": "2573ms; Depois:2",
+    "security": "0 Critical, 0 High; um WARN preexistente",
+    "prod_untouched": true
   }
 }
