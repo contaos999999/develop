@@ -19,7 +19,7 @@ Pacote mestre integrado e validado em 02/11/2026:
 `ContaOS_Pacote_Mestre_Arquitetura_4_1_100_PRD_Lovable_Supabase_BRAND_v1_0_FINAL.zip`
 
 SHA-256 do pacote mestre integrado:
-`0b4ccd39b3bd0bf8e5ff2df21c50f5eede85ec749ee1b66ea17c3ac668cb517c`
+`5ee115d12e263d98068288b6bb722f5f303f2d19e1e4c0b5e930e69da03621da`
 
 SHA-256 do pacote oficial da marca incorporado ao mestre:
 `f26337dd0c5a217f5e51c3920625fecab0a91d79fdad5ab876459401a2d8b371`
