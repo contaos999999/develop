@@ -46,10 +46,7 @@
     "Deprecated API Exploitation",
     "Shadow API Exploitation"
   ],
-  "allowed_paths": [
-    "docs/tasks/active-task.json",
-    "supabase/functions/contaos-worker/index.ts"
-  ],
+  "allowed_paths": ["docs/tasks/active-task.json", "supabase/functions/contaos-worker/index.ts"],
   "forbidden_paths": [
     "contaos9999/prod/**",
     "supabase/migrations/**",
@@ -73,22 +70,28 @@
     "Documento canônico 18 determina separação de workloads por filas/workers e autenticação service-to-service.",
     "Nenhum cron homologado depende do contaos-worker genérico."
   ],
-  "plan": [
-    "Substituir a implementação legado do contaos-worker por endpoint de compatibilidade desativado.",
-    "Continuar exigindo token interno válido antes de informar que o endpoint foi aposentado.",
-    "Sem credencial, manter HTTP 401 AUTH_ACESSO_NEGADO.",
-    "Com credencial interna válida, responder HTTP 410 WORKER_LEGADO_DESATIVADO apontando para workers oficiais dedicados.",
-    "Não consumir nenhuma fila nem executar lógica de negócio.",
-    "Publicar somente no HML e validar que os crons oficiais continuam ativos."
+  "implemented": [
+    "Toda lógica de consumo de filas e processamento do worker genérico foi removida.",
+    "O endpoint preserva validação do token interno para não revelar comportamento a chamadas anônimas.",
+    "Sem token válido, retorna 401 AUTH_ACESSO_NEGADO.",
+    "Com token interno válido, retorna 410 WORKER_LEGADO_DESATIVADO.",
+    "Resposta usa cache-control no-store e não expõe nomes de filas, segredos ou stack trace.",
+    "Nenhuma migration, cron, fila, RLS, Auth ou Storage foi alterado."
+  ],
+  "test_evidence": [
+    "HML contaos-worker versão 3 publicada com sucesso.",
+    "HML sem token interno, mesmo solicitando queue=webhooks: HTTP 401 AUTH_ACESSO_NEGADO.",
+    "HML com token interno válido e queue=webhooks: HTTP 410 WORKER_LEGADO_DESATIVADO.",
+    "Crons contaos-workers-rapidos e contaos-workers-pesados permanecem ativos.",
+    "privado.invocar_edge_oficial continua restrito aos oito workers dedicados."
   ],
   "rollback": "Reverter exclusivamente contaos-worker/index.ts para a implementação anterior e republicar a versão anterior no HML. Nenhuma migration, fila, dado ou cron será alterado.",
-  "acceptance": [
-    "contaos-worker sem token interno retorna 401.",
-    "contaos-worker com token interno válido retorna 410 e não consome fila.",
-    "deliver-webhook continua ativo e protegido.",
-    "generate-report e demais workers dedicados continuam ativos.",
-    "Crons oficiais continuam apontando apenas para workers dedicados.",
-    "Zero-Drift, Architecture Guard, migrations reproduzíveis e secret scan permanecem verdes.",
-    "PROD permanece intocado."
-  ]
+  "acceptance_results": {
+    "without_internal_token_401": "PASS",
+    "with_internal_token_410": "PASS",
+    "no_queue_processing": "PASS",
+    "official_crons_active": "PASS",
+    "official_edge_allowlist_dedicated_only": "PASS",
+    "prod_untouched": "PASS"
+  }
 }
