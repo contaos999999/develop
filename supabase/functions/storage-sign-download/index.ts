@@ -5,6 +5,11 @@ const ANON=Deno.env.get('SUPABASE_ANON_KEY')!
 const LIMITE_JSON=8*1024
 const resp=(b:unknown,s=200)=>Response.json(b,{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
 function dataHoraBR(d:Date){return new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).format(d).replace(',','')}
+function nomeDownloadSeguro(v:unknown){
+ const original=String(v??'arquivo').normalize('NFKC')
+ const limpo=original.replace(/[^\p{L}\p{N} ._()\[\]-]+/gu,'_').replace(/\s+/g,' ').replace(/^\.+/,'').trim().slice(0,160).trim()
+ return limpo||'arquivo'
+}
 async function lerJsonLimitado(req:Request,limite:number){
  const informado=Number(req.headers.get('content-length')??0)
  if(Number.isFinite(informado)&&informado>limite) throw new Error('PAYLOAD_GRANDE')
@@ -30,7 +35,8 @@ Deno.serve(async(req:Request)=>{
  const {data:arq,error:ea}=await client.from('arquivos').select('id,bucket,path,nome_original').eq('id',id).maybeSingle()
  if(ea||!arq) return resp({ok:false,codigo:'REGISTRO_NAO_ENCONTRADO',titulo:'Arquivo não encontrado',mensagem:'O arquivo não está disponível para o seu usuário.'},404)
  const segundos=Math.min(Math.max(Number(body.validade_segundos??600),60),3600)
- const {data,error}=await client.storage.from(arq.bucket).createSignedUrl(arq.path,segundos,{download:arq.nome_original})
+ const nomeSeguro=nomeDownloadSeguro(arq.nome_original)
+ const {data,error}=await client.storage.from(arq.bucket).createSignedUrl(arq.path,segundos,{download:nomeSeguro})
  if(error||!data) return resp({ok:false,codigo:'ARQUIVO_UPLOAD_FALHOU',titulo:'Não foi possível preparar o download',mensagem:'Não conseguimos gerar o acesso temporário ao arquivo.',orientacao:'Tente novamente em alguns instantes.'},400)
- return resp({ok:true,titulo:'Download autorizado',mensagem:'O link temporário foi gerado com segurança.',nome_arquivo:arq.nome_original,signed_url:data.signedUrl,valido_ate:dataHoraBR(new Date(Date.now()+segundos*1000)),timezone:'Horário de Brasília'})
+ return resp({ok:true,titulo:'Download autorizado',mensagem:'O link temporário foi gerado com segurança.',nome_arquivo:nomeSeguro,signed_url:data.signedUrl,valido_ate:dataHoraBR(new Date(Date.now()+segundos*1000)),timezone:'Horário de Brasília'})
 })
