@@ -2,7 +2,7 @@
   "id": "SEC-BACKEND-P1-SSRF-2026-11-02",
   "title": "Hardening P1 do backend contra SSRF e abuso de integrações externas",
   "branch": "security/backend-hardening-p1-ssrf",
-  "status": "concluida",
+  "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "02/11/2026 - Horário de Brasília",
