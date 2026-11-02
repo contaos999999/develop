@@ -1,7 +1,7 @@
 {
-  "id": "SEC-BACKEND-P2A-CSV-FORMULA-2026-11-02",
-  "title": "Hardening P2A contra CSV Injection e Formula Injection",
-  "branch": "security/backend-hardening-p2a-csv-formula",
+  "id": "SEC-BACKEND-P2B-RETIRE-GENERIC-WORKER-2026-11-02",
+  "title": "Hardening P2B contra bypass por worker genérico legado",
+  "branch": "security/backend-hardening-p2b-retire-generic-worker",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
@@ -33,19 +33,28 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "objective": "Neutralizar fórmulas maliciosas em exportações CSV de pacotes de evidências sem alterar o conteúdo lógico dos dados, o formato de exportação, RLS, Auth, Storage, filas ou regras funcionais.",
-  "requirements_impacted": ["NFR-010"],
-  "attack_classes_covered": ["CSV Injection", "Formula Injection"],
+  "objective": "Aposentar o worker genérico legado e eliminar caminhos duplicados capazes de contornar hardenings aplicados aos workers oficiais dedicados, preservando autenticação service-to-service, filas oficiais e crons homologados.",
+  "requirements_impacted": ["NFR-010", "NFR-011"],
+  "attack_classes_covered": [
+    "Authentication Bypass",
+    "Authorization Bypass",
+    "Business Logic Bypass",
+    "Workflow Bypass",
+    "SSRF Security Control Bypass",
+    "Internal API Exposure",
+    "Hidden Endpoint Abuse",
+    "Deprecated API Exploitation",
+    "Shadow API Exploitation"
+  ],
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "supabase/functions/generate-report/index.js",
-    "scripts/security-csv-formula-check.mjs"
+    "supabase/functions/contaos-worker/index.ts"
   ],
   "forbidden_paths": [
     "contaos9999/prod/**",
     "supabase/migrations/**",
-    "supabase/functions/contaos-worker/**",
     "supabase/functions/deliver-webhook/**",
+    "supabase/functions/generate-report/**",
     "supabase/functions/process-document/**",
     "supabase/functions/queue-worker-*/**",
     "supabase/functions/notify-user/**",
@@ -57,31 +66,29 @@
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "implemented": [
-    "Detecção de fórmula apenas para valores textuais, preservando números negativos reais como números.",
-    "Normalização NFKC usada somente para detecção, cobrindo variantes Unicode equivalentes de =, + e @ sem alterar o conteúdo original.",
-    "Espaços e caracteres de controle iniciais são ignorados na detecção para evitar bypass por prefixo invisível.",
-    "Células perigosas recebem apóstrofo de neutralização antes do conteúdo original.",
-    "Escape CSV de aspas, separador ponto e vírgula e BOM UTF-8 foram preservados.",
-    "Teste determinístico lê a lógica do generate-report e valida entradas maliciosas e benignas."
+  "preconditions_verified": [
+    "Cron oficial contaos-workers-rapidos chama queue-worker-documents, queue-worker-embeddings, queue-worker-ai e deliver-webhook.",
+    "Cron oficial contaos-workers-pesados chama queue-worker-finance, generate-report, notify-user e queue-worker-ocr.",
+    "privado.invocar_edge_oficial permite somente os oito workers dedicados e não permite contaos-worker.",
+    "Documento canônico 18 determina separação de workloads por filas/workers e autenticação service-to-service.",
+    "Nenhum cron homologado depende do contaos-worker genérico."
   ],
-  "test_evidence": [
-    "Teste determinístico local: PASS para 11 entradas perigosas e 6 entradas benignas.",
-    "Cobertos =, +, -, @, espaços antes da fórmula, tab, CR, LF e variantes Unicode de largura cheia.",
-    "Número -42 permaneceu serializado como número textual CSV sem apóstrofo de segurança, evitando falso positivo em valor numérico real.",
-    "HML generate-report versão 4 publicada com sucesso.",
-    "HML sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
-    "HML com token interno e fila reports vazia: HTTP 200, processados=0, confirmando runtime/autenticação sem consumir dados de negócio."
+  "plan": [
+    "Substituir a implementação legado do contaos-worker por endpoint de compatibilidade desativado.",
+    "Continuar exigindo token interno válido antes de informar que o endpoint foi aposentado.",
+    "Sem credencial, manter HTTP 401 AUTH_ACESSO_NEGADO.",
+    "Com credencial interna válida, responder HTTP 410 WORKER_LEGADO_DESATIVADO apontando para workers oficiais dedicados.",
+    "Não consumir nenhuma fila nem executar lógica de negócio.",
+    "Publicar somente no HML e validar que os crons oficiais continuam ativos."
   ],
-  "rollback": "Reverter exclusivamente generate-report/index.js e o teste P2A para o estado anterior e republicar a versão anterior da Edge Function no HML.",
-  "acceptance_results": {
-    "formula_prefixes": "PASS",
-    "unicode_and_control_bypass": "PASS",
-    "benign_values_preserved": "PASS",
-    "quotes_escaped": "PASS",
-    "bom_and_separator_preserved": "PASS",
-    "worker_without_internal_token_401": "PASS",
-    "hml_runtime": "PASS",
-    "prod_untouched": "PASS"
-  }
+  "rollback": "Reverter exclusivamente contaos-worker/index.ts para a implementação anterior e republicar a versão anterior no HML. Nenhuma migration, fila, dado ou cron será alterado.",
+  "acceptance": [
+    "contaos-worker sem token interno retorna 401.",
+    "contaos-worker com token interno válido retorna 410 e não consome fila.",
+    "deliver-webhook continua ativo e protegido.",
+    "generate-report e demais workers dedicados continuam ativos.",
+    "Crons oficiais continuam apontando apenas para workers dedicados.",
+    "Zero-Drift, Architecture Guard, migrations reproduzíveis e secret scan permanecem verdes.",
+    "PROD permanece intocado."
+  ]
 }
