@@ -95,3 +95,24 @@ Antes de cada prompt Lovable:
 - Build pequeno;
 - teste;
 - diff/scan.
+
+## 8. Complemento canônico — PROMPT 000 / BRAND-01
+
+A partir de 02/11/2026, o caderno atômico recebe uma camada transversal adicional de identidade visual oficial:
+
+- `PROMPT 000`: BRAND-01 — Identidade Visual Oficial ContaOS v1.0;
+- `PROMPTS 001–096`: permanecem exatamente os 96 prompts de requisitos PRD/NFR já existentes, sem renumeração.
+
+A faixa canônica passa a ser **000–096**, com 97 prompts no caderno. A cobertura do PRD continua **96/96**, porque BRAND-01 é transversal e não constitui um 97º requisito funcional.
+
+Antes de qualquer alteração visual no frontend Lovable, é obrigatória a leitura integral de:
+- `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`;
+- `20_PROMPT_000_BRAND_01.md`.
+
+O PROMPT 000 deve ser executado rigorosamente em **PLAN → aprovação → BUILD → TESTE**.
+
+BRAND-01 é exclusivamente visual. Ele não autoriza alteração de backend, arquitetura, rotas, permissões, regras de negócio, estados, cálculos, integrações ou conteúdo funcional. O Design System existente deve ser preservado e os assets oficiais reutilizados.
+
+Em caso de conflito entre estética e qualquer regra funcional/arquitetural do pacote 4.1, **o pacote 4.1 prevalece**.
+
+Se o PLAN indicar necessidade de alteração fora do escopo visual, classificar `PLAN: NÃO APROVÁVEL`, parar e reportar a lacuna ou conflito.

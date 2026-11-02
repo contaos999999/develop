@@ -1,6 +1,6 @@
 # CONTAOS 4.1 — LEITURA OBRIGATÓRIA ANTES DE QUALQUER ALTERAÇÃO
 
-> **REGRA DE BLOQUEIO:** nenhum agente de IA, pessoa, IDE assistida, Lovable, Codex, Claude, Gemini, Copilot, Cursor ou automação pode alterar código, banco, migration, RLS, RPC, Edge Function, Storage, Queue, Cron, Auth, frontend, workflow, regra de negócio, status, prompt ou documentação operacional sem concluir a leitura integral dos documentos canônicos `00` a `18` desta raiz.
+> **REGRA DE BLOQUEIO:** nenhum agente de IA, pessoa, IDE assistida, Lovable, Codex, Claude, Gemini, Copilot, Cursor ou automação pode alterar código, banco, migration, RLS, RPC, Edge Function, Storage, Queue, Cron, Auth, frontend, workflow, regra de negócio, status, prompt ou documentação operacional sem concluir a leitura integral dos documentos canônicos `00` a `20` desta raiz.
 
 Este repositório é o ambiente oficial de homologação do ContaOS. O objetivo desta camada é impedir que uma alteração tecnicamente “boa” quebre regra funcional, segurança, rastreabilidade, temporalidade, multi-organização ou uma premissa já certificada.
 
@@ -31,6 +31,8 @@ Leia **nesta ordem, sem pular**:
 21. `16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md`
 22. `17_FONTES_TECNICAS_E_QA_4_1.md`
 23. `18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md`
+24. `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`
+25. `20_PROMPT_000_BRAND_01.md`
 
 Depois leia também o escopo ativo em `docs/tasks/active-task.json`, o certificado em `docs/CERTIFICACAO_BACKEND_HML_4_1.md`, as migrations afetadas e os testes relacionados.
 
@@ -128,3 +130,27 @@ A execução deve minimizar o consumo de créditos do Lovable sem reduzir qualid
 10. se duas estratégias forem tecnicamente equivalentes e ambas 100% conformes, a de menor custo de créditos Lovable tem precedência obrigatória.
 
 A otimização de crédito é **subordinada à conformidade**. Uma solução mais barata que reduza segurança, testes, rastreabilidade ou fidelidade ao pacote 4.1 deve ser rejeitada.
+
+## 9. Complemento canônico — ContaOS Brand v1.0 / PROMPT 000
+
+A partir de 02/11/2026, a identidade visual oficial passa a integrar o contexto obrigatório do projeto como **camada complementar**. Ela não substitui qualquer regra acima.
+
+Documentos canônicos:
+- `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`;
+- `20_PROMPT_000_BRAND_01.md`.
+
+A faixa de prompts atômicos passa a ser **000–096**:
+- `000`: BRAND-01, transversal e exclusivamente visual;
+- `001–096`: os 96 prompts PRD/NFR já existentes, sem renumeração.
+
+A cobertura funcional permanece **96/96**. BRAND-01 não é um 97º requisito do PRD.
+
+Antes de qualquer alteração de logo, símbolo, cores, tipografia, favicon, PWA, sidebar, login, header, tokens, manifest, metadata ou outra aplicação visual no frontend, a IA deve:
+1. ler integralmente os documentos 19 e 20;
+2. registrar no manifesto `brand_context = ContaOS Brand v1.0` e `prompt_000_brand_01_read = true`;
+3. executar o PLAN do PROMPT 000 antes de editar;
+4. preservar o Design System e os assets oficiais;
+5. manter backend, arquitetura, comportamento e conteúdo funcional fora do escopo;
+6. parar e reportar LACUNA ou CONFLITO se a implantação visual exigir alteração fora desse limite.
+
+Em caso de conflito estético com comportamento, arquitetura, segurança, UX estrutural ou Design System, **o pacote 4.1 prevalece**.

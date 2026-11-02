@@ -42,3 +42,30 @@ O pacote 4.1 era documentação de especificação. Depois dele, o backend HML f
 - certificado detalhado em `docs/CERTIFICACAO_BACKEND_HML_4_1.md`.
 
 Portanto a leitura correta combina **intenção original + premissas + arquitetura + estado real certificado**.
+
+## Complemento do pacote mestre — ContaOS Brand v1.0 (02/11/2026)
+
+A identidade visual oficial foi acrescentada ao pacote 4.1 sem remover ou substituir os arquivos mapeados acima.
+
+Pacote mestre integrado:
+`ContaOS_Pacote_Mestre_Arquitetura_4_1_100_PRD_Lovable_Supabase_BRAND_v1_0_FINAL.zip`
+
+Novos pontos de referência dentro do pacote integrado:
+
+| Arquivo/pasta complementar | Conteúdo coberto na raiz |
+|---|---|
+| `06_PROMPTS_COPIAR_COLAR/PROMPT_000_BRAND_01_IDENTIDADE_VISUAL_OFICIAL.md` | `20` |
+| `06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx` | `08`, `12`, `19`, `20` |
+| `06_PROMPTS_COPIAR_COLAR/INDICE_PROMPTS_ATOMICOS_000_096.md` | `12`, `20` |
+| `09_AUDITORIA_E_FONTES/MANIFEST_SHA256_v4_1_BRAND_v1_0.json` | `09`, `17`, `19` |
+| `09_AUDITORIA_E_FONTES/CERTIFICACAO_INTEGRACAO_BRAND_v1_0.md` | `17`, `19` |
+| `10_RASTREABILIDADE_PRD/MATRIZ_RASTREABILIDADE_PRD_96_COM_PROMPT_000_BRAND_v1_1.docx` | `08`, `19`, `20` |
+| `10_RASTREABILIDADE_PRD/NOTA_PROMPT_000_BRAND_01.md` | `08`, `12`, `19`, `20` |
+| `12_IDENTIDADE_VISUAL_OFICIAL/ARQUIVO_ORIGINAL/ContaOS_Marca_Oficial_v1.0_FINAL.zip` | `19`, `20` |
+| `12_IDENTIDADE_VISUAL_OFICIAL/ContaOS_Marca_Oficial_v1.0/` | `19`, `20` |
+
+A raiz do repositório passa também a incluir:
+- `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`;
+- `20_PROMPT_000_BRAND_01.md`.
+
+**Regra de cobertura:** os 96 requisitos PRD/NFR permanecem 96/96. O PROMPT 000 / BRAND-01 é transversal. A faixa de prompts atômicos é 000–096, sem renumerar 001–096.

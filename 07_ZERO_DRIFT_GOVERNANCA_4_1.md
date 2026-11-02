@@ -118,3 +118,23 @@ A eficiência de créditos faz parte da governança operacional do projeto:
 ## 9. Critério final
 
 O agente pode propor. O manifesto autoriza. RLS limita. RPC protege. O diff revela. O teste prova. O CI bloqueia. O humano decide. A eficiência de créditos otimiza o caminho, mas nunca enfraquece o resultado.
+
+## 10. Complemento canônico — BRAND-01 / Identidade Visual Oficial v1.0
+
+A partir de 02/11/2026, qualquer tarefa com impacto de identidade visual deve ler integralmente `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md` e `20_PROMPT_000_BRAND_01.md` **antes do PLAN**.
+
+O PROMPT 000 / BRAND-01 é um gate transversal exclusivamente visual. Ele complementa estas regras Zero-Drift e não as substitui.
+
+Para BRAND-01:
+- a faixa atômica é 000–096; 001–096 permanecem inalterados;
+- a cobertura do PRD continua 96/96;
+- backend, arquitetura, regras funcionais, rotas, permissões, estados, cálculos e integrações ficam fora do escopo;
+- o Design System existente deve ser preservado;
+- não criar segunda paleta, Design System paralelo ou hardcodes visuais espalhados;
+- não redesenhar nem deformar assets oficiais;
+- a marca deve se adaptar ao ContaOS, não o contrário;
+- se o PLAN exigir mudança fora do escopo visual, classificar `PLAN: NÃO APROVÁVEL` e parar;
+- a fase TESTE não altera código;
+- o diff final deve conter somente alterações visuais/documentais previstas no plano aprovado.
+
+No manifesto de uma tarefa visual, registrar também `brand_context = ContaOS Brand v1.0` e `prompt_000_brand_01_read = true`.

@@ -197,3 +197,28 @@ Aplicação obrigatória:
 - entre duas soluções 100% conformes e tecnicamente equivalentes, escolher obrigatoriamente a de menor consumo de créditos Lovable.
 
 A economia é subordinada à conformidade: é proibido economizar créditos reduzindo TDD, Teste C, segurança, Zero-Drift, acessibilidade, responsividade, rastreabilidade, cobertura, evidência ou fidelidade ao PRD 4.1.
+
+## 18. Identidade Visual Oficial — ContaOS Brand v1.0
+
+A identidade visual oficial é uma camada adicional do frontend, **não uma substituição desta especificação**.
+
+Antes de qualquer alteração visual, são obrigatórias as leituras:
+- `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`;
+- `20_PROMPT_000_BRAND_01.md`.
+
+O PROMPT 000 / BRAND-01 é transversal, exclusivamente visual e deve seguir PLAN → aprovação → BUILD → TESTE. Ele não autoriza alteração funcional, backend, rotas, permissões, regras, estados, cálculos ou integrações.
+
+Regras de aplicação:
+- usar assets oficiais, sem redesenhar o símbolo;
+- integrar a marca ao Design System existente;
+- prioridade de tokens: **REUTILIZAR > ESTENDER > CRIAR**;
+- não espalhar cores hardcoded;
+- Inter somente se compatível com a tipografia vigente, sem criar segunda família sem necessidade;
+- logo horizontal em espaços adequados; símbolo isolado quando o espaço exigir;
+- versões aprovadas para fundo claro/escuro e monocromática quando aplicável;
+- favicon/PWA apenas com assets oficiais;
+- preservar layout, hierarquia e conteúdo funcional;
+- validar 1440 / 1280 / 768 / 390 px, dark mode e acessibilidade;
+- em conflito com comportamento, arquitetura ou Design System, **o pacote 4.1 prevalece**.
+
+A faixa atômica passa a ser `000–096`: BRAND-01 é 000 e os 96 prompts PRD/NFR permanecem 001–096 sem renumeração. A cobertura de requisitos permanece 96/96.
