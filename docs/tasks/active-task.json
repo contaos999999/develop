@@ -1,7 +1,7 @@
 {
-  "id": "SEC-BACKEND-HOTFIX-FINANCE-WORKER-2026-11-02",
-  "title": "Hotfix de segurança e continuidade do worker financeiro dedicado",
-  "branch": "security/backend-hotfix-finance-dedicated-worker",
+  "id": "SEC-BACKEND-P3A-FILE-INTEGRITY-LIMITS-2026-11-02",
+  "title": "Hardening P3A de upload, integridade e limites de processamento",
+  "branch": "security/backend-hardening-p3a-file-integrity-limits",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
@@ -9,69 +9,51 @@
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "context_manifest_sha256": "01d17aa3f71b8b4e4b67395f3d70fdcb158bc6d7b31dca1126aea49bc86ad4df",
   "context_documents_read": [
-    "00_AI_LEIA_ANTES_DE_ALTERAR.md",
-    "01_PRD_MESTRE_4_1.md",
-    "02_PREMISSAS_FUNCIONAIS_TECNICAS_4_1.md",
-    "03_ARQUITETURA_OFICIAL_4_1.md",
-    "04_MANUAL_AMBIENTE_E_PROMOCAO_4_1.md",
-    "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
-    "06_FRONTEND_LOVABLE_ESPECIFICACAO_4_1.md",
-    "07_ZERO_DRIFT_GOVERNANCA_4_1.md",
-    "08_REQUISITOS_96_E_CRITERIOS_ACEITE_4_1.md",
-    "08A_REQUISITOS_001_024_4_1.md",
-    "08B_REQUISITOS_025_048_4_1.md",
-    "08C_REQUISITOS_049_072_4_1.md",
-    "08D_REQUISITOS_073_096_4_1.md",
-    "09_RASTREABILIDADE_FONTES_AUDITORIA_4_1.md",
-    "10_IA_OCR_RAG_E_PRECEDENTES_4_1.md",
-    "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md",
-    "12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md",
-    "13_MAPA_DOCUMENTOS_PACOTE_4_1.md",
-    "14_CHECKLIST_PRE_ALTERACAO.md",
-    "15_ESTADO_CERTIFICADO_HML_4_1.md",
-    "16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md",
-    "17_FONTES_TECNICAS_E_QA_4_1.md",
-    "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
+    "00_AI_LEIA_ANTES_DE_ALTERAR.md","01_PRD_MESTRE_4_1.md","02_PREMISSAS_FUNCIONAIS_TECNICAS_4_1.md","03_ARQUITETURA_OFICIAL_4_1.md","04_MANUAL_AMBIENTE_E_PROMOCAO_4_1.md","05_BACKEND_SUPABASE_CERTIFICADO_4_1.md","06_FRONTEND_LOVABLE_ESPECIFICACAO_4_1.md","07_ZERO_DRIFT_GOVERNANCA_4_1.md","08_REQUISITOS_96_E_CRITERIOS_ACEITE_4_1.md","08A_REQUISITOS_001_024_4_1.md","08B_REQUISITOS_025_048_4_1.md","08C_REQUISITOS_049_072_4_1.md","08D_REQUISITOS_073_096_4_1.md","09_RASTREABILIDADE_FONTES_AUDITORIA_4_1.md","10_IA_OCR_RAG_E_PRECEDENTES_4_1.md","11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md","12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md","13_MAPA_DOCUMENTOS_PACOTE_4_1.md","14_CHECKLIST_PRE_ALTERACAO.md","15_ESTADO_CERTIFICADO_HML_4_1.md","16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md","17_FONTES_TECNICAS_E_QA_4_1.md","18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "objective": "Remover a dependência interna do queue-worker-finance em relação ao worker genérico aposentado, preservando a importação financeira certificada e reforçando a autenticação service-to-service diretamente no worker dedicado.",
-  "requirements_impacted": ["NFR-010", "NFR-011"],
-  "attack_classes_covered": ["Internal API Exposure", "Deprecated API Exploitation", "Workflow Bypass", "Authentication Bypass"],
-  "allowed_paths": ["docs/tasks/active-task.json", "supabase/functions/queue-worker-finance/index.ts"],
-  "forbidden_paths": [
-    "contaos9999/prod/**",
+  "objective": "Eliminar confiança em tamanho/MIME declarados pelo cliente, impor limite finito de upload e impedir que workers carreguem arquivos excessivos em memória antes da validação, preservando o limiar de 100 MB para upload resumível previsto no NFR-004.",
+  "requirements_impacted": ["NFR-003","NFR-004","NFR-005","NFR-010","NFR-011"],
+  "attack_classes_covered": [
+    "Arbitrary File Upload","Unrestricted File Upload","Malicious File Upload","MIME Type Confusion","Content-Type Confusion","File Extension Bypass","Path Traversal","Directory Traversal","Arbitrary File Write","Storage Exhaustion","Resource Exhaustion","Memory Exhaustion","Zip Bomb","Decompression Bomb"
+  ],
+  "allowed_paths": [
+    "docs/tasks/active-task.json",
     "supabase/migrations/**",
-    "supabase/functions/contaos-worker/**",
-    "supabase/functions/deliver-webhook/**",
-    "supabase/functions/generate-report/**",
-    "supabase/functions/queue-worker-documents/**"
+    "supabase/functions/storage-sign-upload/index.ts",
+    "supabase/functions/queue-worker-documents/index.js",
+    "supabase/functions/queue-worker-ocr/index.ts",
+    "supabase/functions/queue-worker-finance/index.ts"
   ],
-  "database_changes_allowed": false,
+  "forbidden_paths": [
+    "contaos9999/prod/**","supabase/functions/contaos-worker/**","supabase/functions/deliver-webhook/**","supabase/functions/generate-report/**"
+  ],
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
-  "storage_changes_allowed": false,
-  "root_cause": "O queue-worker-finance homologado era apenas um proxy para /functions/v1/contaos-worker?queue=finance_imports. A aposentadoria segura do worker genérico revelou essa dependência indireta. Nenhum cron chamava diretamente o worker legado, mas o consumidor financeiro o utilizava internamente.",
-  "implemented": [
-    "Lógica de importação financeira certificada movida para queue-worker-finance.",
-    "Token interno agora é validado pelo RPC validar_token_interno diretamente no worker financeiro.",
-    "Consumo direto da fila finance_imports com worker_pull_job e worker_finalizar_job.",
-    "Parsing XLSX/CSV, normalização de cabeçalhos, datas e valores, hash de origem e upsert idempotente preservados.",
-    "Nenhuma chamada ao contaos-worker permanece no worker financeiro.",
-    "contaos-worker permanece aposentado."
+  "storage_changes_allowed": true,
+  "security_limits": {
+    "upload_transfer_max_bytes": 524288000,
+    "automatic_processing_max_bytes": 50331648,
+    "resumable_threshold_bytes": 104857600
+  },
+  "rationale": "O upload continua aceitando arquivos grandes e mantém o limiar resumível de 100 MB. O teto de transferência de 500 MB reduz abuso de armazenamento. O processamento automático em Edge fica limitado a 48 MB para manter margem sob o limite de memória do runtime e impedir download integral de objetos maiores.",
+  "plan": [
+    "Configurar limite finito no bucket e allowlist de MIME no Storage.",
+    "Configurar limite finito no cadastro de upload sem alterar o limiar resumível de 100 MB.",
+    "Na confirmação, validar formato exato do path server-generated e comparar tamanho/MIME declarados com metadata real do Storage.",
+    "Antes de qualquer download integral, bloquear documentos, OCR e importações financeiras acima do limite de processamento automático.",
+    "Manter hash SHA-256 recalculado no worker documental e demais validações existentes.",
+    "Testar spoof de tamanho, path fora do padrão, MIME divergente, limite de upload e limite de processamento."
   ],
-  "test_evidence": [
-    "HML queue-worker-finance versão 3 publicada com sucesso.",
-    "Fila finance_imports estava vazia antes do teste.",
-    "Sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
-    "Com token interno válido e fila vazia: HTTP 200, fila=finance_imports, processados=0.",
-    "Nenhum job de negócio foi consumido durante o teste."
-  ],
-  "rollback": "Reverter queue-worker-finance/index.ts para o proxy anterior e, somente se estritamente necessário para continuidade, restaurar temporariamente a versão anterior do worker genérico. O caminho preferencial é manter o worker genérico desativado.",
-  "acceptance_results": {
-    "without_internal_token_401": "PASS",
-    "with_internal_token_empty_queue_200": "PASS",
-    "no_generic_worker_dependency": "PASS",
-    "generic_worker_remains_retired": "PASS",
-    "prod_untouched": "PASS"
-  }
+  "rollback": "Reverter a migration e as Edge Functions desta tarefa para a versão anterior no HML. PROD não será alterado.",
+  "acceptance": [
+    "Bucket privado passa a ter limite de 500 MB e allowlist de MIME.",
+    "configuracao_upload mantém 100 MB como limiar resumível e passa a limitar transferência em 500 MB.",
+    "confirmar_upload_arquivo rejeita tamanho/MIME divergente do objeto real e path fora do padrão server-generated.",
+    "Workers rejeitam arquivo >48 MB antes do download integral.",
+    "Uploads legítimos abaixo dos limites permanecem compatíveis.",
+    "Zero-Drift, Architecture Guard, migrations reproduzíveis e secret scan permanecem verdes.",
+    "PROD permanece intocado."
+  ]
 }
