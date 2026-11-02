@@ -7,6 +7,7 @@ on:
     paths:
       - 'supabase/config.toml'
       - 'supabase/migrations/**'
+      - 'supabase/tests/hml_acceptance.sql'
       - '.github/workflows/restore-isolado.yml'
 
 permissions:
@@ -34,6 +35,19 @@ jobs:
       - name: Recriar banco a partir das migrations versionadas
         run: supabase db reset --local --no-seed
 
+      - name: Executar suíte oficial de aceitação no banco reconstruído
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p restore-proof
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/hml_acceptance.sql | tee restore-proof/hml-acceptance.txt
+          if grep -Eq '\|f\|' restore-proof/hml-acceptance.txt; then
+            echo 'A suíte HML contém teste com passou=false.'
+            exit 1
+          fi
+          echo 'Suíte oficial HML: PASS.'
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
@@ -41,7 +55,7 @@ jobs:
           supabase migration list --local | tee restore-proof/migration-list.txt
           printf 'commit=%s\n' "${GITHUB_SHA}" > restore-proof/resultado.txt
           printf 'status=PASS\n' >> restore-proof/resultado.txt
-          printf 'criterio=db reset local concluido sem erro\n' >> restore-proof/resultado.txt
+          printf 'criterio=db reset local + suite HML concluídos sem erro\n' >> restore-proof/resultado.txt
           printf 'cli=2.122.0\n' >> restore-proof/resultado.txt
           printf 'postgres_major=17\n' >> restore-proof/resultado.txt
 
