@@ -141,14 +141,15 @@
   ],
   "approved_edge_functions": [],
   "acceptance": [
-    "PLAN revisado conforme pacote 4.1 e aprovado pelo usuário",
-    "TDD RED antes da produção",
-    "Resumo oficial sem edição ou carga pesada",
-    "403/404 seguros e sem bypass",
-    "Focado/regressão/typecheck/build e browser 1440/1280/768/390",
-    "Teste C separado read-only 18/18, parar em qualquer FAIL",
+    "PROMPT28 e atômicos aplicáveis rastreados sem cobertura fictícia",
+    "PLAN revisado contra4.1 antes de BUILD, por autonomia expressamente delegada",
+    "Fonte/versão/vigência/origem/aplicabilidade com autoridade backend",
+    "Não habilitar operação material sem RPC/contrato seguro; registrar lacuna",
+    "TDD RED antes de produção, logs e exits reais",
+    "Focado/regressão/typecheck/build e browser1440/1280/768/390",
+    "Teste C separado read-only18/18 e parar em FAIL",
     "Security Scan sem novo Critical",
-    "GitHub com evidências e PROD intocado"
+    "Registro integral GitHub e PROD intocado"
   ],
   "tests": [
     "baseNormativa.test.tsx",
