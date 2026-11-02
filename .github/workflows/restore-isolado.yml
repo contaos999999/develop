@@ -33,55 +33,73 @@ jobs:
       - name: Registrar versão da CLI
         run: supabase --version
 
+      - name: Preparar evidências
+        run: mkdir -p restore-proof
+
       - name: Iniciar PostgreSQL Supabase isolado
         run: supabase db start
 
       - name: Recriar banco a partir das migrations versionadas
         run: supabase db reset --local --no-seed
 
-      - name: Executar suítes oficiais de aceitação no banco reconstruído
+      - name: Teste 1 - Aceitação HML
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p restore-proof
           DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/hml_acceptance.sql | tee restore-proof/hml-acceptance.txt
           if grep -Eq '\|f\|' restore-proof/hml-acceptance.txt; then
             echo 'A suíte HML contém teste com passou=false.'
             exit 1
           fi
 
+      - name: Teste 2 - Workflow BOPLA
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/workflow_bopla.sql | tee restore-proof/workflow-bopla.txt
           if grep -Eq '\|f\|' restore-proof/workflow-bopla.txt; then
             echo 'A suíte de segurança de workflow contém teste com passou=false.'
             exit 1
           fi
 
+      - name: Teste 3 - Tarefa de alerta BOPLA
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/alert_task_bopla.sql | tee restore-proof/alert-task-bopla.txt
           if grep -Eq '\|f\|' restore-proof/alert-task-bopla.txt; then
             echo 'A suíte de segurança de tarefa de alerta contém teste com passou=false.'
             exit 1
           fi
 
+      - name: Teste 4 - Autorização de vínculos
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/user_membership_authz.sql | tee restore-proof/user-membership-authz.txt
           if grep -Eq '\|f\|' restore-proof/user-membership-authz.txt; then
             echo 'A suíte de autorização de vínculos contém teste com passou=false.'
             exit 1
           fi
 
+      - name: Teste 5 - BOLA entre contratos
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/contract_scope_bola.sql | tee restore-proof/contract-scope-bola.txt
           if grep -Eq '\|f\|' restore-proof/contract-scope-bola.txt; then
             echo 'A suíte BOLA entre contratos contém teste com passou=false.'
             exit 1
           fi
 
-          echo 'Suítes oficiais HML e de segurança: PASS.'
-
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
-          mkdir -p restore-proof
           supabase migration list --local | tee restore-proof/migration-list.txt
           printf 'commit=%s\n' "${GITHUB_SHA}" > restore-proof/resultado.txt
           printf 'status=PASS\n' >> restore-proof/resultado.txt
@@ -90,9 +108,10 @@ jobs:
           printf 'postgres_major=17\n' >> restore-proof/resultado.txt
 
       - name: Publicar evidência do teste de restauração
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: contaos-hml-restore-proof
           path: restore-proof/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
