@@ -2,31 +2,24 @@
   "id": "PROMPT-22-V1-01-CONTRATANTES-2026-11-02",
   "title": "PROMPT 22 / V1-01 — Contratantes",
   "branch": "main",
-  "status": "teste_c_em_execucao",
+  "status": "concluida",
+  "completed_at": "02/11/2026 - Horário de Brasília",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "context_reanchored_after_credit_canonicalization": true,
-  "canonical_credit_rule": "Minimizar créditos Lovable entre alternativas igualmente conformes; nunca reduzir PRD, segurança, TDD, Teste C, Zero-Drift, rastreabilidade, acessibilidade, responsividade ou evidência.",
+  "canonical_credit_rule_applied": true,
   "objective": "Certificar a tela V1-01 Contratantes em HML, somente leitura via Data API com RLS, paginação server-side e zero mutação de backend/PROD.",
-  "allowed_frontend_paths": [
-    "src/routes/contratantes.tsx",
-    "src/components/contratantes/ListaContratantes.tsx",
-    "src/lib/contratantes/contratantesDados.ts",
-    "src/test/contratantes.test.tsx",
-    "src/routeTree.gen.ts"
-  ],
-  "backend_changes_authorized": false,
-  "rls_changes_authorized": false,
-  "edge_changes_authorized": false,
-  "auth_changes_authorized": false,
-  "prod_untouched": true,
-  "build_evidence": {
+  "result": {
+    "test_c": "18/18 PASS",
     "v1_01_tests": "34/34 PASS",
     "full_suite": "173/173 PASS",
     "typecheck": "exit 0",
-    "build_log": "build OK",
-    "frontend_head_reported_by_lovable": "890f3d6f3492be6affdd08fcdeb82ff6d81f60b0"
+    "build": "PASS",
+    "security_scan_new_critical": 0,
+    "frontend_head": "f358dfc3144f88217e30ae595b2d135a1d01d686",
+    "test_turn_had_code_edits": false,
+    "prod_untouched": true
   },
   "hml_backend_evidence": {
     "contratantes_rls_enabled": true,
@@ -35,17 +28,19 @@
     "authenticated_delete": false,
     "contratantes_rows_at_check": 0
   },
-  "test_c_required": [
-    "rota e estados",
-    "isolamento/autorizacao RLS",
-    "zero DML/RPC/Edge no dominio V1-01",
-    "paginacao e filtros server-side",
-    "responsividade 1440/1280/768/390",
-    "teclado/foco/labels/alvos de toque",
-    "console/network sem erro sensivel",
-    "regressao completa",
-    "typecheck/build",
-    "Security Scan sem novo Critical",
-    "diff/Zero-Drift/GitHub"
-  ]
+  "acceptance_criteria": {
+    "route_session_org": "pass",
+    "denied_ne_empty": "pass",
+    "server_side_pagination_and_filters": "pass",
+    "search_sanitization": "pass",
+    "zero_mutation_v101": "pass",
+    "query_key_isolation": "pass",
+    "pt_br_and_brasilia": "pass",
+    "responsive_1440_1280_768_390": "pass",
+    "accessibility_keyboard_focus_targets": "pass",
+    "console_network_clean": "pass",
+    "security_scan": "pass_sem_novo_critical",
+    "zero_drift": "pass"
+  },
+  "prod_untouched": true
 }
