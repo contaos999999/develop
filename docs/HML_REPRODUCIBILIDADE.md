@@ -1,69 +1,73 @@
 # Reprodutibilidade do ContaOS HML
 
-O ambiente oficial de homologação é o Supabase `gklhhhyosgasnyoxlrui` e o repositório oficial de HML é `contaos9999/develop`.
+Data de referência: 02/11/2026, Horário de Brasília.
+
+O ambiente oficial de homologação é o Supabase `gklhhhyosgasnyoxlrui` e o repositório oficial de HML é `contaos9999/develop`. O repositório `contaos9999/prod` permanece fora do desenvolvimento/homologação.
+
+## Estado certificado
+
+- migrations registradas no Supabase HML: **51**;
+- última migration: `20261102000441_0046_openai_modelo_analise_operacional`;
+- histórico antigo materializado em arquivos individuais por `supabase/scripts/materialize-migrations.mjs`;
+- checkpoint imutável disponível em `supabase/applied-history/contaos-hml-full-history.sql`;
+- Edge Functions ativas versionadas em `supabase/functions/`;
+- testes de homologação ficam em `supabase/tests/`;
+- secrets permanecem apenas no Supabase Secrets/Vault;
+- nenhum valor de `OPENAI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, token interno ou segredo de webhook é versionado.
 
 ## Regras de versionamento
 
-- migrations aplicadas nunca são reescritas;
-- toda correção posterior entra como nova migration;
-- timestamps registrados em `supabase_migrations.schema_migrations` são preservados;
-- Edge Functions ativas são versionadas em `supabase/functions/`;
-- testes de homologação ficam em `supabase/tests/`;
-- segredos permanecem apenas no Supabase Secrets/Vault;
-- `contaos9999/prod` não recebe alterações durante homologação;
-- o histórico SQL completo pode ser exportado pelo endpoint interno `export-migration-history`, protegido pelo token interno do Vault;
-- a exportação integral é gerada diretamente de `supabase_migrations.schema_migrations`, evitando reconstrução manual.
-
-## Estado sincronizado
-
-- Quantidade atual de migrations no HML: 48.
-- Última migration: `20261101233537_0043_hardening_funcoes_privadas`.
-- Snapshot histórico versionado: `supabase/applied-history/contaos-hml-full-history.sql`.
-- O snapshot preserva o histórico consolidado até `20261101225646_0038_exportacao_historico_migrations`.
-- Migrations posteriores ao snapshot estão versionadas individualmente em `supabase/migrations/`, incluindo onboarding Auth, hardening de grants anônimos, configuração OpenAI por organização e hardening do schema privado.
-- O materializador `supabase/scripts/materialize-migrations.mjs` separa o checkpoint histórico em migrations individuais e recusa divergências de conteúdo.
+1. migration aplicada nunca é reescrita;
+2. correção entra como nova migration;
+3. timestamp e nome do histórico Supabase são preservados;
+4. materializador falha se um arquivo existente divergir do checkpoint;
+5. Zero-Drift e Architecture Guard executam no GitHub;
+6. `prod` não recebe mudanças enquanto a versão não for homologada.
 
 ## Segurança
 
-Nenhum arquivo de versionamento contém o valor de `OPENAI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, token interno dos workers ou segredos de webhooks. O `.env.example` contém somente nomes de variáveis e valores não secretos.
+- **117/117** tabelas `public` com RLS;
+- **2/2** tabelas `privado` com RLS, sem leitura para `anon`/`authenticated`;
+- nenhuma função `SECURITY DEFINER` do schema `public` executável por `anon`;
+- Storage `contaos-documentos` privado;
+- RPCs críticas protegidas por autenticação/perfil/escopo;
+- workers internos protegidos por token service-to-service do Vault;
+- teste A/B de organizações/perfis executado com `ROLLBACK`: PASS.
 
-Todas as tabelas públicas do HML estão com RLS habilitada e possuem policy. A role `anon` não executa funções no schema `privado` e não possui acesso a dados de organizações/contratos. Antes do login, ficam públicos apenas catálogos de interface/localização e utilitários de formatação sem acesso a tenant.
-
-As funções internas `SECURITY DEFINER` usam `search_path` controlado. As ações críticas são expostas por wrappers/RPCs específicos e continuam subordinadas a autenticação, perfil e escopo contratual.
-
-O Advisor de segurança apresenta somente o aviso `extension_in_public` para `pg_net`, extensão de infraestrutura utilizada nas chamadas HTTP dos workers/Cron. A relocação não foi forçada para evitar quebra do runtime gerenciado.
-
-## Testes de homologação
-
-Os testes versionados estão em:
-
-- `supabase/tests/hml_acceptance.sql`: isolamento A/B, perfil leitor, portão 99/100, portão 100/100, não aplicável sem fundamento, estados de apresentação/reapresentação e concorrência otimista;
-- `supabase/tests/queues_edge_auth.sql`: idempotência de jobs, DLQ, workers oficiais e autenticação negativa de Edge Functions.
-
-Os cenários sintéticos utilizam transações com `ROLLBACK`, portanto não deixam organizações, usuários, contratos ou competências de teste no HML.
-
-## Performance
-
-O Advisor de performance não aponta chaves estrangeiras sem índice. Em um HML sem carga operacional, índices podem aparecer como `unused_index`; eles não devem ser removidos antes de testes de carga e uso real, pois incluem cobertura de FKs, RLS, filtros operacionais e busca vetorial.
-
-## Observabilidade
-
-O cron `contaos-saude-operacional` executa `privado.verificar_saude_operacional()` a cada cinco minutos. O monitor registra alertas por organização quando encontra jobs enviados à DLQ nas últimas 24 horas ou concentração de falhas assíncronas na última hora.
-
-Os workers rápidos e pesados possuem schedules próprios, e o histórico do `pg_cron` deve permanecer monitorado no HML e em produção.
+O Security Advisor não possui Critical da aplicação. Permanece apenas o WARN `extension_in_public` para `pg_net`, extensão não relocável (`extrelocatable=false`) usada pelo runtime/Cron do Supabase. Não é drift de aplicação.
 
 ## Localização
-
-O padrão oficial do produto é:
 
 - idioma: `pt-BR`;
 - timezone: `America/Sao_Paulo`;
 - data: `DD/MM/YYYY`;
 - horário: `HH24:MI:SS`;
-- moeda: `BRL`.
+- data/hora: `DD/MM/YYYY HH24:MI:SS`;
+- moeda: `BRL`;
+- mensagens de interface: catálogo PT-BR com 38 entradas;
+- status UI: catálogo com 23 entradas;
+- `PODE APRESENTAR AO CONTRATANTE`;
+- `PODE REAPRESENTAR AO CONTRATANTE`.
 
-## Promoção futura
+## Testes certificados
 
-A promoção para produção deverá utilizar exclusivamente migrations, Edge Functions e configurações homologadas no `develop`. Dados fictícios ou operacionais do HML não devem ser promovidos.
+- RLS A/B e perfis: PASS;
+- portão 99/100 e 100/100: PASS;
+- parecer interno obrigatório: PASS;
+- reapresentação 100%: PASS;
+- concorrência otimista: PASS;
+- idempotência + DLQ: PASS;
+- oito processadores oficiais: HTTP 200;
+- autenticação negativa de Edge: 401;
+- OpenAI chave/modelo/análise estruturada/visão-OCR: PASS;
+- Storage privado e URL assinada: PASS;
+- 75/75 entidades explícitas da matriz: presentes e com RLS;
+- carga: 10.000 contratantes + 10.000 contratos sintéticos, 200 consultas paginadas com RLS, p95 **60,52 ms**; 100/100 chamadas Edge concorrentes HTTP 200 e 0 HTTP 5xx. Dados revertidos.
 
-Antes da promoção, executar novamente os testes versionados, Advisors de segurança/performance, teste de carga, validação de backup/restauração do projeto PROD e testes ponta a ponta do frontend. O procedimento de release e rollback está em `docs/RELEASE_ROLLBACK.md`.
+## Observabilidade
+
+O cron `contaos-saude-operacional` executa verificação de saúde a cada cinco minutos. Filas rápidas/pesadas têm schedules próprios, falhas são sanitizadas, retry/DLQ são rastreados e alertas operacionais preservam correlation id quando aplicável.
+
+## Promoção futura para PROD
+
+A promoção para produção deverá utilizar apenas migrations/Edge Functions homologadas no `develop`. Backup/PITR/RPO/RTO e teste de restauração do **ambiente PROD** são gates de implantação de produção e permanecem fora desta certificação do backend HML pré-frontend. O Manual de Ambiente determina que a produção é preparada em etapa posterior, depois da homologação. O procedimento de release/rollback está em `docs/RELEASE_ROLLBACK.md`.
