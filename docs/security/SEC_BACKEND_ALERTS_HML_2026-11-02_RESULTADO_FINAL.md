@@ -71,6 +71,21 @@ Os 6 achados anteriores não reapareceram:
 
 Scanner atual: 1 achado informativo, `People can choose a password that is already leaked`, correspondente à configuração de Auth bloqueada pelo plano Free.
 
+## Smoke de regressão SYS-01 / SYS-02
+
+Foi executado smoke test read-only no preview Lovable após o hardening:
+
+- `/login`: HTTP 200; E-mail, Senha e Entrar visíveis;
+- credencial propositalmente inválida: Auth HTTP 400, copy neutra `E-mail ou senha inválidos.`, permanência em `/login`;
+- `/esqueci-senha`: HTTP 200; E-mail e `Enviar link` visíveis;
+- uma solicitação de recuperação para alias controlado: HTTP 200, copy neutra, nenhuma sessão criada;
+- console: nenhum erro de aplicação ou dado sensível;
+- network: nenhuma `secret/service_role`;
+- `git status`: vazio e idêntico antes/depois;
+- nenhuma correção ou alteração de código realizada nesse smoke.
+
+O caminho autenticado de leitura das tabelas endurecidas foi coberto diretamente no backend pelo teste positivo com sessão sintética sem token e vínculo ativo.
+
 ## pg_net
 
 Baseline: `pg_net 0.20.4` estava no schema `public` e `relocatable=false`.
@@ -104,3 +119,4 @@ O conector `apply_migration` já encapsula o SQL em transação. Como os arquivo
 - Leaked Password Protection: **PENDÊNCIA EXTERNA DE PLANO (FREE → PRO+)**.
 - Backend PROD: **NÃO ALTERADO**.
 - Frontend: **NÃO ALTERADO durante esta tarefa**.
+- Smoke SYS-01/SYS-02: **PASS**.
