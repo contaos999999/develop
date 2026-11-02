@@ -1,55 +1,65 @@
 {
-  "id": "PROMPT-25-V1-04-CONTRATOS-2026-11-02",
-  "title": "PROMPT 25 / V1-04 — Contratos",
-  "status": "planejamento_pronto_para_lovable",
+  "id": "PROMPT-26-V1-05-NOVO-CONTRATO-2026-11-02",
+  "title": "PROMPT 26 / V1-05 — Novo contrato",
+  "status": "backend_certificado_pronto_para_plan_frontend",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar /contratos como lista paginada por organização ativa, com Data API + RLS, preservando o fluxo multi-organização SYS-04 e sem vazamento de dados entre organizações.",
+  "objective": "Implementar /contratos/novo para administrador/gestor usando Data API + RLS, sem RPC/Edge nova, com criação auditada e acesso imediato do criador restrito.",
   "canonical_sources": [
-    "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx#PROMPT25",
-    "05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx#SYS04+V1-04",
-    "08_REQUISITOS_NAO_FUNCIONAIS/ContaOS_RNF_Escalabilidade_Concorrencia_Performance_v2_0_Supabase.docx#API-e-grandes-volumes",
+    "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx#PROMPT26",
+    "05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx#V1-05",
+    "02_BACKEND_SUPABASE/Backend_Supabase_v3_0_Manual_Integral_Production_Readiness.docx",
     "07_ZERO_DRIFT/ZeroDrift_v2_Lovable_Supabase.docx"
   ],
   "requirements": [
-    "PROMPT-25",
-    "V1-04",
-    "SYS-04 multi-organizacao",
-    "RLS autoridade",
-    "paginacao 25 server-side",
+    "PROMPT-26",
+    "V1-05",
+    "administrador/gestor",
+    "Data API + RLS",
+    "sem .select() no INSERT",
+    "situacao rascunho por default",
+    "criticidade media por default",
+    "auditoria ContratoCriado",
     "1440/1280/768/390",
     "acessibilidade",
     "Zero-Drift"
   ],
-  "multi_org_rule": {
-    "selection_is_navigation_preference": true,
-    "rls_remains_authority": true,
-    "on_switch_clear_previous_org_cache_and_visible_data": true,
-    "reset_page_to": 1,
-    "query_key_must_include_org_id": true,
-    "no_placeholder_between_orgs": true,
-    "stale_previous_org_response_must_not_replace_current_org": true
-  },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
     "table": "public.contratos",
     "rls_enabled": true,
-    "select_policy": "contratos_select -> privado.usuario_tem_acesso_contrato(id)",
-    "backend_gap": false,
+    "insert_policy": "contratos_insert -> privado.usuario_possui_perfil(id_organizacao, ['administrador','gestor_contrato'])",
+    "backend_gap_found": true,
+    "backend_gap_closed": true,
     "new_rpc_needed": false,
-    "synthetic_rls_check": "PASS com ROLLBACK: escopo restrito, escopo total e isolamento entre organizações",
+    "new_edge_needed": false,
+    "migrations": [
+      "20261102173500_v105_contrato_criado_escopo_auditoria.sql",
+      "20261102174200_v105_confiar_mutacao_interna_escopo.sql"
+    ],
+    "synthetic_backend_test": "PASS 11/11 com ROLLBACK",
+    "security_advisor": "sem novo finding; apenas auth_leaked_password_protection preexistente",
     "prod_untouched": true
   },
-  "frontend_existing_context": {
-    "preference_helper": "src/lib/organizacao/preferenciaOrganizacao.ts",
-    "selector": "src/components/organizacao/OrganizationSelector.tsx",
-    "selector_clears_query_cache_when_org_changes": true,
-    "reference_pattern": "V1-01 ListaContratantes já usa preferência por usuário + query key com idOrganizacao + sem placeholder"
+  "frontend_contract": {
+    "insert_mode": "supabase.from('contratos').insert(payload) sem .select()/RETURNING",
+    "creator_restricted_scope_granted_server_side": true,
+    "audit_event": "ContratoCriado",
+    "defaults": {
+      "situacao": "rascunho",
+      "criticidade": "media",
+      "versao_registro": 1
+    }
   },
-  "spec_commit": "778a0c12b7907421a34303e5fbe96c9db3372823",
-  "plan_commit": "a6e9a33a7c61cf0d3156a66433edc6e1c2ece9b8",
-  "next_step": "PLAN MODE Lovable enxuto; auditar e aprovar automaticamente se fiel ao pacote 4.1",
+  "previous_prompt": {
+    "id": "PROMPT-25-V1-04",
+    "test_c": "PASS 18/18",
+    "frontend_head": "8a809e2e8600ec8616e5d5fe0c1f299b07469548",
+    "focused_tests": "26/26",
+    "full_suite": "264/264"
+  },
+  "next_step": "integrar branch backend; depois PLAN MODE Lovable mínimo para V1-05 sem redescobrir backend",
   "prod_untouched": true
 }
