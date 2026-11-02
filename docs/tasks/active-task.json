@@ -1,46 +1,45 @@
 {
-  "id": "PROMPT-22-V1-01-CONTRATANTES-2026-11-02",
-  "title": "PROMPT 22 / V1-01 — Contratantes",
+  "id": "PROMPT-23-V1-02-NOVO-CONTRATANTE-2026-11-02",
+  "title": "PROMPT 23 / V1-02 — Novo contratante",
   "branch": "main",
-  "status": "concluida",
-  "completed_at": "02/11/2026 - Horário de Brasília",
+  "status": "build_autorizado",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
-  "context_reanchored_after_credit_canonicalization": true,
   "canonical_credit_rule_applied": true,
-  "objective": "Certificar a tela V1-01 Contratantes em HML, somente leitura via Data API com RLS, paginação server-side e zero mutação de backend/PROD.",
-  "result": {
-    "test_c": "18/18 PASS",
-    "v1_01_tests": "34/34 PASS",
-    "full_suite": "173/173 PASS",
-    "typecheck": "exit 0",
-    "build": "PASS",
-    "security_scan_new_critical": 0,
-    "frontend_head": "f358dfc3144f88217e30ae595b2d135a1d01d686",
-    "test_turn_had_code_edits": false,
-    "prod_untouched": true
-  },
-  "hml_backend_evidence": {
-    "contratantes_rls_enabled": true,
-    "select_policy_uses_usuario_tem_acesso_organizacao": true,
-    "authenticated_select": true,
+  "objective": "Implementar /contratantes/novo em HML via Data API + RLS, sem backend paralelo, com gate UX do próprio vínculo e INSERT direto autorizado.",
+  "backend_verified": {
+    "insert_policy": "privado.usuario_possui_perfil(id_organizacao, ARRAY['administrador','gestor_contrato'])",
+    "authenticated_insert": true,
     "authenticated_delete": false,
-    "contratantes_rows_at_check": 0
+    "document_unique_index": "contratantes_org_documento_uidx",
+    "audit_trigger": "contratantes_auditoria_insert",
+    "audit_migration_commit": "9d0abcdf546fc04cf1fde7b86f4e37aff07226db",
+    "own_vinculo_readable_by_rls": true
   },
-  "acceptance_criteria": {
-    "route_session_org": "pass",
-    "denied_ne_empty": "pass",
-    "server_side_pagination_and_filters": "pass",
-    "search_sanitization": "pass",
-    "zero_mutation_v101": "pass",
-    "query_key_isolation": "pass",
-    "pt_br_and_brasilia": "pass",
-    "responsive_1440_1280_768_390": "pass",
-    "accessibility_keyboard_focus_targets": "pass",
-    "console_network_clean": "pass",
-    "security_scan": "pass_sem_novo_critical",
-    "zero_drift": "pass"
-  },
+  "allowed_frontend_paths": [
+    "src/routes/contratantes_.novo.tsx",
+    "src/components/contratantes/NovoContratante.tsx",
+    "src/lib/contratantes/novoContratanteDados.ts",
+    "src/test/novoContratante.test.tsx",
+    "src/routeTree.gen.ts"
+  ],
+  "forbidden_changes": [
+    "Supabase schema/migrations/RLS/Edge/Auth/Storage",
+    "PROD",
+    "SYS-01..05",
+    "ADM-01",
+    "V1-01 certified files",
+    "shared UI/package/client/types unless routeTree auto-generation"
+  ],
+  "plan_corrections": [
+    "Adicionar ação Cancelar no formulário apontando para /contratantes, mantendo Salvar e Voltar acessíveis e >=44px.",
+    "Não alterar V1-01 para adicionar botão Novo neste prompt.",
+    "Economizar créditos: um único turno BUILD consolidado; Teste C separado apenas após GREEN."
+  ],
+  "backend_changes_authorized": false,
+  "rls_changes_authorized": false,
+  "edge_changes_authorized": false,
+  "auth_changes_authorized": false,
   "prod_untouched": true
 }
