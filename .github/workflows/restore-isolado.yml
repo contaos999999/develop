@@ -1,0 +1,54 @@
+name: ContaOS Restore Isolado
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/config.toml'
+      - 'supabase/migrations/**'
+      - '.github/workflows/restore-isolado.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  restore:
+    name: reconstruir-banco-do-zero
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar Supabase CLI fixada
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+
+      - name: Registrar versão da CLI
+        run: supabase --version
+
+      - name: Iniciar PostgreSQL Supabase isolado
+        run: supabase db start
+
+      - name: Recriar banco a partir das migrations versionadas
+        run: supabase db reset --local --no-seed
+
+      - name: Registrar histórico reconstruído
+        shell: bash
+        run: |
+          mkdir -p restore-proof
+          supabase migration list --local | tee restore-proof/migration-list.txt
+          printf 'commit=%s\n' "${GITHUB_SHA}" > restore-proof/resultado.txt
+          printf 'status=PASS\n' >> restore-proof/resultado.txt
+          printf 'criterio=db reset local concluido sem erro\n' >> restore-proof/resultado.txt
+          printf 'cli=2.122.0\n' >> restore-proof/resultado.txt
+          printf 'postgres_major=17\n' >> restore-proof/resultado.txt
+
+      - name: Publicar evidência do teste de restauração
+        uses: actions/upload-artifact@v4
+        with:
+          name: contaos-hml-restore-proof
+          path: restore-proof/
+          if-no-files-found: error
+          retention-days: 30
