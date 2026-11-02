@@ -63,7 +63,8 @@ const governance = new Set([
   manifestPath,
   'AGENTS.md','CLAUDE.md','GEMINI.md','LOVABLE.md','README.md','README_ZERO_DRIFT.md',
   '.github/copilot-instructions.md','.github/CODEOWNERS','.github/pull_request_template.md',
-  'scripts/ai-context-gate.mjs','.github/workflows/zero-drift.yml',taskPath
+  'scripts/ai-context-gate.mjs','.github/workflows/zero-drift.yml',taskPath,
+  'docs/tasks/TEMPLATE.json','docs/tasks/README.md','docs/frontend/ZERO_DRIFT.md','prompts/zero-drift/00_REANCHOR.md'
 ]);
 const implementationChanged = changed.some(f => !governance.has(f));
 
