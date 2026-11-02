@@ -1,7 +1,7 @@
 {
   "id": "V107-BACKEND-NORMATIVO-HML-2026-11-02",
   "title": "V1-07 — tarefa backend mínima autorizada",
-  "status": "ativa",
+  "status": "CERTIFICADO_HML_FRONTEND_V107",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "Codex — leitura integral e revisão paralela nesta sessão",
@@ -55,7 +55,7 @@
   "frontend": {
     "repository": "contaos9999/contaos-hml-control",
     "base_head": "9c26e97e992ee6db529ba3615f2bd10f8ceefbb8",
-    "status": "PLAN_V107_CORRIGIDO_AUDITADO_AGUARDA_DECISAO_PLAN_SHOW",
+    "status": "BUILD_TESTE_C_SECURITY_CERTIFICADO",
     "constraints": [
       "backend certificado autoridade",
       "sem approved_por/em/ativação material pelo React",
@@ -65,9 +65,34 @@
     ],
     "plan_commit": "2d815d6c2d5c30ea8eab99b21ab4c3f683456f89",
     "plan_message": "umsg_01m6f6em3gf9jrw6nxm6j3cg2n",
-    "blocker": "A ferramenta Lovable exige decisão humana no plan--show (event main:agent#00000000008236#tcb:QVZZBBUI, path .lovable/plan.md). O plano corrigido foi auditado; nenhum BUILD iniciado.",
+    "blocker": null,
     "diagnostic_doc": "docs/frontend/V107_BASE_NORMATIVA_2026-11-02.md",
-    "backend_contract": "Quatro RPCs V107, upload/download existentes apenas por fluxo certificado, paginação/lazy load e contrato V106 para 403/404."
+    "backend_contract": "Quatro RPCs V107, upload/download existentes apenas por fluxo certificado, paginação/lazy load e contrato V106 para 403/404.",
+    "head": "3ac193a57efb69e7a9982184a8916c197909dca1",
+    "build_commit": "3ac193a57efb69e7a9982184a8916c197909dca1",
+    "route_file": "src/routes/contratos_.$id_.base-normativa.tsx",
+    "verification": {
+      "focused": "62/62 PASS",
+      "regression": "361/361 PASS",
+      "typecheck": "PASS (npx tsc --noEmit, exit 0)",
+      "build": "PASS (exit 0)",
+      "browser": "PASS simulado em 1440/1280/768/390",
+      "test_c": "18/18 PASS, read-only, HEAD estável",
+      "security_scan": "0 Critical, 0 High; apenas aviso informativo preexistente",
+      "zero_drift": "PASS; types.ts sem _v107 e confirmar_upload_arquivo preservado",
+      "prod_untouched": true
+    },
+    "changed_files": [
+      ".lovable/plan/prompt-28-fe-v107-base-normativa.md",
+      "src/components/contratos/BaseNormativaContrato.tsx",
+      "src/components/contratos/VisaoGeralContrato.tsx",
+      "src/lib/contratos/baseNormativaDados.ts",
+      "src/routeTree.gen.ts",
+      "src/routes/contratos_.$id_.base-normativa.tsx",
+      "src/test/baseNormativa.test.tsx",
+      "src/test/contratoDetalhe.test.tsx"
+    ],
+    "forbidden_check": "PASS; nenhum arquivo src/integrations/supabase/types.ts permaneceu alterado no HEAD final"
   },
   "backend_branch": "integrado em main pelas PRs #26/#27/#28",
   "backend_doc": "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
@@ -78,7 +103,7 @@
     "test_c": "PASS18/18",
     "doc": "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md"
   },
-  "next_step": "Decisão humana exigida pelo plan--show do Lovable; se aprovado, BUILD TDD do PROMPT28, focused/regressão/typecheck/build/browser, Teste C separado 18/18, Security Scan e certificação GitHub.",
+  "next_step": "PROMPT28/V1-07 encerrado e certificado; preservar PROD intocado e aguardar o próximo prompt canônico.",
   "prod_untouched": true,
   "context_read_acknowledged_at": "2026-11-02",
   "context_manifest_sha256": "5a6683274ed17a7ece4c1fc61626a2f0d0b065376a10b46845adcf2e74e57fcd",
@@ -107,7 +132,7 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md"
   ],
-  "branch": "Lovable plan 2d815d6c2d5c30ea8eab99b21ab4c3f683456f89; BUILD ainda não iniciado",
+  "branch": "Lovable BUILD certificado no main 3ac193a57efb69e7a9982184a8916c197909dca1; plano 2d815d6c2d5c30ea8eab99b21ab4c3f683456f89; documentação sincronizada.",
   "requirements_impacted": [
     "V1-CON-001",
     "V1-CON-002",
