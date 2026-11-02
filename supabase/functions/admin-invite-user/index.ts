@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2.118.0/cors'
 
 const URL = Deno.env.get('SUPABASE_URL')!
 const ANON = Deno.env.get('SUPABASE_ANON_KEY')!
@@ -12,9 +13,9 @@ const admin = createClient(URL, SERVICE, {
 })
 
 const cors = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-headers': 'authorization, apikey, x-client-info, content-type',
-  'access-control-allow-methods': 'POST, OPTIONS',
+  ...corsHeaders,
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
 const resp = (body: unknown, status = 200) => Response.json(body, {
@@ -71,7 +72,7 @@ async function buscarUsuarioPorEmail(email: string) {
   const { data, error } = await admin
     .from('usuarios')
     .select('id_usuario,email,nome')
-    .ilike('email', email)
+    .eq('email', email)
     .order('id_usuario')
     .limit(1)
     .maybeSingle()
@@ -129,7 +130,10 @@ Deno.serve(async (req: Request) => {
 
   const { error: adminErr } = await caller.rpc('validar_administrador_organizacao', { p_id_organizacao: idOrganizacao })
   if (adminErr) {
-    return resp({ ok: false, codigo: 'AUTH_ACESSO_NEGADO', titulo: 'Acesso não permitido', mensagem: 'Você não tem permissão para administrar usuários desta organização.' }, 403)
+    if (adminErr.code === '42501') {
+      return resp({ ok: false, codigo: 'AUTH_ACESSO_NEGADO', titulo: 'Acesso não permitido', mensagem: 'Você não tem permissão para administrar usuários desta organização.' }, 403)
+    }
+    return resp({ ok: false, codigo: 'VALIDACAO_INDISPONIVEL', titulo: 'Não foi possível validar seu acesso', mensagem: 'Tente novamente em instantes.' }, 500)
   }
 
   const hashPayload = await sha256(JSON.stringify({ email, nome }))
