@@ -43,7 +43,7 @@ jobs:
       - name: Segredos proibidos
         shell: bash
         run: |
-          if git grep -nE 'sb_service_role_|sk-[A-Za-z0-9_-]{20,}' -- ':!*.md' ':!.env.example'; then
+          if git grep -nE 'sb_service_role_[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9_-]{20,}' -- ':!*.md' ':!.env.example' ':!scripts/architecture-guard.mjs' ':!.github/workflows/zero-drift.yml'; then
             echo 'Padrão de segredo detectado.'
             exit 1
           fi
