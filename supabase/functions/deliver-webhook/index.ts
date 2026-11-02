@@ -1,6 +1,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 import ipaddr from 'npm:ipaddr.js@2.5.0'
+import { request as httpsRequest } from 'node:https'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -11,12 +12,23 @@ const sb = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 const WEBHOOK_TIMEOUT_MS = 10_000
 const DNS_TIMEOUT_MS = 2_500
 const MAX_RESPONSE_BYTES = 4_000
+const MAX_RESPONSE_HEADERS_BYTES = 16 * 1024
 
 type CodigoWebhook =
   | 'WEBHOOK_DESTINO_BLOQUEADO'
   | 'WEBHOOK_TIMEOUT'
   | 'WEBHOOK_FALHOU'
   | 'WEBHOOK_CONFIGURACAO_INVALIDA'
+
+type DestinoWebhookValidado = {
+  url: URL
+  ips: string[]
+}
+
+type RespostaWebhook = {
+  status: number
+  texto: string
+}
 
 class WebhookError extends Error {
   codigo: CodigoWebhook
@@ -60,6 +72,10 @@ function ipEhPublico(ip: string): boolean {
   }
 }
 
+function familiaIp(ip: string): 4 | 6 {
+  return ipaddr.process(ip).kind() === 'ipv6' ? 6 : 4
+}
+
 function hostLocalOuEspecial(hostname: string): boolean {
   const host = hostname.toLowerCase().replace(/\.$/, '')
   return host === 'localhost'
@@ -70,11 +86,25 @@ function hostLocalOuEspecial(hostname: string): boolean {
     || host === 'metadata.google'
 }
 
+function listasIguais(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false
+  return a.every((valor, i) => valor === b[i])
+}
+
+function valorHeaderSeguro(valor: unknown, max = 240): string {
+  return String(valor ?? '')
+    .normalize('NFKC')
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max)
+}
+
 async function resolverIpsPublicos(hostname: string): Promise<string[]> {
   const host = hostSemColchetes(hostname)
   if (ipaddr.isValid(host)) {
     if (!ipEhPublico(host)) throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Destino de webhook aponta para endereço IP não público.')
-    return [host]
+    return [ipaddr.process(host).toString()]
   }
 
   const resolver = async (tipo: 'A' | 'AAAA') => {
@@ -86,15 +116,15 @@ async function resolverIpsPublicos(hostname: string): Promise<string[]> {
   }
 
   const [ipv4, ipv6] = await Promise.all([resolver('A'), resolver('AAAA')])
-  const ips = [...new Set([...ipv4, ...ipv6])]
+  const ips = [...new Set([...ipv4, ...ipv6].map((ip) => ipaddr.process(ip).toString()))].sort()
   if (!ips.length) throw new WebhookError('WEBHOOK_CONFIGURACAO_INVALIDA', 'Não foi possível resolver o endereço do webhook.')
   if (ips.some((ip) => !ipEhPublico(ip))) {
     throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Destino de webhook resolve para rede privada, local, reservada ou não roteável publicamente.')
   }
-  return ips.sort()
+  return ips
 }
 
-async function validarDestinoWebhook(valor: unknown): Promise<URL> {
+async function validarDestinoWebhook(valor: unknown): Promise<DestinoWebhookValidado> {
   let url: URL
   try {
     url = new URL(String(valor ?? ''))
@@ -108,35 +138,16 @@ async function validarDestinoWebhook(valor: unknown): Promise<URL> {
     throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Destino local ou interno não é permitido para webhook.')
   }
 
-  await resolverIpsPublicos(url.hostname)
-  await resolverIpsPublicos(url.hostname)
-  return url
-}
-
-async function lerRespostaLimitada(res: Response): Promise<string> {
-  if (!res.body) return ''
-  const reader = res.body.getReader()
-  const chunks: Uint8Array[] = []
-  let total = 0
-
-  try {
-    while (total < MAX_RESPONSE_BYTES) {
-      const { value, done } = await reader.read()
-      if (done) break
-      if (!value?.length) continue
-      const restante = MAX_RESPONSE_BYTES - total
-      const parte = value.length > restante ? value.slice(0, restante) : value
-      chunks.push(parte)
-      total += parte.length
-      if (value.length > restante || total >= MAX_RESPONSE_BYTES) {
-        await reader.cancel('Limite de resposta do webhook atingido.')
-        break
-      }
-    }
-  } finally {
-    try { reader.releaseLock() } catch { /* noop */ }
+  const primeira = await resolverIpsPublicos(url.hostname)
+  const segunda = await resolverIpsPublicos(url.hostname)
+  if (!listasIguais(primeira, segunda)) {
+    throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'O DNS do webhook apresentou resolução instável durante a validação de segurança.')
   }
 
+  return { url, ips: segunda }
+}
+
+function juntarChunks(chunks: Uint8Array[], total: number): string {
   const bytes = new Uint8Array(total)
   let offset = 0
   for (const chunk of chunks) {
@@ -144,6 +155,71 @@ async function lerRespostaLimitada(res: Response): Promise<string> {
     offset += chunk.length
   }
   return new TextDecoder('utf-8', { fatal: false }).decode(bytes)
+}
+
+async function postHttpsFixado(
+  destino: DestinoWebhookValidado,
+  body: string,
+  headers: Record<string, string>,
+): Promise<RespostaWebhook> {
+  const ip = destino.ips.find((item) => familiaIp(item) === 4) ?? destino.ips[0]
+  const family = familiaIp(ip)
+
+  return await new Promise<RespostaWebhook>((resolve, reject) => {
+    let concluido = false
+    const chunks: Uint8Array[] = []
+    let total = 0
+
+    const concluir = (status: number) => {
+      if (concluido) return
+      concluido = true
+      resolve({ status, texto: juntarChunks(chunks, total) })
+    }
+
+    const req = httpsRequest(destino.url, {
+      method: 'POST',
+      headers,
+      signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
+      maxHeaderSize: MAX_RESPONSE_HEADERS_BYTES,
+      lookup: (_hostname: string, _options: unknown, callback: (...args: any[]) => void) => {
+        callback(null, ip, family)
+      },
+    }, (res) => {
+      const status = Number(res.statusCode ?? 0)
+
+      res.on('data', (chunk: Uint8Array) => {
+        if (concluido) return
+        const bytes = chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk)
+        const restante = MAX_RESPONSE_BYTES - total
+        if (restante > 0) {
+          const parte = bytes.length > restante ? bytes.subarray(0, restante) : bytes
+          chunks.push(new Uint8Array(parte))
+          total += parte.length
+        }
+        if (bytes.length > restante || total >= MAX_RESPONSE_BYTES) {
+          concluir(status)
+          res.destroy()
+        }
+      })
+
+      res.on('end', () => concluir(status))
+      res.on('error', (e) => {
+        if (!concluido) {
+          concluido = true
+          reject(e)
+        }
+      })
+    })
+
+    req.on('error', (e) => {
+      if (!concluido) {
+        concluido = true
+        reject(e)
+      }
+    })
+
+    req.end(body)
+  })
 }
 
 async function registrarFalha(idEvento: string, erro: WebhookError, respostaTexto = '') {
@@ -169,9 +245,9 @@ async function processarWebhook(payload: any) {
   const { data: cfg, error: ec } = await sb.rpc('worker_obter_webhook', { p_id_evento: idEvento })
   if (ec || !cfg) throw new WebhookError('WEBHOOK_CONFIGURACAO_INVALIDA', ec?.message ?? 'Configuração do webhook não encontrada.')
 
-  let url: URL
+  let destino: DestinoWebhookValidado
   try {
-    url = await validarDestinoWebhook(cfg.url)
+    destino = await validarDestinoWebhook(cfg.url)
   } catch (e) {
     const erro = e instanceof WebhookError ? e : new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Destino de webhook rejeitado pela validação de segurança.')
     await registrarFalha(idEvento, erro)
@@ -192,42 +268,36 @@ async function processarWebhook(payload: any) {
   let respostaTexto = ''
 
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      redirect: 'manual',
-      signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
-      headers: {
-        'content-type': 'application/json',
-        'x-contaos-evento': String(cfg.evento ?? ''),
-        'x-contaos-assinatura': `v1=${assinatura}`,
-        'x-contaos-signature-version': 'v1',
-        'x-contaos-timestamp': timestamp,
-        'x-contaos-delivery-id': deliveryId,
-        'x-contaos-correlation-id': String(cfg.correlation_id ?? ''),
-      },
-      body,
+    const resposta = await postHttpsFixado(destino, body, {
+      'content-type': 'application/json',
+      'x-contaos-evento': valorHeaderSeguro(cfg.evento),
+      'x-contaos-assinatura': `v1=${assinatura}`,
+      'x-contaos-signature-version': 'v1',
+      'x-contaos-timestamp': timestamp,
+      'x-contaos-delivery-id': valorHeaderSeguro(deliveryId),
+      'x-contaos-correlation-id': valorHeaderSeguro(cfg.correlation_id),
     })
 
-    respostaTexto = await lerRespostaLimitada(res)
+    respostaTexto = resposta.texto
     const respostaHash = await sha256Hex(respostaTexto)
 
-    if (res.status >= 300 && res.status < 400) {
-      const erro = new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Redirecionamentos HTTP não são permitidos para webhooks.', res.status)
+    if (resposta.status >= 300 && resposta.status < 400) {
+      const erro = new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Redirecionamentos HTTP não são permitidos para webhooks.', resposta.status)
       await registrarFalha(idEvento, erro, respostaTexto)
       throw erro
     }
 
-    const sucesso = res.ok
+    const sucesso = resposta.status >= 200 && resposta.status < 300
     await sb.rpc('worker_registrar_entrega_webhook', {
       p_id_evento: idEvento,
       p_sucesso: sucesso,
-      p_status_http: res.status,
+      p_status_http: resposta.status,
       p_resposta_hash: respostaHash,
-      p_erro: sucesso ? null : `HTTP ${res.status}`,
+      p_erro: sucesso ? null : `HTTP ${resposta.status}`,
     })
 
-    if (!sucesso) throw new WebhookError('WEBHOOK_FALHOU', `Webhook respondeu HTTP ${res.status}.`, res.status)
-    return { status_http: res.status, delivery_id: deliveryId, enviado_em: timestamp }
+    if (!sucesso) throw new WebhookError('WEBHOOK_FALHOU', `Webhook respondeu HTTP ${resposta.status}.`, resposta.status)
+    return { status_http: resposta.status, delivery_id: deliveryId, enviado_em: timestamp }
   } catch (e) {
     if (e instanceof WebhookError) throw e
     const timeout = erroEhTimeout(e)
