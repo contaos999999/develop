@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EsqueciSenhaRouteImport } from './routes/esqueci-senha'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as SelecionarOrganizacaoRouteImport } from './routes/selecionar-organizacao'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
   path: '/redefinir-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SelecionarOrganizacaoRoute = SelecionarOrganizacaoRouteImport.update({
+  id: '/selecionar-organizacao',
+  path: '/selecionar-organizacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/selecionar-organizacao': typeof SelecionarOrganizacaoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/selecionar-organizacao': typeof SelecionarOrganizacaoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,30 @@ export interface FileRoutesById {
   '/esqueci-senha': typeof EsqueciSenhaRoute
   '/login': typeof LoginRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/selecionar-organizacao': typeof SelecionarOrganizacaoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/esqueci-senha' | '/login' | '/redefinir-senha'
+  fullPaths:
+    | '/'
+    | '/esqueci-senha'
+    | '/login'
+    | '/redefinir-senha'
+    | '/selecionar-organizacao'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/esqueci-senha' | '/login' | '/redefinir-senha'
-  id: '__root__' | '/' | '/esqueci-senha' | '/login' | '/redefinir-senha'
+  to:
+    | '/'
+    | '/esqueci-senha'
+    | '/login'
+    | '/redefinir-senha'
+    | '/selecionar-organizacao'
+  id:
+    | '__root__'
+    | '/'
+    | '/esqueci-senha'
+    | '/login'
+    | '/redefinir-senha'
+    | '/selecionar-organizacao'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +92,7 @@ export interface RootRouteChildren {
   EsqueciSenhaRoute: typeof EsqueciSenhaRoute
   LoginRoute: typeof LoginRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
+  SelecionarOrganizacaoRoute: typeof SelecionarOrganizacaoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedefinirSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/selecionar-organizacao': {
+      id: '/selecionar-organizacao'
+      path: '/selecionar-organizacao'
+      fullPath: '/selecionar-organizacao'
+      preLoaderRoute: typeof SelecionarOrganizacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   EsqueciSenhaRoute: EsqueciSenhaRoute,
   LoginRoute: LoginRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
+  SelecionarOrganizacaoRoute: SelecionarOrganizacaoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
