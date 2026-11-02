@@ -2,7 +2,8 @@
   "id": "BACKEND-SYS05-DASHBOARD-SUMMARY-2026-11-02",
   "title": "Resolver lacuna de backend do PROMPT 20 / SYS-05 Dashboard",
   "branch": "backend/sys05-dashboard-summary",
-  "status": "em_execucao",
+  "status": "concluida",
+  "completed_at": "02/11/2026 - Horário de Brasília",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
@@ -14,24 +15,29 @@
     "supabase/tests/sys05_dashboard_summary.sql",
     "docs/backend/SYS05_DASHBOARD_BACKEND_2026-11-02.md"
   ],
-  "forbidden": [
-    "PROD",
-    "alterar frontend nesta branch",
-    "criar tabela nova sem necessidade",
-    "bypassar RLS",
-    "antecipar V5-12/PROMPT 88",
-    "expor RPC a anon/public"
-  ],
-  "acceptance_criteria": {
-    "rpc_security_invoker": "pendente",
-    "rls_organization_and_contract_preserved": "pendente",
-    "anon_execute_revoked": "pendente",
-    "authenticated_execute_granted": "pendente",
-    "authorized_org_positive_test": "pendente",
-    "unlinked_org_negative_test": "pendente",
-    "security_advisor": "pendente",
-    "prod_untouched": "obrigatorio"
+  "result": {
+    "backend_gap_prompt20": "resolvida",
+    "rpc": "public.obter_resumo_dashboard(uuid)",
+    "migration_hml": "20261102114958_sys05_dashboard_summary",
+    "regression_tests": "6/6 PASS",
+    "security_advisor_new_findings": 0,
+    "prod_untouched": true
   },
+  "acceptance_criteria": {
+    "rpc_security_invoker": "pass",
+    "rls_organization_and_contract_preserved": "pass",
+    "anon_execute_revoked": "pass",
+    "authenticated_execute_granted": "pass",
+    "authorized_org_positive_test": "pass",
+    "unlinked_org_negative_test": "pass",
+    "security_advisor": "pass_sem_novo_finding",
+    "prod_untouched": "pass"
+  },
+  "evidence": [
+    "supabase/migrations/20261102114500_sys05_dashboard_summary.sql",
+    "supabase/tests/sys05_dashboard_summary.sql",
+    "docs/backend/SYS05_DASHBOARD_BACKEND_2026-11-02.md"
+  ],
   "rollback": "Somente por migration compensatória; não reescrever histórico.",
   "prod_untouched": true
 }
