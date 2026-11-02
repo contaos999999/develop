@@ -14,6 +14,7 @@ on:
       - 'supabase/tests/contract_scope_bola.sql'
       - 'supabase/tests/webhook_rpc_auth.sql'
       - 'supabase/tests/sql_injection_regression.sql'
+      - 'supabase/tests/reanalysis_authz.sql'
       - '.github/workflows/restore-isolado.yml'
 
 permissions:
@@ -118,6 +119,17 @@ jobs:
           psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/sql_injection_regression.sql | tee restore-proof/sql-injection-regression.txt
           if grep -Eq '\|f\|' restore-proof/sql-injection-regression.txt; then
             echo 'A suíte de regressão contra SQL Injection contém teste com passou=false.'
+            exit 1
+          fi
+
+      - name: Teste 8 - Autorização de reanálise e anti-enumeração
+        shell: bash
+        run: |
+          set -euo pipefail
+          DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -A -F '|' -f supabase/tests/reanalysis_authz.sql | tee restore-proof/reanalysis-authz.txt
+          if grep -Eq '\|f\|' restore-proof/reanalysis-authz.txt; then
+            echo 'A suíte de autorização de reanálise contém teste com passou=false.'
             exit 1
           fi
 
