@@ -1,0 +1,15 @@
+{
+  "id": "FE-000",
+  "title": "descrever tarefa",
+  "branch": "feature/fe-000-descricao",
+  "allowed_paths": ["src/features/exemplo/**"],
+  "forbidden_paths": ["src/integrations/supabase/**", "AGENTS.md", "docs/frontend/**", "package.json", "package-lock.json"],
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
+  "edge_function_changes_allowed": false,
+  "approved_tables": [],
+  "approved_rpcs": [],
+  "approved_edge_functions": [],
+  "acceptance": [],
+  "tests": ["browser", "frontend", "rls-negative"]
+}

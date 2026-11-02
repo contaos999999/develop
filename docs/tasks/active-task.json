@@ -1,0 +1,15 @@
+{
+  "id": "BE-CERT-4.1",
+  "title": "Certificação integral do backend HML ContaOS 4.1",
+  "branch": "main",
+  "allowed_paths": ["AGENTS.md", "README_ZERO_DRIFT.md", "docs/**", "prompts/zero-drift/**", "scripts/**", ".github/**", "supabase/**", ".env.example", "README.md"],
+  "forbidden_paths": [],
+  "database_changes_allowed": true,
+  "rls_changes_allowed": true,
+  "edge_function_changes_allowed": true,
+  "approved_tables": ["*"],
+  "approved_rpcs": ["*"],
+  "approved_edge_functions": ["*"],
+  "acceptance": ["96 requisitos PASS", "RLS A/B PASS", "portões 99/100 e 100/100 PASS", "filas/DLQ PASS", "OpenAI IA/OCR PASS", "Storage privado PASS", "Advisors sem falha aplicacional crítica", "GitHub reproduz HML"],
+  "tests": ["database", "rls-negative", "queues", "edge-auth", "storage", "openai", "advisors", "traceability"]
+}

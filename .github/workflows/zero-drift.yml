@@ -1,0 +1,50 @@
+name: ContaOS Zero-Drift
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Arquivos alterados
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            git diff --name-only "origin/${{ github.base_ref }}...HEAD" > /tmp/changed.txt
+          else
+            git diff --name-only HEAD~1..HEAD > /tmp/changed.txt
+          fi
+          {
+            echo 'ZERO_DRIFT_CHANGED_FILES<<EOF'
+            cat /tmp/changed.txt
+            echo EOF
+          } >> "$GITHUB_ENV"
+      - name: Zero-Drift
+        run: node scripts/zero-drift-check.mjs
+      - name: Architecture Guard
+        run: node scripts/architecture-guard.mjs
+      - name: Migrations reproduzíveis
+        run: |
+          node supabase/scripts/materialize-migrations.mjs
+          git diff --exit-code -- supabase/migrations
+      - name: Segredos proibidos
+        shell: bash
+        run: |
+          if git grep -nE 'sb_service_role_|sk-[A-Za-z0-9_-]{20,}' -- ':!*.md' ':!.env.example'; then
+            echo 'Padrão de segredo detectado.'
+            exit 1
+          fi
+          echo 'Scan de secrets PASS.'
