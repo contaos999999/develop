@@ -108,13 +108,10 @@ async function validarDestinoWebhook(valor: unknown): Promise<URL> {
     throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Destino local ou interno não é permitido para webhook.')
   }
 
-  // Duas resoluções consecutivas reduzem a janela de DNS rebinding. Em ambas,
-  // qualquer IP não público bloqueia a chamada. Redirects também são proibidos.
-  const primeira = await resolverIpsPublicos(url.hostname)
-  const segunda = await resolverIpsPublicos(url.hostname)
-  if (primeira.join(',') !== segunda.join(',')) {
-    throw new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'A resolução DNS do webhook mudou durante a validação de segurança.')
-  }
+  // Duas validações consecutivas reduzem a janela de DNS rebinding sem exigir
+  // que CDNs retornem exatamente o mesmo conjunto de IPs entre consultas.
+  await resolverIpsPublicos(url.hostname)
+  await resolverIpsPublicos(url.hostname)
   return url
 }
 
@@ -161,6 +158,12 @@ async function registrarFalha(idEvento: string, erro: WebhookError, respostaText
   })
 }
 
+function erroEhTimeout(e: unknown): boolean {
+  if (!e || typeof e !== 'object') return false
+  const nome = String((e as { name?: unknown }).name ?? '')
+  return nome === 'TimeoutError' || nome === 'AbortError'
+}
+
 async function processarWebhook(payload: any) {
   const idEvento = payload?.id_evento_webhook ?? payload?.entidade_id
   if (!idEvento) throw new WebhookError('WEBHOOK_CONFIGURACAO_INVALIDA', 'Evento de webhook não informado.')
@@ -202,8 +205,14 @@ async function processarWebhook(payload: any) {
 
     respostaTexto = await lerRespostaLimitada(res)
     const respostaHash = await sha256Hex(respostaTexto)
-    const sucesso = res.ok
 
+    if (res.status >= 300 && res.status < 400) {
+      const erro = new WebhookError('WEBHOOK_DESTINO_BLOQUEADO', 'Redirecionamentos HTTP não são permitidos para webhooks.', res.status)
+      await registrarFalha(idEvento, erro, respostaTexto)
+      throw erro
+    }
+
+    const sucesso = res.ok
     await sb.rpc('worker_registrar_entrega_webhook', {
       p_id_evento: idEvento,
       p_sucesso: sucesso,
@@ -216,7 +225,7 @@ async function processarWebhook(payload: any) {
     return { status_http: res.status }
   } catch (e) {
     if (e instanceof WebhookError) throw e
-    const timeout = e instanceof DOMException && e.name === 'TimeoutError'
+    const timeout = erroEhTimeout(e)
     const erro = new WebhookError(timeout ? 'WEBHOOK_TIMEOUT' : 'WEBHOOK_FALHOU', timeout ? 'Tempo limite de 10 segundos excedido na integração.' : 'Falha de rede ao entregar webhook.')
     await registrarFalha(idEvento, erro, respostaTexto)
     throw erro
