@@ -24,9 +24,10 @@ for (const [trecho, descricao] of obrigatorios) {
   if (!fonte.includes(trecho)) throw new Error(`Embeddings Worker Guard: controle ausente: ${descricao}.`)
 }
 
-const posToken = fonte.indexOf("sb.rpc('validar_token_interno'")
-const posBody = fonte.indexOf('lerJsonLimitado(req')
-if (posToken < 0 || posBody < 0 || posToken > posBody) {
+const inicioHandler = fonte.indexOf('Deno.serve(async (req: Request) => {')
+const posToken = fonte.indexOf("sb.rpc('validar_token_interno'", inicioHandler)
+const posBody = fonte.indexOf('body = await lerJsonLimitado(req', inicioHandler)
+if (inicioHandler < 0 || posToken < 0 || posBody < 0 || posToken > posBody) {
   throw new Error('Embeddings Worker Guard: o corpo está sendo processado antes da autenticação interna.')
 }
 
@@ -38,8 +39,13 @@ if (/\bfetch\s*\(/.test(fonte)) {
   throw new Error('Embeddings Worker Guard: o worker dedicado não deve fazer chamadas HTTP externas ou internas.')
 }
 
-if (/\.from\s*\(\s*(?!['"](?:fragmentos_documento|precedentes)['"])/.test(fonte)) {
-  throw new Error('Embeddings Worker Guard: foi detectado acesso de tabela não previsto ou dinâmico.')
+const chamadasFrom = [...fonte.matchAll(/\.from\s*\(\s*(['"])([^'"]+)\1/g)].map((m) => m[2])
+const tabelasPermitidas = new Set(['fragmentos_documento', 'precedentes'])
+if (chamadasFrom.some((tabela) => !tabelasPermitidas.has(tabela))) {
+  throw new Error('Embeddings Worker Guard: foi detectado acesso a tabela fora da allowlist do worker.')
+}
+if (/\.from\s*\(\s*(?!['"])/.test(fonte)) {
+  throw new Error('Embeddings Worker Guard: foi detectado nome de tabela dinâmico.')
 }
 
 console.log('Embeddings Worker Security PASS: autenticação antes do body, fila/tipos fixos, gte-small 384, limites e finalização segura preservados.')
