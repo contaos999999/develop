@@ -1,54 +1,37 @@
 {
-  "id": "SEC-BACKEND-ALERTS-HML-2026-11-02",
-  "title": "Correção dos alertas de segurança do backend ContaOS HML",
-  "branch": "security/backend-alerts-hml-2026-11-02",
-  "status": "concluida_com_pendencia_externa",
-  "completed_at": "02/11/2026 - Horário de Brasília",
+  "id": "BACKEND-SYS05-DASHBOARD-SUMMARY-2026-11-02",
+  "title": "Resolver lacuna de backend do PROMPT 20 / SYS-05 Dashboard",
+  "branch": "backend/sys05-dashboard-summary",
+  "status": "em_execucao",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "02/11/2026 - Horário de Brasília",
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
-  "context_manifest_sha256": "01d17aa3f71b8b4e4b67395f3d70fdcb158bc6d7b31dca1126aea49bc86ad4df",
-  "objective": "Corrigir no HML os alertas de segurança de RLS/exposição, o warning pg_net em public quando seguro e documentar a limitação de Leaked Password Protection do plano Free, sem tocar no frontend ou em PROD.",
-  "requirements_impacted": ["NFR-010", "NFR-011", "seguranca_backend", "isolamento_multiempresa", "rastreabilidade"],
+  "objective": "Criar no HML um endpoint read-only oficial de resumo operacional para o SYS-05, preservando RLS por organização e contrato, sem antecipar o Painel Executivo V5-12/PROMPT 88 e sem tocar em PROD.",
+  "requirements_impacted": ["PROMPT-20", "SYS-05", "NFR-010", "NFR-011", "isolamento_multiempresa", "rastreabilidade"],
   "scope": [
-    "configuracao_api",
-    "configuracao_upload",
-    "perfis_usuarios",
-    "catalogo_mensagens_sistema",
-    "catalogo_status_ui",
-    "configuracao_localizacao",
-    "pg_net",
-    "leaked_password_protection"
+    "public.obter_resumo_dashboard(uuid)",
+    "supabase/migrations/20261102114500_sys05_dashboard_summary.sql",
+    "supabase/tests/sys05_dashboard_summary.sql",
+    "docs/backend/SYS05_DASHBOARD_BACKEND_2026-11-02.md"
   ],
-  "result": {
-    "rls_broad_policies": "corrigido",
-    "anonymous_catalog_access": "corrigido",
-    "pg_net_public_warning": "corrigido_removido_sem_dependencias",
-    "lovable_previous_rls_findings": "0_reincidencias",
-    "sys01_sys02_smoke": "pass",
-    "prod_untouched": true,
-    "remaining_external_dependency": "Supabase Leaked Password Protection requer plano Pro ou superior; organização atual Free/tier_free"
-  },
-  "evidence": [
-    "docs/security/SEC_BACKEND_ALERTS_HML_2026-11-02_BASELINE.md",
-    "docs/security/SEC_BACKEND_ALERTS_HML_2026-11-02_RESULTADO_FINAL.md",
-    "supabase/tests/security_alerts_visibility.sql",
-    "supabase/migrations/20261102103000_hardening_security_alert_visibility.sql",
-    "supabase/migrations/20261102104000_remove_unused_pg_net.sql",
-    "supabase/applied-history/2026-11-02_security_alerts_hml.md"
+  "forbidden": [
+    "PROD",
+    "alterar frontend nesta branch",
+    "criar tabela nova sem necessidade",
+    "bypassar RLS",
+    "antecipar V5-12/PROMPT 88",
+    "expor RPC a anon/public"
   ],
   "acceptance_criteria": {
-    "no_using_true_sensitive_config": "pass",
-    "no_unnecessary_anon_reads": "pass",
-    "dependent_functions_operational": "pass",
-    "pg_net_warning_removed": "pass",
-    "security_advisor_rerun": "pass",
-    "rls_positive_negative_tests": "pass",
-    "frontend_sys01_sys02_regression": "pass",
-    "leaked_password_protection": "blocked_by_plan_documented",
-    "prod_untouched": "pass"
+    "rpc_security_invoker": "pendente",
+    "rls_organization_and_contract_preserved": "pendente",
+    "anon_execute_revoked": "pendente",
+    "authenticated_execute_granted": "pendente",
+    "authorized_org_positive_test": "pendente",
+    "unlinked_org_negative_test": "pendente",
+    "security_advisor": "pendente",
+    "prod_untouched": "obrigatorio"
   },
-  "rollback": "Mudanças aplicadas por migrations novas e auditáveis. Em eventual regressão, criar migration compensatória; não reescrever histórico.",
+  "rollback": "Somente por migration compensatória; não reescrever histórico.",
   "prod_untouched": true
 }
