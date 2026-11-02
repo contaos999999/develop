@@ -147,6 +147,8 @@ select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-22222222
 insert into contaos_testes select 'RLS','B não vê contrato A',count(*)=0,'linhas='||count(*) from public.contratos where id='aaaaaaaa-1000-4000-8000-000000000001';
 
 reset role;
+select set_config('request.jwt.claim.sub','',true);
+select set_config('request.jwt.claims','{}',true);
 
 insert into public.documentos_competencia(id,id_organizacao,id_contrato,id_competencia,tipo,titulo,categoria,situacao,versao_atual)
 values('aaaaaaaa-5000-4000-8000-000000000001','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','aaaaaaaa-1000-4000-8000-000000000001','aaaaaaaa-2000-4000-8000-000000000002','comprovante','Documento novo pós-liberação','financeiro','ativo',1);
