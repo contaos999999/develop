@@ -199,7 +199,7 @@ Deno.serve(async (req: Request) => {
       mensagem: conviteEnviado
         ? 'O convite foi enviado. Agora conclua o vínculo, perfil e escopo do usuário.'
         : 'A conta já existe no ContaOS. Agora conclua o vínculo, perfil e escopo do usuário.',
-      usuario: { id_usuario: usuario.id_usuario, email: usuario.email ?? email, nome: usuario.nome ?? nome || null },
+      usuario: { id_usuario: usuario.id_usuario, email: usuario.email ?? email, nome: (usuario.nome ?? nome) || null },
       convite_enviado: conviteEnviado,
       proxima_acao: 'salvar_vinculo_usuario_adm',
     }
