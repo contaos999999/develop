@@ -44,6 +44,8 @@ jobs:
         run: node scripts/security-download-filename-check.mjs
       - name: Webhook SSRF Security
         run: node scripts/security-webhook-ssrf-check.mjs
+      - name: Browser Surface Security
+        run: node scripts/security-browser-surface-check.mjs
       - name: Migrations reproduzíveis
         run: |
           node supabase/scripts/materialize-migrations.mjs
