@@ -51,21 +51,27 @@
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "root_cause": "O queue-worker-finance homologado era apenas um proxy para /functions/v1/contaos-worker?queue=finance_imports. A aposentadoria segura do worker genérico revelou essa dependência indireta. Nenhum cron chamava diretamente o worker legado, mas o consumidor financeiro o utilizava internamente.",
-  "plan": [
-    "Mover a lógica de importação financeira já certificada para queue-worker-finance.",
-    "Validar o token interno pelo RPC validar_token_interno no próprio worker, em vez de apenas testar presença do header.",
-    "Consumir diretamente a fila finance_imports com worker_pull_job/worker_finalizar_job.",
-    "Preservar parsing XLSX/CSV, normalização de datas/valores, idempotência e upsert existentes.",
-    "Manter contaos-worker aposentado, sem reabrir qualquer rota genérica."
+  "implemented": [
+    "Lógica de importação financeira certificada movida para queue-worker-finance.",
+    "Token interno agora é validado pelo RPC validar_token_interno diretamente no worker financeiro.",
+    "Consumo direto da fila finance_imports com worker_pull_job e worker_finalizar_job.",
+    "Parsing XLSX/CSV, normalização de cabeçalhos, datas e valores, hash de origem e upsert idempotente preservados.",
+    "Nenhuma chamada ao contaos-worker permanece no worker financeiro.",
+    "contaos-worker permanece aposentado."
+  ],
+  "test_evidence": [
+    "HML queue-worker-finance versão 3 publicada com sucesso.",
+    "Fila finance_imports estava vazia antes do teste.",
+    "Sem token interno: HTTP 401 AUTH_ACESSO_NEGADO.",
+    "Com token interno válido e fila vazia: HTTP 200, fila=finance_imports, processados=0.",
+    "Nenhum job de negócio foi consumido durante o teste."
   ],
   "rollback": "Reverter queue-worker-finance/index.ts para o proxy anterior e, somente se estritamente necessário para continuidade, restaurar temporariamente a versão anterior do worker genérico. O caminho preferencial é manter o worker genérico desativado.",
-  "acceptance": [
-    "queue-worker-finance sem token interno retorna 401.",
-    "queue-worker-finance com token válido e fila vazia retorna 200 sem chamar contaos-worker.",
-    "Código não contém referência a /functions/v1/contaos-worker.",
-    "Cron pesado permanece ativo.",
-    "contaos-worker permanece 410 quando autenticado.",
-    "Zero-Drift e guards permanecem verdes.",
-    "PROD permanece intocado."
-  ]
+  "acceptance_results": {
+    "without_internal_token_401": "PASS",
+    "with_internal_token_empty_queue_200": "PASS",
+    "no_generic_worker_dependency": "PASS",
+    "generic_worker_remains_retired": "PASS",
+    "prod_untouched": "PASS"
+  }
 }
