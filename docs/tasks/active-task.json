@@ -124,7 +124,8 @@
     ".lovable/plan/**",
     "docs/tasks/active-task.json",
     "docs/frontend/V106_CONTRATO_VISAO_GERAL_TESTE_C_2026-11-02.md",
-    "docs/superpowers/plans/2026-11-02-v106-contrato-visao-geral.md"
+    "docs/superpowers/plans/2026-11-02-v106-contrato-visao-geral.md",
+    "AI_CONTEXT_MANIFEST.md"
   ],
   "forbidden_paths": [
     "supabase/**",
@@ -175,5 +176,9 @@
     "Security Scan",
     "ai-context-gate",
     "zero-drift"
-  ]
+  ],
+  "governance_maintenance_authorization": {
+    "scope": "Somente sincronização dos 4 hashes do manifesto e completude da tarefa, autorizada explicitamente pelo usuário nesta sessão em 02/11/2026",
+    "canonical_documents_modified": false
+  }
 }
