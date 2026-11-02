@@ -1,53 +1,55 @@
 {
-  "id": "PROMPT-24-V1-03-EDITAR-CONTRATANTE-2026-11-02",
-  "title": "PROMPT 24 / V1-03 — Editar contratante",
-  "status": "certificado_pass_18_18",
+  "id": "PROMPT-25-V1-04-CONTRATOS-2026-11-02",
+  "title": "PROMPT 25 / V1-04 — Contratos",
+  "status": "planejamento_pronto_para_lovable",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar e certificar V1-03 com controle otimista real, conflito 409 sem overwrite, recarga explícita e auditoria material, consumindo o backend Supabase HML oficial.",
-  "requirements": ["PROMPT-24","V1-03","NFR-007","auditoria_material","isolamento_multiempresa","Zero-Drift"],
-  "backend": {
-    "develop_main_commit": "8ef10ebb0066f4d6d85855da5e6f08d116957086",
-    "public_rpc": "public.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text)",
-    "schema_version": "v103-v1",
-    "concurrency": "SELECT FOR UPDATE + p_versao_esperada + PT409",
-    "version_increment": "server-side somente por contaos_versao_contratantes",
-    "audit_event": "ContratanteAtualizado",
-    "tests": "9/9 PASS com ROLLBACK integral",
-    "security_advisor_new_v103_findings": 0,
-    "security_advisor_preexisting_warning": "auth_leaked_password_protection",
+  "objective": "Implementar /contratos como lista paginada por organização ativa, com Data API + RLS, preservando o fluxo multi-organização SYS-04 e sem vazamento de dados entre organizações.",
+  "canonical_sources": [
+    "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx#PROMPT25",
+    "05_FRONTEND_LOVABLE/FE_v4_Manual_Integral_Lovable_Supabase.docx#SYS04+V1-04",
+    "08_REQUISITOS_NAO_FUNCIONAIS/ContaOS_RNF_Escalabilidade_Concorrencia_Performance_v2_0_Supabase.docx#API-e-grandes-volumes",
+    "07_ZERO_DRIFT/ZeroDrift_v2_Lovable_Supabase.docx"
+  ],
+  "requirements": [
+    "PROMPT-25",
+    "V1-04",
+    "SYS-04 multi-organizacao",
+    "RLS autoridade",
+    "paginacao 25 server-side",
+    "1440/1280/768/390",
+    "acessibilidade",
+    "Zero-Drift"
+  ],
+  "multi_org_rule": {
+    "selection_is_navigation_preference": true,
+    "rls_remains_authority": true,
+    "on_switch_clear_previous_org_cache_and_visible_data": true,
+    "reset_page_to": 1,
+    "query_key_must_include_org_id": true,
+    "no_placeholder_between_orgs": true,
+    "stale_previous_org_response_must_not_replace_current_org": true
+  },
+  "backend_hml": {
+    "project_ref": "gklhhhyosgasnyoxlrui",
+    "table": "public.contratos",
+    "rls_enabled": true,
+    "select_policy": "contratos_select -> privado.usuario_tem_acesso_contrato(id)",
+    "backend_gap": false,
+    "new_rpc_needed": false,
+    "synthetic_rls_check": "PASS com ROLLBACK: escopo restrito, escopo total e isolamento entre organizações",
     "prod_untouched": true
   },
-  "frontend": {
-    "repository": "contaos9999/contaos-hml-control",
-    "certified_head": "72ef720c386c672daaa2c41c12e7d7d53217b955",
-    "route": "/contratantes/$id/editar",
-    "rpc_call": "supabase.rpc('atualizar_contratante', args)",
-    "unsafe_rpc_casts": 0,
-    "focused_tests": "30/30 PASS",
-    "full_regression": "238/238 PASS em 12 arquivos",
-    "typecheck": "tsgo --noEmit exit 0",
-    "build": "vite build em /tmp exit 0",
-    "responsive_widths": [1440,1280,768,390],
-    "horizontal_overflow": 0,
-    "security_scan_critical": 0,
-    "test_c": "18/18 PASS",
-    "browser_evidence": "CONTROLADO por interceptação; não usado como prova de RLS real"
+  "frontend_existing_context": {
+    "preference_helper": "src/lib/organizacao/preferenciaOrganizacao.ts",
+    "selector": "src/components/organizacao/OrganizationSelector.tsx",
+    "selector_clears_query_cache_when_org_changes": true,
+    "reference_pattern": "V1-01 ListaContratantes já usa preferência por usuário + query key com idOrganizacao + sem placeholder"
   },
-  "zero_drift": {
-    "frontend_base": "46176b9b4a6fd88695ce6bb3526ae94f3fcee79a",
-    "expected_changed_files": 7,
-    "v101_v102_sys_adm_shared_untouched": true,
-    "git_clean_after_test": true
-  },
-  "credit_usage_lovable": {
-    "plan": 1.0,
-    "build_resumed_from_plan_gate": 9.3,
-    "test_c": 4.5,
-    "note": "O gate plan--show retomou o mesmo turno e o Lovable executou o BUILD; o cast temporário foi removido via GitHub sem novo crédito Lovable."
-  },
-  "next_prompt": "PROMPT-25",
+  "spec_commit": "778a0c12b7907421a34303e5fbe96c9db3372823",
+  "plan_commit": "a6e9a33a7c61cf0d3156a66433edc6e1c2ece9b8",
+  "next_step": "PLAN MODE Lovable enxuto; auditar e aprovar automaticamente se fiel ao pacote 4.1",
   "prod_untouched": true
 }
