@@ -39,12 +39,18 @@ if (/\bfetch\s*\(/.test(fonte)) {
   throw new Error('Embeddings Worker Guard: o worker dedicado não deve fazer chamadas HTTP externas ou internas.')
 }
 
-const todasFrom = [...fonte.matchAll(/\.from\s*\(/g)]
-const literaisFrom = [...fonte.matchAll(/\.from\s*\(\s*(['"])([^'"]+)\1\s*\)/g)]
+const chamadasFrom = [...fonte.matchAll(/\.from\s*\(/g)].filter((m) => {
+  const antes = fonte.slice(Math.max(0, (m.index ?? 0) - 20), m.index ?? 0)
+  return !/Array\s*$/.test(antes)
+})
+const literaisFrom = [...fonte.matchAll(/\.from\s*\(\s*(['"])([^'"]+)\1\s*\)/g)].filter((m) => {
+  const antes = fonte.slice(Math.max(0, (m.index ?? 0) - 20), m.index ?? 0)
+  return !/Array\s*$/.test(antes)
+})
 const tabelasPermitidas = new Set(['fragmentos_documento', 'precedentes'])
 
-if (todasFrom.length !== literaisFrom.length) {
-  throw new Error('Embeddings Worker Guard: existe chamada .from() cujo nome de tabela não é literal.')
+if (chamadasFrom.length !== literaisFrom.length) {
+  throw new Error('Embeddings Worker Guard: existe chamada Supabase .from() cujo nome de tabela não é literal.')
 }
 if (literaisFrom.some((m) => !tabelasPermitidas.has(m[2]))) {
   throw new Error('Embeddings Worker Guard: foi detectado acesso a tabela fora da allowlist do worker.')
