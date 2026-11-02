@@ -9,6 +9,18 @@ class AppError extends Error { constructor(codigo, mensagem) { super(mensagem); 
 function respostaErro(codigo, mensagem, orientacao = null) { return { ok: false, codigo, titulo: 'Não foi possível concluir', mensagem, orientacao } }
 function dataBrasilia(d = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d) }
 function somarDias(dataIso, dias) { const d = new Date(`${dataIso}T12:00:00-03:00`); d.setDate(d.getDate() + dias); return dataBrasilia(d) }
+function uuidSeguro(valor, campo = 'identificador') {
+  const texto = String(valor ?? '').trim().toLowerCase()
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(texto)) throw new AppError('DADOS_INVALIDOS', `O ${campo} informado não possui um formato válido.`)
+  return texto
+}
+function dataIsoSegura(valor) {
+  const texto = String(valor ?? '').trim()
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(texto)) throw new AppError('DADOS_INVALIDOS', 'A data de referência informada não possui um formato válido.')
+  const data = new Date(`${texto}T12:00:00-03:00`)
+  if (Number.isNaN(data.getTime()) || dataBrasilia(data) !== texto) throw new AppError('DADOS_INVALIDOS', 'A data de referência informada não é válida.')
+  return texto
+}
 const ordemCriticidade = { baixa: 1, media: 2, alta: 3, critica: 4 }
 
 async function processarNotificacao(payload) {
@@ -33,9 +45,14 @@ async function obterCompetencia(idContrato, dataRef) {
 }
 
 async function versaoControleAtual(idControle, dataRef) {
-  const { data, error } = await sb.from('versoes_controle').select('*').eq('id_controle', idControle).eq('status', 'publicada').or(`vigencia_inicio.is.null,vigencia_inicio.lte.${dataRef}`).or(`vigencia_fim.is.null,vigencia_fim.gte.${dataRef}`).order('versao', { ascending: false }).limit(1)
+  const dataReferencia = dataIsoSegura(dataRef)
+  const { data, error } = await sb.from('versoes_controle').select('*').eq('id_controle', idControle).eq('status', 'publicada').order('versao', { ascending: false })
   if (error) throw new AppError('CONTROLE_FALHOU', error.message)
-  return data?.[0] ?? null
+  return (data ?? []).find((versao) => {
+    const inicio = versao.vigencia_inicio ? String(versao.vigencia_inicio).slice(0, 10) : null
+    const fim = versao.vigencia_fim ? String(versao.vigencia_fim).slice(0, 10) : null
+    return (!inicio || inicio <= dataReferencia) && (!fim || fim >= dataReferencia)
+  }) ?? null
 }
 
 async function excecaoAtiva(idControle, idContrato, dataRef) {
@@ -132,13 +149,21 @@ async function processarControles(payload) {
     transacao = data; idContrato = data.id_contrato; dataRef = data.data; eventoId = data.id
   }
   if (!idContrato) throw new AppError('CONTROLE_FALHOU', 'Contrato não informado para avaliação dos controles.')
+  idContrato = uuidSeguro(idContrato, 'contrato')
+  dataRef = dataIsoSegura(dataRef)
 
-  let q = sb.from('aplicabilidades_controle').select('*').eq('ativo', true).or(`id_contrato.eq.${idContrato},id_contrato.is.null`)
-  if (payload.id_controle) q = q.eq('id_controle', payload.id_controle)
-  const { data: aplicabilidades, error } = await q
-  if (error) throw new AppError('CONTROLE_FALHOU', error.message)
+  let qEspecifica = sb.from('aplicabilidades_controle').select('*').eq('ativo', true).eq('id_contrato', idContrato)
+  let qGlobal = sb.from('aplicabilidades_controle').select('*').eq('ativo', true).is('id_contrato', null)
+  if (payload.id_controle) {
+    const idControle = uuidSeguro(payload.id_controle, 'controle')
+    qEspecifica = qEspecifica.eq('id_controle', idControle)
+    qGlobal = qGlobal.eq('id_controle', idControle)
+  }
+  const [especificas, globais] = await Promise.all([qEspecifica, qGlobal])
+  if (especificas.error || globais.error) throw new AppError('CONTROLE_FALHOU', especificas.error?.message ?? globais.error?.message ?? 'Falha ao consultar aplicabilidades de controle.')
+  const aplicabilidades = [...(especificas.data ?? []), ...(globais.data ?? [])]
   const resultados = []
-  for (const app of aplicabilidades ?? []) {
+  for (const app of aplicabilidades) {
     const { data: controle } = await sb.from('controles_conformidade').select('*').eq('id', app.id_controle).eq('situacao', 'ativo').maybeSingle()
     if (!controle) continue
     const versao = await versaoControleAtual(controle.id, dataRef); if (!versao) continue
