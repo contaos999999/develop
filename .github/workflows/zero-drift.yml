@@ -32,6 +32,8 @@ jobs:
             cat /tmp/changed.txt
             echo EOF
           } >> "$GITHUB_ENV"
+      - name: Context Gate — leitura obrigatória 4.1
+        run: node scripts/ai-context-gate.mjs
       - name: Zero-Drift
         run: node scripts/zero-drift-check.mjs
       - name: Architecture Guard

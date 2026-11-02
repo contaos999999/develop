@@ -1,7 +1,41 @@
 * @contaos9999
+
+# Contexto canônico ContaOS 4.1 e instruções de agentes
+/00_AI_LEIA_ANTES_DE_ALTERAR.md @contaos9999
+/01_PRD_MESTRE_4_1.md @contaos9999
+/02_PREMISSAS_FUNCIONAIS_TECNICAS_4_1.md @contaos9999
+/03_ARQUITETURA_OFICIAL_4_1.md @contaos9999
+/04_MANUAL_AMBIENTE_E_PROMOCAO_4_1.md @contaos9999
+/05_BACKEND_SUPABASE_CERTIFICADO_4_1.md @contaos9999
+/06_FRONTEND_LOVABLE_ESPECIFICACAO_4_1.md @contaos9999
+/07_ZERO_DRIFT_GOVERNANCA_4_1.md @contaos9999
+/08_REQUISITOS_96_E_CRITERIOS_ACEITE_4_1.md @contaos9999
+/08A_REQUISITOS_001_024_4_1.md @contaos9999
+/08B_REQUISITOS_025_048_4_1.md @contaos9999
+/08C_REQUISITOS_049_072_4_1.md @contaos9999
+/08D_REQUISITOS_073_096_4_1.md @contaos9999
+/09_RASTREABILIDADE_FONTES_AUDITORIA_4_1.md @contaos9999
+/10_IA_OCR_RAG_E_PRECEDENTES_4_1.md @contaos9999
+/11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md @contaos9999
+/12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md @contaos9999
+/13_MAPA_DOCUMENTOS_PACOTE_4_1.md @contaos9999
+/14_CHECKLIST_PRE_ALTERACAO.md @contaos9999
+/15_ESTADO_CERTIFICADO_HML_4_1.md @contaos9999
+/16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md @contaos9999
+/17_FONTES_TECNICAS_E_QA_4_1.md @contaos9999
+/18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md @contaos9999
+/AI_CONTEXT_MANIFEST.md @contaos9999
 /AGENTS.md @contaos9999
+/CLAUDE.md @contaos9999
+/GEMINI.md @contaos9999
+/LOVABLE.md @contaos9999
+/README_ZERO_DRIFT.md @contaos9999
+
+# Governança, tarefas, CI e backend certificado
 /docs/frontend/ @contaos9999
 /docs/tasks/ @contaos9999
 /.github/ @contaos9999
+/scripts/ @contaos9999
 /supabase/migrations/ @contaos9999
 /supabase/functions/ @contaos9999
+/supabase/tests/ @contaos9999

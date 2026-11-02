@@ -1,44 +1,44 @@
 # ContaOS — HML / Homologação
 
+> **ATENÇÃO PARA IA E DESENVOLVEDORES:** antes de qualquer alteração, leia `00_AI_LEIA_ANTES_DE_ALTERAR.md` e todos os documentos canônicos `00` a `18`, incluindo `08A`–`08D` da raiz. O `Context Gate` do CI bloqueia mudança de implementação sem declaração de leitura do contexto vigente.
+
 Este repositório é o ambiente oficial de **desenvolvimento e homologação (HML)** do ContaOS.
 
-## Regra de ambientes
+## Ambientes
 
-- `contaos9999/develop` = desenvolvimento e homologação.
-- `contaos9999/prod` = produção. Não recebe alterações durante o desenvolvimento e homologação.
-- Supabase HML: projeto `gklhhhyosgasnyoxlrui`.
-- Frontend HML: será conectado ao Lovable após o fechamento do backend.
+- `contaos9999/develop` = HML/desenvolvimento/homologação.
+- `contaos9999/prod` = produção; permanece intocado durante desenvolvimento/homologação.
+- Supabase HML: `gklhhhyosgasnyoxlrui`.
+- Frontend HML: próxima etapa, Lovable conectado ao Supabase HML certificado.
 
-## Fonte de verdade
+## Estado certificado do backend
 
-1. PRD, premissas e pacote mestre ContaOS Arquitetura 4.1.
-2. Histórico de migrations do Supabase HML.
-3. Código das Edge Functions em `supabase/functions/`.
-4. Banco Supabase HML validado.
-5. Frontend Lovable homologado, quando conectado.
+- 96/96 requisitos PASS.
+- 54 migrations.
+- Última: `20261102021325_0049_context_hash_material_fields`.
+- 117/117 tabelas públicas com RLS.
+- 2/2 tabelas privadas com RLS.
+- Storage privado.
+- OpenAI IA/OCR homologada no backend.
+- filas/workers/Cron homologados.
+- restore isolado + suíte oficial PASS.
+- Zero-Drift/Architecture Guard/scan de secrets PASS.
 
-## Estado atual do backend HML
+Detalhes: `15_ESTADO_CERTIFICADO_HML_4_1.md` e `docs/CERTIFICACAO_BACKEND_HML_4_1.md`.
 
-- 46 migrations registradas no Supabase.
-- Última migration: `20261101233244_0042_hardening_grants_anon`.
-- 117 tabelas públicas com RLS habilitada.
-- Storage `contaos-documentos` privado.
-- Filas: `documents`, `ocr`, `ai`, `embeddings`, `finance_imports`, `reports`, `integrations` e `webhooks`.
-- Workers e Crons ativos.
-- OpenAI configurada no backend para IA e OCR, sem segredo versionado.
-- Padrão de interface e mensagens: português do Brasil.
-- Datas e horários: `America/Sao_Paulo`, formato brasileiro.
+## Contexto obrigatório
+
+- entrada: `00_AI_LEIA_ANTES_DE_ALTERAR.md`;
+- manifesto/hashes: `AI_CONTEXT_MANIFEST.md`;
+- regras gerais para agentes: `AGENTS.md`;
+- escopo atual: `docs/tasks/active-task.json`.
+
+Fingerprint inicial deste contexto canônico: `01d17aa3f71b8b4e4b67395f3d70fdcb158bc6d7b31dca1126aea49bc86ad4df`.
 
 ## Versionamento
 
-As migrations iniciais permanecem individualizadas em `supabase/migrations/`.
+Migration aplicada não é alterada. Correção entra como nova migration. Segredos permanecem no Supabase Secrets/Vault.
 
-O histórico posterior, extraído diretamente do Supabase, está em `supabase/applied-history/`. O arquivo `contaos-hml-full-history.sql` contém o snapshot até a migration `0038`; as migrations posteriores permanecem como deltas cronológicos nessa mesma pasta.
+## Promoção
 
-Não alterar migrations já aplicadas. Toda correção deve ser uma nova migration com timestamp único.
-
-## Fluxo de promoção
-
-`develop` → Supabase HML → testes/QA → frontend Lovable HML → homologação → promoção controlada para `prod`.
-
-Nunca copiar dados fictícios, segredos ou credenciais do HML para produção. `OPENAI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, tokens internos e segredos de webhooks devem permanecer exclusivamente nos Secrets/Vault do ambiente correspondente.
+HML → testes/QA → frontend Lovable HML → homologação completa → promoção controlada para PROD. Dados sintéticos, secrets e credenciais do HML não são copiados para produção.
