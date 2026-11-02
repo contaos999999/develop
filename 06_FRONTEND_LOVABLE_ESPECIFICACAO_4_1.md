@@ -197,3 +197,33 @@ Aplicação obrigatória:
 - entre duas soluções 100% conformes e tecnicamente equivalentes, escolher obrigatoriamente a de menor consumo de créditos Lovable.
 
 A economia é subordinada à conformidade: é proibido economizar créditos reduzindo TDD, Teste C, segurança, Zero-Drift, acessibilidade, responsividade, rastreabilidade, cobertura, evidência ou fidelidade ao PRD 4.1.
+
+## 18. Identidade Visual Oficial — ContaOS Brand v1.0 / PROMPT 000
+
+A identidade visual oficial do frontend passa a ser definida pelo pacote **ContaOS Brand v1.0**, sob governança integral do `PROMPT 000 / BRAND-01` em `00_BRAND_01_IDENTIDADE_VISUAL_OFICIAL.md`.
+
+Esta regra **complementa** a especificação de frontend e não a substitui. Permanecem soberanos neste documento e no pacote 4.1:
+- UX funcional;
+- estrutura de telas;
+- navegação e rotas;
+- componentes funcionais;
+- conteúdo funcional;
+- estados e mensagens de negócio;
+- acessibilidade;
+- responsividade;
+- segurança e autorização;
+- contratos de dados e comportamento.
+
+Para aplicação da marca:
+- reutilizar os assets oficiais, sem redesenhar SVG, símbolo ou proporções;
+- integrar a paleta e tipografia ao Design System existente, sem criar sistema paralelo;
+- usar tokens existentes sempre que houver equivalência semântica;
+- centralizar token de marca apenas quando realmente necessário;
+- não espalhar cores hardcoded em componentes;
+- preservar Login, Sidebar, Header, navegação mobile, formulários, tabelas, gráficos, filtros, ações e mensagens funcionais;
+- validar 1440 / 1280 / 768 / 390 px, dark mode e acessibilidade;
+- favicon/PWA/manifest só podem receber alterações visuais/metadados estritamente necessários, sem alterar comportamento funcional.
+
+O BRAND-01 não autoriza nenhuma alteração no Supabase, migrations, RLS, grants, RPCs, Database Functions, Edge Functions, Auth, cliente Supabase, variáveis de ambiente, integrações, regras de negócio, rotas ou permissões.
+
+Em caso de conflito entre estética e esta especificação funcional, **o pacote 4.1 prevalece**.
