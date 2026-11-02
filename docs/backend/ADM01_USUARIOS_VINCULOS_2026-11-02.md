@@ -1,120 +1,162 @@
 # PROMPT 21 / ADM-01 — Backend de usuários e vínculos
 
-Data: 02/11/2026
-Ambiente: HML
-Projeto Supabase: `gklhhhyosgasnyoxlrui`
-Contrato canônico atual: `adm01-v2`
+Data: 02/11/2026  
+Ambiente: HML  
+Projeto Supabase: `gklhhhyosgasnyoxlrui`  
+Branch: `feature/adm-01-usuarios-vinculos`
 
 ## Escopo
 
-Backend autorizado para `/administracao/usuarios`, com Supabase como fonte única de verdade e RLS/RPC como autoridade. PROD permaneceu intocado.
+Preparação e endurecimento do backend autorizado para a rota `/administracao/usuarios`, preservando Supabase como fonte única de verdade, RLS/escopo de contrato como autoridade e ausência de `service_role` no navegador. Nenhum recurso de PROD foi alterado.
 
-## Transversais aplicáveis
+O frontend do PROMPT 21 ainda não está certificado. Este documento certifica o contrato de banco HML e o deploy da Edge de convite. A chamada autenticada real da Edge pelo navegador permanece como prova obrigatória do Teste C do frontend.
 
-- **091 / NFR-007 — concorrência:** `versao_registro`, lock transacional e `PT409` para versão divergente. Nenhuma sobrescrita silenciosa.
-- **092 / NFR-008 — idempotência:** `comandos_idempotentes` + chave única por intenção lógica. Retry do mesmo payload devolve a mesma resposta sem novo efeito/auditoria.
-- **093 / NFR-009 — paginação:** lista principal e escopo paginados no backend; page size limitado; ordenação determinística. O contrato v2 usa deltas de escopo para que páginas não visitadas permaneçam intactas.
-- **094 / NFR-010 — observabilidade:** sem infraestrutura paralela ou log sensível. Operações materiais preservam `correlation_id` via auditoria.
+## PROMPT regular e transversais aplicáveis
 
-## Histórico de migrations HML
+PROMPT regular: **21 / ADM-01 — Usuários e vínculos**.
 
-A sequência aplicada e versionada é:
+Aplicáveis cumulativamente:
 
-1. `20261102124852_adm01_admin_usuarios_vinculos.sql` — primeira superfície administrativa canônica.
-2. `20261102125242_adm01_usuarios_vinculos_backend.sql` — migration intermediária aplicada no HML; criou endpoints auxiliares/redundantes.
-3. `20261102125612_adm01_consolidar_contrato_publico.sql` — consolidou a superfície pública e removeu os endpoints redundantes da etapa anterior.
-4. `20261102130001_adm01_scope_pagination_integrity.sql` — contrato canônico atual `adm01-v2`; corrige integridade do escopo paginado e substitui a mutação de conjunto completo por deltas `ativar/revogar`.
+- auditoria material dos vínculos e escopo, em linha com os requisitos transversais de auditoria aplicáveis;
+- **091 / NFR-007 — concorrência:** `versao_registro`, row lock e advisory lock transacional. Versão divergente retorna `PT409` e nunca há sobrescrita silenciosa;
+- **092 / NFR-008 — idempotência:** `comandos_idempotentes`, chave única por organização/comando/chave e replay sem duplicação de efeito/auditoria;
+- **093 / NFR-009 — paginação:** usuários e contratos limitados a 100 itens por página; auditoria limitada a 50; ordenação determinística;
+- **094 / NFR-010 — observabilidade:** `correlation_id` via auditoria, mensagens sem segredo e nenhuma infraestrutura paralela criada.
 
-As migrations 2 e 3 foram recuperadas diretamente de `supabase_migrations.schema_migrations` e versionadas no GitHub para reproduzir fielmente o histórico já aplicado. Seus hashes MD5 no histórico do Supabase são, respectivamente, `4bc1723bca326dc700b7d06187a4fbae` e `3f624433a7a67f62fad2829cb2b9711a`. A migration 4 tem hash `63c650e8b7446982364c08bff9ff6221` no histórico aplicado.
+## Migrations HML relacionadas ao ADM-01
 
-## RPCs oficiais para o frontend
+1. `20261102124852_adm01_admin_usuarios_vinculos`
+2. `20261102125242_adm01_usuarios_vinculos_backend`
+3. `20261102125612_adm01_consolidar_contrato_publico`
+4. `20261102130001_adm01_scope_pagination_integrity`
+5. `20261102131014_adm01_uniformizar_schema_v2`
+6. `20261102131140_adm01_redigir_metadados_auditoria`
+
+Todas foram versionadas na branch. A migration intermediária de 12:52 foi mantida no GitHub porque ela existe no histórico real do HML; as migrations posteriores consolidam a superfície pública canônica.
+
+## Contrato canônico final — ADM01-v2
+
+Todos os wrappers públicos abaixo são `SECURITY INVOKER`, usam `search_path=''`, não concedem EXECUTE a `anon` e concedem EXECUTE a `authenticated`.
+
+### `public.validar_administrador_organizacao`
+
+Args: `p_id_organizacao uuid`  
+Retorno: `boolean`.
+
+Valida sessão/perfil administrador no backend. Não confiar em ocultação de botão ou papel calculado apenas no frontend.
 
 ### `public.listar_usuarios_vinculos_adm`
-Args: `p_id_organizacao uuid, p_pagina integer, p_tamanho_pagina integer, p_busca text, p_ativo boolean`
 
-Retorno `adm01-v1`: organização, paginação, `perfis_disponiveis` e itens de vínculo com identidade básica, perfil, status e `versao_registro`.
+Args: `p_id_organizacao uuid, p_pagina integer, p_tamanho_pagina integer, p_busca text, p_ativo boolean`  
+Retorno: `jsonb`, `schema_versao=adm01-v2`.
+
+Traz lista paginada, identidade básica, vínculo, `versao_registro` e catálogo oficial de perfis. O frontend não lê `auth.users`.
 
 ### `public.listar_escopo_contratos_usuario_adm`
-Args: `p_id_organizacao uuid, p_id_usuario uuid | null, p_pagina integer, p_tamanho_pagina integer, p_busca text`
 
-Retorno **`adm01-v2`**. `p_id_usuario=null` é válido para o fluxo “Vincular usuário existente”. Cada item contém:
-- `selecionado`: vínculo explícito ativo naquele contrato;
-- `acesso_efetivo`: acesso efetivo por `escopo_todos_contratos` ou vínculo explícito.
+Args: `p_id_organizacao uuid, p_id_usuario uuid, p_pagina integer, p_tamanho_pagina integer, p_busca text`  
+Retorno: `jsonb`, `schema_versao=adm01-v2`.
 
-A RPC só lista contratos dentro do escopo efetivo do administrador chamador. Paginação é real no backend.
+Retorna somente contratos dentro do escopo efetivo do administrador chamador, com `selecionado` e `acesso_efetivo`. O frontend não pode reconstruir uma lista global de contratos fora desta API.
 
 ### `public.listar_auditoria_vinculo_usuario_adm`
-Args: `p_id_organizacao uuid, p_id_usuario uuid, p_pagina integer, p_tamanho_pagina integer`
 
-Retorno `adm01-v1`: eventos materiais, ator, before/after, `correlation_id`, paginação. Eventos/contratos fora do escopo do administrador são filtrados/redigidos pelo backend.
+Args: `p_id_organizacao uuid, p_id_usuario uuid, p_pagina integer, p_tamanho_pagina integer`  
+Retorno: `jsonb`, `schema_versao=adm01-v2`.
+
+Traz eventos materiais do vínculo, ator, `correlation_id`, before/after e metadados. A leitura redige contratos fora do escopo do administrador inclusive em:
+
+- `antes.escopo_contratos`;
+- `depois.escopo_contratos`;
+- `metadados.id_contrato`;
+- `metadados.ids_contratos_ativar`;
+- `metadados.ids_contratos_revogar`.
+
+O registro bruto de `eventos_auditoria` permanece íntegro.
 
 ### `public.salvar_vinculo_usuario_adm`
-Assinatura canônica atual:
 
-`p_id_organizacao uuid, p_id_usuario uuid | null, p_email text | null, p_perfil text, p_escopo_todos_contratos boolean, p_ativo boolean, p_ids_contratos_ativar uuid[], p_ids_contratos_revogar uuid[], p_versao_esperada bigint | null, p_chave_idempotencia text`
+Args:
 
-Retorno **`adm01-v2`**: `schema_versao`, `correlation_id`, `id_usuario` e vínculo atualizado.
+`p_id_organizacao uuid, p_id_usuario uuid, p_email text, p_perfil text, p_escopo_todos_contratos boolean, p_ativo boolean, p_ids_contratos_ativar uuid[], p_ids_contratos_revogar uuid[], p_versao_esperada bigint, p_chave_idempotencia text`
 
-Semântica de escopo:
-- IDs em `ativar` são concedidos/reativados;
-- IDs em `revogar` são revogados;
-- contrato não presente em nenhum dos dois arrays fica **intacto**, mesmo que esteja em página não visitada;
-- o mesmo contrato não pode estar simultaneamente nos dois arrays;
-- se `escopo_todos_contratos=true` ou `ativo=false`, os vínculos explícitos ativos são desativados pelo backend;
-- todos os contratos alterados precisam pertencer ao escopo efetivo do administrador.
+Retorno: `jsonb`, `schema_versao=adm01-v2`, `correlation_id`, `id_usuario` e vínculo atualizado.
 
-A RPC aceita `p_id_usuario` ou resolve conta existente por `p_email`. Ela **não cria nem convida usuário no Supabase Auth**. `auth.admin.*` e `service_role` permanecem fora do navegador. Conta inexistente retorna `PT404`.
+Regras obrigatórias para o frontend:
+
+- conta já existente pode ser localizada por `p_id_usuario` ou `p_email`;
+- para vínculo existente, enviar a `versao_registro` lida da API como `p_versao_esperada`;
+- `PT409` exige recarregar/revisar, nunca sobrescrever silenciosamente;
+- mudança de perfil/vínculo não é otimista;
+- contrato não deve ser enviado como “lista final”. O frontend deve comparar a seleção atual devolvida pela API com a nova seleção do usuário e enviar somente o delta em `p_ids_contratos_ativar` e `p_ids_contratos_revogar`;
+- o backend rejeita contrato fora do escopo do administrador;
+- se `escopo_todos_contratos=true` ou `ativo=false`, os arrays de delta não são usados para ampliar acesso;
+- a operação é atômica, idempotente e auditada.
+
+## Edge Function oficial de identidade
+
+Função: `admin-invite-user`  
+HML: `ACTIVE`, versão 2  
+`verify_jwt=true`.
+
+Responsabilidade limitada:
+
+1. validar sessão do chamador;
+2. validar administrador da organização via RPC oficial;
+3. localizar conta existente por e-mail exato ou enviar convite com `auth.admin.inviteUserByEmail` server-side;
+4. aplicar idempotência própria ao convite;
+5. retornar somente a identidade necessária para a próxima ação.
+
+Ela **não salva perfil, situação ou escopo contratual**. Após a identidade ser localizada/convidada, o frontend chama `salvar_vinculo_usuario_adm`.
+
+`SUPABASE_SERVICE_ROLE_KEY` permanece somente no ambiente server-side da Edge. Nenhuma chave privilegiada é enviada ao navegador.
 
 ## Segurança
 
-- wrappers públicos `SECURITY INVOKER` e `search_path=''`;
-- lógica privilegiada em `privado` com validação explícita de administrador;
-- `anon` sem EXECUTE;
-- `authenticated` com EXECUTE apenas na superfície oficial;
-- sem INSERT/UPDATE/DELETE direto em `vinculos_usuarios` ou `vinculos_usuario_contratos`;
-- wrappers legados de alteração permanecem sem EXECUTE para `authenticated`;
-- mutação v1 de conjunto completo foi removida para não existir caminho paralelo incompatível com a paginação;
-- auditoria material registra before/after, ator e `correlation_id`.
+- RLS continua autoridade sobre os dados expostos;
+- nenhuma permissão de INSERT/UPDATE/DELETE direto foi concedida ao frontend em `vinculos_usuarios` ou `vinculos_usuario_contratos`;
+- wrappers legados `definir_vinculo_usuario` e `definir_acesso_contrato_usuario` permanecem sem EXECUTE para `authenticated`;
+- `anon` não executa as RPCs canônicas;
+- contratos fora do escopo não podem ser atribuídos nem descobertos pelo AuditDrawer;
+- alterações materiais geram before/after, metadados e `correlation_id`;
+- conflito de versão/idempotência usa `PT409`, evitando sobrescrita silenciosa e evitando tratar conflito de negócio como retry transacional `40001`.
 
-## Testes
+## Teste transacional final
 
-### Estrutural ADM-01
-`supabase/tests/adm01_usuarios_vinculos.sql`
+Arquivo: `supabase/tests/adm01_usuarios_vinculos.sql`.
 
-Resultado pós-v2: **11/11 PASS**, incluindo paginação, idempotência, versão stale `PT409`, auditoria, bloqueio de não administrador, grants mínimos, ausência de escrita direta e wrappers públicos `SECURITY INVOKER`.
+Dados sintéticos, execução em transação e `ROLLBACK` integral.
 
-### Regressão de escopo paginado
-`supabase/tests/adm01_scope_pagination_regression.sql`
+Resultado final do estado atual: **15/15 PASS, falhas=[]**.
 
-Resultado: **3/3 PASS**:
-1. vínculo novo lista contratos com `p_id_usuario=null`;
-2. ativar contrato em uma página preserva contrato selecionado em página não visitada;
-3. revogação explícita afeta somente o contrato informado.
+Cobertura:
 
-Todos os dados de teste foram criados em transação e finalizados com `ROLLBACK`.
+1. administrador autorizado;
+2. lista, escopo e auditoria uniformes em `adm01-v2`;
+3. limites de paginação 100/100/50;
+4. vínculo de conta existente por e-mail;
+5. escopo vindo da API com seleção real;
+6. replay idempotente sem duplicar efeito/auditoria;
+7. mesma chave com payload diferente retorna `PT409`;
+8. versão stale retorna `PT409`;
+9. edição atômica ativa um contrato, revoga outro e altera perfil;
+10. nova leitura de escopo reflete o delta aplicado;
+11. auditoria `adm01-v2` registra a mudança;
+12. não administrador recebe bloqueio real `42501`;
+13. administrador restrito lista somente contrato do próprio escopo;
+14. administrador restrito não altera e não descobre contrato oculto, inclusive em metadados de auditoria;
+15. privilégios mínimos e wrappers legados sem bypass.
 
 ## Advisors
 
-Security Advisor pós-v2: nenhum finding novo da tarefa. Permanece apenas o warning global preexistente `Leaked Password Protection Disabled`.
+No fechamento anterior, o Security Advisor não apresentou finding novo da tarefa; permaneceu apenas o warning global preexistente de proteção contra senhas vazadas desabilitada. Como regra de fechamento, o Advisor deve ser reexecutado após as migrations finais antes da liberação do PLAN.
 
-Performance Advisor: apenas INFOs globais/preexistentes de FKs sem índice e índices ainda não utilizados; ADM-01 v2 não criou tabela ou índice novo.
+## Estado para o frontend
 
-## Frontend autorizado
+**Contrato SQL do backend HML: certificado 15/15.**
 
-O Lovable pode consumir somente:
-- `getUser()` e fluxo de sessão já existente;
-- preferência de organização do SYS-04;
-- as 4 RPCs oficiais acima;
-- `signOut()` quando aplicável.
+**Edge de convite: deploy compilado/ativo v2 e JWT obrigatório confirmados.**
 
-Não pode criar backend, Edge Function, usar `auth.admin`, expor `service_role`, nem escrever diretamente nas tabelas de vínculo.
+Prova ainda pendente para fechamento completo do PROMPT 21: chamada autenticada real da Edge no navegador, tratamento de estados e responsividade/acessibilidade no Teste C do Lovable.
 
-No `ContractScopeDialog`, o frontend deve manter apenas deltas locais por intenção: `ativar` e `revogar`. Trocar página/busca não pode limpar os deltas. Contratos não visitados nunca devem ser enviados como revogação implícita.
-
-## Resultado
-
-**BACKEND DO PROMPT 21 / ADM-01 CERTIFICADO NO HML COM CONTRATO `adm01-v2`.**
-
-- Estrutural: 11/11 PASS.
-- Regressão escopo paginado: 3/3 PASS.
-- PROD intocado.
+PROD intocado.
