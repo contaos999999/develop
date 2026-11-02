@@ -10,7 +10,7 @@ Arquivo final:
 `ContaOS_Pacote_Mestre_Arquitetura_4_1_100_PRD_Lovable_Supabase_BRAND_v1_0_FINAL.zip`
 
 SHA-256:
-`0b4ccd39b3bd0bf8e5ff2df21c50f5eede85ec749ee1b66ea17c3ac668cb517c`
+`5ee115d12e263d98068288b6bb722f5f303f2d19e1e4c0b5e930e69da03621da`
 
 Validação do ZIP: sem erro de descompactação.
 
@@ -45,7 +45,7 @@ Foram confirmados no pacote mestre integrado:
 - README Lovable;
 - versões monocromáticas e fundos claro/escuro.
 
-As dimensões dos favicons/PWA foram validadas programaticamente.
+As dimensões dos favicons/PWA foram validadas programaticamente na integração da marca.
 
 ## QA documental
 
@@ -54,7 +54,7 @@ As dimensões dos favicons/PWA foram validadas programaticamente.
 - transição PROMPT 000 → PROMPT 001 revisada;
 - PROMPT 096 revisado no final;
 - sem páginas em branco suspeitas ou conteúdo tocando bordas detectado no QA;
-- rodapés dos documentos novos atualizados para 02/11/2026.
+- documentos novos validados para leitura e estrutura.
 
 ## Integridade do pacote 4.1
 
