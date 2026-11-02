@@ -2,12 +2,12 @@
   "id": "PROMPT-23-V1-02-NOVO-CONTRATANTE-2026-11-02",
   "title": "PROMPT 23 / V1-02 — Novo contratante",
   "branch": "main",
-  "status": "build_autorizado",
+  "status": "teste_c_em_execucao",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_by": "ChatGPT / GPT-5.6 Sol",
   "canonical_credit_rule_applied": true,
-  "objective": "Implementar /contratantes/novo em HML via Data API + RLS, sem backend paralelo, com gate UX do próprio vínculo e INSERT direto autorizado.",
+  "objective": "Certificar /contratantes/novo em HML via Data API + RLS, sem backend paralelo, com gate UX do próprio vínculo e INSERT direto autorizado.",
   "backend_verified": {
     "insert_policy": "privado.usuario_possui_perfil(id_organizacao, ARRAY['administrador','gestor_contrato'])",
     "authenticated_insert": true,
@@ -17,6 +17,17 @@
     "audit_migration_commit": "9d0abcdf546fc04cf1fde7b86f4e37aff07226db",
     "own_vinculo_readable_by_rls": true
   },
+  "build_evidence": {
+    "frontend_head": "90c148b137f7a0f2664495d5368f87cc58113534",
+    "v1_02_tests": "35/35 PASS",
+    "full_suite": "208/208 PASS na rodada final",
+    "typecheck": "exit 0",
+    "build": "build OK 16:16:31Z",
+    "browser_controlled": "1440/1280/768/390 sem overflow; validação, duplicidade, sucesso e Cancelar verificados",
+    "source_scan": "zero proibidos; único .insert( no helper autorizado",
+    "zero_drift_diff": "somente 4 arquivos V1-02 + routeTree.gen.ts",
+    "known_test_infrastructure_note": "uma rodada anterior da suíte teve flake preexistente ADM-01 por UUID aleatório contendo c9; rerun final 208/208. Não corrigir ADM-01 dentro do PROMPT 23."
+  },
   "allowed_frontend_paths": [
     "src/routes/contratantes_.novo.tsx",
     "src/components/contratantes/NovoContratante.tsx",
@@ -24,22 +35,10 @@
     "src/test/novoContratante.test.tsx",
     "src/routeTree.gen.ts"
   ],
-  "forbidden_changes": [
-    "Supabase schema/migrations/RLS/Edge/Auth/Storage",
-    "PROD",
-    "SYS-01..05",
-    "ADM-01",
-    "V1-01 certified files",
-    "shared UI/package/client/types unless routeTree auto-generation"
-  ],
-  "plan_corrections": [
-    "Adicionar ação Cancelar no formulário apontando para /contratantes, mantendo Salvar e Voltar acessíveis e >=44px.",
-    "Não alterar V1-01 para adicionar botão Novo neste prompt.",
-    "Economizar créditos: um único turno BUILD consolidado; Teste C separado apenas após GREEN."
-  ],
   "backend_changes_authorized": false,
   "rls_changes_authorized": false,
   "edge_changes_authorized": false,
   "auth_changes_authorized": false,
+  "test_c_mode": "somente_teste_sem_correcao",
   "prod_untouched": true
 }
