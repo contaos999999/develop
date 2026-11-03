@@ -2,7 +2,7 @@
   "id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
   "title": "PROMPT 38 / V1-17 — Requisito: detalhe e evidências",
   "status": "ativa",
-  "phase": "backend_plan",
+  "phase": "backend_build_authorized",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
@@ -80,7 +80,7 @@
   },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
-    "status": "GAP_V117_READ_CONFIRMADO",
+    "status": "MIGRATIONS_B1_B2_AUTHORIZED_NOT_APPLIED",
     "existing_read_rpcs": [
       "public.obter_analise_competencia_v116",
       "public.obter_documentos_competencia_v115"
@@ -94,8 +94,8 @@
     "risk_classification": "B1 leitura: contrato ausente. B2 concorrência: job idempotente existente pode ter requisitos_afetados sobrescritos; não habilitar frontend incremental sem prova e hardening.",
     "download_reference": "src/lib/contratos/documentosDados.ts:baixarDocumento(idArquivo) -> storage-sign-download autorizado; id_versao_documento não é id_arquivo"
   },
-  "database_changes_allowed": false,
-  "database_change_scope": "NÃO AUTORIZADO na fase backend_gap_analysis: elaborar plano e revisar funções read-only; exigir manifestação específica de escopo no manifesto e migration nova antes de qualquer DDL",
+  "database_changes_allowed": true,
+  "database_change_scope": "AUTORIZAÇÃO EXPLÍCITA em 03/11/2026 ('Para o v1-17 veja as lacunas e resolva'): somente DUAS migrations novas e imutáveis no HML: B1 create read-only public.obter_detalhe_requisito_v117 e grants mínimos; B2 replace privado.solicitar_reanalise_requisitos exclusivamente para segurança de concorrência/idempotência. Nenhum outro DDL/schema, nenhuma alteração a RLS/Auth/Edge/Storage/client/tipos/PROD.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -103,7 +103,9 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/V117_*",
-    "docs/frontend/V117_* somente documentação de plano/aceite, sem certificação antecipada"
+    "docs/frontend/V117_* somente documentação de plano/aceite, sem certificação antecipada",
+    "supabase/migrations/*v117_obter_detalhe_requisito.sql",
+    "supabase/migrations/*v117_reanalise_requisitos_concorrencia.sql"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -115,7 +117,6 @@
   ],
   "forbidden_paths": [
     "PROD/**",
-    "supabase/** durante backend_gap_analysis",
     "contaos-hml-control:src/integrations/supabase/client.ts",
     "contaos-hml-control:src/integrations/supabase/types.ts",
     "contaos-hml-control:src/components/ui/**",
@@ -123,7 +124,8 @@
     "contaos-hml-control:public/brand/**",
     "contaos-hml-control:package.json",
     "contaos-hml-control:bun.lock",
-    "contaos-hml-control:src/components/competencias/CompetenciaVisaoGeral.tsx exceto hunk futuro expressamente aprovado"
+    "contaos-hml-control:src/components/competencias/CompetenciaVisaoGeral.tsx exceto hunk futuro expressamente aprovado",
+    "supabase/** fora das duas migrations novas expressamente autorizadas"
   ],
   "acceptance": [
     "drawer RequirementDrawer, SourceReference, EvidenceList, ResultBadge e AuditTimeline",
@@ -149,9 +151,13 @@
   "authorization": {
     "date": "2026-11-03",
     "by": "usuário",
-    "scope": "Continuar sequência 4.1 automaticamente; inspeção e documentação nesta fase; DDL e gate humano Lovable requerem autorização específica antes da execução",
-    "database_ddl_scope_specific": false
+    "scope": "Resolver lacunas da V1-17 incluindo as duas mudanças delimitadas de Supabase HML, documentação/GitHub e frontend condicionado à certificação do backend; gates humanos obrigatórios do Lovable permanecem individuais.",
+    "database_ddl_scope_specific": true,
+    "authorized_objects": [
+      "public.obter_detalhe_requisito_v117 (CREATE FUNCTION+GRANT mínimo)",
+      "privado.solicitar_reanalise_requisitos (CREATE OR REPLACE FUNCTION sem mudança assinatura ou GRANT)"
+    ]
   },
   "prod_untouched": true,
-  "next_step": "PLAN B1 de leitura V1-17 pronto no GitHub. Zero-Drift impede DDL enquanto database_changes_allowed=false. Após autorização específica de criação da RPC public.obter_detalhe_requisito_v117 via migration NOVA somente HML, executar testes/CI/certificação. B2 para hardening de privado.solicitar_reanalise_requisitos exige autorização/transação separadas. Só então PLAN Lovable; PROD intocado."
+  "next_step": "Implementar B1 e B2 em migrations novas, primeiro versionar GitHub e auditar; aplicar exclusivamente HML, provar contratos, RLS A/B e concorrência, CI e documentar SHA. Frontend só após backend certificado."
 }
