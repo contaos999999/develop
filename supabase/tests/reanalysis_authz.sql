@@ -100,7 +100,7 @@ select set_config(
 
 insert into reanalysis_authz_test
 select 'publica_real_outro_contrato_bloqueada',
-       r='42501:Você não possui acesso à competência informada.',r
+       r='42501:Você não possui autorização para solicitar reanálise.',r
 from (select pg_temp.tentar_reanalise_publica(
   '76aaaaaa-2000-4000-8000-000000000002',
   '76aaaaaa-3000-4000-8000-000000000002'
@@ -108,7 +108,7 @@ from (select pg_temp.tentar_reanalise_publica(
 
 insert into reanalysis_authz_test
 select 'publica_inexistente_outro_contrato_mesmo_erro',
-       r='42501:Você não possui acesso à competência informada.',r
+       r='42501:Você não possui autorização para solicitar reanálise.',r
 from (select pg_temp.tentar_reanalise_publica(
   '76aaaaaa-2000-4000-8000-000000000002',
   '76fffff0-3000-4000-8000-000000000099'
@@ -116,7 +116,7 @@ from (select pg_temp.tentar_reanalise_publica(
 
 insert into reanalysis_authz_test
 select 'privada_real_outro_contrato_bloqueada',
-       r='42501:Você não possui acesso à competência informada.',r
+       r='42501:Você não possui autorização para solicitar reanálise.',r
 from (select pg_temp.tentar_reanalise_privada(
   '76aaaaaa-2000-4000-8000-000000000002',
   '76aaaaaa-3000-4000-8000-000000000002'
@@ -136,7 +136,7 @@ select set_config(
 
 insert into reanalysis_authz_test
 select 'jwt_replay_apos_revogacao_bloqueado',
-       r='42501:Você não possui acesso à competência informada.',r
+       r='42501:Você não possui autorização para solicitar reanálise.',r
 from (select pg_temp.tentar_reanalise_publica(
   '76aaaaaa-2000-4000-8000-000000000001',
   '76aaaaaa-3000-4000-8000-000000000001'
