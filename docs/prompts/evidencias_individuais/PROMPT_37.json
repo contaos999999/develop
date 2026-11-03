@@ -1,0 +1,34 @@
+{
+  "id": "37",
+  "nome": "V1-16 – Análise competência",
+  "escopo": "frontend_lovable",
+  "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+  "diagnostico": "CERTIFICADO COM RESSALVA",
+  "requisitos_atomicos_mapeados": [
+    "000",
+    "020",
+    "021",
+    "022",
+    "023",
+    "024"
+  ],
+  "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+  "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+  "evidencias": [
+    "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+    "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+    "docs/backend/V116_CERTIFICACAO_ANALISE_COMPETENCIA_2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/blob/main/docs/frontend/lovable/PROMPT-37-V1-16-competencia-analise.md"
+  ],
+  "verificacao_individual": "Teste C histórico por funcionalidade e saneamento transversal SHA 856209dc, 765/765, marca 22/22 no código e 40 capturas públicas; não implica E2E autenticado",
+  "limites": "Evidências transversais completas ainda não vinculadas a este prompt.",
+  "acoes_de_fechamento": [
+    "Conferir contrato atômico e NFRs transversais",
+    "Conferir fidelidade e provas reais do frontend",
+    "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+    "Conferir GitHub diff, segurança, regressões e Teste C"
+  ],
+  "certificacao_integral": false
+}

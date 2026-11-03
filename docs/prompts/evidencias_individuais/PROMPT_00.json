@@ -1,0 +1,26 @@
+{
+  "id": "00",
+  "nome": "Constituição e reancoragem",
+  "escopo": "frontend_lovable",
+  "status": "SANEAMENTO_TRANSVERSAL_CI_TESTE_C_PASS_PENDENCIAS_EXTRINSECAS",
+  "diagnostico": "EXECUTADO COM DESVIO",
+  "requisitos_atomicos_mapeados": [],
+  "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+  "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+  "evidencias": [
+    "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/commit/bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5",
+    "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+    "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+  ],
+  "verificacao_individual": "Knowledge 100/97 conferido; saneamento PT-BR e BRAND-01 Teste C 765/765 no escopo",
+  "limites": "Evidências transversais completas ainda não vinculadas a este prompt.",
+  "acoes_de_fechamento": [
+    "Alinhar Project Knowledge 100/97 e gates BRAND/economia",
+    "Corrigir root global PT-BR",
+    "Ativar CI frontend Zero-Drift"
+  ],
+  "certificacao_integral": false
+}

@@ -1,0 +1,20 @@
+{
+  "id": "08",
+  "nome": "Histórico e precedentes 1.0",
+  "escopo": "backend_hml",
+  "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+  "diagnostico": "BACKEND: PROVA AGREGADA",
+  "requisitos_atomicos_mapeados": [],
+  "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+  "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+  "evidencias": [
+    "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+  ],
+  "verificacao_individual": "Objetos e RLS presentes no HML, confirmação de catálogo somente leitura; 117/117 tabelas públicas com RLS, 0 funções SECURITY DEFINER executáveis por anon",
+  "limites": "Evidências transversais completas ainda não vinculadas a este prompt.",
+  "acoes_de_fechamento": [
+    "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+    "Emitir evidência retro delimitada sem inventar PLAN individual"
+  ],
+  "certificacao_integral": false
+}

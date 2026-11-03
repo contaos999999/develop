@@ -1,0 +1,31 @@
+{
+  "id": "38",
+  "nome": "V1-17 – Detalhe do requisito",
+  "escopo": "frontend_lovable",
+  "status": "PLAN_APROVADO_FRONTEND_BUILD_PENDENTE",
+  "diagnostico": "SOMENTE PLAN FRONTEND",
+  "requisitos_atomicos_mapeados": [
+    "000",
+    "011",
+    "012",
+    "013",
+    "014",
+    "021",
+    "022",
+    "023",
+    "024"
+  ],
+  "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+  "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+  "evidencias": [
+    "docs/backend/V117_CERTIFICACAO_DETALHE_REQUISITO_2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/blob/main/.lovable/plan/prompt-38-v1-17-detalhe-do-requisito-drawer-na-análise-2026-11-03.md"
+  ],
+  "verificacao_individual": "V1-17 backend certificado, PLAN aprovado; BUILD solicitado ao Lovable, sem SHA ou Teste C próprios disponíveis nesta leitura",
+  "limites": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado.",
+  "acoes_de_fechamento": [
+    "Implementar drawer V1-17 conforme plano",
+    "TDD, regressão, visual validado e Teste C imutável"
+  ],
+  "certificacao_integral": false
+}

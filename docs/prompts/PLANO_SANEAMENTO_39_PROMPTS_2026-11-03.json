@@ -209,7 +209,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_00.json"
     },
     {
       "prompt_id": "01",
@@ -237,7 +238,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_01.json"
     },
     {
       "prompt_id": "02",
@@ -265,7 +267,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_02.json"
     },
     {
       "prompt_id": "03",
@@ -293,7 +296,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_03.json"
     },
     {
       "prompt_id": "04",
@@ -321,7 +325,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_04.json"
     },
     {
       "prompt_id": "05",
@@ -349,7 +354,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_05.json"
     },
     {
       "prompt_id": "06",
@@ -377,7 +383,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_06.json"
     },
     {
       "prompt_id": "07",
@@ -405,7 +412,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_07.json"
     },
     {
       "prompt_id": "08",
@@ -433,7 +441,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_08.json"
     },
     {
       "prompt_id": "09",
@@ -461,7 +470,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_09.json"
     },
     {
       "prompt_id": "10",
@@ -489,7 +499,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_10.json"
     },
     {
       "prompt_id": "11",
@@ -517,7 +528,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_11.json"
     },
     {
       "prompt_id": "12",
@@ -545,7 +557,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_12.json"
     },
     {
       "prompt_id": "13",
@@ -573,7 +586,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_13.json"
     },
     {
       "prompt_id": "14",
@@ -601,7 +615,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_14.json"
     },
     {
       "prompt_id": "15",
@@ -629,7 +644,8 @@
         "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_15.json"
     },
     {
       "prompt_id": "16",
@@ -672,7 +688,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_16.json"
     },
     {
       "prompt_id": "17",
@@ -715,7 +732,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_17.json"
     },
     {
       "prompt_id": "18",
@@ -756,7 +774,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_18.json"
     },
     {
       "prompt_id": "19",
@@ -799,7 +818,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_19.json"
     },
     {
       "prompt_id": "20",
@@ -842,7 +862,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_20.json"
     },
     {
       "prompt_id": "21",
@@ -885,7 +906,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_21.json"
     },
     {
       "prompt_id": "22",
@@ -928,7 +950,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_22.json"
     },
     {
       "prompt_id": "23",
@@ -971,7 +994,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_23.json"
     },
     {
       "prompt_id": "24",
@@ -1014,7 +1038,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_24.json"
     },
     {
       "prompt_id": "25",
@@ -1057,7 +1082,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_25.json"
     },
     {
       "prompt_id": "26",
@@ -1100,7 +1126,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_26.json"
     },
     {
       "prompt_id": "27",
@@ -1147,7 +1174,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_27.json"
     },
     {
       "prompt_id": "28",
@@ -1194,7 +1222,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_28.json"
     },
     {
       "prompt_id": "29",
@@ -1242,7 +1271,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_29.json"
     },
     {
       "prompt_id": "30",
@@ -1289,7 +1319,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_30.json"
     },
     {
       "prompt_id": "31",
@@ -1343,7 +1374,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_31.json"
     },
     {
       "prompt_id": "32",
@@ -1392,7 +1424,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_32.json"
     },
     {
       "prompt_id": "33",
@@ -1435,7 +1468,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_33.json"
     },
     {
       "prompt_id": "34",
@@ -1478,7 +1512,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_34.json"
     },
     {
       "prompt_id": "35",
@@ -1525,7 +1560,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_35.json"
     },
     {
       "prompt_id": "36",
@@ -1573,7 +1609,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_36.json"
     },
     {
       "prompt_id": "37",
@@ -1621,7 +1658,8 @@
         "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
-      }
+      },
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_37.json"
     },
     {
       "prompt_id": "38",
@@ -1656,7 +1694,8 @@
       "resolucoes": [],
       "evidencias": [],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado."
+      "justificativa_bloqueio": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado.",
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_38.json"
     }
   ],
   "summary": {
@@ -1752,5 +1791,8 @@
       "Ruleset obrigatório em repositório privado bloqueado pelo plano GitHub atual"
     ],
     "escopo": "Nenhuma alteração no backend Supabase, Auth, Storage, RLS, PROD nem código frontend nesta conciliação."
-  }
+  },
+  "indice_dossies_individuais": "docs/prompts/INDICE_EVIDENCIAS_INDIVIDUAIS_39_2026-11-03.json",
+  "total_dossies_individuais": 39,
+  "revisao_individual_prova100": 0
 }

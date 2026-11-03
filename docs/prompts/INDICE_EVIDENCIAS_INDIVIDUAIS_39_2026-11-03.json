@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "data": "2026-11-03",
+  "total": 39,
+  "indice": [
+    {
+      "id": "00",
+      "nome": "Constituição e reancoragem",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_00.json",
+      "status_atual": "SANEAMENTO_TRANSVERSAL_CI_TESTE_C_PASS_PENDENCIAS_EXTRINSECAS",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "01",
+      "nome": "Fundação PostgreSQL e extensões",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_01.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "02",
+      "nome": "Identidade, organizações e vínculos",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_02.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "03",
+      "nome": "Contratantes e contratos 1.0",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_03.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "04",
+      "nome": "Base normativa, orçamento e listas 1.0",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_04.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "05",
+      "nome": "Storage e documentos 1.0",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_05.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "06",
+      "nome": "Competências e análise 1.0",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_06.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "07",
+      "nome": "Portão, aprovação e apresentação 1.0",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_07.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "08",
+      "nome": "Histórico e precedentes 1.0",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_08.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "09",
+      "nome": "Queues, Cron e Edge Functions",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_09.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "10",
+      "nome": "ContaOS 2.0 – Diligências",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_10.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "11",
+      "nome": "ContaOS 3.0 – Financeiro preventivo",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_11.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "12",
+      "nome": "ContaOS 4.0 – Inteligência histórica",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_12.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "13",
+      "nome": "ContaOS 5.0 – Conformidade",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_13.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "14",
+      "nome": "ContaOS 5.0 – API e webhooks",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_14.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "15",
+      "nome": "Hardening e testes do backend",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_15.json",
+      "status_atual": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "16",
+      "nome": "SYS-01 – Login",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_16.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "17",
+      "nome": "SYS-02 – Esqueci a senha",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_17.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "18",
+      "nome": "SYS-03 – Redefinir senha",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_18.json",
+      "status_atual": "SYS03_E2E_REAL_E_VISUAL_PENDENTES",
+      "risco": "P0",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "19",
+      "nome": "SYS-04 – Selecionar organização",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_19.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "20",
+      "nome": "SYS-05 – Dashboard",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_20.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "21",
+      "nome": "ADM-01 – Usuários e vínculos",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_21.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "22",
+      "nome": "V1-01 – Contratantes",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_22.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "23",
+      "nome": "V1-02 – Novo contratante",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_23.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "24",
+      "nome": "V1-03 – Editar contratante",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_24.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "25",
+      "nome": "V1-04 – Contratos",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_25.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "26",
+      "nome": "V1-05 – Novo contrato",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_26.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "27",
+      "nome": "V1-06 – Contrato visão geral",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_27.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "28",
+      "nome": "V1-07 – Base normativa",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_28.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "29",
+      "nome": "V1-08 – Orçamento",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_29.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "30",
+      "nome": "V1-09 – Listas/Regras",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_30.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "31",
+      "nome": "V1-10 – Central de documentos",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_31.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "32",
+      "nome": "V1-11 – Detalhe/versões documento",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_32.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "33",
+      "nome": "V1-12 – Competências",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_33.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "34",
+      "nome": "V1-13 – Nova competência",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_34.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "35",
+      "nome": "V1-14 – Visão geral competência",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_35.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "36",
+      "nome": "V1-15 – Documentos competência",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_36.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "37",
+      "nome": "V1-16 – Análise competência",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_37.json",
+      "status_atual": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
+      "risco": "P1",
+      "integralmente_certificado": false
+    },
+    {
+      "id": "38",
+      "nome": "V1-17 – Detalhe do requisito",
+      "fonte": "docs/prompts/evidencias_individuais/PROMPT_38.json",
+      "status_atual": "PLAN_APROVADO_FRONTEND_BUILD_PENDENTE",
+      "risco": "P0",
+      "integralmente_certificado": false
+    }
+  ],
+  "escopo": "Prompts 00-38 da Arquitetura ContaOS 4.1",
+  "fontes": [
+    "docs/prompts/PROMPT_TRACKS_4_1.json",
+    "docs/prompts/AUDITORIA_RETROSPECTIVA_PREMISSAS_PROMPTS_00_A_38_2026-11-03.md",
+    "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+  ],
+  "criterio": "Dossiê individual não equivale a homologação integral de requisito; a conclusão exige provas funcionais e de segurança pertinentes.",
+  "certificacao_total": false
+}

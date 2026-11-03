@@ -1,0 +1,25 @@
+{
+  "id": "18",
+  "nome": "SYS-03 – Redefinir senha",
+  "escopo": "frontend_lovable",
+  "status": "SYS03_E2E_REAL_E_VISUAL_PENDENTES",
+  "diagnostico": "E2E REAL NÃO COMPROVADO",
+  "requisitos_atomicos_mapeados": [
+    "000"
+  ],
+  "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+  "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+  "evidencias": [
+    "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+    "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+  ],
+  "verificacao_individual": "PT-BR/BRAND-01 certificados no escopo; E2E de recuperação e novo login com titular NÃO VERIFICADO",
+  "limites": "Teste C do saneamento PT-BR/BRAND passou, mas E2E real de redefinição com titular (link, nova senha e login) não foi executado; avaliação 100% continua bloqueada.",
+  "acoes_de_fechamento": [
+    "Completar E2E real reset senha sem expor token/senha",
+    "Registrar resultado prova real ou dependência com titular"
+  ],
+  "certificacao_integral": false
+}
