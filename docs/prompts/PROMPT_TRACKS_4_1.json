@@ -1,6 +1,6 @@
 {
   "schema_version": "4.1",
-  "catalog_status": "PENDENTE_FONTES_ORIGINAIS",
+  "catalog_status": "CONTEUDO_CANONICO_96_MAIS_BRAND_000_VERIFICADO; MAPEAMENTO_INDIVIDUAL_REGULAR_PENDENTE_PARA_ETAPAS_NAO_EXECUTADAS",
   "description": "Inventário numérico e matriz de rastreabilidade. A presença de IDs NÃO certifica conteúdo nem cruzamento.",
   "regular": {
     "range": "00-99",
@@ -110,7 +110,9 @@
       "97",
       "98",
       "99"
-    ]
+    ],
+    "canonical_protocol_and_screen_spec_in_repository": true,
+    "original_manual_docx_embedded_as_git_blob": false
   },
   "atomic": {
     "range": "000-096",
@@ -220,10 +222,1582 @@
       "096"
     ],
     "brand_transversal_id": "000",
-    "prd_nfr_functional_count": 96
+    "prd_nfr_functional_count": 96,
+    "canonical_requirement_contents_in_repository": true,
+    "canonical_96_verified": true,
+    "brand_000_verified": true,
+    "numeric_sequence_from_canonical_order_requires_source_confirmation": true,
+    "canonical_items": [
+      {
+        "ordinal_in_canonical_matrix": 1,
+        "requirement_id": "V1-CON-001",
+        "version": "1.0",
+        "requirement_text": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+        "entities": "contratos; versoes_contrato; documentos_contrato; fontes_normativas; versoes_fontes_normativas; propostas_orcamentarias; linhas_orcamentarias",
+        "mechanism": "RLS + Data API para CRUD; Queue/Edge Function para extração; aprovação material via RPC",
+        "screens": [
+          "V1-06",
+          "V1-07",
+          "V1-08",
+          "V1-10"
+        ],
+        "canonical_atomic_key": "A-V1-CON-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + upload/versionamento/hash",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 2,
+        "requirement_id": "V1-CON-002",
+        "version": "1.0",
+        "requirement_text": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+        "entities": "contratos; versoes_contrato; documentos_contrato; fontes_normativas; versoes_fontes_normativas; propostas_orcamentarias; linhas_orcamentarias",
+        "mechanism": "RLS + Data API para CRUD; Queue/Edge Function para extração; aprovação material via RPC",
+        "screens": [
+          "V1-06",
+          "V1-07",
+          "V1-08",
+          "V1-10"
+        ],
+        "canonical_atomic_key": "A-V1-CON-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 3,
+        "requirement_id": "V1-CON-003",
+        "version": "1.0",
+        "requirement_text": "Proposta orçamentária estruturada: Permitir registrar grupos, rubricas, subrubricas, valores mensais/anuais, limites e regras de remanejamento.",
+        "entities": "contratos; versoes_contrato; documentos_contrato; fontes_normativas; versoes_fontes_normativas; propostas_orcamentarias; linhas_orcamentarias",
+        "mechanism": "RLS + Data API para CRUD; Queue/Edge Function para extração; aprovação material via RPC",
+        "screens": [
+          "V1-08",
+          "V3-08"
+        ],
+        "canonical_atomic_key": "A-V1-CON-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 4,
+        "requirement_id": "V1-CON-004",
+        "version": "1.0",
+        "requirement_text": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+        "entities": "contratos; versoes_contrato; documentos_contrato; fontes_normativas; versoes_fontes_normativas; propostas_orcamentarias; linhas_orcamentarias",
+        "mechanism": "RLS + Data API para CRUD; Queue/Edge Function para extração; aprovação material via RPC",
+        "screens": [
+          "V1-06",
+          "V1-07",
+          "V1-08",
+          "V1-10"
+        ],
+        "canonical_atomic_key": "A-V1-CON-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 5,
+        "requirement_id": "V1-CON-005",
+        "version": "1.0",
+        "requirement_text": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+        "entities": "contratos; versoes_contrato; documentos_contrato; fontes_normativas; versoes_fontes_normativas; propostas_orcamentarias; linhas_orcamentarias",
+        "mechanism": "RLS + Data API para CRUD; Queue/Edge Function para extração; aprovação material via RPC",
+        "screens": [
+          "V1-06",
+          "V1-07",
+          "V1-08",
+          "V1-10"
+        ],
+        "canonical_atomic_key": "A-V1-CON-005",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 6,
+        "requirement_id": "V1-HIS-001",
+        "version": "1.0",
+        "requirement_text": "Carga histórica em lote: Permitir anexar múltiplos relatórios anteriores e associá-los manual ou automaticamente às competências correspondentes.",
+        "entities": "relatorios_historicos_contratante; apontamentos_historicos; respostas_historicas; desfechos_historicos; precedentes; regras_preventivas",
+        "mechanism": "RLS; processamento assíncrono; aprovação de regra preventiva via RPC",
+        "screens": [
+          "V1-21",
+          "V1-22"
+        ],
+        "canonical_atomic_key": "A-V1-HIS-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 7,
+        "requirement_id": "V1-HIS-002",
+        "version": "1.0",
+        "requirement_text": "Desmembramento de apontamentos: Cada relatório deve ser dividido em apontamentos individuais, preservando o documento original.",
+        "entities": "relatorios_historicos_contratante; apontamentos_historicos; respostas_historicas; desfechos_historicos; precedentes; regras_preventivas",
+        "mechanism": "RLS; processamento assíncrono; aprovação de regra preventiva via RPC",
+        "screens": [
+          "V1-21",
+          "V1-22"
+        ],
+        "canonical_atomic_key": "A-V1-HIS-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 8,
+        "requirement_id": "V1-HIS-003",
+        "version": "1.0",
+        "requirement_text": "Ligação problema-resposta-desfecho: Quando houver resposta ou parecer final, o sistema deve associar cada apontamento ao tratamento realizado e ao resultado.",
+        "entities": "relatorios_historicos_contratante; apontamentos_historicos; respostas_historicas; desfechos_historicos; precedentes; regras_preventivas",
+        "mechanism": "RLS; processamento assíncrono; aprovação de regra preventiva via RPC",
+        "screens": [
+          "V1-21",
+          "V1-22"
+        ],
+        "canonical_atomic_key": "A-V1-HIS-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 9,
+        "requirement_id": "V1-HIS-004",
+        "version": "1.0",
+        "requirement_text": "Regra preventiva sugerida: Após identificar apontamento confirmado e resolvido, o sistema deve propor regra para evitar recorrência.",
+        "entities": "relatorios_historicos_contratante; apontamentos_historicos; respostas_historicas; desfechos_historicos; precedentes; regras_preventivas",
+        "mechanism": "RLS; processamento assíncrono; aprovação de regra preventiva via RPC",
+        "screens": [
+          "V1-21",
+          "V1-22"
+        ],
+        "canonical_atomic_key": "A-V1-HIS-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 10,
+        "requirement_id": "V1-HIS-005",
+        "version": "1.0",
+        "requirement_text": "Busca de precedentes do contrato: A análise mensal deve consultar prioritariamente o histórico e as regras preventivas vinculantes do próprio contrato antes de concluir sobre item semelhante. Relatórios de outros contratos do mesmo contratante podem ser armazenados desde o 1.0, mas a recuperação transversal estruturada e sua sinalização comparativa são capacidades do ContaOS 4.0.",
+        "entities": "relatorios_historicos_contratante; apontamentos_historicos; respostas_historicas; desfechos_historicos; precedentes; regras_preventivas",
+        "mechanism": "RLS; processamento assíncrono; aprovação de regra preventiva via RPC",
+        "screens": [
+          "V1-21",
+          "V1-22"
+        ],
+        "canonical_atomic_key": "A-V1-HIS-005",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 11,
+        "requirement_id": "V1-CHK-001",
+        "version": "1.0",
+        "requirement_text": "Lista de verificação versionada: Lista de verificação deve ser configurável, vinculável à norma de origem e versionada por vigência.",
+        "entities": "listas_verificacao; versoes_lista; itens_lista; regras_conformidade; requisitos_competencia",
+        "mechanism": "RLS; snapshot da competência; alteração material versionada",
+        "screens": [
+          "V1-09",
+          "V1-14",
+          "V1-17"
+        ],
+        "canonical_atomic_key": "A-V1-CHK-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 12,
+        "requirement_id": "V1-CHK-002",
+        "version": "1.0",
+        "requirement_text": "Obrigatoriedade condicional: Itens podem ser obrigatórios sempre ou apenas quando determinada condição ocorrer, como existência de rescisão, compra de imobilizado ou aplicação financeira.",
+        "entities": "listas_verificacao; versoes_lista; itens_lista; regras_conformidade; requisitos_competencia",
+        "mechanism": "RLS; snapshot da competência; alteração material versionada",
+        "screens": [
+          "V1-09",
+          "V1-14",
+          "V1-17"
+        ],
+        "canonical_atomic_key": "A-V1-CHK-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 13,
+        "requirement_id": "V1-CHK-003",
+        "version": "1.0",
+        "requirement_text": "Critérios por item: Cada item pode ter validações de presença, assinatura, data, competência, CNPJ, valor, validade, páginas, correspondência e regra específica.",
+        "entities": "listas_verificacao; versoes_lista; itens_lista; regras_conformidade; requisitos_competencia",
+        "mechanism": "RLS; snapshot da competência; alteração material versionada",
+        "screens": [
+          "V1-09",
+          "V1-14",
+          "V1-17"
+        ],
+        "canonical_atomic_key": "A-V1-CHK-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 14,
+        "requirement_id": "V1-CHK-004",
+        "version": "1.0",
+        "requirement_text": "Resultado granular: Cada item deve ter situação: não enviado, recebido, em análise, conforme, não conforme, não aplicável ou requer revisão.",
+        "entities": "listas_verificacao; versoes_lista; itens_lista; regras_conformidade; requisitos_competencia",
+        "mechanism": "RLS; snapshot da competência; alteração material versionada",
+        "screens": [
+          "V1-09",
+          "V1-14",
+          "V1-17"
+        ],
+        "canonical_atomic_key": "A-V1-CHK-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 15,
+        "requirement_id": "V1-DOC-001",
+        "version": "1.0",
+        "requirement_text": "Anexação múltipla: Aceitar PDF, XLSX, CSV, DOCX, imagens e formatos configurados, com limites de tamanho e validação de segurança.",
+        "entities": "arquivos; documentos_competencia; versoes_documento; processamentos_documento; paginas_documento; fragmentos_documento",
+        "mechanism": "Storage privado; signed upload/download; RLS; Queue/Edge Function para processamento",
+        "screens": [
+          "V1-10",
+          "V1-11",
+          "V1-15"
+        ],
+        "canonical_atomic_key": "A-V1-DOC-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + upload/versionamento/hash",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 16,
+        "requirement_id": "V1-DOC-002",
+        "version": "1.0",
+        "requirement_text": "Classificação automática: Sugerir categoria e item da lista de verificação a partir do conteúdo e nome do arquivo.",
+        "entities": "arquivos; documentos_competencia; versoes_documento; processamentos_documento; paginas_documento; fragmentos_documento",
+        "mechanism": "Storage privado; signed upload/download; RLS; Queue/Edge Function para processamento",
+        "screens": [
+          "V1-10",
+          "V1-11",
+          "V1-15"
+        ],
+        "canonical_atomic_key": "A-V1-DOC-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + upload/versionamento/hash",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 17,
+        "requirement_id": "V1-DOC-003",
+        "version": "1.0",
+        "requirement_text": "Versionamento: Nova versão não apaga anterior e exige motivo da substituição quando competência já estiver em análise.",
+        "entities": "arquivos; documentos_competencia; versoes_documento; processamentos_documento; paginas_documento; fragmentos_documento",
+        "mechanism": "Storage privado; signed upload/download; RLS; Queue/Edge Function para processamento",
+        "screens": [
+          "V1-10",
+          "V1-11",
+          "V1-15"
+        ],
+        "canonical_atomic_key": "A-V1-DOC-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + upload/versionamento/hash",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 18,
+        "requirement_id": "V1-DOC-004",
+        "version": "1.0",
+        "requirement_text": "Metadados extraídos: Capturar CNPJ, CPF quando necessário, fornecedor, número do documento, datas, valores, competência, banco, agência, conta e outros campos por tipo documental.",
+        "entities": "arquivos; documentos_competencia; versoes_documento; processamentos_documento; paginas_documento; fragmentos_documento",
+        "mechanism": "Storage privado; signed upload/download; RLS; Queue/Edge Function para processamento",
+        "screens": [
+          "V1-10",
+          "V1-11",
+          "V1-15"
+        ],
+        "canonical_atomic_key": "A-V1-DOC-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + upload/versionamento/hash",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 19,
+        "requirement_id": "V1-DOC-005",
+        "version": "1.0",
+        "requirement_text": "Integridade do arquivo: Registrar resumo criptográfico, data, usuário, origem e versão para preservar cadeia de evidência.",
+        "entities": "arquivos; documentos_competencia; versoes_documento; processamentos_documento; paginas_documento; fragmentos_documento",
+        "mechanism": "Storage privado; signed upload/download; RLS; Queue/Edge Function para processamento",
+        "screens": [
+          "V1-10",
+          "V1-11",
+          "V1-15"
+        ],
+        "canonical_atomic_key": "A-V1-DOC-005",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + upload/versionamento/hash",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 20,
+        "requirement_id": "V1-AUD-001",
+        "version": "1.0",
+        "requirement_text": "Execução reproduzível: Cada rodada de análise deve registrar versão das regras, documentos e modelo de IA utilizados.",
+        "entities": "execucoes_analise; resultados_requisitos; evidencias_resultado; apontamentos_internos; acoes_corretivas; pareceres_internos; eventos_auditoria",
+        "mechanism": "RPC/Edge Function; hash das entradas; auditoria imutável; portão no backend",
+        "screens": [
+          "V1-16",
+          "V1-23"
+        ],
+        "canonical_atomic_key": "A-V1-AUD-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + reconstrução da evidência",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 21,
+        "requirement_id": "V1-AUD-002",
+        "version": "1.0",
+        "requirement_text": "Separação de mecanismos: Resultados determinísticos e semânticos devem ser identificados separadamente.",
+        "entities": "execucoes_analise; resultados_requisitos; evidencias_resultado; apontamentos_internos; acoes_corretivas; pareceres_internos; eventos_auditoria",
+        "mechanism": "RPC/Edge Function; hash das entradas; auditoria imutável; portão no backend",
+        "screens": [
+          "V1-16",
+          "V1-17",
+          "V1-18",
+          "V1-23"
+        ],
+        "canonical_atomic_key": "A-V1-AUD-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + reconstrução da evidência",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 22,
+        "requirement_id": "V1-AUD-003",
+        "version": "1.0",
+        "requirement_text": "Criticidade: Apontamentos devem ser classificados como crítico, alto, médio, baixo ou informativo conforme impacto configurável.",
+        "entities": "execucoes_analise; resultados_requisitos; evidencias_resultado; apontamentos_internos; acoes_corretivas; pareceres_internos; eventos_auditoria",
+        "mechanism": "RPC/Edge Function; hash das entradas; auditoria imutável; portão no backend",
+        "screens": [
+          "V1-16",
+          "V1-17",
+          "V1-18",
+          "V1-23"
+        ],
+        "canonical_atomic_key": "A-V1-AUD-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + reconstrução da evidência",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 23,
+        "requirement_id": "V1-AUD-004",
+        "version": "1.0",
+        "requirement_text": "Evidência: Todo apontamento deve conter documento/fonte, localização, regra violada, descrição do problema e ação sugerida.",
+        "entities": "execucoes_analise; resultados_requisitos; evidencias_resultado; apontamentos_internos; acoes_corretivas; pareceres_internos; eventos_auditoria",
+        "mechanism": "RPC/Edge Function; hash das entradas; auditoria imutável; portão no backend",
+        "screens": [
+          "V1-16",
+          "V1-17",
+          "V1-18",
+          "V1-23"
+        ],
+        "canonical_atomic_key": "A-V1-AUD-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + reconstrução da evidência",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 24,
+        "requirement_id": "V1-AUD-005",
+        "version": "1.0",
+        "requirement_text": "Reanálise incremental: Após correção, sistema deve reprocessar apenas itens afetados quando tecnicamente possível, sem perder histórico da análise anterior.",
+        "entities": "execucoes_analise; resultados_requisitos; evidencias_resultado; apontamentos_internos; acoes_corretivas; pareceres_internos; eventos_auditoria",
+        "mechanism": "RPC/Edge Function; hash das entradas; auditoria imutável; portão no backend",
+        "screens": [
+          "V1-16",
+          "V1-17"
+        ],
+        "canonical_atomic_key": "A-V1-AUD-005",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + reconstrução da evidência",
+        "source_file": "08A_REQUISITOS_001_024_4_1.md",
+        "source_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+      },
+      {
+        "ordinal_in_canonical_matrix": 25,
+        "requirement_id": "V2-DIL-001",
+        "version": "2.0",
+        "requirement_text": "Anexação e classificação: Permitir anexar parecer, diligência, relatório ou ofício e classificá-lo na competência correta.",
+        "entities": "ciclos_diligencia; pareceres_contratante; apontamentos_contratante",
+        "mechanism": "RLS; Edge Function/Queue para extração; prazo calculado com configuração",
+        "screens": [
+          "V2-07",
+          "V2-01"
+        ],
+        "canonical_atomic_key": "A-V2-DIL-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 26,
+        "requirement_id": "V2-DIL-002",
+        "version": "2.0",
+        "requirement_text": "Extração por item: IA deve separar os apontamentos, mesmo quando o relatório não estiver numerado de forma consistente.",
+        "entities": "ciclos_diligencia; pareceres_contratante; apontamentos_contratante",
+        "mechanism": "RLS; Edge Function/Queue para extração; prazo calculado com configuração",
+        "screens": [
+          "V2-01",
+          "V2-02",
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-DIL-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 27,
+        "requirement_id": "V2-DIL-003",
+        "version": "2.0",
+        "requirement_text": "Valores envolvidos: Identificar quando houver valor questionado, glosa potencial, valor aceito ou impacto financeiro estimado.",
+        "entities": "ciclos_diligencia; pareceres_contratante; apontamentos_contratante",
+        "mechanism": "RLS; Edge Function/Queue para extração; prazo calculado com configuração",
+        "screens": [
+          "V2-01",
+          "V2-02",
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-DIL-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 28,
+        "requirement_id": "V2-DIL-004",
+        "version": "2.0",
+        "requirement_text": "Prazo externo: Registrar prazo de resposta e calcular vencimento conforme regra configurada, sem substituir interpretação jurídica de prazo quando houver dúvida.",
+        "entities": "ciclos_diligencia; pareceres_contratante; apontamentos_contratante",
+        "mechanism": "RLS; Edge Function/Queue para extração; prazo calculado com configuração",
+        "screens": [
+          "V2-01",
+          "V2-02",
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-DIL-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 29,
+        "requirement_id": "V2-PRO-001",
+        "version": "2.0",
+        "requirement_text": "Classificação assistida: Para cada apontamento, sugerir: procede, procede parcialmente, não procede ou requer análise humana.",
+        "entities": "analises_apontamentos; evidencias_resultado; precedentes",
+        "mechanism": "RPC de análise/validação; evidência obrigatória; sem atualização automática de regra",
+        "screens": [
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-PRO-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 30,
+        "requirement_id": "V2-PRO-002",
+        "version": "2.0",
+        "requirement_text": "Fundamentação: A sugestão deve confrontar documentos da competência, regras contratuais/normativas e precedentes históricos.",
+        "entities": "analises_apontamentos; evidencias_resultado; precedentes",
+        "mechanism": "RPC de análise/validação; evidência obrigatória; sem atualização automática de regra",
+        "screens": [
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-PRO-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 31,
+        "requirement_id": "V2-PRO-003",
+        "version": "2.0",
+        "requirement_text": "Evidência contrária: Quando o apontamento indicar documento ausente, sistema deve verificar se o documento já existia na versão apresentada e onde estava.",
+        "entities": "analises_apontamentos; evidencias_resultado; precedentes",
+        "mechanism": "RPC de análise/validação; evidência obrigatória; sem atualização automática de regra",
+        "screens": [
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-PRO-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 32,
+        "requirement_id": "V2-PRO-004",
+        "version": "2.0",
+        "requirement_text": "Precedente conflitante: Se o contratante adotar posição diferente de precedente anterior, sistema deve sinalizar mudança de entendimento e impedir atualização automática da regra preventiva sem revisão.",
+        "entities": "analises_apontamentos; evidencias_resultado; precedentes",
+        "mechanism": "RPC de análise/validação; evidência obrigatória; sem atualização automática de regra",
+        "screens": [
+          "V2-03",
+          "V2-07"
+        ],
+        "canonical_atomic_key": "A-V2-PRO-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 33,
+        "requirement_id": "V2-ACT-001",
+        "version": "2.0",
+        "requirement_text": "Ação por apontamento: Cada item deve ter uma ou mais ações com responsável, prazo, prioridade, dependência e situação.",
+        "entities": "planos_acao; tarefas_diligencia; desfechos_apontamentos",
+        "mechanism": "RLS; revalidação por RPC antes de resolver; notificações por preferência",
+        "screens": [
+          "V2-04"
+        ],
+        "canonical_atomic_key": "A-V2-ACT-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 34,
+        "requirement_id": "V2-ACT-002",
+        "version": "2.0",
+        "requirement_text": "Tipos de ação: Corrigir documento, anexar complemento, refazer planilha, justificar, contestar, obter assinatura, reconciliar valor, solicitar documento a terceiro, entre outros configuráveis.",
+        "entities": "planos_acao; tarefas_diligencia; desfechos_apontamentos",
+        "mechanism": "RLS; revalidação por RPC antes de resolver; notificações por preferência",
+        "screens": [
+          "V2-04"
+        ],
+        "canonical_atomic_key": "A-V2-ACT-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 35,
+        "requirement_id": "V2-ACT-003",
+        "version": "2.0",
+        "requirement_text": "Prazos operacionais e alertas: Painel deve priorizar itens por prazo e criticidade; notificações podem ser configuradas por usuário e papel.",
+        "entities": "planos_acao; tarefas_diligencia; desfechos_apontamentos",
+        "mechanism": "RLS; revalidação por RPC antes de resolver; notificações por preferência",
+        "screens": [
+          "V2-04"
+        ],
+        "canonical_atomic_key": "A-V2-ACT-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 36,
+        "requirement_id": "V2-ACT-004",
+        "version": "2.0",
+        "requirement_text": "Validação da solução: Item não pode ser marcado resolvido apenas porque uma tarefa foi concluída; o motor deve revalidar se a nova evidência efetivamente resolve o apontamento.",
+        "entities": "planos_acao; tarefas_diligencia; desfechos_apontamentos",
+        "mechanism": "RLS; revalidação por RPC antes de resolver; notificações por preferência",
+        "screens": [
+          "V2-04"
+        ],
+        "canonical_atomic_key": "A-V2-ACT-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 37,
+        "requirement_id": "V2-CONTEST-001",
+        "version": "2.0",
+        "requirement_text": "Recomendação de contestação: Quando evidências e regras indicarem improcedência, sistema pode sugerir contestar.",
+        "entities": "contestacoes; mapas_evidencias_contestacao; pacotes_reapresentacao; desfechos_apontamentos",
+        "mechanism": "Edge Function para minuta; aprovação humana; RPC de reapresentação idempotente",
+        "screens": [
+          "V2-05",
+          "V2-06",
+          "V2-08"
+        ],
+        "canonical_atomic_key": "A-V2-CONTEST-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 38,
+        "requirement_id": "V2-CONTEST-002",
+        "version": "2.0",
+        "requirement_text": "Minuta assistida: Gerar estrutura de manifestação com identificação do item, síntese, fundamento, evidências e pedido, sempre sujeita a revisão humana.",
+        "entities": "contestacoes; mapas_evidencias_contestacao; pacotes_reapresentacao; desfechos_apontamentos",
+        "mechanism": "Edge Function para minuta; aprovação humana; RPC de reapresentação idempotente",
+        "screens": [
+          "V2-05",
+          "V2-06",
+          "V2-08"
+        ],
+        "canonical_atomic_key": "A-V2-CONTEST-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 39,
+        "requirement_id": "V2-CONTEST-003",
+        "version": "2.0",
+        "requirement_text": "Mapa de evidências: Cada afirmação da contestação deve apontar documento/página/dado de suporte.",
+        "entities": "contestacoes; mapas_evidencias_contestacao; pacotes_reapresentacao; desfechos_apontamentos",
+        "mechanism": "Edge Function para minuta; aprovação humana; RPC de reapresentação idempotente",
+        "screens": [
+          "V2-05",
+          "V2-06",
+          "V2-08"
+        ],
+        "canonical_atomic_key": "A-V2-CONTEST-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 40,
+        "requirement_id": "V2-CONTEST-004",
+        "version": "2.0",
+        "requirement_text": "Resultado da contestação: Registrar se aceita, rejeitada, parcialmente aceita ou pendente e atualizar o precedente histórico.",
+        "entities": "contestacoes; mapas_evidencias_contestacao; pacotes_reapresentacao; desfechos_apontamentos",
+        "mechanism": "Edge Function para minuta; aprovação humana; RPC de reapresentação idempotente",
+        "screens": [
+          "V2-08",
+          "V2-03"
+        ],
+        "canonical_atomic_key": "A-V2-CONTEST-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 41,
+        "requirement_id": "V2-KB-001",
+        "version": "2.0",
+        "requirement_text": "Resultado como retorno: Ao encerrar apontamento, atualizar confiança do precedente relacionado.",
+        "entities": "precedentes; regras_preventivas; revisoes_regras_preventivas; padroes_historicos",
+        "mechanism": "Queue de aprendizado; proposta de revisão; aprovação humana obrigatória",
+        "screens": [
+          "V2-03",
+          "V2-08",
+          "V4-01"
+        ],
+        "canonical_atomic_key": "A-V2-KB-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 42,
+        "requirement_id": "V2-KB-002",
+        "version": "2.0",
+        "requirement_text": "Reincidência: Identificar quando novo apontamento repete falha já considerada resolvida em competência anterior.",
+        "entities": "precedentes; regras_preventivas; revisoes_regras_preventivas; padroes_historicos",
+        "mechanism": "Queue de aprendizado; proposta de revisão; aprovação humana obrigatória",
+        "screens": [
+          "V2-03",
+          "V2-08",
+          "V4-01"
+        ],
+        "canonical_atomic_key": "A-V2-KB-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 43,
+        "requirement_id": "V2-KB-003",
+        "version": "2.0",
+        "requirement_text": "Mudança de entendimento: Detectar quando o contratante passa a exigir requisito diferente do histórico e abrir alerta de revisão das regras preventivas.",
+        "entities": "precedentes; regras_preventivas; revisoes_regras_preventivas; padroes_historicos",
+        "mechanism": "Queue de aprendizado; proposta de revisão; aprovação humana obrigatória",
+        "screens": [
+          "V2-08",
+          "V4-05"
+        ],
+        "canonical_atomic_key": "A-V2-KB-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 44,
+        "requirement_id": "V3-PREV-001",
+        "version": "3.0",
+        "requirement_text": "Validação pré-pagamento: Quando houver dado suficiente, sinalizar despesa incompatível antes do pagamento ou antes do fechamento da competência.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-01",
+          "V3-04",
+          "V3-05",
+          "V3-06",
+          "V3-07",
+          "V3-08"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 45,
+        "requirement_id": "V3-PREV-002",
+        "version": "3.0",
+        "requirement_text": "Rubrica e saldo: Verificar se rubrica existe, se há saldo e se eventual remanejamento é permitido.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-08",
+          "V3-04"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 46,
+        "requirement_id": "V3-PREV-003",
+        "version": "3.0",
+        "requirement_text": "Fornecedor e objeto: Comparar objeto da despesa com contrato do fornecedor e objeto permitido no contrato público.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-07",
+          "V3-04"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 47,
+        "requirement_id": "V3-PREV-004",
+        "version": "3.0",
+        "requirement_text": "Duplicidade: Detectar possíveis pagamentos duplicados por combinação de fornecedor, documento, valor, data e similaridade.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-01",
+          "V3-04",
+          "V3-05",
+          "V3-06",
+          "V3-07",
+          "V3-08"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 48,
+        "requirement_id": "V3-PREV-005",
+        "version": "3.0",
+        "requirement_text": "Conta bancária correta: Sinalizar movimentação em conta incompatível quando houver regra contratual configurada.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-01",
+          "V3-04",
+          "V3-05",
+          "V3-06",
+          "V3-07",
+          "V3-08"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-005",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08B_REQUISITOS_025_048_4_1.md",
+        "source_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+      },
+      {
+        "ordinal_in_canonical_matrix": 49,
+        "requirement_id": "V3-PREV-006",
+        "version": "3.0",
+        "requirement_text": "Precedentes históricos: Alertar se transação possui padrão associado a apontamento anterior do contratante.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-01",
+          "V3-04",
+          "V3-05",
+          "V3-06",
+          "V3-07",
+          "V3-08"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-006",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 50,
+        "requirement_id": "V3-PREV-007",
+        "version": "3.0",
+        "requirement_text": "Documentação futura: Indicar quais evidências deverão ser preservadas para que a despesa possa ser prestada posteriormente.",
+        "entities": "fontes_financeiras; transacoes_financeiras; fornecedores; contratos_fornecedores; consumo_orcamentario; conciliacoes; alertas_preventivos",
+        "mechanism": "RLS; RPC/Queue para validações; numeric; regras de risco no backend",
+        "screens": [
+          "V3-04",
+          "V3-06"
+        ],
+        "canonical_atomic_key": "A-V3-PREV-007",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 51,
+        "requirement_id": "V3-ALT-001",
+        "version": "3.0",
+        "requirement_text": "Central de exceções: Exibir transações com maior risco, agrupadas por causa e impacto financeiro.",
+        "entities": "alertas_preventivos; tratamentos_alertas; tarefas_alerta",
+        "mechanism": "RLS; preservação do alerta original; limiar/agrupamento configurável",
+        "screens": [
+          "V3-06"
+        ],
+        "canonical_atomic_key": "A-V3-ALT-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 52,
+        "requirement_id": "V3-ALT-002",
+        "version": "3.0",
+        "requirement_text": "Responsável: Permitir atribuir alerta a financeiro, compras, jurídico, contabilidade ou gestor.",
+        "entities": "alertas_preventivos; tratamentos_alertas; tarefas_alerta",
+        "mechanism": "RLS; preservação do alerta original; limiar/agrupamento configurável",
+        "screens": [
+          "V3-06"
+        ],
+        "canonical_atomic_key": "A-V3-ALT-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 53,
+        "requirement_id": "V3-ALT-003",
+        "version": "3.0",
+        "requirement_text": "Resolução antes do fechamento: Quando corrigido, preservar o alerta original e a ação tomada para alimentar aprendizado.",
+        "entities": "alertas_preventivos; tratamentos_alertas; tarefas_alerta",
+        "mechanism": "RLS; preservação do alerta original; limiar/agrupamento configurável",
+        "screens": [
+          "V3-06"
+        ],
+        "canonical_atomic_key": "A-V3-ALT-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 54,
+        "requirement_id": "V3-ALT-004",
+        "version": "3.0",
+        "requirement_text": "Alertas não intrusivos: Evitar excesso de notificações; regras devem ter limiar e agrupamento configuráveis.",
+        "entities": "alertas_preventivos; tratamentos_alertas; tarefas_alerta",
+        "mechanism": "RLS; preservação do alerta original; limiar/agrupamento configurável",
+        "screens": [
+          "V3-06"
+        ],
+        "canonical_atomic_key": "A-V3-ALT-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + numeric/duplicidade/conciliação conforme caso",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 55,
+        "requirement_id": "V4-INT-001",
+        "version": "4.0",
+        "requirement_text": "Mapa de exigências recorrentes: Identificar quais tipos de apontamento mais aparecem por contratante, contrato e período.",
+        "entities": "perfis_contratante; padroes_historicos; metricas_historicas; relacionamentos_conhecimento",
+        "mechanism": "RLS; agregações materializadas/views; jobs assíncronos",
+        "screens": [
+          "V4-05",
+          "V4-07"
+        ],
+        "canonical_atomic_key": "A-V4-INT-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 56,
+        "requirement_id": "V4-INT-002",
+        "version": "4.0",
+        "requirement_text": "Tempo de análise: Calcular tempo histórico entre apresentação, parecer, reapresentação e validação.",
+        "entities": "perfis_contratante; padroes_historicos; metricas_historicas; relacionamentos_conhecimento",
+        "mechanism": "RLS; agregações materializadas/views; jobs assíncronos",
+        "screens": [
+          "V4-05"
+        ],
+        "canonical_atomic_key": "A-V4-INT-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 57,
+        "requirement_id": "V4-INT-003",
+        "version": "4.0",
+        "requirement_text": "Mudança de interpretação: Detectar ruptura no padrão histórico e apontar os casos que suportam a mudança.",
+        "entities": "perfis_contratante; padroes_historicos; metricas_historicas; relacionamentos_conhecimento",
+        "mechanism": "RLS; agregações materializadas/views; jobs assíncronos",
+        "screens": [
+          "V4-05",
+          "V4-07"
+        ],
+        "canonical_atomic_key": "A-V4-INT-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 58,
+        "requirement_id": "V4-INT-004",
+        "version": "4.0",
+        "requirement_text": "Regras de fato versus regras formais: Distinguir exigência expressa em documento normativo de padrão observado apenas em relatórios, evitando apresentar o segundo como norma formal.",
+        "entities": "perfis_contratante; padroes_historicos; metricas_historicas; relacionamentos_conhecimento",
+        "mechanism": "RLS; agregações materializadas/views; jobs assíncronos",
+        "screens": [
+          "V4-05",
+          "V4-06"
+        ],
+        "canonical_atomic_key": "A-V4-INT-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 59,
+        "requirement_id": "V4-PREC-001",
+        "version": "4.0",
+        "requirement_text": "Ranking de similaridade em dois escopos: Recuperar casos anteriores considerando texto, categoria, valor, rubrica, documento, contratante e desfecho, classificando separadamente precedentes do próprio contrato e precedentes de outros contratos do mesmo contratante.",
+        "entities": "consultas_semanticas; similaridades_precedentes; retornos_modelo; precedentes",
+        "mechanism": "pgvector + filtros de escopo antes da similaridade; fontes obrigatórias",
+        "screens": [
+          "V4-01",
+          "V4-02"
+        ],
+        "canonical_atomic_key": "A-V4-PREC-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 60,
+        "requirement_id": "V4-PREC-002",
+        "version": "4.0",
+        "requirement_text": "Força e origem do precedente: Pontuar precedentes por recência, número de confirmações, hierarquia normativa, resultado final, escopo e proximidade com o contrato analisado. Precedente do próprio contrato e precedente transversal do mesmo contratante nunca devem ser apresentados como equivalentes.",
+        "entities": "consultas_semanticas; similaridades_precedentes; retornos_modelo; precedentes",
+        "mechanism": "pgvector + filtros de escopo antes da similaridade; fontes obrigatórias",
+        "screens": [
+          "V4-02"
+        ],
+        "canonical_atomic_key": "A-V4-PREC-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 61,
+        "requirement_id": "V4-PREC-003",
+        "version": "4.0",
+        "requirement_text": "Precedente contraditório: Exibir casos favoráveis e desfavoráveis quando histórico for inconsistente, sem ocultar divergência.",
+        "entities": "consultas_semanticas; similaridades_precedentes; retornos_modelo; precedentes",
+        "mechanism": "pgvector + filtros de escopo antes da similaridade; fontes obrigatórias",
+        "screens": [
+          "V4-02"
+        ],
+        "canonical_atomic_key": "A-V4-PREC-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 62,
+        "requirement_id": "V4-PREC-004",
+        "version": "4.0",
+        "requirement_text": "Explicação: Toda recomendação baseada em histórico deve mostrar os casos que a sustentam.",
+        "entities": "consultas_semanticas; similaridades_precedentes; retornos_modelo; precedentes",
+        "mechanism": "pgvector + filtros de escopo antes da similaridade; fontes obrigatórias",
+        "screens": [
+          "V4-02"
+        ],
+        "canonical_atomic_key": "A-V4-PREC-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 63,
+        "requirement_id": "V4-TRV-001",
+        "version": "4.0",
+        "requirement_text": "Escopo transversal por contratante: Ao analisar uma competência do contrato A, o sistema deve pesquisar precedentes relevantes dos contratos B, C e demais contratos que possuam o mesmo id_contratante, desde que pertençam à mesma organização usuária do ContaOS.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 64,
+        "requirement_id": "V4-TRV-002",
+        "version": "4.0",
+        "requirement_text": "Identificação da origem: Todo resultado transversal deve informar, de forma destacada, que a ocorrência não pertence ao contrato analisado e deve exibir contrato de origem, unidade, competência, relatório/parecer, item, desfecho e evidências disponíveis.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 65,
+        "requirement_id": "V4-TRV-003",
+        "version": "4.0",
+        "requirement_text": "Rótulo obrigatório: A sinalização proveniente exclusivamente de outro contrato do mesmo contratante deve ser classificada como “ALERTA HISTÓRICO TRANSVERSAL DO CONTRATANTE”, nunca como não conformidade do contrato atual.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 66,
+        "requirement_id": "V4-TRV-004",
+        "version": "4.0",
+        "requirement_text": "Efeito não impeditivo: Alerta histórico transversal não integra o denominador nem o numerador do cálculo dos 100,00%, não cria requisito obrigatório da competência e, isoladamente, não pode impedir a situação “PODE APRESENTAR AO CONTRATANTE”.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 67,
+        "requirement_id": "V4-TRV-005",
+        "version": "4.0",
+        "requirement_text": "Primazia do contrato atual: O portão de apresentação continua sendo calculado exclusivamente pelos requisitos obrigatórios e aplicáveis ao contrato analisado, pelas regras formais vigentes e pelas regras preventivas impeditivas do próprio contrato.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04",
+          "V1-19"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-005",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 68,
+        "requirement_id": "V4-TRV-006",
+        "version": "4.0",
+        "requirement_text": "Conversão somente por fonte formal independente: Se um alerta transversal revelar cláusula, norma, manual ou exigência formal que também seja objetivamente aplicável ao contrato atual, o sistema deve validar essa aplicabilidade diretamente na fonte formal e propor uma nova regra do contrato. Somente após revisão humana e aprovação dessa regra ela poderá produzir efeito impeditivo. O precedente de outro contrato, sozinho, nunca é suficiente.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04",
+          "V4-03"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-006",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 69,
+        "requirement_id": "V4-TRV-007",
+        "version": "4.0",
+        "requirement_text": "Divergências entre contratos: Se o mesmo contratante tiver adotado entendimentos diferentes em contratos distintos, o sistema deve exibir a divergência, datas, documentos e desfechos, sem escolher silenciosamente um deles como regra.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04",
+          "V4-05"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-007",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 70,
+        "requirement_id": "V4-TRV-008",
+        "version": "4.0",
+        "requirement_text": "Isolamento organizacional: A inteligência transversal padrão opera somente entre contratos pertencentes à mesma organização no ContaOS. Dados de outra organização não podem ser usados para gerar alertas, ainda que o contratante seja o mesmo.",
+        "entities": "alertas_historicos_transversais; relacionamentos_conhecimento; precedentes",
+        "mechanism": "RLS por organização; RPC separa próprio contrato/transversal; efeito não impeditivo",
+        "screens": [
+          "V4-04"
+        ],
+        "canonical_atomic_key": "A-V4-TRV-008",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 71,
+        "requirement_id": "V4-COP-001",
+        "version": "4.0",
+        "requirement_text": "Perguntas sobre o contrato: Usuário pode perguntar sobre obrigações, histórico e competências usando linguagem natural.",
+        "entities": "sessoes_copiloto; mensagens_copiloto; fontes_resposta_copiloto; consultas_semanticas",
+        "mechanism": "Edge Function autenticada; RAG temporal; citação de fontes; limite de certeza",
+        "screens": [
+          "V4-08"
+        ],
+        "canonical_atomic_key": "A-V4-COP-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 72,
+        "requirement_id": "V4-COP-002",
+        "version": "4.0",
+        "requirement_text": "Resposta com fontes: Toda resposta relevante deve citar documentos, páginas, precedentes e datas.",
+        "entities": "sessoes_copiloto; mensagens_copiloto; fontes_resposta_copiloto; consultas_semanticas",
+        "mechanism": "Edge Function autenticada; RAG temporal; citação de fontes; limite de certeza",
+        "screens": [
+          "V4-08"
+        ],
+        "canonical_atomic_key": "A-V4-COP-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08C_REQUISITOS_049_072_4_1.md",
+        "source_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+      },
+      {
+        "ordinal_in_canonical_matrix": 73,
+        "requirement_id": "V4-COP-003",
+        "version": "4.0",
+        "requirement_text": "Contexto temporal: Perguntas sobre competência passada devem usar o conjunto normativo vigente naquele período.",
+        "entities": "sessoes_copiloto; mensagens_copiloto; fontes_resposta_copiloto; consultas_semanticas",
+        "mechanism": "Edge Function autenticada; RAG temporal; citação de fontes; limite de certeza",
+        "screens": [
+          "V4-08"
+        ],
+        "canonical_atomic_key": "A-V4-COP-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 74,
+        "requirement_id": "V4-COP-004",
+        "version": "4.0",
+        "requirement_text": "Limite de certeza: Quando houver fontes conflitantes ou baixa confiança, o copiloto deve explicitar a incerteza e pedir revisão humana, não inventar conclusão.",
+        "entities": "sessoes_copiloto; mensagens_copiloto; fontes_resposta_copiloto; consultas_semanticas",
+        "mechanism": "Edge Function autenticada; RAG temporal; citação de fontes; limite de certeza",
+        "screens": [
+          "V4-08"
+        ],
+        "canonical_atomic_key": "A-V4-COP-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + fonte/origem + não contaminação do portão quando transversal",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 75,
+        "requirement_id": "V5-CCM-001",
+        "version": "5.0",
+        "requirement_text": "Execução contínua: Controles elegíveis devem executar automaticamente quando eventos ou dados relevantes chegam ao sistema.",
+        "entities": "controles_conformidade; versoes_controle; execucoes_controle; excecoes_controle; nao_conformidades; planos_remediacao",
+        "mechanism": "Queue/Cron/Edge Function; segregação de funções; RPC para validar remediação",
+        "screens": [
+          "V5-01",
+          "V5-02",
+          "V5-03",
+          "V5-04",
+          "V5-05",
+          "V5-08"
+        ],
+        "canonical_atomic_key": "A-V5-CCM-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 76,
+        "requirement_id": "V5-CCM-002",
+        "version": "5.0",
+        "requirement_text": "Não conformidade como caso: Falha de controle abre caso com responsável, prazo operacional, evidências e remediação. Caso em aberto não autoriza liberação de competência que dependa daquele controle.",
+        "entities": "controles_conformidade; versoes_controle; execucoes_controle; excecoes_controle; nao_conformidades; planos_remediacao",
+        "mechanism": "Queue/Cron/Edge Function; segregação de funções; RPC para validar remediação",
+        "screens": [
+          "V5-01",
+          "V5-02",
+          "V5-03",
+          "V5-04",
+          "V5-05",
+          "V5-08"
+        ],
+        "canonical_atomic_key": "A-V5-CCM-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 77,
+        "requirement_id": "V5-CCM-003",
+        "version": "5.0",
+        "requirement_text": "Materialidade: Regras podem considerar valor, frequência, tipo de despesa e criticidade do contrato.",
+        "entities": "controles_conformidade; versoes_controle; execucoes_controle; excecoes_controle; nao_conformidades; planos_remediacao",
+        "mechanism": "Queue/Cron/Edge Function; segregação de funções; RPC para validar remediação",
+        "screens": [
+          "V5-01",
+          "V5-02",
+          "V5-03",
+          "V5-04",
+          "V5-05",
+          "V5-08"
+        ],
+        "canonical_atomic_key": "A-V5-CCM-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 78,
+        "requirement_id": "V5-CCM-004",
+        "version": "5.0",
+        "requirement_text": "Segregação de funções: Validação de remediação ou de não aplicabilidade fundamentada pode exigir usuário diferente daquele que originou ou corrigiu o item.",
+        "entities": "controles_conformidade; versoes_controle; execucoes_controle; excecoes_controle; nao_conformidades; planos_remediacao",
+        "mechanism": "Queue/Cron/Edge Function; segregação de funções; RPC para validar remediação",
+        "screens": [
+          "V5-05",
+          "V5-08"
+        ],
+        "canonical_atomic_key": "A-V5-CCM-004",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 79,
+        "requirement_id": "V5-REG-001",
+        "version": "5.0",
+        "requirement_text": "Análise de impacto: Nova norma deve ser comparada com regras e contratos potencialmente afetados.",
+        "entities": "alteracoes_normativas; avaliacoes_impacto; publicacoes_regras",
+        "mechanism": "Queue para comparação; aprovação RPC; vigência temporal",
+        "screens": [
+          "V5-09"
+        ],
+        "canonical_atomic_key": "A-V5-REG-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 80,
+        "requirement_id": "V5-REG-002",
+        "version": "5.0",
+        "requirement_text": "Aprovação: Mudança material exige revisão de perfil autorizado antes de entrar em produção.",
+        "entities": "alteracoes_normativas; avaliacoes_impacto; publicacoes_regras",
+        "mechanism": "Queue para comparação; aprovação RPC; vigência temporal",
+        "screens": [
+          "V5-09"
+        ],
+        "canonical_atomic_key": "A-V5-REG-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 81,
+        "requirement_id": "V5-REG-003",
+        "version": "5.0",
+        "requirement_text": "Vigência: Regra nova pode ser programada para iniciar em data futura e coexistir com regra antiga para competências passadas.",
+        "entities": "alteracoes_normativas; avaliacoes_impacto; publicacoes_regras",
+        "mechanism": "Queue para comparação; aprovação RPC; vigência temporal",
+        "screens": [
+          "V5-09"
+        ],
+        "canonical_atomic_key": "A-V5-REG-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 82,
+        "requirement_id": "V5-AUDPORT-001",
+        "version": "5.0",
+        "requirement_text": "Pacote de evidências: Gerar pacote fechado com escopo, evidências, resumos criptográficos, versões, controles e resultados.",
+        "entities": "pacotes_evidencias; itens_pacote_evidencias; acessos_pacote_evidencias; exportacoes_evidencias",
+        "mechanism": "Storage privado; token/acesso temporário server-side; auditoria; hash",
+        "screens": [
+          "V5-11"
+        ],
+        "canonical_atomic_key": "A-V5-AUDPORT-001",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável + reconstrução da evidência",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 83,
+        "requirement_id": "V5-AUDPORT-002",
+        "version": "5.0",
+        "requirement_text": "Acesso temporário: Quando habilitado, permitir acesso de leitura restrito e temporário para auditor/contratante a conjuntos específicos, com registro na trilha de auditoria.",
+        "entities": "pacotes_evidencias; itens_pacote_evidencias; acessos_pacote_evidencias; exportacoes_evidencias",
+        "mechanism": "Storage privado; token/acesso temporário server-side; auditoria; hash",
+        "screens": [
+          "V5-11"
+        ],
+        "canonical_atomic_key": "A-V5-AUDPORT-002",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável + reconstrução da evidência",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 84,
+        "requirement_id": "V5-AUDPORT-003",
+        "version": "5.0",
+        "requirement_text": "Exportação: Exportar relatórios e evidências em formatos padronizados sem perder identificação das fontes.",
+        "entities": "pacotes_evidencias; itens_pacote_evidencias; acessos_pacote_evidencias; exportacoes_evidencias",
+        "mechanism": "Storage privado; token/acesso temporário server-side; auditoria; hash",
+        "screens": [
+          "V5-11"
+        ],
+        "canonical_atomic_key": "A-V5-AUDPORT-003",
+        "required_test": "Happy path + falha + isolamento RLS + auditoria + segregação de funções/temporalidade quando aplicável + reconstrução da evidência",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 85,
+        "requirement_id": "NFR-001",
+        "version": "Transversal",
+        "requirement_text": "Escala horizontal: API deve permitir múltiplas instâncias sem dependência de estado local crítico.",
+        "entities": "Supabase managed runtime + Edge Functions stateless",
+        "mechanism": "Sem estado crítico local",
+        "screens": [
+          "N",
+          "A"
+        ],
+        "canonical_atomic_key": "A-NFR-001",
+        "required_test": "teste de escala/concorrência",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 86,
+        "requirement_id": "NFR-002",
+        "version": "Transversal",
+        "requirement_text": "Pool de banco: conexões PostgreSQL de aplicação devem usar pooling em produção quando houver escala concorrente.",
+        "entities": "Supabase pooler / conexão gerenciada",
+        "mechanism": "pooling e limites",
+        "screens": [
+          "N",
+          "A"
+        ],
+        "canonical_atomic_key": "A-NFR-002",
+        "required_test": "carga de conexões",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 87,
+        "requirement_id": "NFR-003",
+        "version": "Transversal",
+        "requirement_text": "Transferência direta: upload/download de arquivos deve priorizar conexão direta cliente-Storage com autorização temporária.",
+        "entities": "Supabase Storage direto",
+        "mechanism": "signed upload/download; bucket privado",
+        "screens": [
+          "V1-10",
+          "V1-11"
+        ],
+        "canonical_atomic_key": "A-NFR-003",
+        "required_test": "transferência direta",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 88,
+        "requirement_id": "NFR-004",
+        "version": "Transversal",
+        "requirement_text": "Multipart: objetos grandes devem suportar upload fracionado, retry e retomada.",
+        "entities": "Storage multipart/resumível quando aplicável",
+        "mechanism": "partes autorizadas; integridade final",
+        "screens": [
+          "V1-10"
+        ],
+        "canonical_atomic_key": "A-NFR-004",
+        "required_test": "arquivo grande/retry",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 89,
+        "requirement_id": "NFR-005",
+        "version": "Transversal",
+        "requirement_text": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+        "entities": "Queues + Edge Functions/Cron",
+        "mechanism": "sem bloquear request",
+        "screens": [
+          "estados de processamento"
+        ],
+        "canonical_atomic_key": "A-NFR-005",
+        "required_test": "job assíncrono",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 90,
+        "requirement_id": "NFR-006",
+        "version": "Transversal",
+        "requirement_text": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+        "entities": "Queues separadas por família",
+        "mechanism": "retry/backoff/limites separados",
+        "screens": [
+          "N",
+          "A"
+        ],
+        "canonical_atomic_key": "A-NFR-006",
+        "required_test": "backlog/falha isolada",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 91,
+        "requirement_id": "NFR-007",
+        "version": "Transversal",
+        "requirement_text": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+        "entities": "PostgreSQL transaction/locks + versao_registro",
+        "mechanism": "409/lock em crítico",
+        "screens": [
+          "UI de conflito"
+        ],
+        "canonical_atomic_key": "A-NFR-007",
+        "required_test": "corridas concorrentes",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 92,
+        "requirement_id": "NFR-008",
+        "version": "Transversal",
+        "requirement_text": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+        "entities": "comandos_idempotentes + chave única",
+        "mechanism": "efeito único",
+        "screens": [
+          "ações críticas"
+        ],
+        "canonical_atomic_key": "A-NFR-008",
+        "required_test": "duplo clique/retry",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 93,
+        "requirement_id": "NFR-009",
+        "version": "Transversal",
+        "requirement_text": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+        "entities": "Data API/RPC paginadas",
+        "mechanism": "limites de page size",
+        "screens": [
+          "listas",
+          "tabelas"
+        ],
+        "canonical_atomic_key": "A-NFR-009",
+        "required_test": "volume/paginação",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 94,
+        "requirement_id": "NFR-010",
+        "version": "Transversal",
+        "requirement_text": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+        "entities": "logs/métricas Supabase + alertas",
+        "mechanism": "sem segredos em logs",
+        "screens": [
+          "Admin",
+          "ops"
+        ],
+        "canonical_atomic_key": "A-NFR-010",
+        "required_test": "observabilidade",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 95,
+        "requirement_id": "NFR-011",
+        "version": "Transversal",
+        "requirement_text": "Resiliência: integrações externas devem ter timeout, retry e isolamento de falha.",
+        "entities": "Edge Functions com timeout/retry/circuito lógico",
+        "mechanism": "isolamento de falha externa",
+        "screens": [
+          "Integrações"
+        ],
+        "canonical_atomic_key": "A-NFR-011",
+        "required_test": "falha externa",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      },
+      {
+        "ordinal_in_canonical_matrix": 96,
+        "requirement_id": "NFR-012",
+        "version": "Transversal",
+        "requirement_text": "Teste de carga: produção exige ensaio de concorrência e volume compatível com a capacidade esperada.",
+        "entities": "k6 ou equivalente contra HML",
+        "mechanism": "sem dados reais",
+        "screens": [
+          "N",
+          "A"
+        ],
+        "canonical_atomic_key": "A-NFR-012",
+        "required_test": "carga e thresholds",
+        "source_file": "08D_REQUISITOS_073_096_4_1.md",
+        "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+      }
+    ]
   },
   "crosswalk": {
-    "status": "PENDENTE",
+    "status": "PARCIAL_CANONICO_REQUISITOS_VALIDADO",
     "regular_to_atomic": [
       {
         "regular_id": "00",
@@ -531,11 +2105,34 @@
       },
       {
         "regular_id": "38",
-        "status": "pendente_fonte",
+        "status": "cobertura_canonica_tela_v117_validada",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "08A_REQUISITOS_001_024_4_1.md (coluna Tela(s)=V1-17); 20_PROMPT_000_BRAND_01.md; docs/frontend/lovable V1-17 e Lovable PLAN Prompt 38",
+        "reviewer": "ChatGPT/Codex: conferência do conteúdo canônico no GitHub",
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CHK-001",
+          "A-V1-CHK-002",
+          "A-V1-CHK-003",
+          "A-V1-CHK-004",
+          "A-V1-AUD-002",
+          "A-V1-AUD-003",
+          "A-V1-AUD-004",
+          "A-V1-AUD-005"
+        ],
+        "relevant_requirements": [
+          "V1-CHK-001",
+          "V1-CHK-002",
+          "V1-CHK-003",
+          "V1-CHK-004",
+          "V1-AUD-002",
+          "V1-AUD-003",
+          "V1-AUD-004",
+          "V1-AUD-005"
+        ],
+        "transversal_brand_000": true,
+        "numbered_equivalence_status": "PENDENTE_CONFERENCIA_TEXTO_INTEGRAL_CADERNO_NUMERADO",
+        "reviewed_date": "2026-11-03"
       },
       {
         "regular_id": "39",
@@ -1026,7 +2623,8 @@
         "reviewer": null
       }
     ],
-    "rule": "Em cada regular, classificar TODOS os 97 IDs atômicos em relevantes ou não relevantes, em conjuntos disjuntos, com evidência de leitura e justificação. A numeração igual ou parecida NUNCA prova correspondência."
+    "rule": "Em cada regular, classificar TODOS os 97 IDs atômicos em relevantes ou não relevantes, em conjuntos disjuntos, com evidência de leitura e justificação. A numeração igual ou parecida NUNCA prova correspondência.",
+    "mapping_rule": "Mapeamento por requisito id e chave A-..., usando coluna Tela(s) 08A–08D. A posição ordinal na matriz NÃO prova correspondência 001–096 do caderno DOCX."
   },
   "certification": {
     "full_crosswalk_verified": false,
@@ -1041,6 +2639,23 @@
       "ECONOMIA LOVABLE",
       "TESTE C READ-ONLY"
     ],
-    "release_gate": "FALHA SE O PROMPT EXECUTADO NÃO TEM CROSSWALK VERIFICADO, OU SE A TAREFA É DECLARADA CERTIFICADA SEM COBERTURA"
+    "release_gate": "FALHA SE O PROMPT EXECUTADO NÃO TEM CROSSWALK VERIFICADO, OU SE A TAREFA É DECLARADA CERTIFICADA SEM COBERTURA",
+    "canonical_96_from_github_verified": true,
+    "regular_38_relevant_requirement_count": 8,
+    "notes": "Requisitos atômicos completos (96) e BRAND-01 lidos em seus documentos canônicos. Correspondência numérica aos originais e cobertura dos regulares 00–99 não foram integralmente comprovadas; certificação de ambos os cadernos permanece distinta da cobertura de requisitos."
+  },
+  "provenance": {
+    "canonical_pack_map": "13_MAPA_DOCUMENTOS_PACOTE_4_1.md",
+    "regular_protocol": "12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md",
+    "regular_context": "06_FRONTEND_LOVABLE_ESPECIFICACAO_4_1.md",
+    "atomic_requirement_sources": [
+      "08A_REQUISITOS_001_024_4_1.md",
+      "08B_REQUISITOS_025_048_4_1.md",
+      "08C_REQUISITOS_049_072_4_1.md",
+      "08D_REQUISITOS_073_096_4_1.md"
+    ],
+    "brand_source": "20_PROMPT_000_BRAND_01.md",
+    "source_note": "Os documentos do GitHub consolidam os conteúdos do pacote original. A árvore main contém 96 textos completos de requisitos na matriz 08A–08D e o texto integral BRAND-01 em 20; os manuais DOCX originais não constam como blobs individualizados. Não confundir consolidação canônica com validação literal de cada prompt do DOCX.",
+    "verified_date": "2026-11-03"
   }
 }
