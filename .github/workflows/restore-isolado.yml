@@ -153,6 +153,13 @@ jobs:
           export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           bash supabase/tests/v107_concurrency.sh | tee restore-proof/v107-concurrency.txt
 
+      - name: Teste 11 - Concorrência real V1-17
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          bash supabase/tests/v117_reanalysis_concurrency.sh | tee restore-proof/v117-concurrency.txt
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
