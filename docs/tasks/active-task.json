@@ -2,7 +2,7 @@
   "id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
   "title": "PROMPT 38 / V1-17 — Requisito: detalhe e evidências",
   "status": "ativa",
-  "phase": "frontend_plan",
+  "phase": "frontend_plan_awaiting_human_gate",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
@@ -142,7 +142,8 @@
     "supabase/migrations/*v117_reanalise_requisitos_concorrencia.sql",
     "supabase/tests/reanalysis_authz.sql",
     "supabase/tests/v117_reanalysis_concurrency.sh",
-    ".github/workflows/restore-isolado.yml"
+    ".github/workflows/restore-isolado.yml",
+    "contaos-hml-control:.lovable/plan.md (PLAN, aprovado somente após gate humano)"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -196,5 +197,15 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Auditar o PLAN Lovable V1-17, obter aprovação humana se gate da plataforma exigir, executar somente frontend mínimo após PLAN aprovado; TDD RED->GREEN, regressão V1-16, Teste C read-only separado e Zero-Drift no SHA candidato. Backend HML congelado, PROD intocado."
+  "next_step": "Gate obrigatório Lovable plan--show aguardando aprovação humana explícita. Auditoria do plano não encontrou desvio bloqueante; backend HML V1-17 certificado, CI verde. Depois da aprovação, liberar allowed_paths frontend, executar BUILD TDD RED→GREEN, regressões, diff, Teste C separado. PROD/backend congelados.",
+  "frontend_plan": {
+    "project_id": "b113dd59-6caf-4c92-8302-457a037a0c6f",
+    "plan_file": ".lovable/plan.md",
+    "plan_revision_commit": "868446ff20ff22c77651ea1313151c2c90feb2f1",
+    "plan_file_sha": "eb5d58e097004fba601cefe7e921eb8dbb7db5ca",
+    "approval_event_id": "main:agent#00000000019672#tcb:HVXG75AD",
+    "approval_tool": "plan--show",
+    "approval_state": "awaiting_explicit_human_approval",
+    "plan_review": "Escopo do drawer, RPC V1-17, N/A, fonte/evidência, download autorizado, ação incremental, TDD e Teste C em conformidade. O plano ainda cita CI concorrente pendente, porém CI 41686766086 e Zero-Drift 41686766756 já passaram após a redação."
+  }
 }
