@@ -1,11 +1,11 @@
 {
-  "id": "PROMPT31-V1-10-CENTRAL-DOCUMENTOS-HML-2026-11-02",
-  "title": "PROMPT 31 / V1-10 — Central de Documentos do Contrato",
+  "id": "PROMPT32-V1-11-DETALHE-VERSOES-DOCUMENTO-HML-2026-11-03",
+  "title": "PROMPT 32 / V1-11 — Detalhe e versões de documento",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-02",
-  "context_read_by": "ChatGPT/Codex — leitura e reancoragem integral do pacote canônico 4.1 nesta sessão",
+  "context_read_acknowledged_at": "2026-11-03",
+  "context_read_by": "ChatGPT/Codex — continuidade reancorada no pacote canônico 4.1 e no Teste C final do V1-10",
   "context_manifest_sha256": "7d94268b07bab1f2a4baec1e622fafb80438b561350a1e09db74721839947f51",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -34,19 +34,17 @@
   ],
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
-  "objective": "Entregar V1-10 /contratos/:id/documentos com 100% do escopo canônico, sem redução por economia de créditos, consumindo Supabase HML como autoridade e preservando identidade visual oficial.",
+  "objective": "Entregar V1-11 — detalhe e histórico imutável das versões de documento, cadeia de evidência, metadados extraídos, páginas/trechos, processamento, classificação e revisão humana das sugestões de IA, consumindo exclusivamente o backend HML certificado e sem antecipar V1-12 Competências.",
   "canonical_requirements": [
-    "V1-CON-001",
-    "V1-CON-002",
-    "V1-CON-004",
-    "V1-CON-005",
     "V1-DOC-001",
     "V1-DOC-002",
     "V1-DOC-003",
     "V1-DOC-004",
     "V1-DOC-005",
+    "V1-CON-002",
+    "V1-CON-004",
+    "V1-CON-005",
     "NFR-003",
-    "NFR-004",
     "NFR-005",
     "NFR-007",
     "NFR-008",
@@ -56,13 +54,14 @@
     "Zero-Drift"
   ],
   "screens_impacted": [
-    "V1-10",
-    "V1-06/V1-07/V1-08/V1-09 somente navegação para Documentos"
+    "V1-11",
+    "V1-10 somente habilitação do link Abrir detalhe"
   ],
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
     "prod_untouched": true,
-    "tables": [
+    "status": "CERTIFICADO_PARA_V1_11_SEM_NOVA_MIGRATION",
+    "read_tables": [
       "public.documentos_contrato",
       "public.versoes_documento",
       "public.arquivos",
@@ -70,96 +69,98 @@
       "public.sugestoes_extracao_documento",
       "public.paginas_documento",
       "public.fragmentos_documento",
-      "public.regras_conformidade"
+      "public.requisitos_competencia"
     ],
-    "status": "CERTIFICADO_HML_V1_CON_001_002_005",
-    "evidence_doc": "docs/backend/V111_PROMPT31_CERTIFICACAO_HML_2026-11-02.md",
-    "applied_migrations": [
-      "20261103020039_v110_v111_vigencia_schema",
-      "20261103021333_v111_documento_completo_funcao",
-      "20261103021338_v111_documento_completo_publica",
-      "20261103021346_v111_definir_vigencia_sugestao",
-      "20261103021353_v111_validar_regra_assistida_funcao",
-      "20261103021357_v111_validar_regra_assistida_trigger"
+    "approved_operations": [
+      "public.definir_vigencia_sugestao_extracao",
+      "public.revisar_sugestao_extracao",
+      "storage-sign-download"
     ],
-    "transactional_verification": {
-      "documento_completo": "PASS",
-      "idempotencia": "PASS",
-      "vigencia_sugestao": "PASS",
-      "auditoria_vigencia": "PASS",
-      "regra_fonte_vigencia": "PASS",
-      "fonte_obrigatoria_negativa": "PASS PT400",
-      "vigencia_obrigatoria_negativa": "PASS PT400",
-      "data_invalida_negativa": "PASS PT400",
-      "rollback": "PASS"
-    },
-    "security_advisor": "0 Critical, 0 High; WARN preexistente auth_leaked_password_protection",
-    "zero_drift": "PASS run 41564293576 no SHA 3e44565a136c900836f570d8d4658b7f878cbf84",
-    "restore_isolado": "PASS run 41564293470 no SHA 3e44565a136c900836f570d8d4658b7f878cbf84"
+    "verified_controls": [
+      "SELECT protegido por RLS/usuario_tem_acesso_contrato nas tabelas do detalhe",
+      "definir_vigencia usa FOR UPDATE, sessão ativa, perfis autorizados, PT400/PT404/PT409 e repetição idêntica sem alteração",
+      "revisar_sugestao usa FOR UPDATE, aceita apenas status pendente e impede duplicação de efeito",
+      "aprovação de sugestão material gera somente regra assistida em rascunho com efeito_portao=false",
+      "trigger backend exige página, trecho e vigência para regra assistida",
+      "download histórico usa storage-sign-download com JWT e signed URL temporária",
+      "Storage bloqueia leitura física de arquivos em quarentena/bloqueados"
+    ]
   },
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "approved_rpcs": [
-    "public.confirmar_upload_arquivo",
-    "public.criar_documento_contrato",
-    "public.adicionar_versao_documento_contrato",
-    "public.criar_documento_contrato_completo",
     "public.definir_vigencia_sugestao_extracao",
     "public.revisar_sugestao_extracao",
-    "storage-sign-upload",
     "storage-sign-download"
   ],
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "AI_CONTEXT_MANIFEST.md",
-    "supabase/migrations/2026110301*_v110_*.sql",
-    "supabase/migrations/2026110301*_v111_*.sql",
-    "supabase/tests/v110_*.sql",
-    "supabase/tests/v111_*.sql",
-    "docs/backend/V110_*.md",
-    "docs/backend/V111_*.md"
+    "docs/frontend/V111_*",
+    "contaos-hml-control:src/routes/contratos_.$id_.documentos*.tsx",
+    "contaos-hml-control:src/components/contratos/DocumentosContrato.tsx",
+    "contaos-hml-control:src/components/contratos/DocumentoDetalhe*.tsx",
+    "contaos-hml-control:src/lib/contratos/documentoDetalhe*.ts",
+    "contaos-hml-control:src/test/documentoDetalhe*.test.tsx",
+    "contaos-hml-control:src/routeTree.gen.ts",
+    "contaos-hml-control:docs/frontend/lovable/PROMPT-32-*"
   ],
   "forbidden_paths": [
+    "supabase/**",
     "supabase/functions/**",
     "supabase/config.toml",
     "Auth/**",
     "PROD/**",
-    "qualquer migration anterior já aplicada"
+    "contaos-hml-control:src/integrations/supabase/client.ts",
+    "contaos-hml-control:src/integrations/supabase/types.ts",
+    "contaos-hml-control:src/components/ui/**",
+    "contaos-hml-control:src/styles.css",
+    "contaos-hml-control:public/brand/**",
+    "contaos-hml-control:package.json",
+    "contaos-hml-control:bun.lockb"
   ],
   "acceptance": [
-    "V1-CON-001 com categoria, vigência, versão e observações",
-    "V1-CON-002 com início e fim opcional da vigência da regra extraída",
-    "V1-CON-004 com sugestão de IA sujeita a decisão humana",
-    "V1-CON-005 com documento, página e trecho obrigatórios para regra automática",
-    "V1-DOC-001 a V1-DOC-005 sem redução",
-    "upload/download direto Storage, privado e temporário",
-    "idempotência e concorrência preservadas",
-    "TDD, restore, segurança, Zero-Drift, Teste C e GitHub",
-    "BRAND-01 e responsividade 1440/1280/768/390 no frontend",
+    "abrir detalhe a partir da Central V1-10 sem alterar filtros/estado indevidamente",
+    "histórico completo e imutável de versões, com versão atual claramente distinguida",
+    "cada versão exibe arquivo, hash, origem, usuário técnico/identificável quando permitido por RLS, data/hora BR e motivo de substituição",
+    "download autorizado de qualquer versão aprovada por segurança via signed URL temporária",
+    "quarentena/bloqueio preserva metadados e impede download",
+    "metadados_extraidos exibidos sem inventar campos ou valores ausentes",
+    "páginas e fragmentos exibem página/trecho e fonte da versão selecionada com paginação/limite",
+    "sugestões de IA diferenciam tipo, conteúdo, categoria/item sugerido, confiança, status, fonte página/trecho e vigência",
+    "sugestão material sem página/trecho/vigência não pode ser aprovada pela UI e continua protegida pelo backend",
+    "vigência é definida por RPC oficial e conflito stale gera mensagem PT-BR + refetch",
+    "revisão humana aprova/rejeita apenas via RPC oficial; retry/reenvio não duplica efeito",
+    "aprovação de cláusula/obrigação/prazo/documento/restrição nunca ativa regra diretamente; apenas rascunho não impeditivo conforme backend",
+    "V1-12 Competências permanece fora do BUILD",
+    "BRAND-01, 1440/1280/768/390, dark mode e acessibilidade preservados",
+    "TDD, Teste C read-only, segurança, Zero-Drift e GitHub obrigatórios",
     "economia Lovable apenas operacional, nunca redução de escopo",
     "PROD intocado"
   ],
   "tests": [
-    "restore isolado",
-    "Context Gate",
-    "Zero-Drift",
-    "RLS negativo",
-    "idempotência",
-    "concorrência",
-    "fonte obrigatória",
-    "vigência",
-    "frontend focado e regressão",
-    "typecheck/build/lint",
-    "browser 1440/1280/768/390",
+    "gate sessão/organização/contrato/documento",
+    "RLS/acesso negativo e 404 indistinguível quando aplicável",
+    "histórico de versões e versão atual",
+    "cadeia de evidência/hash/origem/usuário/data/motivo",
+    "download aprovado e bloqueio quarentena/bloqueado",
+    "metadados extraídos",
+    "paginação de páginas/fragmentos/sugestões/processamentos sem N+1",
+    "classificação e requisito sugerido real",
+    "vigência happy/validação/PT409",
+    "revisão aprovar/rejeitar/segunda chamada sem duplicar efeito",
+    "fonte obrigatória página/trecho",
+    "frontend focado + regressão completa + typecheck/build/lint",
+    "browser 1440/1280/768/390 claro/escuro",
+    "scan de segurança",
     "Teste C read-only"
   ],
   "authorization": {
-    "date": "2026-11-02",
+    "date": "2026-11-03",
     "by": "usuário",
-    "scope": "Continuidade autônoma do desenvolvimento do ContaOS 4.1 em HML, com backend Supabase, GitHub obrigatório, Zero-Drift, identidade visual e economia de créditos sem alterar o escopo"
+    "scope": "Continuidade autônoma do ContaOS 4.1 após certificação do Prompt 31, com economia de créditos sem alterar escopo, backend Supabase HML, GitHub obrigatório, Zero-Drift e identidade visual oficial"
   },
   "prod_untouched": true,
-  "next_step": "Revalidar PLAN do Prompt 31 no Lovable contra o backend HML certificado; se aprovável, seguir BUILD, testes e Teste C conforme protocolo."
+  "next_step": "Executar PLAN do Prompt 32 / V1-11 no Lovable contra o backend HML certificado; revisar escopo e só então BUILD com TDD."
 }
