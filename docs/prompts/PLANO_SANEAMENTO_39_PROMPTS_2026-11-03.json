@@ -56,10 +56,11 @@
         "Suíte total 765/765",
         "CI types/build/static PASS"
       ],
-      "pending": "Lint de formatação em 3 arquivos no Teste C; posterior visual.",
+      "pending": "Somente visual do erro global realmente provocado no browser NÃO VERIFICADO; idioma PT-BR e testes aprovados.",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
       "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "ultimo_teste_c": "PASS_NO_ESCOPO_765_765_27_ARQUIVOS"
     },
     {
       "id": "RETRO-BRAND-COVERAGE",
@@ -67,10 +68,11 @@
       "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "026e34720091dc997b7c25606f504c6a3436e129",
-      "pending": "Formatação e prova visual browser autenticado",
+      "pending": "Visual com sessão real nas telas internas NÃO VERIFICADO; 40 capturas de telas públicas PASS; cobertura de código 22/22.",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
       "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "ultimo_teste_c": "PASS_NO_ESCOPO_765_765_27_ARQUIVOS"
     },
     {
       "id": "RETRO-CI-FRONTEND",
@@ -85,9 +87,10 @@
         "Vite PASS",
         "Guard BRAND-01 PASS"
       ],
-      "pending": "Branch protection obrigatória sem plano GitHub elegível",
+      "pending": "CI PASS; status check obrigatório para bloquear merge depende de ruleset/branch protection no GitHub elegível.",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
-      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "ultimo_teste_c": "PASS_NO_ESCOPO_765_765_27_ARQUIVOS"
     },
     {
       "id": "RETRO-E2E-SYS03",
@@ -109,10 +112,11 @@
       "action": "Lovable PLAN separado para variante oficial navy claro/escuro, inserir 2 SVGs oficiais byte-identicos e Teste C visual.",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "bf332dc70e165eed57e2c7bad4a4e447e9d1f11c",
-      "pending": "Prova visual de contraste 4 breakpoints x 2 temas",
+      "pending": "40 capturas públicas PASS; contraste e estados internos autenticados NÃO VERIFICADOS.",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
       "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "ultimo_teste_c": "PASS_NO_ESCOPO_765_765_27_ARQUIVOS"
     },
     {
       "id": "RETRO-BRANCH-PROTECTION",
@@ -123,21 +127,31 @@
     },
     {
       "id": "RETRO-LOVABLE-GATE",
-      "status": "AGUARDANDO_APROVACAO_HUMANA_ESPECIFICA",
-      "description": "Plano mínimo transversal PT-BR e testes BRAND-01 foi gerado no Lovable e o tool plan--show exige decisão humana.",
+      "status": "APROVADO_EXECUTADO_TESTE_C_PASS",
+      "description": "Plano PT-BR/BRAND-01 executado, candidato imutável certificado no Teste C; IDs de aprovação histórica mantidos como trilha. PROMPT 38 possui plano e gate distintos.",
       "event_id": "main:agent#00000000019742#tcb:Y7UTQ2BE",
-      "message_id": "umsg_01m6hb7qg3ffnrwa5m03jn4svm"
+      "message_id": "umsg_01m6hb7qg3ffnrwa5m03jn4svm",
+      "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+      "ultima_revisao": "2026-11-03"
     },
     {
       "id": "RETRO-LINT-TESTE-C-2026-11-03",
       "status": "CORRIGIDO_CI_TESTE_C_PASS_NO_ESCOPO",
-      "detail": "Teste C read-only candidato 026e34720091... FAIL devido 36 erros prettier em scripts/frontend-zero-drift.mjs, brand.test.tsx, rootLocale.test.tsx. Build de formatação mínimo enviado ao Lovable sem alteração semântica, aguarda SHA e rerun.",
+      "detail": "Falha histórica por 36 erros de formatação foi corrigida. Teste C imutável em 856209dc9f59f29de6a62ea8b46b007fe9695dd8: lint 0, Prettier 0, suíte 765/765, TS 0, Vite 0 e Zero-Drift 0; 40 capturas públicas e ressalvas explicitadas.",
       "lovable_message": "umsg_01m6hdad0fem8rnhkp1j7218g6",
       "ci_baseline": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
       "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
       "lovable_final_tc": "umsg_01m6hdh566ffdrnr51nz72jxk3",
-      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "ultimo_teste_c": "PASS_NO_ESCOPO_765_765_27_ARQUIVOS"
+    },
+    {
+      "id": "RETRO-HML-ADVISORS-REVALIDADOS",
+      "status": "RISCO_EM_REVISAO_SEM_MUDANCA_BACKEND",
+      "description": "Inspeção atual HML ACTIVE_HEALTHY: 6 WARN RPCs SECURITY DEFINER authenticated, 1 WARN leaked-password protection e 86 INFO FKs sem índice. Exigem avaliação contextual e priorização, sem caracterizar vulnerabilidade comprovada nem aplicar DDL.",
+      "date": "2026-11-03",
+      "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
     }
   ],
   "rows": [
@@ -188,7 +202,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "01",
@@ -644,7 +665,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "17",
@@ -680,7 +708,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "18",
@@ -714,7 +749,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Teste C do saneamento PT-BR/BRAND passou, mas E2E real de redefinição com titular (link, nova senha e login) não foi executado; avaliação 100% continua bloqueada.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "19",
@@ -750,7 +792,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "20",
@@ -786,7 +835,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "21",
@@ -822,7 +878,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "22",
@@ -858,7 +921,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "23",
@@ -894,7 +964,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "24",
@@ -930,7 +1007,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "25",
@@ -966,7 +1050,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "26",
@@ -1002,7 +1093,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "27",
@@ -1042,7 +1140,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "28",
@@ -1082,7 +1187,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "29",
@@ -1123,7 +1235,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "30",
@@ -1163,7 +1282,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "31",
@@ -1210,7 +1336,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "32",
@@ -1252,7 +1385,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "33",
@@ -1288,7 +1428,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "34",
@@ -1324,7 +1471,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "35",
@@ -1364,7 +1518,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "36",
@@ -1405,7 +1566,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "37",
@@ -1446,7 +1614,14 @@
         "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
+      "verificacao_saneamento_transversal_03_11_2026": {
+        "resultado": "PASS_NO_ESCOPO_PTBR_BRAND_CI",
+        "teste_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+        "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
+        "sem_conclusao_integral": true
+      }
     },
     {
       "prompt_id": "38",
@@ -1481,7 +1656,7 @@
       "resolucoes": [],
       "evidencias": [],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+      "justificativa_bloqueio": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado."
     }
   ],
   "summary": {
@@ -1534,5 +1709,48 @@
     },
     "source_diff_allowed_files": 11,
     "types_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19"
+  },
+  "revalidacao_mais_recente": {
+    "data": "2026-11-03",
+    "tipo": "CONCILIACAO_DOCUMENTAL_READ_ONLY_SEM_BUILD_SEM_DDL",
+    "fonte_frontend": "contaos9999/contaos-hml-control",
+    "sha_imutavel_teste_c": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+    "sha_main_frontend_observado": "f64df93433814abf61e198d1351d8ee9a2ea8b5c",
+    "arvore_inalterada_apos_teste_c": true,
+    "comparacao": "Comparação do SHA candidato com main: 3 commits posteriores, zero diferenças de arquivos; types.ts blob 8ea7750b75fd9d76b29c36ce7613392e3ab65e19.",
+    "tipos_protegidos_blob": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
+    "teste_c_ptbr_brand": {
+      "resultado": "PASS_NO_ESCOPO",
+      "testes": "765/765 em 27 arquivos",
+      "eslint": "exit 0 (5 arquivos)",
+      "prettier": "exit 0 (3 arquivos)",
+      "typescript": "exit 0",
+      "build": "exit 0",
+      "zero_drift": "exit 0",
+      "brand_uso_codigo": "22/22 telas",
+      "navegador_publico": "40 capturas: 5 rotas x 4 larguras x 2 temas",
+      "visual_autenticado": "NAO_VERIFICADO",
+      "global_error_browser": "NAO_VERIFICADO (codigo/testes cobertos)",
+      "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+      "ci_frontend": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+    },
+    "verificacao_hml": {
+      "project_ref": "gklhhhyosgasnyoxlrui",
+      "status": "ACTIVE_HEALTHY",
+      "security": "6 avisos WARN de RPCs SECURITY DEFINER executáveis por authenticated (revisão de autorização necessária), 1 WARN de proteção contra senhas vazadas desativada",
+      "performance": "86 avisos INFO de chaves estrangeiras sem índices cobridores",
+      "impacto": "Avisos não são prova de exploração nem autorização para alterar contratos ou desativar RPCs. Inspeção read-only.",
+      "remediation_security": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable",
+      "remediation_auth": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+      "remediation_performance": "https://supabase.com/docs/guides/database/database-linter?lint=0001_unindexed_foreign_keys"
+    },
+    "pendencias_bloqueantes": [
+      "PROMPT18: redefinição de senha E2E com conta do titular não demonstrada",
+      "PROMPT38: plano V1-17 aprovado, BUILD e Teste C específicos pendentes",
+      "Crosswalk semântico regular/atômico/NFR e evidências por prompt incompletos",
+      "Visual das páginas internas com sessão autorizada não verificado",
+      "Ruleset obrigatório em repositório privado bloqueado pelo plano GitHub atual"
+    ],
+    "escopo": "Nenhuma alteração no backend Supabase, Auth, Storage, RLS, PROD nem código frontend nesta conciliação."
   }
 }
