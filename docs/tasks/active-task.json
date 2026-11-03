@@ -5,7 +5,7 @@
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
-  "context_read_by": "ChatGPT/Codex — continuidade após certificação V1-13 / Prompt 34",
+  "context_read_by": "ChatGPT/Codex — continuidade após certificação V1-13 / Prompt 34; contexto canônico 4.1 integral reancorado",
   "context_manifest_sha256": "7d94268b07bab1f2a4baec1e622fafb80438b561350a1e09db74721839947f51",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -18,12 +18,18 @@
     "07_ZERO_DRIFT_GOVERNANCA_4_1.md",
     "08_REQUISITOS_96_E_CRITERIOS_ACEITE_4_1.md",
     "08A_REQUISITOS_001_024_4_1.md",
+    "08B_REQUISITOS_025_048_4_1.md",
+    "08C_REQUISITOS_049_072_4_1.md",
+    "08D_REQUISITOS_073_096_4_1.md",
     "09_RASTREABILIDADE_FONTES_AUDITORIA_4_1.md",
+    "10_IA_OCR_RAG_E_PRECEDENTES_4_1.md",
     "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md",
     "12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md",
     "13_MAPA_DOCUMENTOS_PACOTE_4_1.md",
     "14_CHECKLIST_PRE_ALTERACAO.md",
     "15_ESTADO_CERTIFICADO_HML_4_1.md",
+    "16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md",
+    "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md",
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md",
@@ -34,21 +40,8 @@
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
   "objective": "Entregar V1-14 — Competência: visão geral, com resumo de preparação/análise/bloqueios e ações permitidas. O frontend deve renderizar estado e ações vindos do backend e nunca inferir liberação por percentual. Antes do frontend, fechar a lacuna HML de allowed_actions por RPC read-only oficial.",
-  "canonical_requirements": [
-    "V1-CHK-001",
-    "V1-CHK-002",
-    "V1-CHK-003",
-    "V1-CHK-004",
-    "NFR-007",
-    "NFR-008",
-    "NFR-010",
-    "BRAND-01",
-    "Zero-Drift"
-  ],
-  "screens_impacted": [
-    "V1-14",
-    "V1-12 somente habilitação de Abrir competência após V1-14 existir"
-  ],
+  "canonical_requirements": ["V1-CHK-001","V1-CHK-002","V1-CHK-003","V1-CHK-004","NFR-007","NFR-008","NFR-010","BRAND-01","Zero-Drift"],
+  "screens_impacted": ["V1-14","V1-12 somente habilitação de Abrir competência após V1-14 existir"],
   "frontend_baseline": {
     "repository": "contaos9999/contaos-hml-control",
     "branch": "main",
@@ -59,34 +52,20 @@
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
     "prod_untouched": true,
-    "status": "LACUNA_READ_ONLY_ALLOWED_ACTIONS_IDENTIFICADA",
+    "status": "RPC_READ_ONLY_V1_14_IMPLEMENTADA_E_EM_CERTIFICACAO",
     "existing_read_rpc": "public.avaliar_portao_conformidade(uuid) returns jsonb — STABLE, access-controlled",
-    "existing_action_rpcs": [
-      "public.solicitar_analise_competencia(uuid,text)",
-      "public.aprovar_apresentacao(uuid,text)",
-      "public.registrar_apresentacao(uuid,text,text,text,uuid)"
-    ],
-    "gap": "Não existe RPC/view que devolva allowed_actions para V1-14. O manual proíbe calcular portão/ações no cliente. Uma RPC read-only oficial deve consolidar estado, blocking_summary e allowed_actions espelhando os pré-requisitos das RPCs críticas sem executar mutação.",
-    "backend_change_authorized": "Adicionar somente função privada + wrapper público read-only/STABLE para visão geral V1-14, grants mínimos authenticated e testes; nenhuma tabela/RLS/Edge/Auth/Storage nova.",
-    "read_tables": [
-      "public.competencias",
-      "public.requisitos_competencia",
-      "public.resultados_requisitos",
-      "public.nao_conformidades",
-      "public.pareceres_internos",
-      "public.execucoes_analise",
-      "public.aprovacoes"
-    ]
+    "new_read_rpc": "public.obter_visao_geral_competencia(uuid) returns jsonb — STABLE, access-controlled, authenticated only",
+    "existing_action_rpcs": ["public.solicitar_analise_competencia(uuid,text)","public.aprovar_apresentacao(uuid,text)","public.registrar_apresentacao(uuid,text,text,text,uuid)"],
+    "gap_resolution": "RPC read-only oficial consolida competência, portão, blocking_summary e allowed_actions sem executar mutação e sem permitir cálculo de portão no frontend.",
+    "backend_change_authorized": "Somente função privada + wrapper público read-only/STABLE, grants mínimos authenticated e testes; nenhuma tabela/RLS/Edge/Auth/Storage nova.",
+    "read_tables": ["public.competencias","public.requisitos_competencia","public.resultados_requisitos","public.nao_conformidades","public.pareceres_internos","public.execucoes_analise","public.aprovacoes"]
   },
   "database_changes_allowed": true,
-  "database_change_scope": "Somente CREATE OR REPLACE FUNCTION privada + wrapper público V1-14, REVOKE/GRANT EXECUTE e migration versionada. Sem criação/alteração de tabela, coluna, constraint, policy, trigger ou dados.",
+  "database_change_scope": "Somente CREATE OR REPLACE FUNCTION privada + wrapper público V1-14, REVOKE/GRANT EXECUTE e migrations versionadas 20261103093000/20261103093200. Sem criação/alteração de tabela, coluna, constraint, policy, trigger ou dados.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
-  "approved_rpcs": [
-    "public.avaliar_portao_conformidade",
-    "nova RPC read-only oficial V1-14 a ser versionada e certificada"
-  ],
+  "approved_rpcs": ["public.avaliar_portao_conformidade","public.obter_visao_geral_competencia"],
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/frontend/V114_*",
@@ -100,19 +79,7 @@
     "contaos-hml-control:src/routeTree.gen.ts somente geração automática",
     "contaos-hml-control:docs/frontend/lovable/PROMPT-35-*"
   ],
-  "forbidden_paths": [
-    "supabase/functions/**",
-    "supabase/config.toml",
-    "Auth/**",
-    "PROD/**",
-    "contaos-hml-control:src/integrations/supabase/client.ts",
-    "contaos-hml-control:src/integrations/supabase/types.ts",
-    "contaos-hml-control:src/components/ui/**",
-    "contaos-hml-control:src/styles.css",
-    "contaos-hml-control:public/brand/**",
-    "contaos-hml-control:package.json",
-    "contaos-hml-control:bun.lock"
-  ],
+  "forbidden_paths": ["supabase/functions/**","supabase/config.toml","Auth/**","PROD/**","contaos-hml-control:src/integrations/supabase/client.ts","contaos-hml-control:src/integrations/supabase/types.ts","contaos-hml-control:src/components/ui/**","contaos-hml-control:src/styles.css","contaos-hml-control:public/brand/**","contaos-hml-control:package.json","contaos-hml-control:bun.lock"],
   "acceptance": [
     "rota /competencias/:id",
     "finalidade: resumo de preparação, análise, bloqueios e ações permitidas",
@@ -132,6 +99,7 @@
   "tests": [
     "backend RPC read-only: acesso, inexistente, outro tenant, allowed_actions e bloqueios",
     "backend RPC não executa mutation nem muda situação/percentual",
+    "percentual 100 sem portão/pré-requisitos não libera apresentar",
     "frontend UUID inválido sem Auth/Data/RPC",
     "sem sessão/403/404 sanitizados",
     "percentual 100 sem allowed_action de apresentar não habilita ação",
@@ -152,5 +120,5 @@
     "scope": "Continuidade autônoma do ContaOS 4.1, economizando créditos sem alterar escopo; backend HML pode ser corrigido quando necessário para cumprir o PRD, com GitHub/migration/testes e PROD intocado; gates humanos obrigatórios do Lovable continuam sendo apresentados ao usuário."
   },
   "prod_untouched": true,
-  "next_step": "Versionar e certificar a RPC read-only de visão geral V1-14 no backend HML; depois executar PLAN do Prompt 35 no Lovable sem BUILD antes de aprovação humana."
+  "next_step": "Concluir gates Zero-Drift/Restore das migrations V1-14 e, se verdes, executar PLAN do Prompt 35 no Lovable sem BUILD antes de aprovação humana."
 }
