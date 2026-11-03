@@ -2,7 +2,7 @@
   "id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
   "title": "PROMPT 38 / V1-17 — Requisito: detalhe e evidências",
   "status": "ativa",
-  "phase": "backend_gap_analysis",
+  "phase": "backend_plan",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
@@ -89,7 +89,10 @@
     "existing_write_rpc": "public.solicitar_reanalise_requisitos(uuid,uuid[])",
     "incremental_risk": "privado.solicitar_reanalise_requisitos altera requisitos_afetados após chamar job parcial; verificar comportamento quando recebe id de execução já existente, sem sobrescrever seleção ou histórico",
     "source_of_truth": "docs/backend/V117_DIAGNOSTICO_LACUNAS_REQUISITO_2026-11-03.md",
-    "prod_untouched": true
+    "prod_untouched": true,
+    "plan_doc": "docs/backend/V117_PLAN_BACKEND_REQUISITO_DETALHE_2026-11-03.md",
+    "risk_classification": "B1 leitura: contrato ausente. B2 concorrência: job idempotente existente pode ter requisitos_afetados sobrescritos; não habilitar frontend incremental sem prova e hardening.",
+    "download_reference": "src/lib/contratos/documentosDados.ts:baixarDocumento(idArquivo) -> storage-sign-download autorizado; id_versao_documento não é id_arquivo"
   },
   "database_changes_allowed": false,
   "database_change_scope": "NÃO AUTORIZADO na fase backend_gap_analysis: elaborar plano e revisar funções read-only; exigir manifestação específica de escopo no manifesto e migration nova antes de qualquer DDL",
@@ -146,8 +149,9 @@
   "authorization": {
     "date": "2026-11-03",
     "by": "usuário",
-    "scope": "Continuar sequência 4.1 automaticamente; inspeção e documentação nesta fase; DDL e gate humano Lovable requerem autorização específica antes da execução"
+    "scope": "Continuar sequência 4.1 automaticamente; inspeção e documentação nesta fase; DDL e gate humano Lovable requerem autorização específica antes da execução",
+    "database_ddl_scope_specific": false
   },
   "prod_untouched": true,
-  "next_step": "Preparar PLAN backend mínimo V1-17: contrato READ detalhe/evidência/histórico/NA válido e prova de concorrência da RPC incremental. Não alterar banco, RLS, Edge ou frontend enquanto fase backend_gap_analysis estiver ativa."
+  "next_step": "PLAN B1 de leitura V1-17 pronto no GitHub. Zero-Drift impede DDL enquanto database_changes_allowed=false. Após autorização específica de criação da RPC public.obter_detalhe_requisito_v117 via migration NOVA somente HML, executar testes/CI/certificação. B2 para hardening de privado.solicitar_reanalise_requisitos exige autorização/transação separadas. Só então PLAN Lovable; PROD intocado."
 }
