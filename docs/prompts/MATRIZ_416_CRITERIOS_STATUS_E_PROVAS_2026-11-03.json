@@ -1,0 +1,3764 @@
+{
+  "schema_version": "1.0",
+  "created": "2026-11-03",
+  "scope": "ContaOS 4.1 regular PROMPT 00–38",
+  "normative_source": "docs/prompts/CRITERIOS_ORIGINAIS_39_PROMPTS_2026-11-03.json",
+  "technical_proofs": [
+    "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+    "docs/prompts/CI_TESTES_FRONTEND_INDIVIDUAIS_2026-11-03.json"
+  ],
+  "policy": "Os arquivos de teste e CI são evidências de cobertura automatizada, não prova per se de cenário real de perfil ou tenant. Uma prova parcial não deve ser convertida em PASS funcional.",
+  "etapas": [
+    {
+      "id": "00",
+      "nome": "PROMPT 00 - Constituição e reancoragem",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "- Project Instructions contêm backend Supabase próprio;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Project Knowledge do Lovable confirma arquitetura Supabase único e 100/97 inventário; exige prova completa das instruções por item.",
+          "proof": [
+            "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "- AGENTS.md existe;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "AGENTS.md consta no frontend e governance; não certifica histórico de uso em cada tarefa.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/AGENTS.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "- nenhuma tabela/migration foi criada;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "CI Zero-Drift verifica estado presente, não reconstrói histórico de criação/alteração.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "- nenhum secret foi criado;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "CI Zero-Drift verifica estado presente, não reconstrói histórico de criação/alteração.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "- nenhum backend paralelo foi habilitado.",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "CI Zero-Drift verifica estado presente, não reconstrói histórico de criação/alteração.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "01",
+      "nome": "PROMPT 01 - Fundação PostgreSQL e extensões",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "02",
+      "nome": "PROMPT 02 - Identidade, organizações e vínculos",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "03",
+      "nome": "PROMPT 03 - Contratantes e contratos 1.0",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "04",
+      "nome": "PROMPT 04 - Base normativa, orçamento e listas 1.0",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "05",
+      "nome": "PROMPT 05 - Storage e documentos 1.0",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "06",
+      "nome": "PROMPT 06 - Competências e análise 1.0",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "07",
+      "nome": "PROMPT 07 - Portão, aprovação e apresentação 1.0",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "08",
+      "nome": "PROMPT 08 - Histórico e precedentes 1.0",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "09",
+      "nome": "PROMPT 09 - Queues, Cron e Edge Functions",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "10",
+      "nome": "PROMPT 10 - ContaOS 2.0 - Diligências",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "11",
+      "nome": "PROMPT 11 - ContaOS 3.0 - Financeiro preventivo",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "12",
+      "nome": "PROMPT 12 - ContaOS 4.0 - Inteligência histórica",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "13",
+      "nome": "PROMPT 13 - ContaOS 5.0 - Conformidade",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "14",
+      "nome": "PROMPT 14 - ContaOS 5.0 - API e webhooks",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "15",
+      "nome": "PROMPT 15 - Hardening e testes do backend",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. migration aplicada em HML;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 2,
+          "criterio": "2. tabelas/constraints esperadas;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Catálogo HML confirmou estruturas previstas; constraints/cenários negativos não auditados um a um.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. RLS habilitada onde aplicável;",
+          "status": "PARCIAL_CONFIGURACAO",
+          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "proof": [
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. usuário organização A não lê/escreve organização B;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 5,
+          "criterio": "5. perfil sem permissão falha;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 6,
+          "criterio": "6. RPC crítica não pode ser substituída por update direto;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 7,
+          "criterio": "7. nenhum secret está no frontend/repositório;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. testes de erro e rollback lógico;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. Security view sem novo Critical relacionado.",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "16",
+      "nome": "PROMPT 16 - SYS-01 - Login",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "17",
+      "nome": "PROMPT 17 - SYS-02 - Esqueci a senha",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "18",
+      "nome": "PROMPT 18 - SYS-03 - Redefinir senha",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "E2E_TITULAR_PENDENTE",
+          "explanation": "HTTP 200 de pedido de reset e teste mock não validam link, redefinição e login reais; requer titular.",
+          "proof": [
+            "https://github.com/contaos9999/develop/issues/33"
+          ]
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "E2E_TITULAR_PENDENTE",
+          "explanation": "HTTP 200 de pedido de reset e teste mock não validam link, redefinição e login reais; requer titular.",
+          "proof": [
+            "https://github.com/contaos9999/develop/issues/33"
+          ]
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "E2E_TITULAR_PENDENTE",
+          "explanation": "HTTP 200 de pedido de reset e teste mock não validam link, redefinição e login reais; requer titular.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+            "https://github.com/contaos9999/develop/issues/33"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "19",
+      "nome": "PROMPT 19 - SYS-04 - Selecionar organização",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "20",
+      "nome": "PROMPT 20 - SYS-05 - Dashboard",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "21",
+      "nome": "PROMPT 21 - ADM-01 - Usuários e vínculos",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "22",
+      "nome": "PROMPT 22 - V1-01 - Contratantes",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "23",
+      "nome": "PROMPT 23 - V1-02 - Novo contratante",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "24",
+      "nome": "PROMPT 24 - V1-03 - Editar contratante",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "25",
+      "nome": "PROMPT 25 - V1-04 - Contratos",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "26",
+      "nome": "PROMPT 26 - V1-05 - Novo contrato",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "27",
+      "nome": "PROMPT 27 - V1-06 - Contrato - visão geral",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "28",
+      "nome": "PROMPT 28 - V1-07 - Contrato - base normativa",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "29",
+      "nome": "PROMPT 29 - V1-08 - Contrato - orçamento",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "30",
+      "nome": "PROMPT 30 - V1-09 - Contrato - listas/regras",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "31",
+      "nome": "PROMPT 31 - V1-10 - Central de documentos",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "32",
+      "nome": "PROMPT 32 - V1-11 - Detalhe/versões documento",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "33",
+      "nome": "PROMPT 33 - V1-12 - Competências",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "34",
+      "nome": "PROMPT 34 - V1-13 - Nova competência",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "35",
+      "nome": "PROMPT 35 - V1-14 - Competência - visão geral",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "36",
+      "nome": "PROMPT 36 - V1-15 - Competência - documentos",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "37",
+      "nome": "PROMPT 37 - V1-16 - Competência - análise",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    },
+    {
+      "id": "38",
+      "nome": "PROMPT 38 - V1-17 - Requisito - detalhe/evidências",
+      "criteria": [
+        {
+          "index": 1,
+          "criterio": "1. rota abre;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "Arquivo de teste da feature passou no CI, mas não substitui E2E da rota sob sessão real.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx"
+          ]
+        },
+        {
+          "index": 2,
+          "criterio": "2. perfil autorizado funciona;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 3,
+          "criterio": "3. perfil não autorizado é bloqueado pelo backend/RLS, não só pela UI;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 4,
+          "criterio": "4. loading/empty/error funcionam;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 5,
+          "criterio": "5. nenhuma request usa secret key;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 6,
+          "criterio": "6. nenhuma ação crítica é update direto;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 7,
+          "criterio": "7. desktop 1440 e 1280 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 8,
+          "criterio": "8. tablet 768 ok;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 9,
+          "criterio": "9. mobile 390 preserva dados críticos;",
+          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
+          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
+          "proof": []
+        },
+        {
+          "index": 10,
+          "criterio": "10. teclado/foco/labels ok;",
+          "status": "TESTE_C_FINAL_EM_EXECUCAO",
+          "explanation": "Falha histórica acessibilidade foi corrigida no SHA ad0b...; aguarda Teste C independente read-only.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+          ]
+        },
+        {
+          "index": 11,
+          "criterio": "11. console sem erro e sem log sensível;",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        },
+        {
+          "index": 12,
+          "criterio": "12. Security scan sem novo Critical.",
+          "status": "AUTOMATIZADO_PARCIAL",
+          "explanation": "CI da feature e Zero-Drift global aprovados; cobertura específica do cenário não verificada por teste nominal e backend/perfil real não comprovados.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958"
+          ]
+        }
+      ],
+      "fully_proven": false
+    }
+  ],
+  "summary": {
+    "total_prompts": 39,
+    "criteria": 416,
+    "criteria_with_partial_or_pending_evidence": 198,
+    "criteria_fully_certified": 0,
+    "remaining_unverified": 218,
+    "note": "Contagem de evidências parciais não representa progresso percentual ou PASS. Somente testes individuais reproduzidos com prova podem fechar um critério."
+  }
+}
