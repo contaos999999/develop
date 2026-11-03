@@ -1,6 +1,6 @@
 # ContaOS 4.1 — Manifesto do Contexto Obrigatório
 
-Fingerprint SHA-256 combinado: `7d94268b07bab1f2a4baec1e622fafb80438b561350a1e09db74721839947f51`
+Fingerprint SHA-256 combinado: `c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088`
 
 Arquivos obrigatórios:
 - `00_AI_LEIA_ANTES_DE_ALTERAR.md`
