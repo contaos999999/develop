@@ -1,8 +1,8 @@
 {
-  "id": "PROMPT37-V1-16-COMPETENCIA-ANALISE-HML-2026-11-03",
-  "title": "PROMPT 37 / V1-16 — Competência — análise",
-  "status": "certificada",
-  "phase": "frontend_certified",
+  "id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
+  "title": "PROMPT 38 / V1-17 — Requisito: detalhe e evidências",
+  "status": "ativa",
+  "phase": "backend_gap_analysis",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
@@ -37,17 +37,24 @@
     "docs/frontend/V115_COMPETENCIA_DOCUMENTOS_TESTE_C_2026-11-03.md",
     "docs/backend/V116_CERTIFICACAO_ANALISE_COMPETENCIA_2026-11-03.md",
     "FE_v3_DOWNLOAD(2).docx V1-16 pages 64-65",
-    "ContaOS_PRD_Final.docx motor de auditoria"
+    "ContaOS_PRD_Final.docx motor de auditoria",
+    "docs/frontend/V116_COMPETENCIA_ANALISE_TESTE_C_2026-11-03.md",
+    "docs/backend/V117_DIAGNOSTICO_LACUNAS_REQUISITO_2026-11-03.md",
+    "FE_v3_DOWNLOAD(2).docx seção V1-17 (página 66)"
   ],
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
-  "objective": "Entregar frontend V1-16 — Competência: análise em /competencias/:id/analise, consumindo exclusivamente o backend V1-16 certificado para estado assíncrono, stale, percentual, bloqueios, mecanismos, evidências, histórico, filtros e allowed_actions. Nenhuma classificação, portão, stale ou regra crítica será reconstruída no React.",
+  "objective": "Implementar V1-17 como drawer de detalhe do requisito com snapshot, fonte/versão, resultado e mecanismo autoritativos, validade de N/A definida exclusivamente no backend, evidências rastreáveis, auditoria/histórico e abertura/download de documento autorizado. Preservar competência V1-16 certificada e jamais mutar resultado por controle genérico. Investigar previamente a lacuna de leitura backend V1-17 e a concorrência da reanálise incremental.",
   "canonical_requirements": [
-    "V1-AUD-001",
+    "V1-CHK-001",
+    "V1-CHK-002",
+    "V1-CHK-003",
+    "V1-CHK-004",
     "V1-AUD-002",
     "V1-AUD-003",
     "V1-AUD-004",
     "V1-AUD-005",
+    "V1-DOC-005",
     "NFR-005",
     "NFR-007",
     "NFR-008",
@@ -57,125 +64,90 @@
     "Zero-Drift"
   ],
   "screens_impacted": [
-    "V1-16",
-    "V1-14 somente habilitação da área Análise após V1-16 GREEN",
-    "V1-17 permanece staged/fora deste prompt"
+    "V1-17 drawer requisito/detalhe/evidências",
+    "V1-16 apenas habilitar abrir requisito após V1-17 GREEN",
+    "V1-15 apenas reutilizar helper de download autorizado, sem modificar V1-15",
+    "V1-18 continua staged"
   ],
   "frontend_baseline": {
     "repository": "contaos9999/contaos-hml-control",
     "branch": "main",
-    "v115_audited_sha": "87d5905dcbaec61f0fd7c8aad6dcc90999e7a286",
-    "v115_current_main_sha": "cdfbc59be69007b844391d63f32f28894b56d2b1",
-    "tree_equivalence": "87d5905d -> cdfbc59b = zero files diferentes",
-    "types_baseline_commit": "e10f7973260df0c455bb66baa091e5c9b3124efe",
-    "types_blob_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
-    "v115_teste_c": "PASS 69/69 V1-15; full serial 645/645; GitHub Actions 41646123057 TypeScript+Build SUCCESS",
     "v116_audited_sha": "d4b9b77dafa7ff6ca7644a99fee737bfed590a1e",
-    "v116_teste_c": "PASS; V1-16 + visão geral 126/126; full serial 739/739; tsgo --noEmit exit 0; vite build exit 0; lint exit 0; static scan limpo"
+    "v116_restored_main_sha": "d7a418bbd96f065c839191ae03b2f2b818d649b8",
+    "tree_equivalence": "d4b9b77 -> d7a418bb = zero files diferentes",
+    "types_blob_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
+    "v116_tests": "Teste C PASS; 126/126 focados; 739/739 full serial; tsgo --noEmit e vite build exit 0"
   },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
-    "prod_untouched": true,
-    "status": "CERTIFICADO_V1_16_READ_CONGELADO",
-    "migration_git": "supabase/migrations/20261103124500_v116_obter_analise_competencia.sql",
-    "migration_commit": "a1536a20c4d6c5e2f9af53d0490e9b7177a70c11",
-    "migration_hml": "20261103135545 v116_obter_analise_competencia",
-    "certification_doc": "docs/backend/V116_CERTIFICACAO_ANALISE_COMPETENCIA_2026-11-03.md",
-    "read_rpc": "public.obter_analise_competencia_v116",
-    "write_rpcs": [
-      "public.solicitar_analise_competencia",
-      "public.solicitar_reanalise_requisitos"
+    "status": "GAP_V117_READ_CONFIRMADO",
+    "existing_read_rpcs": [
+      "public.obter_analise_competencia_v116",
+      "public.obter_documentos_competencia_v115"
     ],
-    "tests": "PASS_V116_READ + PASS_V116_NEGATIVOS com sessão HML real e rollback; zero fixtures residuais",
-    "ci": {
-      "historico_hml": "41648619441 SUCCESS + presença pós-aplicação confirmada diretamente via list_migrations",
-      "restore_isolado": "41648619515 SUCCESS",
-      "zero_drift_migration": "41648619400 SUCCESS",
-      "zero_drift_certification": "41649997652 SUCCESS"
-    },
-    "mechanism_contract": "deterministico somente quando explicitamente registrado; semantico quando provedor explícito; humano quando revisão humana explícita; caso contrário nao_identificado. Proibido inferir determinístico no cliente."
-  },
-  "frontend_certification": {
-    "status": "CERTIFICADO",
-    "doc": "docs/frontend/V116_COMPETENCIA_ANALISE_TESTE_C_2026-11-03.md",
-    "audited_sha": "d4b9b77dafa7ff6ca7644a99fee737bfed590a1e",
-    "teste_c": "PASS",
-    "focused_tests": "126/126",
-    "full_serial": "739/739 em 26 arquivos",
-    "typecheck": "tsgo --noEmit exit 0",
-    "build": "vite build exit 0",
-    "types_blob_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
-    "security_scan": "0 Critical/High/Medium/Low; 1 Info preexistente",
-    "browser": "1440/1280/768/390 claro/escuro no UUID inválido real; 0 chamadas Supabase",
-    "limitations": "fluxos autenticados no navegador cobertos por fixtures/mocks; backend HML certificado separadamente"
+    "missing_feature": "leitura agregada de detalhe por id_requisito, histórico/evidências/NA válido em uma resposta versionada",
+    "existing_write_rpc": "public.solicitar_reanalise_requisitos(uuid,uuid[])",
+    "incremental_risk": "privado.solicitar_reanalise_requisitos altera requisitos_afetados após chamar job parcial; verificar comportamento quando recebe id de execução já existente, sem sobrescrever seleção ou histórico",
+    "source_of_truth": "docs/backend/V117_DIAGNOSTICO_LACUNAS_REQUISITO_2026-11-03.md",
+    "prod_untouched": true
   },
   "database_changes_allowed": false,
-  "database_change_scope": "Backend V1-16 certificado e congelado. Nenhuma nova migration/RPC/tabela/RLS/Storage/Auth/Edge autorizada durante PLAN/BUILD frontend do Prompt 37.",
+  "database_change_scope": "NÃO AUTORIZADO na fase backend_gap_analysis: elaborar plano e revisar funções read-only; exigir manifestação específica de escopo no manifesto e migration nova antes de qualquer DDL",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
+  "storage_changes_allowed": false,
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/frontend/V116_*",
-    "docs/backend/V116_*",
-    "contaos-hml-control:src/routes/competencias_.$id_.analise.tsx",
-    "contaos-hml-control:src/components/competencias/*Analise* somente após PLAN aprovado",
-    "contaos-hml-control:src/lib/competencias/*analise* somente após PLAN aprovado",
-    "contaos-hml-control:src/test/*competencia*analise*.test.tsx somente após PLAN aprovado",
-    "contaos-hml-control:src/components/competencias/CompetenciaVisaoGeral.tsx somente habilitação da aba Análise após V1-16 GREEN",
-    "contaos-hml-control:src/test/competenciaVisaoGeral.test.tsx somente hunk mínimo correspondente",
-    "contaos-hml-control:src/routeTree.gen.ts automático",
-    "contaos-hml-control:docs/frontend/lovable/PROMPT-37-*",
+    "docs/backend/V117_*",
+    "docs/frontend/V117_* somente documentação de plano/aceite, sem certificação antecipada"
+  ],
+  "future_paths_subject_to_plan": [
+    "contaos-hml-control:src/components/competencias/*Requisito*",
+    "contaos-hml-control:src/components/competencias/CompetenciaAnalise.tsx hunk mínimo de abertura drawer",
+    "contaos-hml-control:src/lib/competencias/*requisito*",
+    "contaos-hml-control:src/test/*requisito*",
+    "contaos-hml-control:docs/frontend/lovable/PROMPT-38-*",
     "contaos-hml-control:.lovable/plan.md"
   ],
   "forbidden_paths": [
     "PROD/**",
-    "supabase/**",
+    "supabase/** durante backend_gap_analysis",
     "contaos-hml-control:src/integrations/supabase/client.ts",
     "contaos-hml-control:src/integrations/supabase/types.ts",
     "contaos-hml-control:src/components/ui/**",
     "contaos-hml-control:src/styles.css",
     "contaos-hml-control:public/brand/**",
     "contaos-hml-control:package.json",
-    "contaos-hml-control:bun.lock"
+    "contaos-hml-control:bun.lock",
+    "contaos-hml-control:src/components/competencias/CompetenciaVisaoGeral.tsx exceto hunk futuro expressamente aprovado"
   ],
   "acceptance": [
-    "rota /competencias/:id/analise",
-    "componentes AnalysisHeader, PercentGauge, RequirementTable, FilterBar, AsyncJobStatus, BlockingSummary",
-    "estados not_analyzed/queued/processing/failed/complete/stale exatamente backend",
-    "stale nunca inferido no cliente",
-    "percentual e bloqueios nunca recalculados no cliente",
-    "filtros e paginação server-side via RPC V1-16",
-    "mecanismos exibidos exatamente como backend: deterministico/semantico/humano/nao_identificado",
-    "evidências e criticidade rastreáveis",
-    "Executar análise e Reanalisar somente por allowed_actions e RPC oficial",
-    "polling somente queued/processing com backoff e cleanup",
-    "Abrir requisito não antecipa V1-17: manter staged/Em breve até V1-17 existir, mesmo quando allowed_actions.abrir_requisito=true",
-    "V1-14 aba Análise vira link real somente após V1-16 GREEN; Parecer/Apresentação continuam staged",
-    "BRAND-01, responsividade, dark mode, acessibilidade, TDD, Security Scan, Teste C e Zero-Drift",
-    "PROD intocado"
+    "drawer RequirementDrawer, SourceReference, EvidenceList, ResultBadge e AuditTimeline",
+    "sem rota nova não prevista pelo manual; painel aberto da V1-16 após GREEN",
+    "snapshot, fonte e versão de regra/documento somente backend",
+    "loading, sem resultado, conforme, não conforme, não aplicável válido/inválido e inconclusivo sem heurística client",
+    "mecanismo, criticidade, fundamento, evidência, hash, página/trecho e histórico autoritativos",
+    "documento abre ou baixa somente pelo fluxo Storage privado e autorização certificada",
+    "nenhum dropdown genérico de resultado ou mutação direta; reanálise incremental só após prova de concorrência/idempotência backend",
+    "tenancy A/B, RLS/grants, PT-BR, datas/horas brasileiras, a11y drawer, responsividade e BRAND-01",
+    "TDD RED/GREEN, Teste C read-only separado, GitHub Zero-Drift, backend HML e PROD intocado"
   ],
   "tests": [
-    "UUID inválido = zero Auth/RPC",
-    "sessão/org/403/404/transporte sanitizados",
-    "seis estados backend sem heurística local",
-    "stale backend-only",
-    "filtros/paginação server-side independentes e reset por recurso",
-    "mecanismos e contagens sem inferência client",
-    "evidências, apontamentos com origem/fonte e histórico",
-    "allowed_actions false sem ação crítica; true para executar/reanalisar chama RPC oficial",
-    "concorrência/idempotência: busy não duplica execução; resposta existente reconciliada",
-    "polling queued/processing termina em terminal/erro/unmount/troca recurso",
-    "V1-17 staged",
-    "regressão V1-15/V1-14/V1-13/V1-12/V1-11/V1-10",
-    "typecheck/build/lint/static scan/Security Scan/browser 8 combinações/Teste C",
-    "types.ts byte a byte baseline"
+    "UUID cruzado/fora de competência sem vazamento e acesso A/B",
+    "sem resultado, conforme, não conforme, N/A válido e inválido, inconclusivo",
+    "fonte/versão, fundamento, evidências e histórico imutáveis",
+    "páginas e offsets server-side sem N+1",
+    "documento sem autorização não abre nem baixa",
+    "reanalise incremental: IDs explícitos, sem duplicidade, sem sobrescrever job corrente",
+    "V1-16 regressão 126/126 focada, full serial base 739/739",
+    "zero tipos regenerados, zero caminho protegido, Teste C separado"
   ],
   "authorization": {
     "date": "2026-11-03",
     "by": "usuário",
-    "scope": "Continuidade autônoma do ContaOS 4.1; frontend somente após PLAN aprovado; qualquer gate humano obrigatório do Lovable deve ser apresentado ao usuário."
+    "scope": "Continuar sequência 4.1 automaticamente; inspeção e documentação nesta fase; DDL e gate humano Lovable requerem autorização específica antes da execução"
   },
   "prod_untouched": true,
-  "next_step": "V1-16 encerrada e certificada. Antes de iniciar a próxima etapa, reancorar o contrato canônico do Prompt 38 / V1-17 e criar uma nova active-task; não reutilizar automaticamente escopo ou decisões desta tarefa."
+  "next_step": "Preparar PLAN backend mínimo V1-17: contrato READ detalhe/evidência/histórico/NA válido e prova de concorrência da RPC incremental. Não alterar banco, RLS, Edge ou frontend enquanto fase backend_gap_analysis estiver ativa."
 }
