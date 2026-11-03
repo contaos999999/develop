@@ -159,7 +159,13 @@
     "scripts/prompt-crosswalk-gate.mjs",
     "prompts/zero-drift/**",
     ".github/workflows/zero-drift.yml",
-    "docs/tasks/TEMPLATE.json"
+    "docs/tasks/TEMPLATE.json",
+    "contaos-hml-control:docs/frontend/ARQUITETURA.md",
+    "contaos-hml-control:scripts/frontend-zero-drift.mjs",
+    "contaos-hml-control:.github/workflows/contaos-frontend-zero-drift.yml",
+    "docs/prompts/PLANO_SANEAMENTO_39_PROMPTS_2026-11-03.json",
+    "docs/prompts/RETRO_*",
+    "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_*"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -320,5 +326,26 @@
     "source_evidence_missing": false,
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Escopo do Prompt 38 revisado contra os requisitos com indicação explícita de V1-17, mais os NFR transversais da tarefa; não significa certificação dos 100 planos funcionais. Antes de TESTE C, comparar artefato final com todos os requisitos associados."
+  },
+  "retrospective_remediation": {
+    "request": "Resolver as 39 linhas 00–38 e desvios da identidade visual com evidência 100%",
+    "user_authorized_at": "2026-11-03",
+    "tracking_file": "docs/prompts/PLANO_SANEAMENTO_39_PROMPTS_2026-11-03.json",
+    "governance": "07_ZERO_DRIFT_GOVERNANCA_4_1.md §11",
+    "actions_persisted": [
+      "Lovable Knowledge 100/97 + gates",
+      "types.ts blob certificado restaurado",
+      "CI frontend Zero-Drift instalado, RED real",
+      "Auditoria estática BRAND-01 com novo desvio dark",
+      "Prova estrutural HML para 01–15"
+    ],
+    "lovable_plan_gate": {
+      "status": "aguardando_aprovacao_especifica",
+      "message_id": "umsg_01m6hb7qg3ffnrwa5m03jn4svm",
+      "event_id": "main:agent#00000000019742#tcb:Y7UTQ2BE"
+    },
+    "backend_migrations_allowed": false,
+    "prod_allowed": false,
+    "frontend_root_and_brand_code_changes": "somente após aprovação específica do PLAN Lovable"
   }
 }
