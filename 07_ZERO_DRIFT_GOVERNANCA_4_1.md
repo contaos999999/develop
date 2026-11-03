@@ -138,3 +138,40 @@ Para BRAND-01:
 - o diff final deve conter somente alterações visuais/documentais previstas no plano aprovado.
 
 No manifesto de uma tarefa visual, registrar também `brand_context = ContaOS Brand v1.0` e `prompt_000_brand_01_read = true`.
+## 11. Gate transversal obrigatório em TODOS os prompts: identidade visual e economia Lovable
+
+**Aplicação universal, sem exceções:** todo prompt operacional do ContaOS 4.1, seja regular 00–99, transversal 000–096, PLAN, BUILD, correção, auditoria ou TESTE C, deve conter **literalmente uma seção identificada** `ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE`. A obrigação alcança prompts de frontend e de backend. No backend, o agente declara `impacto_visual: N/A (justificado)`; nunca transforma uma tarefa técnica em redesenho.
+
+### 11.1. Identidade visual como critério de aceite de CADA frontend
+
+1. Antes de planejar, ler `19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md`, `20_PROMPT_000_BRAND_01.md`, o Design System e os assets oficiais já integrados. Fazer inventário do componente existente. Confirmar uso da marca **ContaOS Brand v1.0**, sem redesenhar SVG/logotipo/símbolo.
+2. Preservar identidade em **todas as telas e estados modificados**: logo e versão para fundo claro/escuro, paleta institucional (Navy `#0F172A`, azul `#0EA5E9`, teal `#14B8A6`, superfície `#F1F5F9`), tipografia Inter quando já compatível, tokens, ícones, componentes existentes, hierarquia, espaçamento, bordas, botões, inputs, tabelas, drawers, modais, feedback de erro/loading/empty/success, contraste, foco e legibilidade. A paleta é referência da marca, **não licença para hardcode**: precedência `REUTILIZAR > ESTENDER > CRIAR`.
+3. Não introduzir paleta paralela, novos padrões de componente, bibliotecas de UI ou redesenho global em tarefa funcional. Reusar `ContaOSMarca`, assets oficiais e tokens existentes, preservando visual e comportamento das telas certificadas e da V1 anterior.
+4. Em PLAN: seção obrigatória com baseline visual, componentes/tokens a reutilizar, riscos de drift visual, arquivos que NÃO serão modificados e matriz de validação de 1440/1280/768/390 px nos temas claro e escuro.
+5. Em BUILD: implementar o menor delta com consistência da marca; nenhum componente isolado poderá destoar da identidade já homologada. É proibido alterar assets/estilos globais sem autorização explícita no manifesto.
+6. Em TESTE e Teste C **read-only**: comprovar evidências visuais reais da tela alterada nos quatro tamanhos e nos dois temas, incluindo pelo menos loading, vazio, erro e sucesso quando aplicáveis; conferir logomarca, tokens/cores, tipografia, componentes, contraste, responsividade, overflow, acessibilidade, estado de foco e interação. Quando ferramenta visual não estiver disponível, registrar `NÃO VERIFICADO` e **não declarar conformidade visual PASS**.
+7. Se houver desvio visual, reportar o **primeiro arquivo/componente e comportamento** com evidência; corrigir em BUILD autorizado e repetir os gates invalidados. Não mudar código dentro do Teste C.
+8. **GATE:** prompt sem cláusula ou PLAN sem matriz visual pertinente = `PLAN: NÃO APROVÁVEL`. Entrega frontend sem prova visual válida e requisitos BRAND-01 = `IDENTIDADE VISUAL: NÃO CERTIFICADA`, impedindo `CONCLUÍDO`.
+
+### 11.2. Economia obrigatória de créditos Lovable em CADA prompt
+
+1. **Nunca sacrificar qualidade ou segurança por créditos.** TDD RED→GREEN, CI, Zero-Drift, revisão de diff, Teste C separado, requisitos PRD, evidência, acessibilidade e responsividade são inegociáveis.
+2. Antes de enviar instrução ao Lovable: inspecionar estado, commits, contexto, contrato de backend, escopo e testes; preferir **GitHub** para arquivos/diffs/governança/documentação e **Supabase HML** para inspeção/provas de backend, sem consumir crédito Lovable desnecessário.
+3. Consolidar instruções completas e compatíveis num turno PLAN e, depois de aprovado, num BUILD delimitado; evitar mensagens fragmentadas, repetições de contexto, reconstrução de componentes ou integrações já certificadas.
+4. **Não reenviar** prompt enquanto houver turno `queued`, `running` ou `awaiting_input`. Consultar o ID/status do mesmo turno; responder a cada gate humano obrigatório apenas com aprovação do usuário. Nenhuma aprovação ampla substitui um gate humano específico.
+5. Reutilizar bibliotecas, componentes, helper, tokens, testes e evidências ainda válidos; selecionar a **menor alteração conforme**. Não executar o Lovable para atividade executável diretamente em GitHub/Supabase com mesma prova.
+6. Preferir scans, diff, verificações documentais e revisões de SQL fora do Lovable; usar o editor/runtime/preview Lovable quando realmente necessário para construir ou validar frontend. Evitar modo de maior custo sem justificativa técnica e autorização adequada.
+7. Não duplicar testes, scans ou builds sem alteração que invalide a evidência; entretanto, **nunca pular regressões obrigatórias nem Teste C isolado**. Cada correção deve repetir os gates que possa afetar.
+8. PLAN, BUILD e TESTE devem registrar brevemente as decisões de economia adotadas, sem inventar valores de créditos economizados nem estimativas não medidas.
+9. **GATE:** ausência da seção de economia ou atalho que suprima controle obrigatório = `ZERO-DRIFT: FAIL`.
+
+### 11.3. Bloco mínimo para copiar em TODOS os prompts
+
+```text
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE (OBRIGATÓRIO)
+Marca: ContaOS Brand v1.0 / BRAND-01; ler 19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md e 20_PROMPT_000_BRAND_01.md para qualquer alteração frontend. Preservar assets oficiais, ContaOSMarca, Design System e tokens (REUTILIZAR > ESTENDER > CRIAR), componentes e estados; sem hardcodes, redesign ou bibliotecas paralelas. PLAN deve informar baseline visual, riscos e matriz de aceite; BUILD deve manter consistência; TESTE/TESTE C devem provar 1440/1280/768/390 nos temas claro/escuro, acessibilidade, marca e estados, sem alterações durante Teste C. Se prompt não envolver frontend, declarar impacto visual N/A justificado e garantir ausência de alteração visual.
+Economia Lovable: checar turno/estado/commit antes de enviar; usar GitHub e Supabase diretamente quando possível; consolidar instruções; executar o menor delta; reutilizar testes/evidências válidos; não reenviar turno pendente nem duplicar builds/scans; nunca pular aprovação humana obrigatória, TDD, segurança, CI, Zero-Drift, fidelidade ao PRD, validação visual ou Teste C separado.
+Entregar evidências e classificar: IDENTIDADE VISUAL PASS/FAIL/NÃO VERIFICADO/N/A; ECONOMIA LOVABLE CONFORME/NÃO CONFORME; ZERO-DRIFT PASS/FAIL. Sem prova não declarar PASS.
+```
+
+Este gate aplica-se a todos os prompts futuros e a **todo prompt em andamento ainda não executado**, inclusive o Prompt 38 / V1-17. Não reescreve retrospectivamente históricos ou decisões certificadas. O texto do prompt operacional deve conter a cláusula, mesmo quando a tarefa for somente backend, documentando o N/A visual justificado.
