@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "data": "2026-11-03",
+  "ambiente": "gklhhhyosgasnyoxlrui",
+  "metodo": "Supabase list_migrations read-only",
+  "prompts": [
+    {
+      "prompt": "01",
+      "migrations": [
+        {
+          "version": "20261101205846",
+          "name": "0001_extensoes_schemas"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "02",
+      "migrations": [
+        {
+          "version": "20261101205936",
+          "name": "0002_identidade_organizacoes"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "03",
+      "migrations": [
+        {
+          "version": "20261101210017",
+          "name": "0003_contratantes_contratos_core"
+        },
+        {
+          "version": "20261101210030",
+          "name": "0003b_acesso_contratos_rls"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "04",
+      "migrations": [
+        {
+          "version": "20261101210053",
+          "name": "0004_fontes_orcamento_listas"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "05",
+      "migrations": [
+        {
+          "version": "20261101210110",
+          "name": "0005_storage_documentos"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "06",
+      "migrations": [
+        {
+          "version": "20261101210948",
+          "name": "0006_competencias_analise"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "07",
+      "migrations": [
+        {
+          "version": "20261101211016",
+          "name": "0007_portoes_apresentacao"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "08",
+      "migrations": [
+        {
+          "version": "20261101211039",
+          "name": "0008_historico"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "09",
+      "migrations": [
+        {
+          "version": "20261101211055",
+          "name": "0009_queues_edge_support"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "10",
+      "migrations": [
+        {
+          "version": "20261101211140",
+          "name": "0010_diligencias_v2"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "11",
+      "migrations": [
+        {
+          "version": "20261101211210",
+          "name": "0011_financeiro_v3"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "12",
+      "migrations": [
+        {
+          "version": "20261101211241",
+          "name": "0012_inteligencia_v4"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "13",
+      "migrations": [
+        {
+          "version": "20261101211316",
+          "name": "0013_conformidade_v5"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "14",
+      "migrations": [
+        {
+          "version": "20261101211348",
+          "name": "0014_integracoes_v5"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    },
+    {
+      "prompt": "15",
+      "migrations": [
+        {
+          "version": "20261101211500",
+          "name": "0015_hardening_seguranca_integridade"
+        }
+      ],
+      "status": "PASS_MIGRACAO_APLICADA_EM_HML",
+      "evidence_scope": "histórico Supabase migrations; não prova todos os cenários funcionais e RLS"
+    }
+  ],
+  "total_prompts": 15,
+  "total_migrations_correspondentes": 16,
+  "limitacao": "Somente histórico de migrations aplicadas; não prova sozinho constraints funcionais, tenants A/B, perfis negados ou execução dos fluxos de cada prompt."
+}
