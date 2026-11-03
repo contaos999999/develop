@@ -8,7 +8,8 @@
   "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
   "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
   "evidencias": [
-    "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+    "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+    "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
   ],
   "verificacao_individual": "Objetos e RLS presentes no HML, confirmação de catálogo somente leitura; 117/117 tabelas públicas com RLS, 0 funções SECURITY DEFINER executáveis por anon",
   "limites": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -16,5 +17,68 @@
     "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
     "Emitir evidência retro delimitada sem inventar PLAN individual"
   ],
-  "certificacao_integral": false
+  "certificacao_integral": false,
+  "hml_auditoria_2026_11_03": {
+    "fonte": "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md",
+    "resultado": "PASS_RLS_CONFIGURACAO_117_183; OUTROS_CRITERIOS_PENDENTES",
+    "modo": "SQL read-only; nenhuma DDL/DML",
+    "auth_sessao": "NÃO TESTADO",
+    "producao": "NÃO ALTERADA",
+    "criterios_originais": [
+      {
+        "n": 1,
+        "criterio": "migration aplicada em HML",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 2,
+        "criterio": "tabelas e constraints esperadas",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 3,
+        "criterio": "RLS habilitada onde aplicável",
+        "status": "PASS_CONFIGURACAO_RLS",
+        "fonte": "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+      },
+      {
+        "n": 4,
+        "criterio": "usuário organização A não lê ou escreve organização B",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 5,
+        "criterio": "perfil sem permissão falha",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 6,
+        "criterio": "RPC crítica não pode ser substituída por update direto",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 7,
+        "criterio": "nenhum secret está no frontend/repositório",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 8,
+        "criterio": "testes de erro e rollback lógico",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      },
+      {
+        "n": 9,
+        "criterio": "Security view sem novo Critical relacionado",
+        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
+        "fonte": null
+      }
+    ]
+  }
 }
