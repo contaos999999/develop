@@ -55,7 +55,10 @@
     "BRAND-01",
     "Zero-Drift"
   ],
-  "screens_impacted": ["V1-10", "V1-06/V1-07/V1-08/V1-09 somente navegação para Documentos"],
+  "screens_impacted": [
+    "V1-10",
+    "V1-06/V1-07/V1-08/V1-09 somente navegação para Documentos"
+  ],
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
     "prod_untouched": true,
@@ -69,8 +72,30 @@
       "public.fragmentos_documento",
       "public.regras_conformidade"
     ],
-    "status": "CORRECAO_HML_EM_VALIDACAO",
-    "restore_isolado": "PASS no SHA f34a28723d19cd18ae59899c987e7b80a8efd894"
+    "status": "CERTIFICADO_HML_V1_CON_001_002_005",
+    "evidence_doc": "docs/backend/V111_PROMPT31_CERTIFICACAO_HML_2026-11-02.md",
+    "applied_migrations": [
+      "20261103020039_v110_v111_vigencia_schema",
+      "20261103021333_v111_documento_completo_funcao",
+      "20261103021338_v111_documento_completo_publica",
+      "20261103021346_v111_definir_vigencia_sugestao",
+      "20261103021353_v111_validar_regra_assistida_funcao",
+      "20261103021357_v111_validar_regra_assistida_trigger"
+    ],
+    "transactional_verification": {
+      "documento_completo": "PASS",
+      "idempotencia": "PASS",
+      "vigencia_sugestao": "PASS",
+      "auditoria_vigencia": "PASS",
+      "regra_fonte_vigencia": "PASS",
+      "fonte_obrigatoria_negativa": "PASS PT400",
+      "vigencia_obrigatoria_negativa": "PASS PT400",
+      "data_invalida_negativa": "PASS PT400",
+      "rollback": "PASS"
+    },
+    "security_advisor": "0 Critical, 0 High; WARN preexistente auth_leaked_password_protection",
+    "zero_drift": "PASS run 41564293576 no SHA 3e44565a136c900836f570d8d4658b7f878cbf84",
+    "restore_isolado": "PASS run 41564293470 no SHA 3e44565a136c900836f570d8d4658b7f878cbf84"
   },
   "database_changes_allowed": true,
   "rls_changes_allowed": false,
@@ -136,5 +161,5 @@
     "scope": "Continuidade autônoma do desenvolvimento do ContaOS 4.1 em HML, com backend Supabase, GitHub obrigatório, Zero-Drift, identidade visual e economia de créditos sem alterar o escopo"
   },
   "prod_untouched": true,
-  "next_step": "Certificar correções V1-CON-001/002/005 no HML e somente então revalidar PLAN do Prompt 31 no Lovable."
+  "next_step": "Revalidar PLAN do Prompt 31 no Lovable contra o backend HML certificado; se aprovável, seguir BUILD, testes e Teste C conforme protocolo."
 }
