@@ -36,6 +36,8 @@ jobs:
         run: node scripts/ai-context-gate.mjs
       - name: Zero-Drift
         run: node scripts/zero-drift-check.mjs
+      - name: Prompt Crosswalk — regular 00–99 x atômico 000–096
+        run: node scripts/prompt-crosswalk-gate.mjs
       - name: Architecture Guard
         run: node scripts/architecture-guard.mjs
       - name: SQL Security Guard
