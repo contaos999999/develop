@@ -73,9 +73,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0001_extensoes_schemas. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -149,9 +152,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0002_identidade_organizacoes. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -225,9 +231,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0003_contratantes_contratos_core + 0003b_acesso_contratos_rls. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -301,9 +310,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0004_fontes_orcamento_listas. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -377,9 +389,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0005_storage_documentos. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -453,9 +468,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0006_competencias_analise. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -529,9 +547,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0007_portoes_apresentacao. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -605,9 +626,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0008_historico. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -681,9 +705,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0009_queues_edge_support. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -757,9 +784,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0010_diligencias_v2. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -833,9 +863,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0011_financeiro_v3. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -909,9 +942,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0012_inteligencia_v4. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -985,9 +1021,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0013_conformidade_v5. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -1061,9 +1100,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0014_integracoes_v5. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -1137,9 +1179,12 @@
         {
           "index": 1,
           "criterio": "1. migration aplicada em HML;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_MIGRACAO_HML",
+          "explanation": "Migração oficial aplicada e confirmada pelo histórico list_migrations no Supabase HML: 0015_hardening_seguranca_integridade. Não certifica cenários A/B, segurança nem runtime.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+          ],
+          "scope_limit": "Comprova apenas existência da migration aplicada em homologação."
         },
         {
           "index": 2,
@@ -3806,14 +3851,15 @@
     "criteria_with_partial_or_pending_evidence": 198,
     "criteria_fully_certified": 0,
     "remaining_unverified": 218,
-    "note": "Itens com PASS são confirmados apenas no escopo da prova (configuração RLS, artefato ou MOCK). Demais critérios e E2E com usuários reais ainda exigem evidência. Certificação integral 39/39 permanece aberta.",
-    "criteria_positive_scope": 21
+    "note": "36 critérios com PASS no escopo delimitado: 15 migrations HML, 15 RLS configuração, 2 governança e 4 visual V1-17 MOCK. 39 etapas seguem sem homologação E2E integral. O critério PASS de migration não prova funcionamento do fluxo.",
+    "criteria_positive_scope": 36
   },
   "revalidacao": {
     "data": "2026-11-03",
     "evidencia_config_rls": "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md",
     "evidencia_visual_v117": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
     "autolock": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41718861663",
-    "nota": "PASS de critério circunscrito ao escopo documental, configuração ou visual mock; não constitui homologação das 39 etapas."
+    "nota": "PASS de critério circunscrito ao escopo documental, configuração ou visual mock; não constitui homologação das 39 etapas.",
+    "migra_hml": "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
   }
 }
