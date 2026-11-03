@@ -1,11 +1,11 @@
 {
-  "id": "PROMPT34-V1-13-NOVA-COMPETENCIA-HML-2026-11-03",
-  "title": "PROMPT 34 / V1-13 — Nova Competência",
+  "id": "PROMPT35-V1-14-COMPETENCIA-VISAO-GERAL-HML-2026-11-03",
+  "title": "PROMPT 35 / V1-14 — Competência — visão geral",
   "status": "ativa",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
-  "context_read_by": "ChatGPT/Codex — continuidade após certificação V1-12 / Prompt 33",
+  "context_read_by": "ChatGPT/Codex — continuidade após certificação V1-13 / Prompt 34",
   "context_manifest_sha256": "7d94268b07bab1f2a4baec1e622fafb80438b561350a1e09db74721839947f51",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -27,11 +27,13 @@
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md",
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md",
-    "docs/frontend/V112_COMPETENCIAS_TESTE_C_2026-11-03.md"
+    "docs/frontend/V113_CERTIFICACAO_TESTE_C_2026-11-03.md",
+    "FE_v4_Manual_Integral_Lovable_Supabase.docx — V1-14",
+    "FE_v3_DOWNLOAD*.docx — detalhamento legado compatível V1-14"
   ],
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
-  "objective": "Entregar V1-13 — formulário de criação de competência mensal, enviando somente contrato, competência e campos permitidos à RPC oficial. A materialização do snapshot de requisitos permanece exclusivamente no backend. Não antecipar V1-14.",
+  "objective": "Entregar V1-14 — Competência: visão geral, com resumo de preparação/análise/bloqueios e ações permitidas. O frontend deve renderizar estado e ações vindos do backend e nunca inferir liberação por percentual. Antes do frontend, fechar a lacuna HML de allowed_actions por RPC read-only oficial.",
   "canonical_requirements": [
     "V1-CHK-001",
     "V1-CHK-002",
@@ -44,70 +46,61 @@
     "Zero-Drift"
   ],
   "screens_impacted": [
-    "V1-13",
-    "V1-12 somente habilitação da ação Nova competência após V1-13 existir"
+    "V1-14",
+    "V1-12 somente habilitação de Abrir competência após V1-14 existir"
   ],
   "frontend_baseline": {
     "repository": "contaos9999/contaos-hml-control",
     "branch": "main",
-    "v112_final_sha": "b22dfd93c61f8be3970b5c01c8e0af2f0e40241e",
+    "v113_final_sha": "8b62e506a8351fba9819afb1b4508be449be7228",
     "types_baseline_commit": "e10f7973260df0c455bb66baa091e5c9b3124efe",
     "types_blob_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19"
   },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
     "prod_untouched": true,
-    "status": "CERTIFICADO_PARA_PLAN_V1_13_SEM_NOVA_MIGRATION",
-    "rpc": "public.criar_competencia(uuid,date,date,date,date)",
-    "return": "uuid",
-    "execute": "authenticated=true; anon=false",
-    "authorized_profiles": [
-      "administrador",
-      "gestor_contrato",
-      "prestacao_contas"
+    "status": "LACUNA_READ_ONLY_ALLOWED_ACTIONS_IDENTIFICADA",
+    "existing_read_rpc": "public.avaliar_portao_conformidade(uuid) returns jsonb — STABLE, access-controlled",
+    "existing_action_rpcs": [
+      "public.solicitar_analise_competencia(uuid,text)",
+      "public.aprovar_apresentacao(uuid,text)",
+      "public.registrar_apresentacao(uuid,text,text,text,uuid)"
     ],
-    "verified_controls": [
-      "contrato inexistente é rejeitado",
-      "acesso ao contrato é validado no backend",
-      "perfil autorizado é validado no backend",
-      "competencia_referencia deve ser primeiro dia do mês",
-      "período padrão é o mês da competência quando datas forem omitidas",
-      "unique(id_contrato, competencia_referencia) impede duplicação material",
-      "snapshot de requisitos é criado no backend a partir de lista publicada vigente, regras de conformidade ativas e regras preventivas vigentes",
-      "competência inicia em preparando durante materialização e termina em rascunho",
-      "evento CompetenciaCriada é registrado em auditoria",
-      "tenant composto id_contrato/id_organizacao é protegido por FK",
-      "percentual e situação permanecem controlados pelo backend"
-    ],
-    "duplicate_behavior": "A constraint competencias_contrato_mes_uk produz conflito/erro de unicidade quando a mesma competência já existe; frontend deve classificar como competência já existente, sem retry cego.",
-    "idempotency_note": "A unicidade por contrato+mês impede efeito duplicado em retry/reenvio. O frontend deve bloquear submissão concorrente e, em resposta ambígua, refazer leitura da lista antes de novo comando.",
+    "gap": "Não existe RPC/view que devolva allowed_actions para V1-14. O manual proíbe calcular portão/ações no cliente. Uma RPC read-only oficial deve consolidar estado, blocking_summary e allowed_actions espelhando os pré-requisitos das RPCs críticas sem executar mutação.",
+    "backend_change_authorized": "Adicionar somente função privada + wrapper público read-only/STABLE para visão geral V1-14, grants mínimos authenticated e testes; nenhuma tabela/RLS/Edge/Auth/Storage nova.",
     "read_tables": [
-      "public.contratos",
       "public.competencias",
-      "public.vinculos_usuarios"
+      "public.requisitos_competencia",
+      "public.resultados_requisitos",
+      "public.nao_conformidades",
+      "public.pareceres_internos",
+      "public.execucoes_analise",
+      "public.aprovacoes"
     ]
   },
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
+  "database_change_scope": "Somente CREATE OR REPLACE FUNCTION privada + wrapper público V1-14, REVOKE/GRANT EXECUTE e migration versionada. Sem criação/alteração de tabela, coluna, constraint, policy, trigger ou dados.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "approved_rpcs": [
-    "public.criar_competencia"
+    "public.avaliar_portao_conformidade",
+    "nova RPC read-only oficial V1-14 a ser versionada e certificada"
   ],
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/frontend/V113_*",
-    "contaos-hml-control:src/routes/contratos_.$id_.competencias.nova.tsx",
-    "contaos-hml-control:src/components/contratos/NovaCompetencia*.tsx",
-    "contaos-hml-control:src/lib/contratos/novaCompetencia*.ts",
-    "contaos-hml-control:src/components/contratos/CompetenciasContrato.tsx somente habilitação de Nova competência",
-    "contaos-hml-control:src/test/novaCompetencia*.test.tsx",
-    "contaos-hml-control:src/test/competenciasContrato.test.tsx somente regressão da ação Nova competência",
+    "docs/frontend/V114_*",
+    "supabase/migrations/*v114*_visao_geral*.sql",
+    "contaos-hml-control:src/routes/competencias_.$id.tsx",
+    "contaos-hml-control:src/components/competencias/CompetenciaVisaoGeral*.tsx",
+    "contaos-hml-control:src/lib/competencias/competenciaVisaoGeral*.ts",
+    "contaos-hml-control:src/test/competenciaVisaoGeral*.test.tsx",
+    "contaos-hml-control:src/components/contratos/CompetenciasContrato.tsx somente habilitação de Abrir competência",
+    "contaos-hml-control:src/test/competenciasContrato.test.tsx somente regressão de Abrir competência",
     "contaos-hml-control:src/routeTree.gen.ts somente geração automática",
-    "contaos-hml-control:docs/frontend/lovable/PROMPT-34-*"
+    "contaos-hml-control:docs/frontend/lovable/PROMPT-35-*"
   ],
   "forbidden_paths": [
-    "supabase/**",
     "supabase/functions/**",
     "supabase/config.toml",
     "Auth/**",
@@ -121,37 +114,32 @@
     "contaos-hml-control:bun.lock"
   ],
   "acceptance": [
-    "rota /contratos/:id/competencias/nova",
-    "gate UUID → sessão → organização → contrato antes de qualquer leitura de perfil ou RPC",
-    "perfis de gestão exibem formulário; demais perfis recebem estado de acesso negado/read-only conforme padrão, sem confiar apenas no frontend",
-    "MonthPicker recebe MM/AAAA e envia primeiro dia do mês no formato de data esperado pela RPC",
-    "frontend não cria requisitos, regras, snapshots ou percentual",
-    "frontend chama somente public.criar_competencia com os campos permitidos",
-    "período início/fim e data limite só são enviados se o schema/UX aprovado os expuser; omissão usa defaults do backend",
-    "duplicidade é tratada de forma amigável e não cria segundo efeito",
-    "403/perfil sem permissão, 404/contrato e erro genérico são sanitizados em PT-BR",
-    "durante submissão o comando fica protegido contra duplo clique/reenvio concorrente",
-    "sucesso usa UUID retornado pela RPC e não inventa estado; navegação pós-sucesso somente para rota já existente no escopo aprovado",
-    "V1-12 Nova competência passa de staged para link real somente após a rota V1-13 estar implementada e testada",
-    "V1-14 detalhe permanece fora do BUILD",
-    "BRAND-01, responsividade 1440/1280/768/390, dark mode e acessibilidade preservados",
+    "rota /competencias/:id",
+    "finalidade: resumo de preparação, análise, bloqueios e ações permitidas",
+    "componentes: PageHeader, StatusBadge, PercentGauge, BlockingSummary, AllowedActions, Tabs",
+    "status e percentual são exibidos como backend; frontend não recalcula portão ou liberação",
+    "blocking_summary vem do backend oficial",
+    "allowed_actions vem do backend oficial e não de ifs locais por percentual/status",
+    "ações V1-15/V1-16/V1-18/V1-19 que ainda não possuem tela ficam staged/Em breve sem link quebrado, mesmo quando backend as permitir",
+    "quando a tela futura existir, o backend continua autoridade para habilitação",
+    "403/RLS não é convertido em vazio",
+    "loading, 404, 403, erro e success testados",
+    "V1-12 Abrir competência vira link real apenas após V1-14 implementada/testada",
+    "BRAND-01, 1440/1280/768/390, dark mode e acessibilidade preservados",
     "TDD, suíte regressiva, Security Scan, Teste C read-only, Zero-Drift e GitHub obrigatórios",
     "PROD intocado"
   ],
   "tests": [
-    "UUID inválido sem Auth/Data/RPC",
-    "sem sessão → login",
-    "sem organização → selecionar organização",
-    "contrato 403/404 sanitizado",
-    "perfil autorizado e não autorizado",
-    "MM/AAAA → YYYY-MM-01",
-    "happy path RPC retorna UUID",
-    "duplicidade unique tratada sem segundo efeito",
-    "duplo clique não dispara duas RPCs",
-    "erro de acesso e erro genérico sanitizados",
-    "snapshot nunca é montado no frontend",
-    "V1-12 habilita somente Nova competência; Abrir competência segue staged até V1-14",
-    "regressão V1-12/V1-11/V1-10 e suíte completa determinística",
+    "backend RPC read-only: acesso, inexistente, outro tenant, allowed_actions e bloqueios",
+    "backend RPC não executa mutation nem muda situação/percentual",
+    "frontend UUID inválido sem Auth/Data/RPC",
+    "sem sessão/403/404 sanitizados",
+    "percentual 100 sem allowed_action de apresentar não habilita ação",
+    "allowed_action do backend controla affordance; nenhum if(percent===100)",
+    "status crítico usa texto oficial retornado",
+    "V1-12 habilita somente Abrir competência após V1-14 existir",
+    "V1-15/V1-16/V1-18/V1-19 continuam staged",
+    "regressão V1-13/V1-12/V1-11/V1-10 e suíte completa determinística",
     "typecheck/build/lint",
     "browser 1440/1280/768/390 claro/escuro",
     "Security Scan",
@@ -161,8 +149,8 @@
   "authorization": {
     "date": "2026-11-03",
     "by": "usuário",
-    "scope": "Continuidade autônoma do ContaOS 4.1, economizando créditos sem alterar escopo; aprovações humanas somente nos gates obrigatórios do Lovable ou quando houver desvio irresolúvel"
+    "scope": "Continuidade autônoma do ContaOS 4.1, economizando créditos sem alterar escopo; backend HML pode ser corrigido quando necessário para cumprir o PRD, com GitHub/migration/testes e PROD intocado; gates humanos obrigatórios do Lovable continuam sendo apresentados ao usuário."
   },
   "prod_untouched": true,
-  "next_step": "Executar PLAN do Prompt 34 / V1-13 no Lovable, consumir a RPC public.criar_competencia existente e classificar o plano antes de qualquer BUILD."
+  "next_step": "Versionar e certificar a RPC read-only de visão geral V1-14 no backend HML; depois executar PLAN do Prompt 35 no Lovable sem BUILD antes de aprovação humana."
 }
