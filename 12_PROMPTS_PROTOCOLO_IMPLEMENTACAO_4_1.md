@@ -116,3 +116,15 @@ BRAND-01 é exclusivamente visual. Ele não autoriza alteração de backend, arq
 Em caso de conflito entre estética e qualquer regra funcional/arquitetural do pacote 4.1, **o pacote 4.1 prevalece**.
 
 Se o PLAN indicar necessidade de alteração fora do escopo visual, classificar `PLAN: NÃO APROVÁVEL`, parar e reportar a lacuna ou conflito.
+## 9. Inclusão obrigatória em todos os prompts — Identidade visual e economia de créditos
+
+**Todo prompt emitido para Lovable ou para agentes do projeto (regular 00–99, transversal 000–096, PLAN, BUILD, correção, auditoria e Teste C) deve conter, no seu próprio texto, a seção `ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE` prevista no item 11 de `07_ZERO_DRIFT_GOVERNANCA_4_1.md`.** Não basta uma referência indireta: a cláusula deve aparecer explicitamente em cada novo prompt.
+
+- Para frontend, exigir conformidade com ContaOS Brand v1.0 e Design System já certificado, revisão visual em 1440/1280/768/390 px claro/escuro e comprovação no teste, incluindo estados relevantes, legibilidade, foco e responsividade. Não certificar se não houver evidência visual.
+- Para backend/tarefa não visual, declarar `impacto_visual: N/A justificado`, mantendo a proibição de alterar identidade visual fora do escopo.
+- Para economia de créditos Lovable, exigir recuperação de turno em andamento antes de reenviar, prompt completo/consolidado, menor diff, ferramentas diretas GitHub/Supabase para o que não dependa do Lovable, reutilização de evidências válidas e nenhum retrabalho sem motivo.
+- A eficiência de créditos **nunca** substitui ou reduz aprovação humana necessária, TDD RED→GREEN, teste/regressão, Teste C read-only separado, segurança, acessibilidade, auditabilidade, fidelidade ao PRD ou gates do GitHub.
+- Em cada PLAN, declarar matriz visual/risco e estratégia de economia; em cada BUILD, preservar tokens/componentes e executar delta mínimo; em cada TESTE, relatar `IDENTIDADE VISUAL`, `ECONOMIA LOVABLE` e `ZERO-DRIFT` com evidência.
+- Sem cláusula obrigatória no prompt: `PLAN: NÃO APROVÁVEL`. Sem evidência visual pertinente: `IDENTIDADE VISUAL: NÃO CERTIFICADA`. A aprovação de um PLAN não exime Build e Teste C desses gates.
+
+Este item complementa, sem renumerar ou alterar, os prompts e requisitos existentes. O bloco textual completo a copiar encontra-se em `07_ZERO_DRIFT_GOVERNANCA_4_1.md`, seção 11.3.
