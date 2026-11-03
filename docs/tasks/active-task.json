@@ -116,7 +116,7 @@
     "docs/frontend/V117_* somente documentação de plano/aceite, sem certificação antecipada",
     "supabase/migrations/*v117_obter_detalhe_requisito.sql",
     "supabase/migrations/*v117_reanalise_requisitos_concorrencia.sql",
-    "supabase/tests/reanalysis_authz.sql (somente atualizar assert de mensagem 42501 preservando teste negativo)"
+    "supabase/tests/reanalysis_authz.sql"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -170,5 +170,5 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Corrigir somente expectation literal da mensagem de autorização 42501 no teste legado. Rerodar CI Restore Isolado e confirmar Zero-Drift/Histórico. Depois certificar backend, sem implementar frontend antes do GREEN."
+  "next_step": "Run Restore Isolado e Zero-Drift para arquivo de teste explicitamente autorizado; depois registrar certificacao backend e iniciar PLAN frontend V1-17."
 }
