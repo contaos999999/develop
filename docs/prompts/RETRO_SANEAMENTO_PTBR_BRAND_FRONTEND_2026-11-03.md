@@ -27,3 +27,15 @@
 ## Próximas etapas da auditoria retrospectiva
 
 Completar evidências por linha do rastreador `PLANO_SANEAMENTO_39_PROMPTS_2026-11-03.json`, validar a integração do Prompt 38, SYS-03 E2E real e impossibilidade atual de ruleset obrigatório em repositório privado no plano GitHub. Não fechar 39/39 até obter prova individual, evitando atribuir resultado ao que não foi testado.
+
+## Certificação automatizada final do frontend — SHA 856209dc9f59f29de6a62ea8b46b007fe9695dd8
+
+- [GitHub Actions run 41701693096](https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096): **SUCCESS**.
+- Gates executados, todos **exit 0**: ESLint dos arquivos alterados; Prettier dos três arquivos de saneamento; `bunx vitest run --maxWorkers=1` (**765/765**); `bunx tsc --noEmit -p .`; `bunx vite build`; `node scripts/frontend-zero-drift.mjs` (22 telas, PT-BR, quatro SVGs oficiais, types.ts protegido).
+- Commit da correção do falso positivo sobre ícone legítimo ShieldCheck: `026e34720091dc997b7c25606f504c6a3436e129`.
+- Commit que instala TypeScript já presente no projeto em substituição a `tsgo` inexistente: `32766fbfc82c5ae55db548aaa43d71a3a1a90197`.
+- Commit da formatação pelo Lovable: revisão final dos arquivos de formatação da árvore atual, candidato `3e874d8e33c0266ba19bde4e75b732aae142d54d`. A ferramenta regenerou types.ts em commit intermediário e o arquivo foi restaurado antes do candidato. Conferência GitHub mostrou SHA `8ea7750b75fd9d76b29c36ce7613392e3ab65e19` preservado.
+- Commit de inclusão de lint + Prettier no workflow permanente: `856209dc9f59f29de6a62ea8b46b007fe9695dd8`.
+- Comparação da base certificada `d4b9b77dafa7ff6ca7644a99fee737bfed590a1e` até `856209dc`: **11 caminhos permitidos**. Nenhuma alteração em Supabase, types.ts, styles.css, AGENTS.md, lockfiles, rotas geradas ou código funcional V1-15/V1-16.
+
+**Delimitação do PASS:** aprovação CI automatizado do frontend, sem declaração automática de conformidade visual real das telas autenticadas. Teste C read-only sobre o SHA final solicitado ao Lovable, ainda aguardando seu resultado antes da conclusão visual.
