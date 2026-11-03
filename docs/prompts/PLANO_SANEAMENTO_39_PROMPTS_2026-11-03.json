@@ -47,20 +47,39 @@
     },
     {
       "id": "RETRO-ROOT-PTBR",
-      "status": "RED_CONFIRMADO_AGUARDANDO_GERENCIAMENTO_PLAN",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41695958565"
+      "status": "CODIGO_CORRIGIDO_CI_GREEN_TESTE_C_LINT_FAIL",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
+      "commit": "b1fe1695f40880f410ef458c1d91b9d9a7c5db9c",
+      "tests": [
+        "rootLocale 4/4",
+        "Suíte total 765/765",
+        "CI types/build/static PASS"
+      ],
+      "pending": "Lint de formatação em 3 arquivos no Teste C; posterior visual."
     },
     {
       "id": "RETRO-BRAND-COVERAGE",
-      "status": "RED_CONFIRMADO_AGUARDANDO_GERENCIAMENTO_PLAN",
-      "evidence": "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      "status": "22_TELAS_COBERTAS_CI_GREEN_TESTE_C_LINT_FAIL",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
+      "commit": "026e34720091dc997b7c25606f504c6a3436e129",
+      "pending": "Formatação e prova visual browser autenticado"
     },
     {
       "id": "RETRO-CI-FRONTEND",
-      "status": "CI_INSTALADO_FAIL_COMPROVADO",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41695958565",
+      "status": "CI_PERMANENTE_PASS_EM_32766",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
       "commit": "bc00a9a970a00462b925ce38e65a33c3f6cd1530",
-      "guard_commit": "0c981e8614947d8b22b79ecc701f00f62c015251"
+      "guard_commit": "0c981e8614947d8b22b79ecc701f00f62c015251",
+      "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
+      "tests": [
+        "765/765",
+        "TS PASS",
+        "Vite PASS",
+        "Guard BRAND-01 PASS"
+      ],
+      "pending": "Branch protection obrigatória sem plano GitHub elegível"
     },
     {
       "id": "RETRO-E2E-SYS03",
@@ -76,10 +95,13 @@
     },
     {
       "id": "RETRO-BRAND-DARK",
-      "status": "PENDENTE_FIX_VISUAL",
+      "status": "VARIANTE_OFICIAL_CORRIGIDA_CI_PASS_VISUAL_NAO_VERIFICADO",
       "description": "22/22 headers e aside utilizam bg-primary com fundo claro dark; logo oficial desktop navy retangular e mobile símbolo branco não se adaptam.",
-      "evidence": "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
-      "action": "Lovable PLAN separado para variante oficial navy claro/escuro, inserir 2 SVGs oficiais byte-identicos e Teste C visual."
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "action": "Lovable PLAN separado para variante oficial navy claro/escuro, inserir 2 SVGs oficiais byte-identicos e Teste C visual.",
+      "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
+      "commit": "bf332dc70e165eed57e2c7bad4a4e447e9d1f11c",
+      "pending": "Prova visual de contraste 4 breakpoints x 2 temas"
     },
     {
       "id": "RETRO-BRANCH-PROTECTION",
@@ -94,6 +116,13 @@
       "description": "Plano mínimo transversal PT-BR e testes BRAND-01 foi gerado no Lovable e o tool plan--show exige decisão humana.",
       "event_id": "main:agent#00000000019742#tcb:Y7UTQ2BE",
       "message_id": "umsg_01m6hb7qg3ffnrwa5m03jn4svm"
+    },
+    {
+      "id": "RETRO-LINT-TESTE-C-2026-11-03",
+      "status": "CORRECAO_EM_EXECUCAO_LOVABLE",
+      "detail": "Teste C read-only candidato 026e34720091... FAIL devido 36 erros prettier em scripts/frontend-zero-drift.mjs, brand.test.tsx, rootLocale.test.tsx. Build de formatação mínimo enviado ao Lovable sem alteração semântica, aguarda SHA e rerun.",
+      "lovable_message": "umsg_01m6hdad0fem8rnhkp1j7218g6",
+      "ci_baseline": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939"
     }
   ],
   "rows": [
@@ -1220,21 +1249,34 @@
     "active_plan": 1,
     "global_resolutions_done": [
       "RESTORE_TYPES",
-      "PROJECT_KNOWLEDGE"
+      "PROJECT_KNOWLEDGE",
+      "ROOT_PTBR_CODIGO_CI",
+      "BRAND_22_TELAS_CI",
+      "BRAND_DARK_CODIGO_CI",
+      "CI_FRONTEND_GREEN"
     ],
     "global_coverage_installed": [
       "FRONTEND_CI_BRAND_22"
     ],
     "critical_blockers": [
-      "PLAN_APPROVAL",
-      "BRAND_DARK_MODE",
-      "ROOT_PTBR",
-      "BRAND_9_TESTS",
+      "TESTE_C_LINT_FORMATACAO",
+      "AUDITORIA_VISUAL_AUTENTICADA",
       "SYS03_E2E",
       "V117_BUILD",
       "BRANCH_RULESET_GITHUB_PRO",
-      "AUDITORIA_VISUAL_AUTHENTICADA"
+      "RASTREABILIDADE_39_COMPLETA"
     ],
-    "note": "As 39 linhas estão individualizadas, 2 subcorreções globais concluídas, CI instalado mas RED. Não atribuir 100% sem evidências e gates finalizados."
+    "note": "Código e CI do escopo de saneamento passaram em 32766...: 765/765 + TS + build + guard; Teste C separado FAIL por formatação; não declarar 100% até novo SHA e evidência."
+  },
+  "evidence_latest": {
+    "ci_green_sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
+    "ci_green_run": 41700788939,
+    "test_count": 765,
+    "typecheck": "pass",
+    "build": "pass",
+    "brand_guard": "pass",
+    "teste_c_sha": "026e34720091dc997b7c25606f504c6a3436e129",
+    "teste_c_result": "FAIL_FORMATACAO",
+    "teste_c_reason": "Lint prettier em 3 arquivos (teste isolado), correção enviada para Lovable."
   }
 }
