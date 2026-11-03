@@ -70,3 +70,10 @@ Correção mínima a planejar e provar numa migration DIFERENTE:
 
 ## Proibido nesta etapa
 Sem migrations aplicadas, sem DDL, sem RLS/Auth/Edge/Storage, sem alterações frontend, sem mutação em PROD. Este documento registra o PLAN para posterior autorização delimitada, não afirma execução nem certificação.
+
+## Verificação complementar do worker (read-only no GitHub)
+- Arquivo `supabase/functions/queue-worker-ai/index.ts`, blob `4e25bed461e56343aefb5ba00e2e81b1e4fd7f56`, função `analisarCompetencia`, linha 42: lê `execucoes_analise.requisitos_afetados` e filtra a lista de `requisitos_competencia` usando `Set` quando o array não está vazio. Portanto há implementação concreta da seleção parcial no worker.
+- A mesma função lê os dados da execução e marca `processando` antes de montar a lista; a prova B2 deve validar atomicidade de escopo, race com job já em processamento e ausência de duplicidade de resultados.
+- Se `requisitos_afetados` for nulo ou lista vazia, o worker processa todos os requisitos. A RPC incremental já rejeita lista vazia, mas o hardening deve preservar essa invariante e testar seleção vazia/ausente.
+- Confirmar em teste HML que a resposta semântica filtrada não é persistida para outros requisitos e que duplicidade de execução resulta em reconciliação segura, sem UPDATE silencioso do escopo.
+- A inspeção não alterou Edge, worker ou dados. Não é uma certificação de concorrência.
