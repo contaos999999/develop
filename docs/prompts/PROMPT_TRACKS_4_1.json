@@ -1,6 +1,6 @@
 {
   "schema_version": "4.1",
-  "catalog_status": "CONTEUDO_CANONICO_96_MAIS_BRAND_000_VERIFICADO; MAPEAMENTO_INDIVIDUAL_REGULAR_PENDENTE_PARA_ETAPAS_NAO_EXECUTADAS",
+  "catalog_status": "FONTES_ORIGINAIS_LOCALIZADAS_E_NUMERACAO_CONFERIDA",
   "description": "Inventário numérico e matriz de rastreabilidade. A presença de IDs NÃO certifica conteúdo nem cruzamento.",
   "regular": {
     "range": "00-99",
@@ -112,7 +112,10 @@
       "99"
     ],
     "canonical_protocol_and_screen_spec_in_repository": true,
-    "original_manual_docx_embedded_as_git_blob": false
+    "original_manual_docx_embedded_as_git_blob": false,
+    "originals_verified_in_archive": true,
+    "original_prompt_count_verified": 100,
+    "original_missing_ids": []
   },
   "atomic": {
     "range": "000-096",
@@ -226,7 +229,7 @@
     "canonical_requirement_contents_in_repository": true,
     "canonical_96_verified": true,
     "brand_000_verified": true,
-    "numeric_sequence_from_canonical_order_requires_source_confirmation": true,
+    "numeric_sequence_from_canonical_order_requires_source_confirmation": false,
     "canonical_items": [
       {
         "ordinal_in_canonical_matrix": 1,
@@ -1794,321 +1797,803 @@
         "source_file": "08D_REQUISITOS_073_096_4_1.md",
         "source_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
       }
-    ]
+    ],
+    "originals_verified_in_archive": true,
+    "original_prompt_count_verified": 97,
+    "original_missing_ids": [],
+    "original_ordinal_verified_against_matrix": true,
+    "exact_numeric_to_requirement_id": {
+      "001": "V1-CON-001",
+      "002": "V1-CON-002",
+      "003": "V1-CON-003",
+      "004": "V1-CON-004",
+      "005": "V1-CON-005",
+      "006": "V1-HIS-001",
+      "007": "V1-HIS-002",
+      "008": "V1-HIS-003",
+      "009": "V1-HIS-004",
+      "010": "V1-HIS-005",
+      "011": "V1-CHK-001",
+      "012": "V1-CHK-002",
+      "013": "V1-CHK-003",
+      "014": "V1-CHK-004",
+      "015": "V1-DOC-001",
+      "016": "V1-DOC-002",
+      "017": "V1-DOC-003",
+      "018": "V1-DOC-004",
+      "019": "V1-DOC-005",
+      "020": "V1-AUD-001",
+      "021": "V1-AUD-002",
+      "022": "V1-AUD-003",
+      "023": "V1-AUD-004",
+      "024": "V1-AUD-005",
+      "025": "V2-DIL-001",
+      "026": "V2-DIL-002",
+      "027": "V2-DIL-003",
+      "028": "V2-DIL-004",
+      "029": "V2-PRO-001",
+      "030": "V2-PRO-002",
+      "031": "V2-PRO-003",
+      "032": "V2-PRO-004",
+      "033": "V2-ACT-001",
+      "034": "V2-ACT-002",
+      "035": "V2-ACT-003",
+      "036": "V2-ACT-004",
+      "037": "V2-CONTEST-001",
+      "038": "V2-CONTEST-002",
+      "039": "V2-CONTEST-003",
+      "040": "V2-CONTEST-004",
+      "041": "V2-KB-001",
+      "042": "V2-KB-002",
+      "043": "V2-KB-003",
+      "044": "V3-PREV-001",
+      "045": "V3-PREV-002",
+      "046": "V3-PREV-003",
+      "047": "V3-PREV-004",
+      "048": "V3-PREV-005",
+      "049": "V3-PREV-006",
+      "050": "V3-PREV-007",
+      "051": "V3-ALT-001",
+      "052": "V3-ALT-002",
+      "053": "V3-ALT-003",
+      "054": "V3-ALT-004",
+      "055": "V4-INT-001",
+      "056": "V4-INT-002",
+      "057": "V4-INT-003",
+      "058": "V4-INT-004",
+      "059": "V4-PREC-001",
+      "060": "V4-PREC-002",
+      "061": "V4-PREC-003",
+      "062": "V4-PREC-004",
+      "063": "V4-TRV-001",
+      "064": "V4-TRV-002",
+      "065": "V4-TRV-003",
+      "066": "V4-TRV-004",
+      "067": "V4-TRV-005",
+      "068": "V4-TRV-006",
+      "069": "V4-TRV-007",
+      "070": "V4-TRV-008",
+      "071": "V4-COP-001",
+      "072": "V4-COP-002",
+      "073": "V4-COP-003",
+      "074": "V4-COP-004",
+      "075": "V5-CCM-001",
+      "076": "V5-CCM-002",
+      "077": "V5-CCM-003",
+      "078": "V5-CCM-004",
+      "079": "V5-REG-001",
+      "080": "V5-REG-002",
+      "081": "V5-REG-003",
+      "082": "V5-AUDPORT-001",
+      "083": "V5-AUDPORT-002",
+      "084": "V5-AUDPORT-003",
+      "085": "NFR-001",
+      "086": "NFR-002",
+      "087": "NFR-003",
+      "088": "NFR-004",
+      "089": "NFR-005",
+      "090": "NFR-006",
+      "091": "NFR-007",
+      "092": "NFR-008",
+      "093": "NFR-009",
+      "094": "NFR-010",
+      "095": "NFR-011",
+      "096": "NFR-012"
+    }
   },
   "crosswalk": {
-    "status": "PARCIAL_CANONICO_REQUISITOS_VALIDADO",
+    "status": "FONTES_VERIFICADAS_MATRIZ_ESTRUTURAL_POR_TELA_PARCIAL",
     "regular_to_atomic": [
       {
         "regular_id": "00",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "01",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "02",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "03",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "04",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "05",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "06",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "07",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "08",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "09",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "10",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "11",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "12",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "13",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "14",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "15",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "16",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 16 -> SYS-01; Matriz 08A–08D: coluna Tela(s) contém SYS-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "SYS-01",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "17",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 17 -> SYS-02; Matriz 08A–08D: coluna Tela(s) contém SYS-02; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "SYS-02",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "18",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 18 -> SYS-03; Matriz 08A–08D: coluna Tela(s) contém SYS-03; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "SYS-03",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "19",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 19 -> SYS-04; Matriz 08A–08D: coluna Tela(s) contém SYS-04; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "SYS-04",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "20",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 20 -> SYS-05; Matriz 08A–08D: coluna Tela(s) contém SYS-05; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "SYS-05",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "21",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 21 -> ADM-01; Matriz 08A–08D: coluna Tela(s) contém ADM-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "ADM-01",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "22",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 22 -> V1-01; Matriz 08A–08D: coluna Tela(s) contém V1-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-01",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "23",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 23 -> V1-02; Matriz 08A–08D: coluna Tela(s) contém V1-02; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-02",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "24",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 24 -> V1-03; Matriz 08A–08D: coluna Tela(s) contém V1-03; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-03",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "25",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 25 -> V1-04; Matriz 08A–08D: coluna Tela(s) contém V1-04; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-04",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "26",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 26 -> V1-05; Matriz 08A–08D: coluna Tela(s) contém V1-05; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-05",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "27",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "001",
+          "002",
+          "004",
+          "005"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 27 -> V1-06; Matriz 08A–08D: coluna Tela(s) contém V1-06; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-06",
+        "related_requirement_ids": [
+          "V1-CON-001",
+          "V1-CON-002",
+          "V1-CON-004",
+          "V1-CON-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CON-001",
+          "A-V1-CON-002",
+          "A-V1-CON-004",
+          "A-V1-CON-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "28",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "001",
+          "002",
+          "004",
+          "005"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 28 -> V1-07; Matriz 08A–08D: coluna Tela(s) contém V1-07; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-07",
+        "related_requirement_ids": [
+          "V1-CON-001",
+          "V1-CON-002",
+          "V1-CON-004",
+          "V1-CON-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CON-001",
+          "A-V1-CON-002",
+          "A-V1-CON-004",
+          "A-V1-CON-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "29",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "001",
+          "002",
+          "003",
+          "004",
+          "005"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 29 -> V1-08; Matriz 08A–08D: coluna Tela(s) contém V1-08; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-08",
+        "related_requirement_ids": [
+          "V1-CON-001",
+          "V1-CON-002",
+          "V1-CON-003",
+          "V1-CON-004",
+          "V1-CON-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CON-001",
+          "A-V1-CON-002",
+          "A-V1-CON-003",
+          "A-V1-CON-004",
+          "A-V1-CON-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "30",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "011",
+          "012",
+          "013",
+          "014"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 30 -> V1-09; Matriz 08A–08D: coluna Tela(s) contém V1-09; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-09",
+        "related_requirement_ids": [
+          "V1-CHK-001",
+          "V1-CHK-002",
+          "V1-CHK-003",
+          "V1-CHK-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CHK-001",
+          "A-V1-CHK-002",
+          "A-V1-CHK-003",
+          "A-V1-CHK-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "31",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "001",
+          "002",
+          "004",
+          "005",
+          "015",
+          "016",
+          "017",
+          "018",
+          "019",
+          "087",
+          "088"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 31 -> V1-10; Matriz 08A–08D: coluna Tela(s) contém V1-10; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-10",
+        "related_requirement_ids": [
+          "V1-CON-001",
+          "V1-CON-002",
+          "V1-CON-004",
+          "V1-CON-005",
+          "V1-DOC-001",
+          "V1-DOC-002",
+          "V1-DOC-003",
+          "V1-DOC-004",
+          "V1-DOC-005",
+          "NFR-003",
+          "NFR-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CON-001",
+          "A-V1-CON-002",
+          "A-V1-CON-004",
+          "A-V1-CON-005",
+          "A-V1-DOC-001",
+          "A-V1-DOC-002",
+          "A-V1-DOC-003",
+          "A-V1-DOC-004",
+          "A-V1-DOC-005",
+          "A-NFR-003",
+          "A-NFR-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "32",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "015",
+          "016",
+          "017",
+          "018",
+          "019",
+          "087"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 32 -> V1-11; Matriz 08A–08D: coluna Tela(s) contém V1-11; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-11",
+        "related_requirement_ids": [
+          "V1-DOC-001",
+          "V1-DOC-002",
+          "V1-DOC-003",
+          "V1-DOC-004",
+          "V1-DOC-005",
+          "NFR-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-DOC-001",
+          "A-V1-DOC-002",
+          "A-V1-DOC-003",
+          "A-V1-DOC-004",
+          "A-V1-DOC-005",
+          "A-NFR-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "33",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 33 -> V1-12; Matriz 08A–08D: coluna Tela(s) contém V1-12; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-12",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "34",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 34 -> V1-13; Matriz 08A–08D: coluna Tela(s) contém V1-13; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-13",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "35",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "011",
+          "012",
+          "013",
+          "014"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 35 -> V1-14; Matriz 08A–08D: coluna Tela(s) contém V1-14; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-14",
+        "related_requirement_ids": [
+          "V1-CHK-001",
+          "V1-CHK-002",
+          "V1-CHK-003",
+          "V1-CHK-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CHK-001",
+          "A-V1-CHK-002",
+          "A-V1-CHK-003",
+          "A-V1-CHK-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "36",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "015",
+          "016",
+          "017",
+          "018",
+          "019"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 36 -> V1-15; Matriz 08A–08D: coluna Tela(s) contém V1-15; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-15",
+        "related_requirement_ids": [
+          "V1-DOC-001",
+          "V1-DOC-002",
+          "V1-DOC-003",
+          "V1-DOC-004",
+          "V1-DOC-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-DOC-001",
+          "A-V1-DOC-002",
+          "A-V1-DOC-003",
+          "A-V1-DOC-004",
+          "A-V1-DOC-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "37",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "020",
+          "021",
+          "022",
+          "023",
+          "024"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 37 -> V1-16; Matriz 08A–08D: coluna Tela(s) contém V1-16; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-16",
+        "related_requirement_ids": [
+          "V1-AUD-001",
+          "V1-AUD-002",
+          "V1-AUD-003",
+          "V1-AUD-004",
+          "V1-AUD-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-AUD-001",
+          "A-V1-AUD-002",
+          "A-V1-AUD-003",
+          "A-V1-AUD-004",
+          "A-V1-AUD-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "38",
-        "status": "cobertura_canonica_tela_v117_validada",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "011",
+          "012",
+          "013",
+          "014",
+          "021",
+          "022",
+          "023",
+          "024"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": "08A_REQUISITOS_001_024_4_1.md (coluna Tela(s)=V1-17); 20_PROMPT_000_BRAND_01.md; docs/frontend/lovable V1-17 e Lovable PLAN Prompt 38",
+        "review_evidence": "Manual original: Prompt 38 -> V1-17; Matriz 08A–08D: coluna Tela(s) contém V1-17; Caderno atômico original: 001–096",
         "reviewer": "ChatGPT/Codex: conferência do conteúdo canônico no GitHub",
         "relevant_canonical_atomic_keys": [
           "A-V1-CHK-001",
@@ -2132,495 +2617,1434 @@
         ],
         "transversal_brand_000": true,
         "numbered_equivalence_status": "PENDENTE_CONFERENCIA_TEXTO_INTEGRAL_CADERNO_NUMERADO",
-        "reviewed_date": "2026-11-03"
+        "reviewed_date": "2026-11-03",
+        "source_verified": true,
+        "screen": "V1-17",
+        "related_requirement_ids": [
+          "V1-CHK-001",
+          "V1-CHK-002",
+          "V1-CHK-003",
+          "V1-CHK-004",
+          "V1-AUD-002",
+          "V1-AUD-003",
+          "V1-AUD-004",
+          "V1-AUD-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "IDs diretos por tela + BRAND-01 verificados. NFR-005/007/008/009/010 e rastreabilidade documental identificados como requisitos transversais adicionais no active-task.",
+        "transversal_additional_atomic_ids": [
+          "089",
+          "091",
+          "092",
+          "093",
+          "094"
+        ],
+        "related_non_screen_requirements": [
+          "NFR-005",
+          "NFR-007",
+          "NFR-008",
+          "NFR-009",
+          "NFR-010"
+        ]
       },
       {
         "regular_id": "39",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "021",
+          "022",
+          "023"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 39 -> V1-18; Matriz 08A–08D: coluna Tela(s) contém V1-18; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-18",
+        "related_requirement_ids": [
+          "V1-AUD-002",
+          "V1-AUD-003",
+          "V1-AUD-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-AUD-002",
+          "A-V1-AUD-003",
+          "A-V1-AUD-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "40",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "067"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 40 -> V1-19; Matriz 08A–08D: coluna Tela(s) contém V1-19; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-19",
+        "related_requirement_ids": [
+          "V4-TRV-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-TRV-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "41",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 41 -> V1-20; Matriz 08A–08D: coluna Tela(s) contém V1-20; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-20",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "42",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "006",
+          "007",
+          "008",
+          "009",
+          "010"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 42 -> V1-21; Matriz 08A–08D: coluna Tela(s) contém V1-21; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-21",
+        "related_requirement_ids": [
+          "V1-HIS-001",
+          "V1-HIS-002",
+          "V1-HIS-003",
+          "V1-HIS-004",
+          "V1-HIS-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-HIS-001",
+          "A-V1-HIS-002",
+          "A-V1-HIS-003",
+          "A-V1-HIS-004",
+          "A-V1-HIS-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "43",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "006",
+          "007",
+          "008",
+          "009",
+          "010"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 43 -> V1-22; Matriz 08A–08D: coluna Tela(s) contém V1-22; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-22",
+        "related_requirement_ids": [
+          "V1-HIS-001",
+          "V1-HIS-002",
+          "V1-HIS-003",
+          "V1-HIS-004",
+          "V1-HIS-005"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-HIS-001",
+          "A-V1-HIS-002",
+          "A-V1-HIS-003",
+          "A-V1-HIS-004",
+          "A-V1-HIS-005"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "44",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "025",
+          "026",
+          "027",
+          "028"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 44 -> V2-01; Matriz 08A–08D: coluna Tela(s) contém V2-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-01",
+        "related_requirement_ids": [
+          "V2-DIL-001",
+          "V2-DIL-002",
+          "V2-DIL-003",
+          "V2-DIL-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-DIL-001",
+          "A-V2-DIL-002",
+          "A-V2-DIL-003",
+          "A-V2-DIL-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "45",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "026",
+          "027",
+          "028"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 45 -> V2-02; Matriz 08A–08D: coluna Tela(s) contém V2-02; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-02",
+        "related_requirement_ids": [
+          "V2-DIL-002",
+          "V2-DIL-003",
+          "V2-DIL-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-DIL-002",
+          "A-V2-DIL-003",
+          "A-V2-DIL-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "46",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "026",
+          "027",
+          "028",
+          "029",
+          "030",
+          "031",
+          "032",
+          "040",
+          "041",
+          "042"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 46 -> V2-03; Matriz 08A–08D: coluna Tela(s) contém V2-03; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-03",
+        "related_requirement_ids": [
+          "V2-DIL-002",
+          "V2-DIL-003",
+          "V2-DIL-004",
+          "V2-PRO-001",
+          "V2-PRO-002",
+          "V2-PRO-003",
+          "V2-PRO-004",
+          "V2-CONTEST-004",
+          "V2-KB-001",
+          "V2-KB-002"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-DIL-002",
+          "A-V2-DIL-003",
+          "A-V2-DIL-004",
+          "A-V2-PRO-001",
+          "A-V2-PRO-002",
+          "A-V2-PRO-003",
+          "A-V2-PRO-004",
+          "A-V2-CONTEST-004",
+          "A-V2-KB-001",
+          "A-V2-KB-002"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "47",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "033",
+          "034",
+          "035",
+          "036"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 47 -> V2-04; Matriz 08A–08D: coluna Tela(s) contém V2-04; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-04",
+        "related_requirement_ids": [
+          "V2-ACT-001",
+          "V2-ACT-002",
+          "V2-ACT-003",
+          "V2-ACT-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-ACT-001",
+          "A-V2-ACT-002",
+          "A-V2-ACT-003",
+          "A-V2-ACT-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "48",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "037",
+          "038",
+          "039"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 48 -> V2-05; Matriz 08A–08D: coluna Tela(s) contém V2-05; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-05",
+        "related_requirement_ids": [
+          "V2-CONTEST-001",
+          "V2-CONTEST-002",
+          "V2-CONTEST-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-CONTEST-001",
+          "A-V2-CONTEST-002",
+          "A-V2-CONTEST-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "49",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "037",
+          "038",
+          "039"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 49 -> V2-06; Matriz 08A–08D: coluna Tela(s) contém V2-06; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-06",
+        "related_requirement_ids": [
+          "V2-CONTEST-001",
+          "V2-CONTEST-002",
+          "V2-CONTEST-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-CONTEST-001",
+          "A-V2-CONTEST-002",
+          "A-V2-CONTEST-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "50",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "044",
+          "047",
+          "048",
+          "049"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 50 -> V3-01; Matriz 08A–08D: coluna Tela(s) contém V3-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-01",
+        "related_requirement_ids": [
+          "V3-PREV-001",
+          "V3-PREV-004",
+          "V3-PREV-005",
+          "V3-PREV-006"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V3-PREV-001",
+          "A-V3-PREV-004",
+          "A-V3-PREV-005",
+          "A-V3-PREV-006"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "51",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 51 -> V3-02; Matriz 08A–08D: coluna Tela(s) contém V3-02; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-02",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "52",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 52 -> V3-03; Matriz 08A–08D: coluna Tela(s) contém V3-03; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-03",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "53",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "044",
+          "045",
+          "046",
+          "047",
+          "048",
+          "049",
+          "050"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 53 -> V3-04; Matriz 08A–08D: coluna Tela(s) contém V3-04; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-04",
+        "related_requirement_ids": [
+          "V3-PREV-001",
+          "V3-PREV-002",
+          "V3-PREV-003",
+          "V3-PREV-004",
+          "V3-PREV-005",
+          "V3-PREV-006",
+          "V3-PREV-007"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V3-PREV-001",
+          "A-V3-PREV-002",
+          "A-V3-PREV-003",
+          "A-V3-PREV-004",
+          "A-V3-PREV-005",
+          "A-V3-PREV-006",
+          "A-V3-PREV-007"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "54",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "044",
+          "047",
+          "048",
+          "049"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 54 -> V3-05; Matriz 08A–08D: coluna Tela(s) contém V3-05; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-05",
+        "related_requirement_ids": [
+          "V3-PREV-001",
+          "V3-PREV-004",
+          "V3-PREV-005",
+          "V3-PREV-006"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V3-PREV-001",
+          "A-V3-PREV-004",
+          "A-V3-PREV-005",
+          "A-V3-PREV-006"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "55",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "044",
+          "047",
+          "048",
+          "049",
+          "050",
+          "051",
+          "052",
+          "053",
+          "054"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 55 -> V3-06; Matriz 08A–08D: coluna Tela(s) contém V3-06; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-06",
+        "related_requirement_ids": [
+          "V3-PREV-001",
+          "V3-PREV-004",
+          "V3-PREV-005",
+          "V3-PREV-006",
+          "V3-PREV-007",
+          "V3-ALT-001",
+          "V3-ALT-002",
+          "V3-ALT-003",
+          "V3-ALT-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V3-PREV-001",
+          "A-V3-PREV-004",
+          "A-V3-PREV-005",
+          "A-V3-PREV-006",
+          "A-V3-PREV-007",
+          "A-V3-ALT-001",
+          "A-V3-ALT-002",
+          "A-V3-ALT-003",
+          "A-V3-ALT-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "56",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "041",
+          "042",
+          "059"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 56 -> V4-01; Matriz 08A–08D: coluna Tela(s) contém V4-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-01",
+        "related_requirement_ids": [
+          "V2-KB-001",
+          "V2-KB-002",
+          "V4-PREC-001"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-KB-001",
+          "A-V2-KB-002",
+          "A-V4-PREC-001"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "57",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "059",
+          "060",
+          "061",
+          "062"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 57 -> V4-02; Matriz 08A–08D: coluna Tela(s) contém V4-02; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-02",
+        "related_requirement_ids": [
+          "V4-PREC-001",
+          "V4-PREC-002",
+          "V4-PREC-003",
+          "V4-PREC-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-PREC-001",
+          "A-V4-PREC-002",
+          "A-V4-PREC-003",
+          "A-V4-PREC-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "58",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "068"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 58 -> V4-03; Matriz 08A–08D: coluna Tela(s) contém V4-03; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-03",
+        "related_requirement_ids": [
+          "V4-TRV-006"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-TRV-006"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "59",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "063",
+          "064",
+          "065",
+          "066",
+          "067",
+          "068",
+          "069",
+          "070"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 59 -> V4-04; Matriz 08A–08D: coluna Tela(s) contém V4-04; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-04",
+        "related_requirement_ids": [
+          "V4-TRV-001",
+          "V4-TRV-002",
+          "V4-TRV-003",
+          "V4-TRV-004",
+          "V4-TRV-005",
+          "V4-TRV-006",
+          "V4-TRV-007",
+          "V4-TRV-008"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-TRV-001",
+          "A-V4-TRV-002",
+          "A-V4-TRV-003",
+          "A-V4-TRV-004",
+          "A-V4-TRV-005",
+          "A-V4-TRV-006",
+          "A-V4-TRV-007",
+          "A-V4-TRV-008"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "60",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "075",
+          "076",
+          "077"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 60 -> V5-01; Matriz 08A–08D: coluna Tela(s) contém V5-01; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-01",
+        "related_requirement_ids": [
+          "V5-CCM-001",
+          "V5-CCM-002",
+          "V5-CCM-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-CCM-001",
+          "A-V5-CCM-002",
+          "A-V5-CCM-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "61",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "075",
+          "076",
+          "077"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 61 -> V5-02; Matriz 08A–08D: coluna Tela(s) contém V5-02; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-02",
+        "related_requirement_ids": [
+          "V5-CCM-001",
+          "V5-CCM-002",
+          "V5-CCM-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-CCM-001",
+          "A-V5-CCM-002",
+          "A-V5-CCM-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "62",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "075",
+          "076",
+          "077"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 62 -> V5-03; Matriz 08A–08D: coluna Tela(s) contém V5-03; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-03",
+        "related_requirement_ids": [
+          "V5-CCM-001",
+          "V5-CCM-002",
+          "V5-CCM-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-CCM-001",
+          "A-V5-CCM-002",
+          "A-V5-CCM-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "63",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "075",
+          "076",
+          "077"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 63 -> V5-04; Matriz 08A–08D: coluna Tela(s) contém V5-04; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-04",
+        "related_requirement_ids": [
+          "V5-CCM-001",
+          "V5-CCM-002",
+          "V5-CCM-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-CCM-001",
+          "A-V5-CCM-002",
+          "A-V5-CCM-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "64",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "075",
+          "076",
+          "077",
+          "078"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 64 -> V5-05; Matriz 08A–08D: coluna Tela(s) contém V5-05; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-05",
+        "related_requirement_ids": [
+          "V5-CCM-001",
+          "V5-CCM-002",
+          "V5-CCM-003",
+          "V5-CCM-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-CCM-001",
+          "A-V5-CCM-002",
+          "A-V5-CCM-003",
+          "A-V5-CCM-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "65",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 65 -> V5-06; Matriz 08A–08D: coluna Tela(s) contém V5-06; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-06",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "66",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 66 -> V5-07; Matriz 08A–08D: coluna Tela(s) contém V5-07; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-07",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "67",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "68",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "69",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "70",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "71",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "72",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "73",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "74",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "75",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "020",
+          "021",
+          "022",
+          "023"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 75 -> V1-23; Matriz 08A–08D: coluna Tela(s) contém V1-23; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V1-23",
+        "related_requirement_ids": [
+          "V1-AUD-001",
+          "V1-AUD-002",
+          "V1-AUD-003",
+          "V1-AUD-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-AUD-001",
+          "A-V1-AUD-002",
+          "A-V1-AUD-003",
+          "A-V1-AUD-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "76",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "025",
+          "026",
+          "027",
+          "028",
+          "029",
+          "030",
+          "031",
+          "032"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 76 -> V2-07; Matriz 08A–08D: coluna Tela(s) contém V2-07; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-07",
+        "related_requirement_ids": [
+          "V2-DIL-001",
+          "V2-DIL-002",
+          "V2-DIL-003",
+          "V2-DIL-004",
+          "V2-PRO-001",
+          "V2-PRO-002",
+          "V2-PRO-003",
+          "V2-PRO-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-DIL-001",
+          "A-V2-DIL-002",
+          "A-V2-DIL-003",
+          "A-V2-DIL-004",
+          "A-V2-PRO-001",
+          "A-V2-PRO-002",
+          "A-V2-PRO-003",
+          "A-V2-PRO-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "77",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "037",
+          "038",
+          "039",
+          "040",
+          "041",
+          "042",
+          "043"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 77 -> V2-08; Matriz 08A–08D: coluna Tela(s) contém V2-08; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V2-08",
+        "related_requirement_ids": [
+          "V2-CONTEST-001",
+          "V2-CONTEST-002",
+          "V2-CONTEST-003",
+          "V2-CONTEST-004",
+          "V2-KB-001",
+          "V2-KB-002",
+          "V2-KB-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-CONTEST-001",
+          "A-V2-CONTEST-002",
+          "A-V2-CONTEST-003",
+          "A-V2-CONTEST-004",
+          "A-V2-KB-001",
+          "A-V2-KB-002",
+          "A-V2-KB-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "78",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "044",
+          "046",
+          "047",
+          "048",
+          "049"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 78 -> V3-07; Matriz 08A–08D: coluna Tela(s) contém V3-07; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-07",
+        "related_requirement_ids": [
+          "V3-PREV-001",
+          "V3-PREV-003",
+          "V3-PREV-004",
+          "V3-PREV-005",
+          "V3-PREV-006"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V3-PREV-001",
+          "A-V3-PREV-003",
+          "A-V3-PREV-004",
+          "A-V3-PREV-005",
+          "A-V3-PREV-006"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "79",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "003",
+          "044",
+          "045",
+          "047",
+          "048",
+          "049"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 79 -> V3-08; Matriz 08A–08D: coluna Tela(s) contém V3-08; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V3-08",
+        "related_requirement_ids": [
+          "V1-CON-003",
+          "V3-PREV-001",
+          "V3-PREV-002",
+          "V3-PREV-004",
+          "V3-PREV-005",
+          "V3-PREV-006"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V1-CON-003",
+          "A-V3-PREV-001",
+          "A-V3-PREV-002",
+          "A-V3-PREV-004",
+          "A-V3-PREV-005",
+          "A-V3-PREV-006"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "80",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "043",
+          "055",
+          "056",
+          "057",
+          "058",
+          "069"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 80 -> V4-05; Matriz 08A–08D: coluna Tela(s) contém V4-05; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-05",
+        "related_requirement_ids": [
+          "V2-KB-003",
+          "V4-INT-001",
+          "V4-INT-002",
+          "V4-INT-003",
+          "V4-INT-004",
+          "V4-TRV-007"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V2-KB-003",
+          "A-V4-INT-001",
+          "A-V4-INT-002",
+          "A-V4-INT-003",
+          "A-V4-INT-004",
+          "A-V4-TRV-007"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "81",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "058"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 81 -> V4-06; Matriz 08A–08D: coluna Tela(s) contém V4-06; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-06",
+        "related_requirement_ids": [
+          "V4-INT-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-INT-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "82",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "055",
+          "057"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 82 -> V4-07; Matriz 08A–08D: coluna Tela(s) contém V4-07; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-07",
+        "related_requirement_ids": [
+          "V4-INT-001",
+          "V4-INT-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-INT-001",
+          "A-V4-INT-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "83",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "071",
+          "072",
+          "073",
+          "074"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 83 -> V4-08; Matriz 08A–08D: coluna Tela(s) contém V4-08; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V4-08",
+        "related_requirement_ids": [
+          "V4-COP-001",
+          "V4-COP-002",
+          "V4-COP-003",
+          "V4-COP-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V4-COP-001",
+          "A-V4-COP-002",
+          "A-V4-COP-003",
+          "A-V4-COP-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "84",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "075",
+          "076",
+          "077",
+          "078"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 84 -> V5-08; Matriz 08A–08D: coluna Tela(s) contém V5-08; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-08",
+        "related_requirement_ids": [
+          "V5-CCM-001",
+          "V5-CCM-002",
+          "V5-CCM-003",
+          "V5-CCM-004"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-CCM-001",
+          "A-V5-CCM-002",
+          "A-V5-CCM-003",
+          "A-V5-CCM-004"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "85",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "079",
+          "080",
+          "081"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 85 -> V5-09; Matriz 08A–08D: coluna Tela(s) contém V5-09; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-09",
+        "related_requirement_ids": [
+          "V5-REG-001",
+          "V5-REG-002",
+          "V5-REG-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-REG-001",
+          "A-V5-REG-002",
+          "A-V5-REG-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "86",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 86 -> V5-10; Matriz 08A–08D: coluna Tela(s) contém V5-10; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-10",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "87",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "082",
+          "083",
+          "084"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 87 -> V5-11; Matriz 08A–08D: coluna Tela(s) contém V5-11; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-11",
+        "related_requirement_ids": [
+          "V5-AUDPORT-001",
+          "V5-AUDPORT-002",
+          "V5-AUDPORT-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-AUDPORT-001",
+          "A-V5-AUDPORT-002",
+          "A-V5-AUDPORT-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "88",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 88 -> V5-12; Matriz 08A–08D: coluna Tela(s) contém V5-12; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-12",
+        "related_requirement_ids": [],
+        "relevant_canonical_atomic_keys": [],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "89",
-        "status": "pendente_fonte",
-        "relevant_atomic_ids": [],
+        "status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+        "relevant_atomic_ids": [
+          "000",
+          "082",
+          "083",
+          "084"
+        ],
         "not_relevant_atomic_ids": [],
-        "review_evidence": null,
-        "reviewer": null
+        "review_evidence": "Manual original: Prompt 89 -> V5-11; Matriz 08A–08D: coluna Tela(s) contém V5-11; Caderno atômico original: 001–096",
+        "reviewer": null,
+        "source_verified": true,
+        "screen": "V5-11",
+        "related_requirement_ids": [
+          "V5-AUDPORT-001",
+          "V5-AUDPORT-002",
+          "V5-AUDPORT-003"
+        ],
+        "relevant_canonical_atomic_keys": [
+          "A-V5-AUDPORT-001",
+          "A-V5-AUDPORT-002",
+          "A-V5-AUDPORT-003"
+        ],
+        "numeric_equivalence_status": "CONFERIDO",
+        "review_scope_limit": "Relacionamento direto da tela verificado. Requisitos transversais adicionais e exclusões restantes exigem verificação de escopo; 000 é obrigatório para alterações frontend."
       },
       {
         "regular_id": "90",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "91",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "92",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "93",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "94",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "95",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "96",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "97",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "98",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       },
       {
         "regular_id": "99",
-        "status": "pendente_fonte",
+        "status": "documento_original_verificado_escopo_transversal_em_revisao",
         "relevant_atomic_ids": [],
         "not_relevant_atomic_ids": [],
         "review_evidence": null,
-        "reviewer": null
+        "reviewer": null,
+        "source_verified": true,
+        "visual_atomic_000": "avaliar_no_escopo"
       }
     ],
     "rule": "Em cada regular, classificar TODOS os 97 IDs atômicos em relevantes ou não relevantes, em conjuntos disjuntos, com evidência de leitura e justificação. A numeração igual ou parecida NUNCA prova correspondência.",
@@ -2642,7 +4066,13 @@
     "release_gate": "FALHA SE O PROMPT EXECUTADO NÃO TEM CROSSWALK VERIFICADO, OU SE A TAREFA É DECLARADA CERTIFICADA SEM COBERTURA",
     "canonical_96_from_github_verified": true,
     "regular_38_relevant_requirement_count": 8,
-    "notes": "Requisitos atômicos completos (96) e BRAND-01 lidos em seus documentos canônicos. Correspondência numérica aos originais e cobertura dos regulares 00–99 não foram integralmente comprovadas; certificação de ambos os cadernos permanece distinta da cobertura de requisitos."
+    "notes": "Requisitos atômicos completos (96) e BRAND-01 lidos em seus documentos canônicos. Correspondência numérica aos originais e cobertura dos regulares 00–99 não foram integralmente comprovadas; certificação de ambos os cadernos permanece distinta da cobertura de requisitos.",
+    "originals_found": true,
+    "original_regular_count_verified": 100,
+    "original_atomic_count_verified": 97,
+    "atomic_numeric_to_canonical_requirements_verified": 96,
+    "screen_regular_crosswalk_structurally_mapped": 66,
+    "reason_remaining": "Análise transversal de cada prompt além da associação literal de tela e requisito ainda não foi revisada integralmente para as 100 entradas. Não confundir inventário e correlação estrutural com 100/100 de auditoria semântica."
   },
   "provenance": {
     "canonical_pack_map": "13_MAPA_DOCUMENTOS_PACOTE_4_1.md",
@@ -2656,6 +4086,16 @@
     ],
     "brand_source": "20_PROMPT_000_BRAND_01.md",
     "source_note": "Os documentos do GitHub consolidam os conteúdos do pacote original. A árvore main contém 96 textos completos de requisitos na matriz 08A–08D e o texto integral BRAND-01 em 20; os manuais DOCX originais não constam como blobs individualizados. Não confundir consolidação canônica com validação literal de cada prompt do DOCX.",
-    "verified_date": "2026-11-03"
+    "verified_date": "2026-11-03",
+    "archive_name": "ContaOS_Pacote_Mestre_Arquitetura_4_1_100_PRD_Lovable_Supabase_BRAND_v1_0_FINAL.zip",
+    "archive_path_in_package": "06_PROMPTS_COPIAR_COLAR/",
+    "archive_sha256": "5ee115d12e263d98068288b6bb722f5f303f2d19e1e4c0b5e930e69da03621da",
+    "regular_original": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
+    "regular_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
+    "atomic_original": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+    "atomic_sha256": "d9faaae47de4b697b18ad7fb71e4738384514936813cd5b18779f4cb8aed83b8",
+    "atomic_index_sha256": "54d55ba626604be48b217bb37d319485330875cc693223bcb3d616810299cc5f",
+    "verification_method": "Programmatic python-docx extraction of the original files inside the master ZIP. Counted 100 distinct regular headings from 00 to 99, 97 distinct atomic headings from 000 to 096, and validated atomic 001..096 exact requirement-ID sequence against canonical 08A–08D row order.",
+    "source_distinction": "ZIP source is verified in ChatGPT user's Library package; the GitHub main tree has its consolidated textual references and indexes but not the DOCX as individual blobs. This is not a missing-source claim."
   }
 }
