@@ -213,7 +213,7 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Obrigação nova de cruzar todos os 100 prompts regulares com os 97 atômicos. Matriz pendente das fontes originais; execução frontend V1-17 pode manter trabalho preparatório já autorizado, mas NUNCA declarar certificação sem crosswalk verificado da tarefa. Registrar status real no CI e no Teste C.",
+  "next_step": "V1-17 BUILD autorizado; antes de afirmar PASS, verificar crosswalk de Prompt 38 com atômicos 000,011-014,021-024 e NFR 089,091-094, BRAND-01, testes e economia de créditos. Não reenviar Lovable enquanto turno pendente. PROD/backend congelados.",
   "frontend_plan": {
     "project_id": "b113dd59-6caf-4c92-8302-457a037a0c6f",
     "plan_file": ".lovable/plan.md",
@@ -274,12 +274,51 @@
   ],
   "prompt_crosswalk": {
     "regular_prompt_id": "38",
-    "regular_range": "00-99",
-    "atomic_range": "000-096",
-    "catalog": "docs/prompts/PROMPT_TRACKS_4_1.json",
-    "matrix": "docs/prompts/MATRIZ_CRUZADA_00_99__000_096.md",
-    "status": "pendente_de_verificacao_dos_arquivos_fonte",
-    "source_evidence_missing": true,
-    "explanation": "Inventário declarativo 100 regulares + 97 atômicos está referenciado, mas os dois cadernos integrais de prompts não constam como arquivos individuais versionados no GitHub. É vedado inventar correspondências numéricas ou concluir cobertura plena."
+    "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
+    "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
+    "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+    "atomic_original_sha256": "d9faaae47de4b697b18ad7fb71e4738384514936813cd5b18779f4cb8aed83b8",
+    "archive_sha256": "5ee115d12e263d98068288b6bb722f5f303f2d19e1e4c0b5e930e69da03621da",
+    "regular_range_verified": "00-99 (100/100)",
+    "atomic_range_verified": "000-096 (97/97)",
+    "direct_atomic_ids": [
+      "000",
+      "011",
+      "012",
+      "013",
+      "014",
+      "021",
+      "022",
+      "023",
+      "024"
+    ],
+    "additional_transversal_atomic_ids": [
+      "089",
+      "091",
+      "092",
+      "093",
+      "094"
+    ],
+    "direct_requirement_ids": [
+      "V1-CHK-001",
+      "V1-CHK-002",
+      "V1-CHK-003",
+      "V1-CHK-004",
+      "V1-AUD-002",
+      "V1-AUD-003",
+      "V1-AUD-004",
+      "V1-AUD-005"
+    ],
+    "additional_transversal_requirement_ids": [
+      "NFR-005",
+      "NFR-007",
+      "NFR-008",
+      "NFR-009",
+      "NFR-010"
+    ],
+    "status": "fontes_originais_verificadas_e_correlacao_v117_auditada",
+    "source_evidence_missing": false,
+    "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
+    "note": "Escopo do Prompt 38 revisado contra os requisitos com indicação explícita de V1-17, mais os NFR transversais da tarefa; não significa certificação dos 100 planos funcionais. Antes de TESTE C, comparar artefato final com todos os requisitos associados."
   }
 }
