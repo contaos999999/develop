@@ -80,7 +80,7 @@
   },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
-    "status": "MIGRATIONS_B1_B2_AUTHORIZED_NOT_APPLIED",
+    "status": "B1_B2_APPLIED_HML_REGRESSAO_RESTORE_FIX",
     "existing_read_rpcs": [
       "public.obter_analise_competencia_v116",
       "public.obter_documentos_competencia_v115"
@@ -92,10 +92,20 @@
     "prod_untouched": true,
     "plan_doc": "docs/backend/V117_PLAN_BACKEND_REQUISITO_DETALHE_2026-11-03.md",
     "risk_classification": "B1 leitura: contrato ausente. B2 concorrência: job idempotente existente pode ter requisitos_afetados sobrescritos; não habilitar frontend incremental sem prova e hardening.",
-    "download_reference": "src/lib/contratos/documentosDados.ts:baixarDocumento(idArquivo) -> storage-sign-download autorizado; id_versao_documento não é id_arquivo"
+    "download_reference": "src/lib/contratos/documentosDados.ts:baixarDocumento(idArquivo) -> storage-sign-download autorizado; id_versao_documento não é id_arquivo",
+    "migration_hml": [
+      {
+        "name": "v117_obter_detalhe_requisito",
+        "version": "20261103172929"
+      },
+      {
+        "name": "v117_reanalise_requisitos_concorrencia",
+        "version": "20261103172945"
+      }
+    ]
   },
   "database_changes_allowed": true,
-  "database_change_scope": "AUTORIZAÇÃO EXPLÍCITA em 03/11/2026 ('Para o v1-17 veja as lacunas e resolva'): somente DUAS migrations novas e imutáveis no HML: B1 create read-only public.obter_detalhe_requisito_v117 e grants mínimos; B2 replace privado.solicitar_reanalise_requisitos exclusivamente para segurança de concorrência/idempotência. Nenhum outro DDL/schema, nenhuma alteração a RLS/Auth/Edge/Storage/client/tipos/PROD.",
+  "database_change_scope": "AUTORIZAÇÃO EXPLÍCITA em 03/11/2026 ('Para o v1-17 veja as lacunas e resolva'): somente DUAS migrations novas e imutáveis no HML: B1 create read-only public.obter_detalhe_requisito_v117 e grants mínimos; B2 replace privado.solicitar_reanalise_requisitos exclusivamente para segurança de concorrência/idempotência. Nenhum outro DDL/schema, nenhuma alteração a RLS/Auth/Edge/Storage/client/tipos/PROD. Ajuste de regressão permitido exclusivamente em supabase/tests/reanalysis_authz.sql para alinhar mensagem PT-BR de 42501, sem redução da cobertura.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -105,7 +115,8 @@
     "docs/backend/V117_*",
     "docs/frontend/V117_* somente documentação de plano/aceite, sem certificação antecipada",
     "supabase/migrations/*v117_obter_detalhe_requisito.sql",
-    "supabase/migrations/*v117_reanalise_requisitos_concorrencia.sql"
+    "supabase/migrations/*v117_reanalise_requisitos_concorrencia.sql",
+    "supabase/tests/reanalysis_authz.sql (somente atualizar assert de mensagem 42501 preservando teste negativo)"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -159,5 +170,5 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Implementar B1 e B2 em migrations novas, primeiro versionar GitHub e auditar; aplicar exclusivamente HML, provar contratos, RLS A/B e concorrência, CI e documentar SHA. Frontend só após backend certificado."
+  "next_step": "Corrigir somente expectation literal da mensagem de autorização 42501 no teste legado. Rerodar CI Restore Isolado e confirmar Zero-Drift/Histórico. Depois certificar backend, sem implementar frontend antes do GREEN."
 }
