@@ -9,7 +9,8 @@
   "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
   "evidencias": [
     "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
-    "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+    "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md",
+    "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
   ],
   "verificacao_individual": "Objetos e RLS presentes no HML, confirmação de catálogo somente leitura; 117/117 tabelas públicas com RLS, 0 funções SECURITY DEFINER executáveis por anon",
   "limites": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -28,8 +29,8 @@
       {
         "n": 1,
         "criterio": "migration aplicada em HML",
-        "status": "NÃO_CERTIFICADO_INDIVIDUALMENTE",
-        "fonte": null
+        "status": "PASS_MIGRACAO_HML",
+        "fonte": "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
       },
       {
         "n": 2,
@@ -80,5 +81,11 @@
         "fonte": null
       }
     ]
-  }
+  },
+  "migracoes_originais_hml": [
+    {
+      "version": "20261101205936",
+      "name": "0002_identidade_organizacoes"
+    }
+  ]
 }
