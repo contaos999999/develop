@@ -47,8 +47,8 @@
     },
     {
       "id": "RETRO-ROOT-PTBR",
-      "status": "CODIGO_CORRIGIDO_CI_GREEN_TESTE_C_LINT_FAIL",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "status": "CORRIGIDO_CI_PASS_TESTE_C_VISUAL_PENDENTE",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "b1fe1695f40880f410ef458c1d91b9d9a7c5db9c",
       "tests": [
@@ -56,20 +56,24 @@
         "Suíte total 765/765",
         "CI types/build/static PASS"
       ],
-      "pending": "Lint de formatação em 3 arquivos no Teste C; posterior visual."
+      "pending": "Lint de formatação em 3 arquivos no Teste C; posterior visual.",
+      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
     },
     {
       "id": "RETRO-BRAND-COVERAGE",
-      "status": "22_TELAS_COBERTAS_CI_GREEN_TESTE_C_LINT_FAIL",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "status": "22_22_TESTES_CI_PASS_VISUAL_AUTH_PENDENTE",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "026e34720091dc997b7c25606f504c6a3436e129",
-      "pending": "Formatação e prova visual browser autenticado"
+      "pending": "Formatação e prova visual browser autenticado",
+      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
     },
     {
       "id": "RETRO-CI-FRONTEND",
-      "status": "CI_PERMANENTE_PASS_EM_32766",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "status": "GATE_PERMANENTE_GREEN",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
       "commit": "bc00a9a970a00462b925ce38e65a33c3f6cd1530",
       "guard_commit": "0c981e8614947d8b22b79ecc701f00f62c015251",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
@@ -79,7 +83,8 @@
         "Vite PASS",
         "Guard BRAND-01 PASS"
       ],
-      "pending": "Branch protection obrigatória sem plano GitHub elegível"
+      "pending": "Branch protection obrigatória sem plano GitHub elegível",
+      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
     },
     {
       "id": "RETRO-E2E-SYS03",
@@ -95,13 +100,15 @@
     },
     {
       "id": "RETRO-BRAND-DARK",
-      "status": "VARIANTE_OFICIAL_CORRIGIDA_CI_PASS_VISUAL_NAO_VERIFICADO",
+      "status": "SVG_OFICIAIS_DARK_LIGHT_CI_PASS_VISUAL_PENDENTE",
       "description": "22/22 headers e aside utilizam bg-primary com fundo claro dark; logo oficial desktop navy retangular e mobile símbolo branco não se adaptam.",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
       "action": "Lovable PLAN separado para variante oficial navy claro/escuro, inserir 2 SVGs oficiais byte-identicos e Teste C visual.",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "bf332dc70e165eed57e2c7bad4a4e447e9d1f11c",
-      "pending": "Prova visual de contraste 4 breakpoints x 2 temas"
+      "pending": "Prova visual de contraste 4 breakpoints x 2 temas",
+      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
     },
     {
       "id": "RETRO-BRANCH-PROTECTION",
@@ -119,10 +126,13 @@
     },
     {
       "id": "RETRO-LINT-TESTE-C-2026-11-03",
-      "status": "CORRECAO_EM_EXECUCAO_LOVABLE",
+      "status": "FORMATACAO_CORRIGIDA_CI_ESLINT_PRETTIER_PASS_TESTE_C_FINAL_PENDENTE",
       "detail": "Teste C read-only candidato 026e34720091... FAIL devido 36 erros prettier em scripts/frontend-zero-drift.mjs, brand.test.tsx, rootLocale.test.tsx. Build de formatação mínimo enviado ao Lovable sem alteração semântica, aguarda SHA e rerun.",
       "lovable_message": "umsg_01m6hdad0fem8rnhkp1j7218g6",
-      "ci_baseline": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939"
+      "ci_baseline": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
+      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+      "lovable_final_tc": "umsg_01m6hdh566ffdrnr51nz72jxk3"
     }
   ],
   "rows": [
@@ -131,7 +141,7 @@
       "nome": "Constituição e reancoragem",
       "diagnostico_origem": "EXECUTADO COM DESVIO",
       "observacao": "Instruções permanentes atuais do Lovable ainda dizem 96 atômicos; não incluem expressamente BRAND-01/000 e a política universal de economia.",
-      "status": "SANEAMENTO_PARCIAL_COM_GATES_PENDENTES",
+      "status": "KNOWLEDGE_TYPES_PTBR_BRAND_CI_CORRIGIDOS_VISUAL_FINAL_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [],
@@ -162,7 +172,9 @@
       "evidencias": [
         "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/commit/bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5",
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -592,7 +604,7 @@
       "nome": "SYS-01 – Login",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Lovable reportou 12/12, inclusive sessão real e quatro larguras; root global ainda contém inglês.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -606,9 +618,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -618,7 +639,7 @@
       "nome": "SYS-02 – Esqueci a senha",
       "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
       "observacao": "Teste final registrado e 21/21 automatizados; configuração externa Auth não foi totalmente comprovada.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -632,9 +653,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -644,7 +674,7 @@
       "nome": "SYS-03 – Redefinir senha",
       "diagnostico_origem": "E2E REAL NÃO COMPROVADO",
       "observacao": "Pedido real de recuperação retornou HTTP 200, mas não houve prova do fluxo completo de link, redefinição e novo login.",
-      "status": "E2E_REAL_PENDENTE_E_VISUAL_PENDENTE",
+      "status": "SYS03_E2E_REAL_E_VISUAL_PENDENTES",
       "risco": "P0",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -656,9 +686,18 @@
         "Completar E2E real reset senha sem expor token/senha",
         "Registrar resultado prova real ou dependência com titular"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -668,7 +707,7 @@
       "nome": "SYS-04 – Selecionar organização",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Rodada final posterior à correção do FAIL registrada no Lovable.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -682,9 +721,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -694,7 +742,7 @@
       "nome": "SYS-05 – Dashboard",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Backend RPC certificado e Teste C reaplicado após correção 403.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -708,9 +756,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -720,7 +777,7 @@
       "nome": "ADM-01 – Usuários e vínculos",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Várias correções e última rodada do Teste C registradas; segurança do backend validada em PRs.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -734,9 +791,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -746,7 +812,7 @@
       "nome": "V1-01 – Contratantes",
       "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
       "observacao": "Teste C final 18/18, browser controlado; o próprio registro anotou html lang=en e não substitui RLS real.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -760,9 +826,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -772,7 +847,7 @@
       "nome": "V1-02 – Novo contratante",
       "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
       "observacao": "Teste C com 208/208; browser simulado e build provado por equivalência de SHA, não sessão HML real.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -786,9 +861,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -798,7 +882,7 @@
       "nome": "V1-03 – Editar contratante",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento de certificação Teste C 18/18, 238/238, TypeScript/build, concorrência backend.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -812,9 +896,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -824,7 +917,7 @@
       "nome": "V1-04 – Contratos",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento de certificação e teste C final registrado.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -838,9 +931,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -850,7 +952,7 @@
       "nome": "V1-05 – Novo contrato",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Teste C final registrado; backend HML 11/11 com rollback.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -864,9 +966,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -876,7 +987,7 @@
       "nome": "V1-06 – Contrato visão geral",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Teste C 18/18, 331/331 e CI; limite documentado de browser com respostas simuladas.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -894,9 +1005,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -906,7 +1026,7 @@
       "nome": "V1-07 – Base normativa",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Backend normativo corrigido, Teste C 18/18 e registro final; observar caminho de upload resumível declarado indisponível quando sem contrato técnico.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -924,9 +1044,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -936,7 +1065,7 @@
       "nome": "V1-08 – Orçamento",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste funcional e correção posterior de lint; lint global mantinha dívida preexistente de 8.962 erros, sem novo Teste C após a última formatação.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -955,9 +1084,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -967,7 +1105,7 @@
       "nome": "V1-09 – Listas/Regras",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C com 16 grupos PASS, browser interceptado; Security Scan no SHA fixado limitado e lint global preexistente não saneado.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -985,9 +1123,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -997,7 +1144,7 @@
       "nome": "V1-10 – Central de documentos",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Certificação documental Teste C PASS; backend/storage privado e reuso de helpers.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1022,9 +1169,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1034,7 +1190,7 @@
       "nome": "V1-11 – Detalhe/versões documento",
       "diagnostico_origem": "TESTE C PASS NO ESCOPO",
       "observacao": "Lovable registra Teste C final e implementação; ausência de certificado separado do develop não prova auditoria transversal completa.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1054,9 +1210,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1066,7 +1231,7 @@
       "nome": "V1-12 – Competências",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento Teste C e CI, regressão serial 520/520; flake/timeout paralelo registrado.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1080,9 +1245,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1092,7 +1266,7 @@
       "nome": "V1-13 – Nova competência",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento Teste C e CI, 544/544; sem prova visual HML real em todos estados.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1106,9 +1280,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1118,7 +1301,7 @@
       "nome": "V1-14 – Visão geral competência",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C e CI; cenários autenticados no navegador controlados por fixtures.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1136,9 +1319,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1148,7 +1340,7 @@
       "nome": "V1-15 – Documentos competência",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C final no SHA imutável, 645/645; 8 combinações visuais no cenário UUID inválido, sem E2E de upload com sessão real.",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1167,9 +1359,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1179,7 +1380,7 @@
       "nome": "V1-16 – Análise competência",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C final SHA d4b9b77, 739/739; visual autenticado via mocks; latest main altera types.ts (+265 linhas).",
-      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
+      "status": "CERTIFICADO_HISTORICO_SANEAMENTO_TRANSVERSAL_CI_PASS_VISUAL_AUTENTICADA_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1198,9 +1399,18 @@
         "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
-      "resolucoes": [],
+      "resolucoes": [
+        {
+          "item": "Saneamento transversal: PT-BR root, marca oficial 22/22 e contraste light/dark",
+          "status": "CODIGO_CI_GREEN",
+          "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+          "evidencia": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+        }
+      ],
       "evidencias": [
-        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+        "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1253,30 +1463,41 @@
       "ROOT_PTBR_CODIGO_CI",
       "BRAND_22_TELAS_CI",
       "BRAND_DARK_CODIGO_CI",
-      "CI_FRONTEND_GREEN"
+      "CI_FRONTEND_GREEN",
+      "ROOT_PTBR_CI_PASS",
+      "BRAND_22_TELAS_CI_PASS",
+      "BRAND_DARK_CI_PASS",
+      "CI_LINT_PRETTIER_GREEN"
     ],
     "global_coverage_installed": [
       "FRONTEND_CI_BRAND_22"
     ],
     "critical_blockers": [
-      "TESTE_C_LINT_FORMATACAO",
-      "AUDITORIA_VISUAL_AUTENTICADA",
-      "SYS03_E2E",
+      "TESTE_C_VISUAL_FINAL",
+      "SYS03_E2E_REAL",
       "V117_BUILD",
-      "BRANCH_RULESET_GITHUB_PRO",
-      "RASTREABILIDADE_39_COMPLETA"
+      "BRANCH_PROTECTION_GITHUB_PRO",
+      "CROSSWALK_RESTANTES_39",
+      "VALIDACAO_AUTENTICADA"
     ],
-    "note": "Código e CI do escopo de saneamento passaram em 32766...: 765/765 + TS + build + guard; Teste C separado FAIL por formatação; não declarar 100% até novo SHA e evidência."
+    "note": "Saneamento transversal frontend CI PASS 765/765 e tipos/build/brand/lint/prettier; Teste C final visual ainda em execução. Não declarar 39/39 100%."
   },
   "evidence_latest": {
-    "ci_green_sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
-    "ci_green_run": 41700788939,
+    "ci_green_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+    "ci_green_run": 41701693096,
+    "ci_green_url": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
     "test_count": 765,
-    "typecheck": "pass",
-    "build": "pass",
-    "brand_guard": "pass",
-    "teste_c_sha": "026e34720091dc997b7c25606f504c6a3436e129",
-    "teste_c_result": "FAIL_FORMATACAO",
-    "teste_c_reason": "Lint prettier em 3 arquivos (teste isolado), correção enviada para Lovable."
+    "typecheck": "PASS",
+    "build": "PASS",
+    "brand_guard": "PASS",
+    "lint": "PASS",
+    "prettier": "PASS",
+    "final_teste_c": {
+      "message_id": "umsg_01m6hdh566ffdrnr51nz72jxk3",
+      "status": "EM_EXECUCAO",
+      "sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+    },
+    "source_diff_allowed_files": 11,
+    "types_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19"
   }
 }
