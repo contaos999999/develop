@@ -1,0 +1,2932 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-11-03",
+  "purpose": "Crosswalk de aplicabilidade 39 prompts regulares × 97 atômicos com classificação de vínculo direto vs candidato transversal",
+  "status": "CLASSIFICACAO_DE_ESCOPO_REVISAVEL_NAO_CERTIFICACAO_FUNCIONAL",
+  "constraints": [
+    "Relação da tela canônica não certifica implementação integral de todos os elementos do requisito.",
+    "NFR deve ser testado quando operação exige e declarado N/A motivado quando não há operação pertinente.",
+    "Transversais classificados por escopo são propostas de auditoria, não comprovação de execução ou exclusividade.",
+    "Preservada lista de associações diretas extraídas das fontes; nenhum mapeamento original foi removido.",
+    "Para 01-15 o manual é de backend com verificações estruturais e transversais; frontend posterior é certificação independente."
+  ],
+  "rows": [
+    {
+      "regular": "00",
+      "description": "PROMPT 00 - Constituição e reancoragem",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "01",
+      "description": "PROMPT 01 - Fundação PostgreSQL e extensões",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "085",
+          "canonical_id": "NFR-001",
+          "description": "Escala horizontal: API deve permitir múltiplas instâncias sem dependência de estado local crítico.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "086",
+          "canonical_id": "NFR-002",
+          "description": "Pool de banco: conexões PostgreSQL de aplicação devem usar pooling em produção quando houver escala concorrente.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "090",
+          "canonical_id": "NFR-006",
+          "description": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "02",
+      "description": "PROMPT 02 - Identidade, organizações e vínculos",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "03",
+      "description": "PROMPT 03 - Contratantes e contratos 1.0",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "001",
+          "canonical_id": "V1-CON-001",
+          "description": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "002",
+          "canonical_id": "V1-CON-002",
+          "description": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "003",
+          "canonical_id": "V1-CON-003",
+          "description": "Proposta orçamentária estruturada: Permitir registrar grupos, rubricas, subrubricas, valores mensais/anuais, limites e regras de remanejamento.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "004",
+          "canonical_id": "V1-CON-004",
+          "description": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "005",
+          "canonical_id": "V1-CON-005",
+          "description": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "04",
+      "description": "PROMPT 04 - Base normativa, orçamento e listas 1.0",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "001",
+          "canonical_id": "V1-CON-001",
+          "description": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "002",
+          "canonical_id": "V1-CON-002",
+          "description": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "003",
+          "canonical_id": "V1-CON-003",
+          "description": "Proposta orçamentária estruturada: Permitir registrar grupos, rubricas, subrubricas, valores mensais/anuais, limites e regras de remanejamento.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "004",
+          "canonical_id": "V1-CON-004",
+          "description": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "005",
+          "canonical_id": "V1-CON-005",
+          "description": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "011",
+          "canonical_id": "V1-CHK-001",
+          "description": "Lista de verificação versionada: Lista de verificação deve ser configurável, vinculável à norma de origem e versionada por vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "012",
+          "canonical_id": "V1-CHK-002",
+          "description": "Obrigatoriedade condicional: Itens podem ser obrigatórios sempre ou apenas quando determinada condição ocorrer, como existência de rescisão, compra de imobilizado ou aplicação financeira.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "013",
+          "canonical_id": "V1-CHK-003",
+          "description": "Critérios por item: Cada item pode ter validações de presença, assinatura, data, competência, CNPJ, valor, validade, páginas, correspondência e regra específica.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "014",
+          "canonical_id": "V1-CHK-004",
+          "description": "Resultado granular: Cada item deve ter situação: não enviado, recebido, em análise, conforme, não conforme, não aplicável ou requer revisão.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "05",
+      "description": "PROMPT 05 - Storage e documentos 1.0",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "015",
+          "canonical_id": "V1-DOC-001",
+          "description": "Anexação múltipla: Aceitar PDF, XLSX, CSV, DOCX, imagens e formatos configurados, com limites de tamanho e validação de segurança.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "016",
+          "canonical_id": "V1-DOC-002",
+          "description": "Classificação automática: Sugerir categoria e item da lista de verificação a partir do conteúdo e nome do arquivo.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "017",
+          "canonical_id": "V1-DOC-003",
+          "description": "Versionamento: Nova versão não apaga anterior e exige motivo da substituição quando competência já estiver em análise.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "018",
+          "canonical_id": "V1-DOC-004",
+          "description": "Metadados extraídos: Capturar CNPJ, CPF quando necessário, fornecedor, número do documento, datas, valores, competência, banco, agência, conta e outros campos por tipo documental.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "019",
+          "canonical_id": "V1-DOC-005",
+          "description": "Integridade do arquivo: Registrar resumo criptográfico, data, usuário, origem e versão para preservar cadeia de evidência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "087",
+          "canonical_id": "NFR-003",
+          "description": "Transferência direta: upload/download de arquivos deve priorizar conexão direta cliente-Storage com autorização temporária.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "088",
+          "canonical_id": "NFR-004",
+          "description": "Multipart: objetos grandes devem suportar upload fracionado, retry e retomada.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "06",
+      "description": "PROMPT 06 - Competências e análise 1.0",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "011",
+          "canonical_id": "V1-CHK-001",
+          "description": "Lista de verificação versionada: Lista de verificação deve ser configurável, vinculável à norma de origem e versionada por vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "012",
+          "canonical_id": "V1-CHK-002",
+          "description": "Obrigatoriedade condicional: Itens podem ser obrigatórios sempre ou apenas quando determinada condição ocorrer, como existência de rescisão, compra de imobilizado ou aplicação financeira.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "013",
+          "canonical_id": "V1-CHK-003",
+          "description": "Critérios por item: Cada item pode ter validações de presença, assinatura, data, competência, CNPJ, valor, validade, páginas, correspondência e regra específica.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "014",
+          "canonical_id": "V1-CHK-004",
+          "description": "Resultado granular: Cada item deve ter situação: não enviado, recebido, em análise, conforme, não conforme, não aplicável ou requer revisão.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "015",
+          "canonical_id": "V1-DOC-001",
+          "description": "Anexação múltipla: Aceitar PDF, XLSX, CSV, DOCX, imagens e formatos configurados, com limites de tamanho e validação de segurança.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "016",
+          "canonical_id": "V1-DOC-002",
+          "description": "Classificação automática: Sugerir categoria e item da lista de verificação a partir do conteúdo e nome do arquivo.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "017",
+          "canonical_id": "V1-DOC-003",
+          "description": "Versionamento: Nova versão não apaga anterior e exige motivo da substituição quando competência já estiver em análise.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "018",
+          "canonical_id": "V1-DOC-004",
+          "description": "Metadados extraídos: Capturar CNPJ, CPF quando necessário, fornecedor, número do documento, datas, valores, competência, banco, agência, conta e outros campos por tipo documental.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "019",
+          "canonical_id": "V1-DOC-005",
+          "description": "Integridade do arquivo: Registrar resumo criptográfico, data, usuário, origem e versão para preservar cadeia de evidência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "020",
+          "canonical_id": "V1-AUD-001",
+          "description": "Execução reproduzível: Cada rodada de análise deve registrar versão das regras, documentos e modelo de IA utilizados.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "021",
+          "canonical_id": "V1-AUD-002",
+          "description": "Separação de mecanismos: Resultados determinísticos e semânticos devem ser identificados separadamente.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "022",
+          "canonical_id": "V1-AUD-003",
+          "description": "Criticidade: Apontamentos devem ser classificados como crítico, alto, médio, baixo ou informativo conforme impacto configurável.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "023",
+          "canonical_id": "V1-AUD-004",
+          "description": "Evidência: Todo apontamento deve conter documento/fonte, localização, regra violada, descrição do problema e ação sugerida.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "024",
+          "canonical_id": "V1-AUD-005",
+          "description": "Reanálise incremental: Após correção, sistema deve reprocessar apenas itens afetados quando tecnicamente possível, sem perder histórico da análise anterior.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "07",
+      "description": "PROMPT 07 - Portão, aprovação e apresentação 1.0",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "020",
+          "canonical_id": "V1-AUD-001",
+          "description": "Execução reproduzível: Cada rodada de análise deve registrar versão das regras, documentos e modelo de IA utilizados.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "021",
+          "canonical_id": "V1-AUD-002",
+          "description": "Separação de mecanismos: Resultados determinísticos e semânticos devem ser identificados separadamente.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "022",
+          "canonical_id": "V1-AUD-003",
+          "description": "Criticidade: Apontamentos devem ser classificados como crítico, alto, médio, baixo ou informativo conforme impacto configurável.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "023",
+          "canonical_id": "V1-AUD-004",
+          "description": "Evidência: Todo apontamento deve conter documento/fonte, localização, regra violada, descrição do problema e ação sugerida.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "024",
+          "canonical_id": "V1-AUD-005",
+          "description": "Reanálise incremental: Após correção, sistema deve reprocessar apenas itens afetados quando tecnicamente possível, sem perder histórico da análise anterior.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "08",
+      "description": "PROMPT 08 - Histórico e precedentes 1.0",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "006",
+          "canonical_id": "V1-HIS-001",
+          "description": "Carga histórica em lote: Permitir anexar múltiplos relatórios anteriores e associá-los manual ou automaticamente às competências correspondentes.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "007",
+          "canonical_id": "V1-HIS-002",
+          "description": "Desmembramento de apontamentos: Cada relatório deve ser dividido em apontamentos individuais, preservando o documento original.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "008",
+          "canonical_id": "V1-HIS-003",
+          "description": "Ligação problema-resposta-desfecho: Quando houver resposta ou parecer final, o sistema deve associar cada apontamento ao tratamento realizado e ao resultado.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "009",
+          "canonical_id": "V1-HIS-004",
+          "description": "Regra preventiva sugerida: Após identificar apontamento confirmado e resolvido, o sistema deve propor regra para evitar recorrência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "010",
+          "canonical_id": "V1-HIS-005",
+          "description": "Busca de precedentes do contrato: A análise mensal deve consultar prioritariamente o histórico e as regras preventivas vinculantes do próprio contrato antes de concluir sobre item semelhante. Relatórios de outros contratos do mesmo contratante podem ser armazenados desde o 1.0, mas a recuperação transversal estruturada e sua sinalização comparativa são capacidades do ContaOS 4.0.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "09",
+      "description": "PROMPT 09 - Queues, Cron e Edge Functions",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "085",
+          "canonical_id": "NFR-001",
+          "description": "Escala horizontal: API deve permitir múltiplas instâncias sem dependência de estado local crítico.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "086",
+          "canonical_id": "NFR-002",
+          "description": "Pool de banco: conexões PostgreSQL de aplicação devem usar pooling em produção quando houver escala concorrente.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "090",
+          "canonical_id": "NFR-006",
+          "description": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "095",
+          "canonical_id": "NFR-011",
+          "description": "Resiliência: integrações externas devem ter timeout, retry e isolamento de falha.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "10",
+      "description": "PROMPT 10 - ContaOS 2.0 - Diligências",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "025",
+          "canonical_id": "V2-DIL-001",
+          "description": "Anexação e classificação: Permitir anexar parecer, diligência, relatório ou ofício e classificá-lo na competência correta.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "026",
+          "canonical_id": "V2-DIL-002",
+          "description": "Extração por item: IA deve separar os apontamentos, mesmo quando o relatório não estiver numerado de forma consistente.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "027",
+          "canonical_id": "V2-DIL-003",
+          "description": "Valores envolvidos: Identificar quando houver valor questionado, glosa potencial, valor aceito ou impacto financeiro estimado.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "028",
+          "canonical_id": "V2-DIL-004",
+          "description": "Prazo externo: Registrar prazo de resposta e calcular vencimento conforme regra configurada, sem substituir interpretação jurídica de prazo quando houver dúvida.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "029",
+          "canonical_id": "V2-PRO-001",
+          "description": "Classificação assistida: Para cada apontamento, sugerir: procede, procede parcialmente, não procede ou requer análise humana.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "030",
+          "canonical_id": "V2-PRO-002",
+          "description": "Fundamentação: A sugestão deve confrontar documentos da competência, regras contratuais/normativas e precedentes históricos.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "031",
+          "canonical_id": "V2-PRO-003",
+          "description": "Evidência contrária: Quando o apontamento indicar documento ausente, sistema deve verificar se o documento já existia na versão apresentada e onde estava.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "032",
+          "canonical_id": "V2-PRO-004",
+          "description": "Precedente conflitante: Se o contratante adotar posição diferente de precedente anterior, sistema deve sinalizar mudança de entendimento e impedir atualização automática da regra preventiva sem revisão.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "033",
+          "canonical_id": "V2-ACT-001",
+          "description": "Ação por apontamento: Cada item deve ter uma ou mais ações com responsável, prazo, prioridade, dependência e situação.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "034",
+          "canonical_id": "V2-ACT-002",
+          "description": "Tipos de ação: Corrigir documento, anexar complemento, refazer planilha, justificar, contestar, obter assinatura, reconciliar valor, solicitar documento a terceiro, entre outros configuráveis.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "035",
+          "canonical_id": "V2-ACT-003",
+          "description": "Prazos operacionais e alertas: Painel deve priorizar itens por prazo e criticidade; notificações podem ser configuradas por usuário e papel.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "036",
+          "canonical_id": "V2-ACT-004",
+          "description": "Validação da solução: Item não pode ser marcado resolvido apenas porque uma tarefa foi concluída; o motor deve revalidar se a nova evidência efetivamente resolve o apontamento.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "037",
+          "canonical_id": "V2-CONTEST-001",
+          "description": "Recomendação de contestação: Quando evidências e regras indicarem improcedência, sistema pode sugerir contestar.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "038",
+          "canonical_id": "V2-CONTEST-002",
+          "description": "Minuta assistida: Gerar estrutura de manifestação com identificação do item, síntese, fundamento, evidências e pedido, sempre sujeita a revisão humana.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "039",
+          "canonical_id": "V2-CONTEST-003",
+          "description": "Mapa de evidências: Cada afirmação da contestação deve apontar documento/página/dado de suporte.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "040",
+          "canonical_id": "V2-CONTEST-004",
+          "description": "Resultado da contestação: Registrar se aceita, rejeitada, parcialmente aceita ou pendente e atualizar o precedente histórico.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "041",
+          "canonical_id": "V2-KB-001",
+          "description": "Resultado como retorno: Ao encerrar apontamento, atualizar confiança do precedente relacionado.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "042",
+          "canonical_id": "V2-KB-002",
+          "description": "Reincidência: Identificar quando novo apontamento repete falha já considerada resolvida em competência anterior.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "043",
+          "canonical_id": "V2-KB-003",
+          "description": "Mudança de entendimento: Detectar quando o contratante passa a exigir requisito diferente do histórico e abrir alerta de revisão das regras preventivas.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "11",
+      "description": "PROMPT 11 - ContaOS 3.0 - Financeiro preventivo",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "044",
+          "canonical_id": "V3-PREV-001",
+          "description": "Validação pré-pagamento: Quando houver dado suficiente, sinalizar despesa incompatível antes do pagamento ou antes do fechamento da competência.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "045",
+          "canonical_id": "V3-PREV-002",
+          "description": "Rubrica e saldo: Verificar se rubrica existe, se há saldo e se eventual remanejamento é permitido.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "046",
+          "canonical_id": "V3-PREV-003",
+          "description": "Fornecedor e objeto: Comparar objeto da despesa com contrato do fornecedor e objeto permitido no contrato público.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "047",
+          "canonical_id": "V3-PREV-004",
+          "description": "Duplicidade: Detectar possíveis pagamentos duplicados por combinação de fornecedor, documento, valor, data e similaridade.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "048",
+          "canonical_id": "V3-PREV-005",
+          "description": "Conta bancária correta: Sinalizar movimentação em conta incompatível quando houver regra contratual configurada.",
+          "source": "08B_REQUISITOS_025_048_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "049",
+          "canonical_id": "V3-PREV-006",
+          "description": "Precedentes históricos: Alertar se transação possui padrão associado a apontamento anterior do contratante.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "050",
+          "canonical_id": "V3-PREV-007",
+          "description": "Documentação futura: Indicar quais evidências deverão ser preservadas para que a despesa possa ser prestada posteriormente.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "051",
+          "canonical_id": "V3-ALT-001",
+          "description": "Central de exceções: Exibir transações com maior risco, agrupadas por causa e impacto financeiro.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "052",
+          "canonical_id": "V3-ALT-002",
+          "description": "Responsável: Permitir atribuir alerta a financeiro, compras, jurídico, contabilidade ou gestor.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "053",
+          "canonical_id": "V3-ALT-003",
+          "description": "Resolução antes do fechamento: Quando corrigido, preservar o alerta original e a ação tomada para alimentar aprendizado.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "054",
+          "canonical_id": "V3-ALT-004",
+          "description": "Alertas não intrusivos: Evitar excesso de notificações; regras devem ter limiar e agrupamento configuráveis.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "090",
+          "canonical_id": "NFR-006",
+          "description": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "12",
+      "description": "PROMPT 12 - ContaOS 4.0 - Inteligência histórica",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "055",
+          "canonical_id": "V4-INT-001",
+          "description": "Mapa de exigências recorrentes: Identificar quais tipos de apontamento mais aparecem por contratante, contrato e período.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "056",
+          "canonical_id": "V4-INT-002",
+          "description": "Tempo de análise: Calcular tempo histórico entre apresentação, parecer, reapresentação e validação.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "057",
+          "canonical_id": "V4-INT-003",
+          "description": "Mudança de interpretação: Detectar ruptura no padrão histórico e apontar os casos que suportam a mudança.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "058",
+          "canonical_id": "V4-INT-004",
+          "description": "Regras de fato versus regras formais: Distinguir exigência expressa em documento normativo de padrão observado apenas em relatórios, evitando apresentar o segundo como norma formal.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "059",
+          "canonical_id": "V4-PREC-001",
+          "description": "Ranking de similaridade em dois escopos: Recuperar casos anteriores considerando texto, categoria, valor, rubrica, documento, contratante e desfecho, classificando separadamente precedentes do próprio contrato e precedentes de outros contratos do mesmo contratante.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "060",
+          "canonical_id": "V4-PREC-002",
+          "description": "Força e origem do precedente: Pontuar precedentes por recência, número de confirmações, hierarquia normativa, resultado final, escopo e proximidade com o contrato analisado. Precedente do próprio contrato e precedente transversal do mesmo contratante nunca devem ser apresentados como equivalentes.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "061",
+          "canonical_id": "V4-PREC-003",
+          "description": "Precedente contraditório: Exibir casos favoráveis e desfavoráveis quando histórico for inconsistente, sem ocultar divergência.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "062",
+          "canonical_id": "V4-PREC-004",
+          "description": "Explicação: Toda recomendação baseada em histórico deve mostrar os casos que a sustentam.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "063",
+          "canonical_id": "V4-TRV-001",
+          "description": "Escopo transversal por contratante: Ao analisar uma competência do contrato A, o sistema deve pesquisar precedentes relevantes dos contratos B, C e demais contratos que possuam o mesmo id_contratante, desde que pertençam à mesma organização usuária do ContaOS.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "064",
+          "canonical_id": "V4-TRV-002",
+          "description": "Identificação da origem: Todo resultado transversal deve informar, de forma destacada, que a ocorrência não pertence ao contrato analisado e deve exibir contrato de origem, unidade, competência, relatório/parecer, item, desfecho e evidências disponíveis.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "065",
+          "canonical_id": "V4-TRV-003",
+          "description": "Rótulo obrigatório: A sinalização proveniente exclusivamente de outro contrato do mesmo contratante deve ser classificada como “ALERTA HISTÓRICO TRANSVERSAL DO CONTRATANTE”, nunca como não conformidade do contrato atual.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "066",
+          "canonical_id": "V4-TRV-004",
+          "description": "Efeito não impeditivo: Alerta histórico transversal não integra o denominador nem o numerador do cálculo dos 100,00%, não cria requisito obrigatório da competência e, isoladamente, não pode impedir a situação “PODE APRESENTAR AO CONTRATANTE”.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "067",
+          "canonical_id": "V4-TRV-005",
+          "description": "Primazia do contrato atual: O portão de apresentação continua sendo calculado exclusivamente pelos requisitos obrigatórios e aplicáveis ao contrato analisado, pelas regras formais vigentes e pelas regras preventivas impeditivas do próprio contrato.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "068",
+          "canonical_id": "V4-TRV-006",
+          "description": "Conversão somente por fonte formal independente: Se um alerta transversal revelar cláusula, norma, manual ou exigência formal que também seja objetivamente aplicável ao contrato atual, o sistema deve validar essa aplicabilidade diretamente na fonte formal e propor uma nova regra do contrato. Somente após revisão humana e aprovação dessa regra ela poderá produzir efeito impeditivo. O precedente de outro contrato, sozinho, nunca é suficiente.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "069",
+          "canonical_id": "V4-TRV-007",
+          "description": "Divergências entre contratos: Se o mesmo contratante tiver adotado entendimentos diferentes em contratos distintos, o sistema deve exibir a divergência, datas, documentos e desfechos, sem escolher silenciosamente um deles como regra.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "070",
+          "canonical_id": "V4-TRV-008",
+          "description": "Isolamento organizacional: A inteligência transversal padrão opera somente entre contratos pertencentes à mesma organização no ContaOS. Dados de outra organização não podem ser usados para gerar alertas, ainda que o contratante seja o mesmo.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "071",
+          "canonical_id": "V4-COP-001",
+          "description": "Perguntas sobre o contrato: Usuário pode perguntar sobre obrigações, histórico e competências usando linguagem natural.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "072",
+          "canonical_id": "V4-COP-002",
+          "description": "Resposta com fontes: Toda resposta relevante deve citar documentos, páginas, precedentes e datas.",
+          "source": "08C_REQUISITOS_049_072_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "073",
+          "canonical_id": "V4-COP-003",
+          "description": "Contexto temporal: Perguntas sobre competência passada devem usar o conjunto normativo vigente naquele período.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "074",
+          "canonical_id": "V4-COP-004",
+          "description": "Limite de certeza: Quando houver fontes conflitantes ou baixa confiança, o copiloto deve explicitar a incerteza e pedir revisão humana, não inventar conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "090",
+          "canonical_id": "NFR-006",
+          "description": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "095",
+          "canonical_id": "NFR-011",
+          "description": "Resiliência: integrações externas devem ter timeout, retry e isolamento de falha.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "13",
+      "description": "PROMPT 13 - ContaOS 5.0 - Conformidade",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "075",
+          "canonical_id": "V5-CCM-001",
+          "description": "Execução contínua: Controles elegíveis devem executar automaticamente quando eventos ou dados relevantes chegam ao sistema.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "076",
+          "canonical_id": "V5-CCM-002",
+          "description": "Não conformidade como caso: Falha de controle abre caso com responsável, prazo operacional, evidências e remediação. Caso em aberto não autoriza liberação de competência que dependa daquele controle.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "077",
+          "canonical_id": "V5-CCM-003",
+          "description": "Materialidade: Regras podem considerar valor, frequência, tipo de despesa e criticidade do contrato.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "078",
+          "canonical_id": "V5-CCM-004",
+          "description": "Segregação de funções: Validação de remediação ou de não aplicabilidade fundamentada pode exigir usuário diferente daquele que originou ou corrigiu o item.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "079",
+          "canonical_id": "V5-REG-001",
+          "description": "Análise de impacto: Nova norma deve ser comparada com regras e contratos potencialmente afetados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "080",
+          "canonical_id": "V5-REG-002",
+          "description": "Aprovação: Mudança material exige revisão de perfil autorizado antes de entrar em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "081",
+          "canonical_id": "V5-REG-003",
+          "description": "Vigência: Regra nova pode ser programada para iniciar em data futura e coexistir com regra antiga para competências passadas.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "14",
+      "description": "PROMPT 14 - ContaOS 5.0 - API e webhooks",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "082",
+          "canonical_id": "V5-AUDPORT-001",
+          "description": "Pacote de evidências: Gerar pacote fechado com escopo, evidências, resumos criptográficos, versões, controles e resultados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "083",
+          "canonical_id": "V5-AUDPORT-002",
+          "description": "Acesso temporário: Quando habilitado, permitir acesso de leitura restrito e temporário para auditor/contratante a conjuntos específicos, com registro na trilha de auditoria.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "084",
+          "canonical_id": "V5-AUDPORT-003",
+          "description": "Exportação: Exportar relatórios e evidências em formatos padronizados sem perder identificação das fontes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "085",
+          "canonical_id": "NFR-001",
+          "description": "Escala horizontal: API deve permitir múltiplas instâncias sem dependência de estado local crítico.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "086",
+          "canonical_id": "NFR-002",
+          "description": "Pool de banco: conexões PostgreSQL de aplicação devem usar pooling em produção quando houver escala concorrente.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "090",
+          "canonical_id": "NFR-006",
+          "description": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "095",
+          "canonical_id": "NFR-011",
+          "description": "Resiliência: integrações externas devem ter timeout, retry e isolamento de falha.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "15",
+      "description": "PROMPT 15 - Hardening e testes do backend",
+      "vinculos_diretos_estruturais_anteriores": [],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "085",
+          "canonical_id": "NFR-001",
+          "description": "Escala horizontal: API deve permitir múltiplas instâncias sem dependência de estado local crítico.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "086",
+          "canonical_id": "NFR-002",
+          "description": "Pool de banco: conexões PostgreSQL de aplicação devem usar pooling em produção quando houver escala concorrente.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "087",
+          "canonical_id": "NFR-003",
+          "description": "Transferência direta: upload/download de arquivos deve priorizar conexão direta cliente-Storage com autorização temporária.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "088",
+          "canonical_id": "NFR-004",
+          "description": "Multipart: objetos grandes devem suportar upload fracionado, retry e retomada.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "090",
+          "canonical_id": "NFR-006",
+          "description": "Isolamento de filas: filas de alta carga devem ter consumidores, limites e políticas de retry independentes.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "095",
+          "canonical_id": "NFR-011",
+          "description": "Resiliência: integrações externas devem ter timeout, retry e isolamento de falha.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "096",
+          "canonical_id": "NFR-012",
+          "description": "Teste de carga: produção exige ensaio de concorrência e volume compatível com a capacidade esperada.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "16",
+      "description": "PROMPT 16 - SYS-01 - Login",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "17",
+      "description": "PROMPT 17 - SYS-02 - Esqueci a senha",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "18",
+      "description": "PROMPT 18 - SYS-03 - Redefinir senha",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "19",
+      "description": "PROMPT 19 - SYS-04 - Selecionar organização",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "20",
+      "description": "PROMPT 20 - SYS-05 - Dashboard",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "21",
+      "description": "PROMPT 21 - ADM-01 - Usuários e vínculos",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "22",
+      "description": "PROMPT 22 - V1-01 - Contratantes",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "23",
+      "description": "PROMPT 23 - V1-02 - Novo contratante",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "24",
+      "description": "PROMPT 24 - V1-03 - Editar contratante",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "25",
+      "description": "PROMPT 25 - V1-04 - Contratos",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "26",
+      "description": "PROMPT 26 - V1-05 - Novo contrato",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "27",
+      "description": "PROMPT 27 - V1-06 - Contrato - visão geral",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "001",
+        "002",
+        "004",
+        "005"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "001",
+          "canonical_id": "V1-CON-001",
+          "description": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "002",
+          "canonical_id": "V1-CON-002",
+          "description": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "004",
+          "canonical_id": "V1-CON-004",
+          "description": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "005",
+          "canonical_id": "V1-CON-005",
+          "description": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "28",
+      "description": "PROMPT 28 - V1-07 - Contrato - base normativa",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "001",
+        "002",
+        "004",
+        "005"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "001",
+          "canonical_id": "V1-CON-001",
+          "description": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "002",
+          "canonical_id": "V1-CON-002",
+          "description": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "004",
+          "canonical_id": "V1-CON-004",
+          "description": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "005",
+          "canonical_id": "V1-CON-005",
+          "description": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "29",
+      "description": "PROMPT 29 - V1-08 - Contrato - orçamento",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "001",
+        "002",
+        "003",
+        "004",
+        "005"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "001",
+          "canonical_id": "V1-CON-001",
+          "description": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "002",
+          "canonical_id": "V1-CON-002",
+          "description": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "003",
+          "canonical_id": "V1-CON-003",
+          "description": "Proposta orçamentária estruturada: Permitir registrar grupos, rubricas, subrubricas, valores mensais/anuais, limites e regras de remanejamento.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "004",
+          "canonical_id": "V1-CON-004",
+          "description": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "005",
+          "canonical_id": "V1-CON-005",
+          "description": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "30",
+      "description": "PROMPT 30 - V1-09 - Contrato - listas/regras",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "011",
+          "canonical_id": "V1-CHK-001",
+          "description": "Lista de verificação versionada: Lista de verificação deve ser configurável, vinculável à norma de origem e versionada por vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "012",
+          "canonical_id": "V1-CHK-002",
+          "description": "Obrigatoriedade condicional: Itens podem ser obrigatórios sempre ou apenas quando determinada condição ocorrer, como existência de rescisão, compra de imobilizado ou aplicação financeira.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "013",
+          "canonical_id": "V1-CHK-003",
+          "description": "Critérios por item: Cada item pode ter validações de presença, assinatura, data, competência, CNPJ, valor, validade, páginas, correspondência e regra específica.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "014",
+          "canonical_id": "V1-CHK-004",
+          "description": "Resultado granular: Cada item deve ter situação: não enviado, recebido, em análise, conforme, não conforme, não aplicável ou requer revisão.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "31",
+      "description": "PROMPT 31 - V1-10 - Central de documentos",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "001",
+        "002",
+        "004",
+        "005",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019",
+        "087",
+        "088"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "001",
+          "canonical_id": "V1-CON-001",
+          "description": "Cadastro de documentos-base: Permitir anexar contrato, proposta, aditivos, legislação, portarias, decretos, resoluções, manuais, listas de verificação, instruções e demais documentos relevantes, com categoria, vigência, versão e observações.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "002",
+          "canonical_id": "V1-CON-002",
+          "description": "Vigência temporal: Cada regra extraída deve ter início e, quando aplicável, fim de vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "004",
+          "canonical_id": "V1-CON-004",
+          "description": "Extração assistida: IA deve sugerir cláusulas, obrigações, prazos, documentos exigidos e restrições encontradas nos documentos-base.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "005",
+          "canonical_id": "V1-CON-005",
+          "description": "Fonte obrigatória: Toda regra automática deve manter vínculo com documento, página e trecho de origem.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "015",
+          "canonical_id": "V1-DOC-001",
+          "description": "Anexação múltipla: Aceitar PDF, XLSX, CSV, DOCX, imagens e formatos configurados, com limites de tamanho e validação de segurança.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "016",
+          "canonical_id": "V1-DOC-002",
+          "description": "Classificação automática: Sugerir categoria e item da lista de verificação a partir do conteúdo e nome do arquivo.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "017",
+          "canonical_id": "V1-DOC-003",
+          "description": "Versionamento: Nova versão não apaga anterior e exige motivo da substituição quando competência já estiver em análise.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "018",
+          "canonical_id": "V1-DOC-004",
+          "description": "Metadados extraídos: Capturar CNPJ, CPF quando necessário, fornecedor, número do documento, datas, valores, competência, banco, agência, conta e outros campos por tipo documental.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "019",
+          "canonical_id": "V1-DOC-005",
+          "description": "Integridade do arquivo: Registrar resumo criptográfico, data, usuário, origem e versão para preservar cadeia de evidência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "087",
+          "canonical_id": "NFR-003",
+          "description": "Transferência direta: upload/download de arquivos deve priorizar conexão direta cliente-Storage com autorização temporária.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "088",
+          "canonical_id": "NFR-004",
+          "description": "Multipart: objetos grandes devem suportar upload fracionado, retry e retomada.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "095",
+          "canonical_id": "NFR-011",
+          "description": "Resiliência: integrações externas devem ter timeout, retry e isolamento de falha.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "32",
+      "description": "PROMPT 32 - V1-11 - Detalhe/versões documento",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019",
+        "087"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "015",
+          "canonical_id": "V1-DOC-001",
+          "description": "Anexação múltipla: Aceitar PDF, XLSX, CSV, DOCX, imagens e formatos configurados, com limites de tamanho e validação de segurança.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "016",
+          "canonical_id": "V1-DOC-002",
+          "description": "Classificação automática: Sugerir categoria e item da lista de verificação a partir do conteúdo e nome do arquivo.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "017",
+          "canonical_id": "V1-DOC-003",
+          "description": "Versionamento: Nova versão não apaga anterior e exige motivo da substituição quando competência já estiver em análise.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "018",
+          "canonical_id": "V1-DOC-004",
+          "description": "Metadados extraídos: Capturar CNPJ, CPF quando necessário, fornecedor, número do documento, datas, valores, competência, banco, agência, conta e outros campos por tipo documental.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "019",
+          "canonical_id": "V1-DOC-005",
+          "description": "Integridade do arquivo: Registrar resumo criptográfico, data, usuário, origem e versão para preservar cadeia de evidência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "087",
+          "canonical_id": "NFR-003",
+          "description": "Transferência direta: upload/download de arquivos deve priorizar conexão direta cliente-Storage com autorização temporária.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "33",
+      "description": "PROMPT 33 - V1-12 - Competências",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "34",
+      "description": "PROMPT 34 - V1-13 - Nova competência",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "35",
+      "description": "PROMPT 35 - V1-14 - Competência - visão geral",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "011",
+          "canonical_id": "V1-CHK-001",
+          "description": "Lista de verificação versionada: Lista de verificação deve ser configurável, vinculável à norma de origem e versionada por vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "012",
+          "canonical_id": "V1-CHK-002",
+          "description": "Obrigatoriedade condicional: Itens podem ser obrigatórios sempre ou apenas quando determinada condição ocorrer, como existência de rescisão, compra de imobilizado ou aplicação financeira.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "013",
+          "canonical_id": "V1-CHK-003",
+          "description": "Critérios por item: Cada item pode ter validações de presença, assinatura, data, competência, CNPJ, valor, validade, páginas, correspondência e regra específica.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "014",
+          "canonical_id": "V1-CHK-004",
+          "description": "Resultado granular: Cada item deve ter situação: não enviado, recebido, em análise, conforme, não conforme, não aplicável ou requer revisão.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "36",
+      "description": "PROMPT 36 - V1-15 - Competência - documentos",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "015",
+          "canonical_id": "V1-DOC-001",
+          "description": "Anexação múltipla: Aceitar PDF, XLSX, CSV, DOCX, imagens e formatos configurados, com limites de tamanho e validação de segurança.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "016",
+          "canonical_id": "V1-DOC-002",
+          "description": "Classificação automática: Sugerir categoria e item da lista de verificação a partir do conteúdo e nome do arquivo.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "017",
+          "canonical_id": "V1-DOC-003",
+          "description": "Versionamento: Nova versão não apaga anterior e exige motivo da substituição quando competência já estiver em análise.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "018",
+          "canonical_id": "V1-DOC-004",
+          "description": "Metadados extraídos: Capturar CNPJ, CPF quando necessário, fornecedor, número do documento, datas, valores, competência, banco, agência, conta e outros campos por tipo documental.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "019",
+          "canonical_id": "V1-DOC-005",
+          "description": "Integridade do arquivo: Registrar resumo criptográfico, data, usuário, origem e versão para preservar cadeia de evidência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "087",
+          "canonical_id": "NFR-003",
+          "description": "Transferência direta: upload/download de arquivos deve priorizar conexão direta cliente-Storage com autorização temporária.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "088",
+          "canonical_id": "NFR-004",
+          "description": "Multipart: objetos grandes devem suportar upload fracionado, retry e retomada.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "37",
+      "description": "PROMPT 37 - V1-16 - Competência - análise",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "020",
+        "021",
+        "022",
+        "023",
+        "024"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "020",
+          "canonical_id": "V1-AUD-001",
+          "description": "Execução reproduzível: Cada rodada de análise deve registrar versão das regras, documentos e modelo de IA utilizados.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "021",
+          "canonical_id": "V1-AUD-002",
+          "description": "Separação de mecanismos: Resultados determinísticos e semânticos devem ser identificados separadamente.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "022",
+          "canonical_id": "V1-AUD-003",
+          "description": "Criticidade: Apontamentos devem ser classificados como crítico, alto, médio, baixo ou informativo conforme impacto configurável.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "023",
+          "canonical_id": "V1-AUD-004",
+          "description": "Evidência: Todo apontamento deve conter documento/fonte, localização, regra violada, descrição do problema e ação sugerida.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "024",
+          "canonical_id": "V1-AUD-005",
+          "description": "Reanálise incremental: Após correção, sistema deve reprocessar apenas itens afetados quando tecnicamente possível, sem perder histórico da análise anterior.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    },
+    {
+      "regular": "38",
+      "description": "PROMPT 38 - V1-17 - Requisito - detalhe/evidências",
+      "vinculos_diretos_estruturais_anteriores": [
+        "000",
+        "011",
+        "012",
+        "013",
+        "014",
+        "021",
+        "022",
+        "023",
+        "024"
+      ],
+      "requisitos_aplicabilidade_propostos": [
+        {
+          "atomic": "000",
+          "canonical_id": "BRAND-01",
+          "description": "Identidade visual oficial",
+          "source": "20_PROMPT_000_BRAND_01.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "011",
+          "canonical_id": "V1-CHK-001",
+          "description": "Lista de verificação versionada: Lista de verificação deve ser configurável, vinculável à norma de origem e versionada por vigência.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "012",
+          "canonical_id": "V1-CHK-002",
+          "description": "Obrigatoriedade condicional: Itens podem ser obrigatórios sempre ou apenas quando determinada condição ocorrer, como existência de rescisão, compra de imobilizado ou aplicação financeira.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "013",
+          "canonical_id": "V1-CHK-003",
+          "description": "Critérios por item: Cada item pode ter validações de presença, assinatura, data, competência, CNPJ, valor, validade, páginas, correspondência e regra específica.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "014",
+          "canonical_id": "V1-CHK-004",
+          "description": "Resultado granular: Cada item deve ter situação: não enviado, recebido, em análise, conforme, não conforme, não aplicável ou requer revisão.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "021",
+          "canonical_id": "V1-AUD-002",
+          "description": "Separação de mecanismos: Resultados determinísticos e semânticos devem ser identificados separadamente.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "022",
+          "canonical_id": "V1-AUD-003",
+          "description": "Criticidade: Apontamentos devem ser classificados como crítico, alto, médio, baixo ou informativo conforme impacto configurável.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "023",
+          "canonical_id": "V1-AUD-004",
+          "description": "Evidência: Todo apontamento deve conter documento/fonte, localização, regra violada, descrição do problema e ação sugerida.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "024",
+          "canonical_id": "V1-AUD-005",
+          "description": "Reanálise incremental: Após correção, sistema deve reprocessar apenas itens afetados quando tecnicamente possível, sem perder histórico da análise anterior.",
+          "source": "08A_REQUISITOS_001_024_4_1.md",
+          "relation": "TELA_DIRETA_JA_MAPEADA",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "089",
+          "canonical_id": "NFR-005",
+          "description": "Assincronicidade: OCR, IA, embeddings e relatórios pesados não podem ocupar request web até conclusão.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "091",
+          "canonical_id": "NFR-007",
+          "description": "Concorrência: ações críticas devem usar transação e locks; edições comuns devem possuir controle otimista.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "092",
+          "canonical_id": "NFR-008",
+          "description": "Idempotência: comandos críticos repetíveis devem impedir efeitos duplicados.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "093",
+          "canonical_id": "NFR-009",
+          "description": "Paginação: endpoints de grandes coleções não podem retornar volume ilimitado.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        },
+        {
+          "atomic": "094",
+          "canonical_id": "NFR-010",
+          "description": "Observabilidade: métricas de API, banco, PostgreSQL, Queues, Edge Functions, Cron e Storage são obrigatórias em produção.",
+          "source": "08D_REQUISITOS_073_096_4_1.md",
+          "relation": "ESCOPO_DE_BACKEND_OU_NFR_CANDIDATO_DE_REVISAO",
+          "verified_implementation": false
+        }
+      ],
+      "status": "APLICABILIDADE_PRELIMINAR_POR_ESCOPO; NÃO CERTIFICA IMPLEMENTAÇÃO",
+      "source_evidence": "Escopo do Manual original, textos canônicos dos 96 requisitos, telas e entidades do PROMPT_TRACKS_4_1.json",
+      "gates_missing": "Revisão das exclusões por requisito, ensaio individual aplicável, evidência de segurança/CI/Teste C; NFR de produção não se prova apenas em HML."
+    }
+  ],
+  "complete_implementation_certified": false
+}
