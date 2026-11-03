@@ -57,3 +57,9 @@ Verificações reaproveitadas sem extrapolar escopo: backend HML com 117/117 tab
 - Branch protection obrigatório no repositório privado indisponível no plano GitHub atual.
 
 Estes dossiês preservam o histórico sem simular testes retroativos. Nenhuma alteração de backend ou PROD faz parte deste commit documental.
+
+## Integridade dos dossiês e regra de escopo
+
+A execução documental [ContaOS Dossies 39 #41712377496](https://github.com/contaos9999/develop/actions/runs/41712377496) concluiu SUCCESS e verificou os 39 arquivos JSON, respectivos IDs e rastreador. O workflow e o script usados nessa verificação não pertenciam ao escopo permitido no Zero-Drift e foram retirados em commit posterior. Portanto, **essa execução não significa que exista gate documental permanente ativo**. O Zero-Drift principal permanece autoridade; não foi relaxado.
+
+Na avaliação do commit de inclusão, o Zero-Drift [#41712377695](https://github.com/contaos9999/develop/actions/runs/41712377695) apontou apenas dois caminhos fora do escopo: um workflow novo e um script novo. A retirada desses dois arquivos também gerou o FAIL transitório [#41712627791](https://github.com/contaos9999/develop/actions/runs/41712627791), porque a exclusão conta como modificação do caminho. Esta atualização documental permite uma nova verificação sem alterações em scripts, workflows, frontend, backend ou produção.
