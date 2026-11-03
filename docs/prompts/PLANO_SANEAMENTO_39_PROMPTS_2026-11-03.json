@@ -1665,8 +1665,8 @@
       "prompt_id": "38",
       "nome": "V1-17 – Detalhe do requisito",
       "diagnostico_origem": "SOMENTE PLAN FRONTEND",
-      "observacao": "Backend HML certificado e plano aprovado, mas nenhuma implementação funcional do drawer presente no HEAD de main.",
-      "status": "PLAN_APROVADO_FRONTEND_BUILD_PENDENTE",
+      "observacao": "BUILD V1-17 implementado e correção de acessibilidade certificada no SHA ad0b933 com Teste C independente PASS em MOCK. Sessões reais autorizada/negada no HML e isolamento RLS por perfil continuam sem prova E2E.",
+      "status": "BUILD_CORRETIVO_TESTE_C_PASS_SESSAO_HML_REAL_PENDENTE",
       "risco": "P0",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1688,13 +1688,25 @@
       "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
       "brand_atomo_000": true,
       "acoes_minimas": [
-        "Implementar drawer V1-17 conforme plano",
-        "TDD, regressão, visual validado e Teste C imutável"
+        "Executar E2E com sessão real HML em dois perfis distintos, validar autorização pelo backend (não somente UI), registrar evidência sanitizada",
+        "Validar testes negativos da RPC obter_detalhe_requisito_v117 e solicitação de reanálise com tenant A/B sem DML irreversível",
+        "Manter types.ts no hash certificado e CI verde antes de promoção"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        "V117_IMPLEMENTADO_COM_TDD_812",
+        "V117_TESTE_C_PASS_ESCOPO_MOCK",
+        "V117_CORRECAO_ACESSIBILIDADE_CLOSE_DUPLICADO",
+        "TYPES_BLOB_RESTAURADO",
+        "TYPES_AUTOLOCK_WORKFLOW_TEST_PASS"
+      ],
+      "evidencias": [
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+        "https://github.com/contaos9999/contaos-hml-control/issues/8",
+        "https://github.com/contaos9999/contaos-hml-control/blob/main/.github/workflows/contaos-types-autolock.yml",
+        "docs/prompts/evidencias_individuais/PROMPT_38.json"
+      ],
       "prova_100_por_prompt": false,
-      "justificativa_bloqueio": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado.",
+      "justificativa_bloqueio": "LIMITAÇÃO REMANESCENTE: não há sessão real com perfil autorizado/negado no HML; não há evidência de exercício do isolamento entre organizações em runtime. Teste C e CI certificados SOMENTE no escopo código/acessibilidade/browser MOCK.",
       "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_38.json"
     }
   ],
@@ -1703,7 +1715,7 @@
     "fully_verified": 0,
     "backend_structural_verified": 15,
     "frontend_historical_local_with_pending_transversal": 22,
-    "active_plan": 1,
+    "active_plan": 0,
     "global_resolutions_done": [
       "RESTORE_TYPES",
       "PROJECT_KNOWLEDGE",
@@ -1723,12 +1735,12 @@
     ],
     "critical_blockers": [
       "SYS03_E2E_REAL",
-      "V117_BUILD",
       "BRANCH_PROTECTION_GITHUB_PRO",
       "CROSSWALK_RESTANTES_39",
-      "VALIDACAO_AUTENTICADA"
+      "VALIDACAO_AUTENTICADA",
+      "V117_SESSAO_REAL_HML"
     ],
-    "note": "Saneamento transversal frontend CI PASS 765/765 e tipos/build/brand/lint/prettier; Teste C final visual ainda em execução. Não declarar 39/39 100%.",
+    "note": "V1-17 implementada com Teste C independente PASS e CI 812/812; types Auto-Lock adicionado e TESTE ISOLADO PASS; prova E2E autenticada ainda pendente. Não declarar 39/39.",
     "notes": "Teste C do SHA 856209 PASS, 765/765 e visual 40 capturas públicas. Ainda não corresponde à validação das telas internas autenticadas, e Prompt 38/E2E do SYS-03/branch ruleset/crosswalk permanecem pendentes."
   },
   "evidence_latest": {
@@ -1794,5 +1806,14 @@
   },
   "indice_dossies_individuais": "docs/prompts/INDICE_EVIDENCIAS_INDIVIDUAIS_39_2026-11-03.json",
   "total_dossies_individuais": 39,
-  "revisao_individual_prova100": 0
+  "revisao_individual_prova100": 0,
+  "revalidacao_2026_11_03": {
+    "types_auto_lock": "https://github.com/contaos9999/contaos-hml-control/blob/main/.github/workflows/contaos-types-autolock.yml",
+    "types_lock_teste": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41718861663",
+    "types_hash": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
+    "v117_testec": "ad0b933943d4b69f7a9f23f203e4cff1211b4902",
+    "v117_ci": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "v117_escopo": "PASS no MOCK, sessão real não verificada",
+    "pendentes_oficiais": "39 entradas; 10 itens adicionais para um conjunto de 49 ainda sem documento-base identificado."
+  }
 }

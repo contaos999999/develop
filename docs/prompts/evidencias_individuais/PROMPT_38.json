@@ -2,7 +2,7 @@
   "id": "38",
   "nome": "V1-17 – Detalhe do requisito",
   "escopo": "frontend_lovable",
-  "status": "BUILD_CORRETIVO_CI_PASS_TESTE_C_INDEPENDENTE_EM_EXECUCAO",
+  "status": "BUILD_CORRETIVO_EXECUTADO_TESTE_C_PASS_ESCOPO_MOCK_HML_REAL_PENDENTE",
   "diagnostico": "SOMENTE PLAN FRONTEND",
   "requisitos_atomicos_mapeados": [
     "000",
@@ -19,13 +19,20 @@
   "fonte_original": "Manual_Mestre_Prompts_4_1_100_PRD.docx; Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
   "evidencias": [
     "docs/backend/V117_CERTIFICACAO_DETALHE_REQUISITO_2026-11-03.md",
-    "https://github.com/contaos9999/contaos-hml-control/blob/main/.lovable/plan/prompt-38-v1-17-detalhe-do-requisito-drawer-na-análise-2026-11-03.md"
+    "https://github.com/contaos9999/contaos-hml-control/blob/main/.lovable/plan/prompt-38-v1-17-detalhe-do-requisito-drawer-na-análise-2026-11-03.md",
+    "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "https://github.com/contaos9999/contaos-hml-control/issues/8",
+    "https://github.com/contaos9999/contaos-hml-control/actions/runs/41718861663",
+    "https://github.com/contaos9999/contaos-hml-control/blob/main/.github/workflows/contaos-types-autolock.yml",
+    "docs/prompts/CI_TESTES_FRONTEND_INDIVIDUAIS_2026-11-03.json",
+    "docs/prompts/CRITERIOS_ORIGINAIS_39_PROMPTS_2026-11-03.json"
   ],
-  "verificacao_individual": "CI 812/812 PASS no SHA ad0b...; correção do 'Close' duplicado aplicada. Teste C final ainda não concluído.",
-  "limites": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado.",
+  "verificacao_individual": "V1-17 implementada e reparada, Teste C independente PASS no SHA imutável ad0b933; 812/812 testes CI; browser mock 1440/1280/768/390 claro/escuro; acesso real HML não testado.",
+  "limites": "LIMITAÇÃO REMANESCENTE: não há sessão real com perfil autorizado/negado no HML; não há evidência de exercício do isolamento entre organizações em runtime. Teste C e CI certificados SOMENTE no escopo código/acessibilidade/browser MOCK.",
   "acoes_de_fechamento": [
-    "Implementar drawer V1-17 conforme plano",
-    "TDD, regressão, visual validado e Teste C imutável"
+    "Executar E2E com sessão real HML em dois perfis distintos, validar autorização pelo backend (não somente UI), registrar evidência sanitizada",
+    "Validar testes negativos da RPC obter_detalhe_requisito_v117 e solicitação de reanálise com tenant A/B sem DML irreversível",
+    "Manter types.ts no hash certificado e CI verde antes de promoção"
   ],
   "certificacao_integral": false,
   "ci_frontend_individual": {
@@ -47,5 +54,15 @@
     ],
     "tests_in_related_files": 141,
     "limit": "Prova automatizada, não equivale a E2E autenticado nem Teste C."
+  },
+  "teste_c": {
+    "resultado": "PASS_NO_ESCOPO",
+    "sha": "ad0b933943d4b69f7a9f23f203e4cff1211b4902",
+    "ci": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "qualidade": "812/812, eslint/tsc/build/Zero-Drift PASS",
+    "tdd": "RED do novo teste comprovado e GREEN com 47/47",
+    "browser": "8 combinações com mock; um botão Fechar acessível, zero Close, foco e Escape, largura 390–1440",
+    "conectividade_hml": "RPCs conferidas em leitura ao vivo por ferramenta Supabase, sessão real não demonstrada",
+    "hash_protegido": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19"
   }
 }
