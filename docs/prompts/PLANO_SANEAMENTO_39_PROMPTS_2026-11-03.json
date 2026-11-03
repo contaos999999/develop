@@ -33,10 +33,10 @@
   "global_findings": [
     {
       "id": "RETRO-KNOWLEDGE",
-      "status": "CORRIGIDO",
+      "status": "CORRIGIDO_COM_EVIDENCIA",
       "description": "Instruções permanentes Lovable atualizadas 100 regulares + 97 atômicos, BRAND-01, economia, gates.",
       "evidence": "mcp__Lovable__set_project_knowledge + get_project_knowledge leitura posterior de 03/11/2026",
-      "github_evidence": "A registrar"
+      "github_evidence": "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md"
     },
     {
       "id": "RETRO-TYPES",
@@ -47,15 +47,20 @@
     },
     {
       "id": "RETRO-ROOT-PTBR",
-      "status": "PENDENTE"
+      "status": "RED_CONFIRMADO_AGUARDANDO_GERENCIAMENTO_PLAN",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41695958565"
     },
     {
       "id": "RETRO-BRAND-COVERAGE",
-      "status": "PENDENTE"
+      "status": "RED_CONFIRMADO_AGUARDANDO_GERENCIAMENTO_PLAN",
+      "evidence": "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
     },
     {
       "id": "RETRO-CI-FRONTEND",
-      "status": "PENDENTE"
+      "status": "CI_INSTALADO_FAIL_COMPROVADO",
+      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41695958565",
+      "commit": "bc00a9a970a00462b925ce38e65a33c3f6cd1530",
+      "guard_commit": "0c981e8614947d8b22b79ecc701f00f62c015251"
     },
     {
       "id": "RETRO-E2E-SYS03",
@@ -68,6 +73,27 @@
     {
       "id": "RETRO-V117-FRONTEND",
       "status": "PENDENTE_BUILD"
+    },
+    {
+      "id": "RETRO-BRAND-DARK",
+      "status": "PENDENTE_FIX_VISUAL",
+      "description": "22/22 headers e aside utilizam bg-primary com fundo claro dark; logo oficial desktop navy retangular e mobile símbolo branco não se adaptam.",
+      "evidence": "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
+      "action": "Lovable PLAN separado para variante oficial navy claro/escuro, inserir 2 SVGs oficiais byte-identicos e Teste C visual."
+    },
+    {
+      "id": "RETRO-BRANCH-PROTECTION",
+      "status": "BLOQUEADO_PELO_GITHUB",
+      "description": "GitHub API GET /rulesets para repositório privado retornou HTTP 403: Upgrade to GitHub Pro or make repository public.",
+      "evidence": "https://api.github.com/repos/contaos9999/contaos-hml-control/rulesets",
+      "action": "Manter repositório privado; para enforcement obrigatório de status checks por branch protection/ruleset requer plano GitHub elegível. CI existe e executa, porém não bloqueia merge automaticamente sem ruleset."
+    },
+    {
+      "id": "RETRO-LOVABLE-GATE",
+      "status": "AGUARDANDO_APROVACAO_HUMANA_ESPECIFICA",
+      "description": "Plano mínimo transversal PT-BR e testes BRAND-01 foi gerado no Lovable e o tool plan--show exige decisão humana.",
+      "event_id": "main:agent#00000000019742#tcb:Y7UTQ2BE",
+      "message_id": "umsg_01m6hb7qg3ffnrwa5m03jn4svm"
     }
   ],
   "rows": [
@@ -76,7 +102,7 @@
       "nome": "Constituição e reancoragem",
       "diagnostico_origem": "EXECUTADO COM DESVIO",
       "observacao": "Instruções permanentes atuais do Lovable ainda dizem 96 atômicos; não incluem expressamente BRAND-01/000 e a política universal de economia.",
-      "status": "EM_CORREÇÃO_TRANSVERSAL",
+      "status": "SANEAMENTO_PARCIAL_COM_GATES_PENDENTES",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [],
@@ -87,8 +113,28 @@
         "Corrigir root global PT-BR",
         "Ativar CI frontend Zero-Drift"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Project Knowledge 100/97, BRAND e economia",
+          "status": "VERIFICADO",
+          "evidencia": "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md"
+        },
+        {
+          "item": "types.ts restaurado ao blob certificado",
+          "status": "VERIFICADO",
+          "evidencia": "https://github.com/contaos9999/contaos-hml-control/commit/bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5"
+        },
+        {
+          "item": "workflow permanente Zero-Drift frontend",
+          "status": "INSTALADO_COM_RED_ESPERADO",
+          "evidencia": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41695958565"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md",
+        "https://github.com/contaos9999/contaos-hml-control/commit/bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5",
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -97,7 +143,7 @@
       "nome": "Fundação PostgreSQL e extensões",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Fundação coberta pelo certificado HML e restore; PLAN/BUILD/TEST individual não comprovado.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -107,8 +153,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -117,7 +171,7 @@
       "nome": "Identidade, organizações e vínculos",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "RLS, tenant e Auth abrangidos por certificação; protocolo completo individual não demonstrado.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -127,8 +181,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -137,7 +199,7 @@
       "nome": "Contratantes e contratos 1.0",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Tabelas/RLS verificadas e recursos cobertos; testes por prompt não segregados.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -147,8 +209,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -157,7 +227,7 @@
       "nome": "Base normativa, orçamento e listas 1.0",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Backend inicial certificado; lacunas V107/V108 foram corrigidas depois, sem provar execução autônoma completa do regular 04.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -167,8 +237,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -177,7 +255,7 @@
       "nome": "Storage e documentos 1.0",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Armazenamento privado, versões e URLs assinadas em certificados; E2E frontend posterior é prova separada.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -187,8 +265,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -197,7 +283,7 @@
       "nome": "Competências e análise 1.0",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Portão/análise/competências cobertos no HML; evoluções V115/116 vieram posteriormente.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -207,8 +293,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -217,7 +311,7 @@
       "nome": "Portão, aprovação e apresentação 1.0",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Cenários 99/100, aprovação humana, hash e revalidação certificados; execução individual do regular não comprovada.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -227,8 +321,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -237,7 +339,7 @@
       "nome": "Histórico e precedentes 1.0",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Rastreabilidade/precedentes em matriz 96/96, frontend V1-21/V1-22 não implementado.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -247,8 +349,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -257,7 +367,7 @@
       "nome": "Queues, Cron e Edge Functions",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Workers/filas e autenticação certificados em HML; testes de frontend não se aplicam.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -267,8 +377,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -277,7 +395,7 @@
       "nome": "ContaOS 2.0 – Diligências",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Backend 2.0 incluído no escopo inicial, telas V2 ainda não implementadas.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -287,8 +405,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -297,7 +423,7 @@
       "nome": "ContaOS 3.0 – Financeiro preventivo",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Backend 3.0 incluído no escopo inicial, telas V3 ainda não implementadas.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -307,8 +433,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -317,7 +451,7 @@
       "nome": "ContaOS 4.0 – Inteligência histórica",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Backend 4.0 incluído no escopo inicial, telas V4 ainda não implementadas.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -327,8 +461,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -337,7 +479,7 @@
       "nome": "ContaOS 5.0 – Conformidade",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "Backend 5.0 incluído no escopo inicial, telas V5 ainda não implementadas.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -347,8 +489,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -357,7 +507,7 @@
       "nome": "ContaOS 5.0 – API e webhooks",
       "diagnostico_origem": "BACKEND: PROVA AGREGADA",
       "observacao": "API/webhooks e hardening presentes no HML; testes por prompt regular individual não provados.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -367,8 +517,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -377,7 +535,7 @@
       "nome": "Hardening e testes do backend",
       "diagnostico_origem": "BACKEND: CERTIFICADO NO ESCOPO HISTÓRICO",
       "observacao": "Certificados RLS, restore, cargas e 96/96; advisors atuais exigem avaliação contínua, não equivalem a GO/NO-GO final.",
-      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "status": "BACKEND_ESTRUTURAL_COMPROVADO_PROCESSO_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "backend_hml",
       "crosswalk": [],
@@ -387,8 +545,16 @@
         "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
         "Emitir evidência retro delimitada sem inventar PLAN individual"
       ],
-      "resolucoes": [],
-      "evidencias": [],
+      "resolucoes": [
+        {
+          "item": "Inventário canônico HML, 117/117 RLS, fonte original e certificados agregados",
+          "status": "VERIFICADO_ESCOPADO",
+          "evidencia": "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+        }
+      ],
+      "evidencias": [
+        "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -397,7 +563,7 @@
       "nome": "SYS-01 – Login",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Lovable reportou 12/12, inclusive sessão real e quatro larguras; root global ainda contém inglês.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -412,7 +578,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -421,7 +589,7 @@
       "nome": "SYS-02 – Esqueci a senha",
       "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
       "observacao": "Teste final registrado e 21/21 automatizados; configuração externa Auth não foi totalmente comprovada.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -436,7 +604,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -445,7 +615,7 @@
       "nome": "SYS-03 – Redefinir senha",
       "diagnostico_origem": "E2E REAL NÃO COMPROVADO",
       "observacao": "Pedido real de recuperação retornou HTTP 200, mas não houve prova do fluxo completo de link, redefinição e novo login.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "E2E_REAL_PENDENTE_E_VISUAL_PENDENTE",
       "risco": "P0",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -458,7 +628,9 @@
         "Registrar resultado prova real ou dependência com titular"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -467,7 +639,7 @@
       "nome": "SYS-04 – Selecionar organização",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Rodada final posterior à correção do FAIL registrada no Lovable.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -482,7 +654,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -491,7 +665,7 @@
       "nome": "SYS-05 – Dashboard",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Backend RPC certificado e Teste C reaplicado após correção 403.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -506,7 +680,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -515,7 +691,7 @@
       "nome": "ADM-01 – Usuários e vínculos",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Várias correções e última rodada do Teste C registradas; segurança do backend validada em PRs.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -530,7 +706,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -539,7 +717,7 @@
       "nome": "V1-01 – Contratantes",
       "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
       "observacao": "Teste C final 18/18, browser controlado; o próprio registro anotou html lang=en e não substitui RLS real.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -554,7 +732,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -563,7 +743,7 @@
       "nome": "V1-02 – Novo contratante",
       "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
       "observacao": "Teste C com 208/208; browser simulado e build provado por equivalência de SHA, não sessão HML real.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -578,7 +758,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -587,7 +769,7 @@
       "nome": "V1-03 – Editar contratante",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento de certificação Teste C 18/18, 238/238, TypeScript/build, concorrência backend.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -602,7 +784,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -611,7 +795,7 @@
       "nome": "V1-04 – Contratos",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento de certificação e teste C final registrado.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -626,7 +810,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -635,7 +821,7 @@
       "nome": "V1-05 – Novo contrato",
       "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
       "observacao": "Teste C final registrado; backend HML 11/11 com rollback.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -650,7 +836,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -659,7 +847,7 @@
       "nome": "V1-06 – Contrato visão geral",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Teste C 18/18, 331/331 e CI; limite documentado de browser com respostas simuladas.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -678,7 +866,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -687,7 +877,7 @@
       "nome": "V1-07 – Base normativa",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Backend normativo corrigido, Teste C 18/18 e registro final; observar caminho de upload resumível declarado indisponível quando sem contrato técnico.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -706,7 +896,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -715,7 +907,7 @@
       "nome": "V1-08 – Orçamento",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste funcional e correção posterior de lint; lint global mantinha dívida preexistente de 8.962 erros, sem novo Teste C após a última formatação.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -735,7 +927,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -744,7 +938,7 @@
       "nome": "V1-09 – Listas/Regras",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C com 16 grupos PASS, browser interceptado; Security Scan no SHA fixado limitado e lint global preexistente não saneado.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -763,7 +957,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -772,7 +968,7 @@
       "nome": "V1-10 – Central de documentos",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Certificação documental Teste C PASS; backend/storage privado e reuso de helpers.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -798,7 +994,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -807,7 +1005,7 @@
       "nome": "V1-11 – Detalhe/versões documento",
       "diagnostico_origem": "TESTE C PASS NO ESCOPO",
       "observacao": "Lovable registra Teste C final e implementação; ausência de certificado separado do develop não prova auditoria transversal completa.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -828,7 +1026,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -837,7 +1037,7 @@
       "nome": "V1-12 – Competências",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento Teste C e CI, regressão serial 520/520; flake/timeout paralelo registrado.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -852,7 +1052,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -861,7 +1063,7 @@
       "nome": "V1-13 – Nova competência",
       "diagnostico_origem": "CERTIFICADO NO ESCOPO",
       "observacao": "Documento Teste C e CI, 544/544; sem prova visual HML real em todos estados.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -876,7 +1078,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -885,7 +1089,7 @@
       "nome": "V1-14 – Visão geral competência",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C e CI; cenários autenticados no navegador controlados por fixtures.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -904,7 +1108,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -913,7 +1119,7 @@
       "nome": "V1-15 – Documentos competência",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C final no SHA imutável, 645/645; 8 combinações visuais no cenário UUID inválido, sem E2E de upload com sessão real.",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -933,7 +1139,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -942,7 +1150,7 @@
       "nome": "V1-16 – Análise competência",
       "diagnostico_origem": "CERTIFICADO COM RESSALVA",
       "observacao": "Teste C final SHA d4b9b77, 739/739; visual autenticado via mocks; latest main altera types.ts (+265 linhas).",
-      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "status": "CERTIFICADO_LOCAL_VISUAL_RETRO_PENDENTE",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -962,7 +1170,9 @@
         "Conferir GitHub diff, segurança, regressões e Teste C"
       ],
       "resolucoes": [],
-      "evidencias": [],
+      "evidencias": [
+        "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md"
+      ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
     },
@@ -971,7 +1181,7 @@
       "nome": "V1-17 – Detalhe do requisito",
       "diagnostico_origem": "SOMENTE PLAN FRONTEND",
       "observacao": "Backend HML certificado e plano aprovado, mas nenhuma implementação funcional do drawer presente no HEAD de main.",
-      "status": "NÃO_IMPLEMENTADO_FRONTEND",
+      "status": "PLAN_APROVADO_FRONTEND_BUILD_PENDENTE",
       "risco": "P0",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [
@@ -1005,7 +1215,26 @@
   "summary": {
     "total": 39,
     "fully_verified": 0,
-    "in_progress": 39,
-    "note": "Não confundir a certificação histórica de cada versão e backend 96/96 com o gate transversal integral recém-instituído. Cada item será atualizado somente após prova específica."
+    "backend_structural_verified": 15,
+    "frontend_historical_local_with_pending_transversal": 22,
+    "active_plan": 1,
+    "global_resolutions_done": [
+      "RESTORE_TYPES",
+      "PROJECT_KNOWLEDGE"
+    ],
+    "global_coverage_installed": [
+      "FRONTEND_CI_BRAND_22"
+    ],
+    "critical_blockers": [
+      "PLAN_APPROVAL",
+      "BRAND_DARK_MODE",
+      "ROOT_PTBR",
+      "BRAND_9_TESTS",
+      "SYS03_E2E",
+      "V117_BUILD",
+      "BRANCH_RULESET_GITHUB_PRO",
+      "AUDITORIA_VISUAL_AUTHENTICADA"
+    ],
+    "note": "As 39 linhas estão individualizadas, 2 subcorreções globais concluídas, CI instalado mas RED. Não atribuir 100% sem evidências e gates finalizados."
   }
 }
