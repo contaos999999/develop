@@ -1311,23 +1311,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -1422,23 +1434,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -1538,23 +1562,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -1653,23 +1689,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -1767,23 +1815,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -1882,23 +1942,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -1996,23 +2068,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2107,23 +2191,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2218,23 +2314,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2329,23 +2437,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2440,23 +2560,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2551,23 +2683,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2662,23 +2806,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2773,23 +2929,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2884,23 +3052,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -2995,23 +3175,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3106,23 +3298,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3217,23 +3421,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3328,23 +3544,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3439,23 +3667,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3550,23 +3790,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3661,23 +3913,35 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "AUDITADO_VISUAL_MOCK_PASS_RELATADO_ARQUIVO_TEMPORARIO",
+          "explanation": "Auditoria Lovable reportou a tela renderizada sem desvio detectado em 1440/1280/768/390 px, dois temas (8 condições), em versão git archive isolada c36c9c. Estados protegidos MOCK; imagens temporárias não foram preservadas no GitHub. Critério NÃO é prova E2E autenticada.",
+          "proof": [
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
+          ],
+          "scope_limit": "Relato do auditor; screenshot original em /tmp não disponível para reprodução independente; contraste WCAG não foi medido confiavelmente."
         },
         {
           "index": 10,
@@ -3777,10 +4041,12 @@
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
           "status": "PASS_VISUAL_MOCK",
-          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Desktop 1440 e 1280. Sessão HML real não executada.",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Desktop 1440 e 1280. Sessão HML real não executada. Auditoria transversal adicional 8 condições (MOCK) reportada, com imagens temporárias não arquivadas.",
           "proof": [
             "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
-            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+            "https://github.com/contaos9999/contaos-hml-control/issues/8",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
           ],
           "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
@@ -3788,10 +4054,12 @@
           "index": 8,
           "criterio": "8. tablet 768 ok;",
           "status": "PASS_VISUAL_MOCK",
-          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Tablet 768. Sessão HML real não executada.",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Tablet 768. Sessão HML real não executada. Auditoria transversal adicional 8 condições (MOCK) reportada, com imagens temporárias não arquivadas.",
           "proof": [
             "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
-            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+            "https://github.com/contaos9999/contaos-hml-control/issues/8",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
           ],
           "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
@@ -3799,10 +4067,12 @@
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
           "status": "PASS_VISUAL_MOCK",
-          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Mobile 390. Sessão HML real não executada.",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Mobile 390. Sessão HML real não executada. Auditoria transversal adicional 8 condições (MOCK) reportada, com imagens temporárias não arquivadas.",
           "proof": [
             "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
-            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+            "https://github.com/contaos9999/contaos-hml-control/issues/8",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213"
           ],
           "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
@@ -3851,8 +4121,9 @@
     "criteria_with_partial_or_pending_evidence": 198,
     "criteria_fully_certified": 0,
     "remaining_unverified": 218,
-    "note": "36 critérios com PASS no escopo delimitado: 15 migrations HML, 15 RLS configuração, 2 governança e 4 visual V1-17 MOCK. 39 etapas seguem sem homologação E2E integral. O critério PASS de migration não prova funcionamento do fluxo.",
-    "criteria_positive_scope": 36
+    "note": "36 critérios com PASS delimitado por prova prévia; 69 critérios de tamanho têm adicionalmente relato de auditoria visual MOCK sem screenshots arquivados. Isto não significa 36+69 requisitos funcionais homologados ou 39 prompts integrais.",
+    "criteria_positive_scope": 36,
+    "criteria_visual_mock_relato_com_fonte": 69
   },
   "revalidacao": {
     "data": "2026-11-03",
@@ -3860,6 +4131,12 @@
     "evidencia_visual_v117": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
     "autolock": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41718861663",
     "nota": "PASS de critério circunscrito ao escopo documental, configuração ou visual mock; não constitui homologação das 39 etapas.",
-    "migra_hml": "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json"
+    "migra_hml": "https://github.com/contaos9999/develop/blob/main/docs/prompts/MIGRACOES_APLICADAS_HML_01_A_15_2026-11-03.json",
+    "teste_visual_lote_23": "https://github.com/contaos9999/develop/blob/main/docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+    "frontend_sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+    "frontend_ci_url": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41720206213",
+    "visual_mock_relato": "184 capturas/23 telas ×8, 70 extra =254, capturas temporárias não arquivadas",
+    "autolock_real": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41725182728",
+    "types_autorreparado": "174512a2d2cc978f9c04da54bd8096ad2e47408d"
   }
 }
