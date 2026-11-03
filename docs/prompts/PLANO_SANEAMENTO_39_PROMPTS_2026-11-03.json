@@ -1,0 +1,1011 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-11-03",
+  "task": "SANEAMENTO_RETROSPECTIVO_CONTAOS_4_1_00_A_38",
+  "sources": [
+    "docs/prompts/AUDITORIA_RETROSPECTIVA_PREMISSAS_PROMPTS_00_A_38_2026-11-03.md",
+    "docs/prompts/PROMPT_TRACKS_4_1.json",
+    "07_ZERO_DRIFT_GOVERNANCA_4_1.md",
+    "06_PROMPTS_COPIAR_COLAR/"
+  ],
+  "scope": {
+    "regular_start": "00",
+    "regular_end": "38",
+    "regular_count": 39,
+    "atomic_total": 97,
+    "backend_HML": "gklhhhyosgasnyoxlrui",
+    "prod": "NÃO ALTERAR"
+  },
+  "acceptance": {
+    "required": [
+      "Rastreabilidade funcional por requisito atômico e NFR",
+      "BRAND-01 aplicado à tela e estados conforme escopo",
+      "Validação visual real 1440/1280/768/390 claro/escuro",
+      "Economia Lovable e autorização humana comprovadas",
+      "TDD, tipos, build, lint da mudança e regressão",
+      "Segurança/RLS reais no backend quando aplicável",
+      "Teste C read-only separado e GitHub CI quando aplicável",
+      "Commit GitHub de cada correção",
+      "Declaração honesta de lacunas antes de 100%"
+    ],
+    "rule": "Sem evidência verificável individual não marcar prova_100_por_prompt."
+  },
+  "global_findings": [
+    {
+      "id": "RETRO-KNOWLEDGE",
+      "status": "CORRIGIDO",
+      "description": "Instruções permanentes Lovable atualizadas 100 regulares + 97 atômicos, BRAND-01, economia, gates.",
+      "evidence": "mcp__Lovable__set_project_knowledge + get_project_knowledge leitura posterior de 03/11/2026",
+      "github_evidence": "A registrar"
+    },
+    {
+      "id": "RETRO-TYPES",
+      "status": "CORRIGIDO",
+      "description": "types.ts restaurado byte a byte ao blob certificado 8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
+      "commit": "bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5",
+      "url": "https://github.com/contaos9999/contaos-hml-control/commit/bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5"
+    },
+    {
+      "id": "RETRO-ROOT-PTBR",
+      "status": "PENDENTE"
+    },
+    {
+      "id": "RETRO-BRAND-COVERAGE",
+      "status": "PENDENTE"
+    },
+    {
+      "id": "RETRO-CI-FRONTEND",
+      "status": "PENDENTE"
+    },
+    {
+      "id": "RETRO-E2E-SYS03",
+      "status": "PENDENTE_TITULAR"
+    },
+    {
+      "id": "RETRO-REQUIREMENTS-CROSSWALK",
+      "status": "EM_AUDITORIA"
+    },
+    {
+      "id": "RETRO-V117-FRONTEND",
+      "status": "PENDENTE_BUILD"
+    }
+  ],
+  "rows": [
+    {
+      "prompt_id": "00",
+      "nome": "Constituição e reancoragem",
+      "diagnostico_origem": "EXECUTADO COM DESVIO",
+      "observacao": "Instruções permanentes atuais do Lovable ainda dizem 96 atômicos; não incluem expressamente BRAND-01/000 e a política universal de economia.",
+      "status": "EM_CORREÇÃO_TRANSVERSAL",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Alinhar Project Knowledge 100/97 e gates BRAND/economia",
+        "Corrigir root global PT-BR",
+        "Ativar CI frontend Zero-Drift"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "01",
+      "nome": "Fundação PostgreSQL e extensões",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Fundação coberta pelo certificado HML e restore; PLAN/BUILD/TEST individual não comprovado.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "02",
+      "nome": "Identidade, organizações e vínculos",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "RLS, tenant e Auth abrangidos por certificação; protocolo completo individual não demonstrado.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "03",
+      "nome": "Contratantes e contratos 1.0",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Tabelas/RLS verificadas e recursos cobertos; testes por prompt não segregados.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "04",
+      "nome": "Base normativa, orçamento e listas 1.0",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Backend inicial certificado; lacunas V107/V108 foram corrigidas depois, sem provar execução autônoma completa do regular 04.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "05",
+      "nome": "Storage e documentos 1.0",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Armazenamento privado, versões e URLs assinadas em certificados; E2E frontend posterior é prova separada.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "06",
+      "nome": "Competências e análise 1.0",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Portão/análise/competências cobertos no HML; evoluções V115/116 vieram posteriormente.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "07",
+      "nome": "Portão, aprovação e apresentação 1.0",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Cenários 99/100, aprovação humana, hash e revalidação certificados; execução individual do regular não comprovada.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "08",
+      "nome": "Histórico e precedentes 1.0",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Rastreabilidade/precedentes em matriz 96/96, frontend V1-21/V1-22 não implementado.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "09",
+      "nome": "Queues, Cron e Edge Functions",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Workers/filas e autenticação certificados em HML; testes de frontend não se aplicam.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "10",
+      "nome": "ContaOS 2.0 – Diligências",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Backend 2.0 incluído no escopo inicial, telas V2 ainda não implementadas.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "11",
+      "nome": "ContaOS 3.0 – Financeiro preventivo",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Backend 3.0 incluído no escopo inicial, telas V3 ainda não implementadas.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "12",
+      "nome": "ContaOS 4.0 – Inteligência histórica",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Backend 4.0 incluído no escopo inicial, telas V4 ainda não implementadas.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "13",
+      "nome": "ContaOS 5.0 – Conformidade",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "Backend 5.0 incluído no escopo inicial, telas V5 ainda não implementadas.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "14",
+      "nome": "ContaOS 5.0 – API e webhooks",
+      "diagnostico_origem": "BACKEND: PROVA AGREGADA",
+      "observacao": "API/webhooks e hardening presentes no HML; testes por prompt regular individual não provados.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "15",
+      "nome": "Hardening e testes do backend",
+      "diagnostico_origem": "BACKEND: CERTIFICADO NO ESCOPO HISTÓRICO",
+      "observacao": "Certificados RLS, restore, cargas e 96/96; advisors atuais exigem avaliação contínua, não equivalem a GO/NO-GO final.",
+      "status": "BACKEND_AGREGADO_AUDITORIA_RETRO_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "backend_hml",
+      "crosswalk": [],
+      "crosswalk_status": "documento_original_verificado_escopo_transversal_em_revisao",
+      "brand_atomo_000": false,
+      "acoes_minimas": [
+        "Cruzar execução backend/PRD desta etapa com commits e Restore do HML",
+        "Emitir evidência retro delimitada sem inventar PLAN individual"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "16",
+      "nome": "SYS-01 – Login",
+      "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
+      "observacao": "Lovable reportou 12/12, inclusive sessão real e quatro larguras; root global ainda contém inglês.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "17",
+      "nome": "SYS-02 – Esqueci a senha",
+      "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
+      "observacao": "Teste final registrado e 21/21 automatizados; configuração externa Auth não foi totalmente comprovada.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "18",
+      "nome": "SYS-03 – Redefinir senha",
+      "diagnostico_origem": "E2E REAL NÃO COMPROVADO",
+      "observacao": "Pedido real de recuperação retornou HTTP 200, mas não houve prova do fluxo completo de link, redefinição e novo login.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P0",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Completar E2E real reset senha sem expor token/senha",
+        "Registrar resultado prova real ou dependência com titular"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "19",
+      "nome": "SYS-04 – Selecionar organização",
+      "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
+      "observacao": "Rodada final posterior à correção do FAIL registrada no Lovable.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "20",
+      "nome": "SYS-05 – Dashboard",
+      "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
+      "observacao": "Backend RPC certificado e Teste C reaplicado após correção 403.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "21",
+      "nome": "ADM-01 – Usuários e vínculos",
+      "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
+      "observacao": "Várias correções e última rodada do Teste C registradas; segurança do backend validada em PRs.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "22",
+      "nome": "V1-01 – Contratantes",
+      "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
+      "observacao": "Teste C final 18/18, browser controlado; o próprio registro anotou html lang=en e não substitui RLS real.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "23",
+      "nome": "V1-02 – Novo contratante",
+      "diagnostico_origem": "TESTE OFICIAL PASS COM RESSALVA",
+      "observacao": "Teste C com 208/208; browser simulado e build provado por equivalência de SHA, não sessão HML real.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "24",
+      "nome": "V1-03 – Editar contratante",
+      "diagnostico_origem": "CERTIFICADO NO ESCOPO",
+      "observacao": "Documento de certificação Teste C 18/18, 238/238, TypeScript/build, concorrência backend.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "25",
+      "nome": "V1-04 – Contratos",
+      "diagnostico_origem": "CERTIFICADO NO ESCOPO",
+      "observacao": "Documento de certificação e teste C final registrado.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "26",
+      "nome": "V1-05 – Novo contrato",
+      "diagnostico_origem": "TESTE OFICIAL PASS NO ESCOPO",
+      "observacao": "Teste C final registrado; backend HML 11/11 com rollback.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "27",
+      "nome": "V1-06 – Contrato visão geral",
+      "diagnostico_origem": "CERTIFICADO NO ESCOPO",
+      "observacao": "Teste C 18/18, 331/331 e CI; limite documentado de browser com respostas simuladas.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "001",
+        "002",
+        "004",
+        "005"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "28",
+      "nome": "V1-07 – Base normativa",
+      "diagnostico_origem": "CERTIFICADO COM RESSALVA",
+      "observacao": "Backend normativo corrigido, Teste C 18/18 e registro final; observar caminho de upload resumível declarado indisponível quando sem contrato técnico.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "001",
+        "002",
+        "004",
+        "005"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "29",
+      "nome": "V1-08 – Orçamento",
+      "diagnostico_origem": "CERTIFICADO COM RESSALVA",
+      "observacao": "Teste funcional e correção posterior de lint; lint global mantinha dívida preexistente de 8.962 erros, sem novo Teste C após a última formatação.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "001",
+        "002",
+        "003",
+        "004",
+        "005"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "30",
+      "nome": "V1-09 – Listas/Regras",
+      "diagnostico_origem": "CERTIFICADO COM RESSALVA",
+      "observacao": "Teste C com 16 grupos PASS, browser interceptado; Security Scan no SHA fixado limitado e lint global preexistente não saneado.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "31",
+      "nome": "V1-10 – Central de documentos",
+      "diagnostico_origem": "CERTIFICADO NO ESCOPO",
+      "observacao": "Certificação documental Teste C PASS; backend/storage privado e reuso de helpers.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "001",
+        "002",
+        "004",
+        "005",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019",
+        "087",
+        "088"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "32",
+      "nome": "V1-11 – Detalhe/versões documento",
+      "diagnostico_origem": "TESTE C PASS NO ESCOPO",
+      "observacao": "Lovable registra Teste C final e implementação; ausência de certificado separado do develop não prova auditoria transversal completa.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019",
+        "087"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "33",
+      "nome": "V1-12 – Competências",
+      "diagnostico_origem": "CERTIFICADO NO ESCOPO",
+      "observacao": "Documento Teste C e CI, regressão serial 520/520; flake/timeout paralelo registrado.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "34",
+      "nome": "V1-13 – Nova competência",
+      "diagnostico_origem": "CERTIFICADO NO ESCOPO",
+      "observacao": "Documento Teste C e CI, 544/544; sem prova visual HML real em todos estados.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "35",
+      "nome": "V1-14 – Visão geral competência",
+      "diagnostico_origem": "CERTIFICADO COM RESSALVA",
+      "observacao": "Teste C e CI; cenários autenticados no navegador controlados por fixtures.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "36",
+      "nome": "V1-15 – Documentos competência",
+      "diagnostico_origem": "CERTIFICADO COM RESSALVA",
+      "observacao": "Teste C final no SHA imutável, 645/645; 8 combinações visuais no cenário UUID inválido, sem E2E de upload com sessão real.",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "015",
+        "016",
+        "017",
+        "018",
+        "019"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "37",
+      "nome": "V1-16 – Análise competência",
+      "diagnostico_origem": "CERTIFICADO COM RESSALVA",
+      "observacao": "Teste C final SHA d4b9b77, 739/739; visual autenticado via mocks; latest main altera types.ts (+265 linhas).",
+      "status": "CERTIFICADO_LOCAL_AUDITORIA_TRANSVERSAL_PENDENTE",
+      "risco": "P1",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "020",
+        "021",
+        "022",
+        "023",
+        "024"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Conferir contrato atômico e NFRs transversais",
+        "Conferir fidelidade e provas reais do frontend",
+        "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
+        "Conferir GitHub diff, segurança, regressões e Teste C"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    },
+    {
+      "prompt_id": "38",
+      "nome": "V1-17 – Detalhe do requisito",
+      "diagnostico_origem": "SOMENTE PLAN FRONTEND",
+      "observacao": "Backend HML certificado e plano aprovado, mas nenhuma implementação funcional do drawer presente no HEAD de main.",
+      "status": "NÃO_IMPLEMENTADO_FRONTEND",
+      "risco": "P0",
+      "escopo_atual": "frontend_lovable",
+      "crosswalk": [
+        "000",
+        "011",
+        "012",
+        "013",
+        "014",
+        "021",
+        "022",
+        "023",
+        "024",
+        "089",
+        "091",
+        "092",
+        "093",
+        "094"
+      ],
+      "crosswalk_status": "mapeamento_estrutural_por_tela_extraido_das_fontes",
+      "brand_atomo_000": true,
+      "acoes_minimas": [
+        "Implementar drawer V1-17 conforme plano",
+        "TDD, regressão, visual validado e Teste C imutável"
+      ],
+      "resolucoes": [],
+      "evidencias": [],
+      "prova_100_por_prompt": false,
+      "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
+    }
+  ],
+  "summary": {
+    "total": 39,
+    "fully_verified": 0,
+    "in_progress": 39,
+    "note": "Não confundir a certificação histórica de cada versão e backend 96/96 com o gate transversal integral recém-instituído. Cada item será atualizado somente após prova específica."
+  }
+}
