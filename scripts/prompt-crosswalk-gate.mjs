@@ -1,0 +1,57 @@
+import fs from 'node:fs';
+
+const catalogPath = 'docs/prompts/PROMPT_TRACKS_4_1.json';
+const taskPath = 'docs/tasks/active-task.json';
+const die = (message) => { console.error('Prompt Crosswalk FAIL: ' + message); process.exit(1); };
+const ok = (value, message) => { if (!value) die(message); };
+const read = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
+ok(fs.existsSync(catalogPath), 'Inventário canônico de prompts ausente.');
+ok(fs.existsSync(taskPath), 'Manifesto da tarefa ativa ausente.');
+const c = read(catalogPath);
+const task = read(taskPath);
+const number = (n, len) => String(n).padStart(len, '0');
+const exactly = (xs, ys) => xs.length === ys.length && xs.every((x, i) => x === ys[i]);
+const regularIds = Array.from({length: 100}, (_, i) => number(i, 2));
+const atomicIds = Array.from({length: 97}, (_, i) => number(i, 3));
+
+ok(exactly(c.regular.ids, regularIds), 'Faixa regular 00–99 incompleta ou fora de ordem.');
+ok(exactly(c.atomic.ids, atomicIds), 'Faixa atômica 000–096 incompleta ou fora de ordem.');
+ok(c.regular.originals_verified_in_archive === true && c.regular.original_prompt_count_verified === 100, 'Texto original dos 100 regulares não verificado.');
+ok(c.atomic.originals_verified_in_archive === true && c.atomic.original_prompt_count_verified === 97, 'Texto original dos 97 atômicos não verificado.');
+ok(c.atomic.canonical_96_verified === true && c.atomic.original_ordinal_verified_against_matrix === true, 'Ordem 001–096 não validada contra a matriz PRD.');
+const provenance = c.provenance || {};
+for (const key of ['archive_sha256','regular_sha256','atomic_sha256']) ok(/^[a-f0-9]{64}$/.test(provenance[key] || ''), 'SHA de fonte obrigatório ausente: ' + key);
+ok(provenance.archive_path_in_package === '06_PROMPTS_COPIAR_COLAR/', 'Pasta oficial 06_PROMPTS_COPIAR_COLAR divergente.');
+const matrix = c.atomic.canonical_items || [];
+ok(matrix.length === 96, 'Matriz canônica deve listar 96 requisitos.');
+const keys = c.atomic.exact_numeric_to_requirement_id || {};
+ok(atomicIds.slice(1).every((id, i) => keys[id] === matrix[i].requirement_id), 'Relação atômico 001–096 x matriz canônica incorreta.');
+const entries = c.crosswalk?.regular_to_atomic || [];
+ok(entries.length === 100 && exactly(entries.map(x=>x.regular_id), regularIds), '100 registros regulares de análise cruzada obrigatórios.');
+ok(entries.every(x=>x.source_verified === true), 'Há um prompt regular com fonte não identificada.');
+const active = ['ativa','ativo','active','em_andamento','in_progress'].includes(String(task.status || '').toLowerCase());
+if (!active) {
+  console.log('Prompt Crosswalk PASS: inventário 100/100 e 97/97; nenhuma tarefa ativa exige vínculo específico.');
+  process.exit(0);
+}
+const promptMatch = String(task.id || '').match(/PROMPT(\\d{1,2})(?:\\D|$)/);
+const regular = task.prompt_crosswalk?.regular_prompt_id || (promptMatch ? number(Number(promptMatch[1]), 2) : null);
+ok(regular && regularIds.includes(regular), 'Tarefa ativa sem número regular 00–99 identificado.');
+ok(task.prompt_crosswalk?.source_evidence_missing === false, 'A tarefa ainda marca origem dos prompts como ausente.');
+ok(task.prompt_crosswalk?.regular_source === '06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx', 'Fonte regular da tarefa divergente.');
+ok(task.prompt_crosswalk?.atomic_source === '06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx', 'Fonte atômica da tarefa divergente.');
+ok(task.prompt_crosswalk?.regular_original_sha256 === provenance.regular_sha256 && task.prompt_crosswalk?.atomic_original_sha256 === provenance.atomic_sha256, 'SHA de fonte de prompt ativo divergente.');
+const entry = entries.find(x => x.regular_id === regular);
+ok(entry, 'Regular sem entrada de análise cruzada: ' + regular);
+ok(entry.status === 'mapeamento_estrutural_por_tela_extraido_das_fontes', 'Correspondência por tela não verificada para Prompt ' + regular + '. Analisar impacto transversal antes do próximo Build.');
+const direct = task.prompt_crosswalk?.direct_atomic_ids || [];
+ok(direct.length > 0 && new Set(direct).size === direct.length && direct.every(id => atomicIds.includes(id)), 'Lista direta de atômicos da tarefa inválida.');
+ok(direct.every(id => (entry.relevant_atomic_ids || []).includes(id)), 'Tarefa aponta atômico sem relação rastreada na matriz.');
+const frontend = Boolean(entry.screen && /^(V[1-5]|SYS|ADM)-/.test(entry.screen));
+if (frontend) ok(direct.includes('000'), 'Frontend sem BRAND-01 (000) na lista de prompts atômicos.');
+const additional = task.prompt_crosswalk?.additional_transversal_atomic_ids || [];
+ok(additional.every(id => atomicIds.includes(id)), 'Atômico transversal de número inválido.');
+ok(!additional.some(id => direct.includes(id)), 'Atômico duplicado entre lista direta e transversal.');
+ok(typeof task.prompt_policy?.required_section === 'string' && task.prompt_policy.required_section === 'ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE', 'Seção BRAND + economia não é obrigatória no manifesto.');
+console.log('Prompt Crosswalk PASS: 100 regulares, 97 atômicos, equivalência 96/96 e Prompt ' + regular + ' com ' + direct.length + ' diretos e ' + additional.length + ' transversais.');
+console.log('NOTA: este gate prova integridade do catálogo e rastreio da tarefa, não a execução semântica de todas as 197 etapas.');
