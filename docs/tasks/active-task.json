@@ -80,7 +80,7 @@
   },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
-    "status": "B1_B2_APPLIED_HML_REGRESSAO_RESTORE_FIX",
+    "status": "B1_B2_APPLIED_HML_CI_RESTORE_GREEN_CONCURRENCY_TEST_ADDITION",
     "existing_read_rpcs": [
       "public.obter_analise_competencia_v116",
       "public.obter_documentos_competencia_v115"
@@ -105,7 +105,7 @@
     ]
   },
   "database_changes_allowed": true,
-  "database_change_scope": "AUTORIZAÇÃO EXPLÍCITA em 03/11/2026 ('Para o v1-17 veja as lacunas e resolva'): somente DUAS migrations novas e imutáveis no HML: B1 create read-only public.obter_detalhe_requisito_v117 e grants mínimos; B2 replace privado.solicitar_reanalise_requisitos exclusivamente para segurança de concorrência/idempotência. Nenhum outro DDL/schema, nenhuma alteração a RLS/Auth/Edge/Storage/client/tipos/PROD. Ajuste de regressão permitido exclusivamente em supabase/tests/reanalysis_authz.sql para alinhar mensagem PT-BR de 42501, sem redução da cobertura.",
+  "database_change_scope": "AUTORIZAÇÃO EXPLÍCITA em 03/11/2026 ('Para o v1-17 veja as lacunas e resolva'): somente DUAS migrations novas e imutáveis no HML: B1 create read-only public.obter_detalhe_requisito_v117 e grants mínimos; B2 replace privado.solicitar_reanalise_requisitos exclusivamente para segurança de concorrência/idempotência. Nenhum outro DDL/schema, nenhuma alteração a RLS/Auth/Edge/Storage/client/tipos/PROD. Ajuste de regressão permitido exclusivamente em supabase/tests/reanalysis_authz.sql para alinhar mensagem PT-BR de 42501, sem redução da cobertura. Autorizadas somente a adição do teste de concorrência de duas sessões em supabase/tests/v117_reanalysis_concurrency.sh e o hunk mínimo da chamada no workflow Restore Isolado. Teste executa exclusivamente sobre PostgreSQL local descartável do CI; nenhuma extensão de DDL no HML.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -116,7 +116,9 @@
     "docs/frontend/V117_* somente documentação de plano/aceite, sem certificação antecipada",
     "supabase/migrations/*v117_obter_detalhe_requisito.sql",
     "supabase/migrations/*v117_reanalise_requisitos_concorrencia.sql",
-    "supabase/tests/reanalysis_authz.sql"
+    "supabase/tests/reanalysis_authz.sql",
+    "supabase/tests/v117_reanalysis_concurrency.sh",
+    ".github/workflows/restore-isolado.yml"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -170,5 +172,5 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Run Restore Isolado e Zero-Drift para arquivo de teste explicitamente autorizado; depois registrar certificacao backend e iniciar PLAN frontend V1-17."
+  "next_step": "Versionar teste de concorrência real com duas conexões no CI isolado; validar lock, um job, idempotência e PT409, depois certificar backend e iniciar Lovable PLAN."
 }
