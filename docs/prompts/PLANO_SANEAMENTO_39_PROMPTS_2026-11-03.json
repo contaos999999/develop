@@ -47,8 +47,8 @@
     },
     {
       "id": "RETRO-ROOT-PTBR",
-      "status": "CORRIGIDO_CI_PASS_TESTE_C_VISUAL_PENDENTE",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+      "status": "CORRIGIDO_CI_TESTE_C_PASS_NO_ESCOPO",
+      "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "b1fe1695f40880f410ef458c1d91b9d9a7c5db9c",
       "tests": [
@@ -58,22 +58,24 @@
       ],
       "pending": "Lint de formatação em 3 arquivos no Teste C; posterior visual.",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
-      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
     },
     {
       "id": "RETRO-BRAND-COVERAGE",
-      "status": "22_22_TESTES_CI_PASS_VISUAL_AUTH_PENDENTE",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+      "status": "CERTIFICADO_CODIGO_22_22_VISUAL_PUBLICAS_PASS_INTERNAS_NAO_VERIFICADAS",
+      "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "026e34720091dc997b7c25606f504c6a3436e129",
       "pending": "Formatação e prova visual browser autenticado",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
-      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
     },
     {
       "id": "RETRO-CI-FRONTEND",
-      "status": "GATE_PERMANENTE_GREEN",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+      "status": "CORRIGIDO_CI_TESTE_C_PASS_NO_ESCOPO",
+      "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
       "commit": "bc00a9a970a00462b925ce38e65a33c3f6cd1530",
       "guard_commit": "0c981e8614947d8b22b79ecc701f00f62c015251",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
@@ -84,7 +86,8 @@
         "Guard BRAND-01 PASS"
       ],
       "pending": "Branch protection obrigatória sem plano GitHub elegível",
-      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
+      "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
     },
     {
       "id": "RETRO-E2E-SYS03",
@@ -100,15 +103,16 @@
     },
     {
       "id": "RETRO-BRAND-DARK",
-      "status": "SVG_OFICIAIS_DARK_LIGHT_CI_PASS_VISUAL_PENDENTE",
+      "status": "CORRIGIDO_CI_TESTE_C_PASS_NO_ESCOPO",
       "description": "22/22 headers e aside utilizam bg-primary com fundo claro dark; logo oficial desktop navy retangular e mobile símbolo branco não se adaptam.",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+      "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
       "action": "Lovable PLAN separado para variante oficial navy claro/escuro, inserir 2 SVGs oficiais byte-identicos e Teste C visual.",
       "sha": "32766fbfc82c5ae55db548aaa43d71a3a1a90197",
       "commit": "bf332dc70e165eed57e2c7bad4a4e447e9d1f11c",
       "pending": "Prova visual de contraste 4 breakpoints x 2 temas",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
-      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md"
+      "documentation": "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
     },
     {
       "id": "RETRO-BRANCH-PROTECTION",
@@ -126,13 +130,14 @@
     },
     {
       "id": "RETRO-LINT-TESTE-C-2026-11-03",
-      "status": "FORMATACAO_CORRIGIDA_CI_ESLINT_PRETTIER_PASS_TESTE_C_FINAL_PENDENTE",
+      "status": "CORRIGIDO_CI_TESTE_C_PASS_NO_ESCOPO",
       "detail": "Teste C read-only candidato 026e34720091... FAIL devido 36 erros prettier em scripts/frontend-zero-drift.mjs, brand.test.tsx, rootLocale.test.tsx. Build de formatação mínimo enviado ao Lovable sem alteração semântica, aguarda SHA e rerun.",
       "lovable_message": "umsg_01m6hdad0fem8rnhkp1j7218g6",
       "ci_baseline": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41700788939",
       "candidate_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
-      "evidence": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-      "lovable_final_tc": "umsg_01m6hdh566ffdrnr51nz72jxk3"
+      "evidence": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+      "lovable_final_tc": "umsg_01m6hdh566ffdrnr51nz72jxk3",
+      "test_c_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8"
     }
   ],
   "rows": [
@@ -141,7 +146,7 @@
       "nome": "Constituição e reancoragem",
       "diagnostico_origem": "EXECUTADO COM DESVIO",
       "observacao": "Instruções permanentes atuais do Lovable ainda dizem 96 atômicos; não incluem expressamente BRAND-01/000 e a política universal de economia.",
-      "status": "KNOWLEDGE_TYPES_PTBR_BRAND_CI_CORRIGIDOS_VISUAL_FINAL_PENDENTE",
+      "status": "SANEAMENTO_TRANSVERSAL_CI_TESTE_C_PASS_PENDENCIAS_EXTRINSECAS",
       "risco": "P1",
       "escopo_atual": "frontend_lovable",
       "crosswalk": [],
@@ -167,6 +172,11 @@
           "item": "workflow permanente Zero-Drift frontend",
           "status": "INSTALADO_COM_RED_ESPERADO",
           "evidencia": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41695958565"
+        },
+        {
+          "item": "PT-BR e BRAND-01: 765/765 regressão, 40 capturas públicas, Teste C separado PASS",
+          "status": "PASS_ESCOPO",
+          "evidencia": "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
         }
       ],
       "evidencias": [
@@ -174,7 +184,8 @@
         "https://github.com/contaos9999/contaos-hml-control/commit/bc120e3b6cdb2069ce225d52d23d6eec2d3fa6e5",
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -629,7 +640,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -664,7 +676,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -697,7 +710,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -732,7 +746,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -767,7 +782,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -802,7 +818,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -837,7 +854,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -872,7 +890,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -907,7 +926,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -942,7 +962,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -977,7 +998,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1016,7 +1038,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1055,7 +1078,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1095,7 +1119,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1134,7 +1159,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1180,7 +1206,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1221,7 +1248,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1256,7 +1284,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1291,7 +1320,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1330,7 +1360,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1370,7 +1401,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1410,7 +1442,8 @@
       "evidencias": [
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
-        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096"
+        "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt."
@@ -1467,20 +1500,22 @@
       "ROOT_PTBR_CI_PASS",
       "BRAND_22_TELAS_CI_PASS",
       "BRAND_DARK_CI_PASS",
-      "CI_LINT_PRETTIER_GREEN"
+      "CI_LINT_PRETTIER_GREEN",
+      "TESTE_C_FINAL_765_765",
+      "BRAND_40_CAPTURAS_PUBLICAS_PASS"
     ],
     "global_coverage_installed": [
       "FRONTEND_CI_BRAND_22"
     ],
     "critical_blockers": [
-      "TESTE_C_VISUAL_FINAL",
       "SYS03_E2E_REAL",
       "V117_BUILD",
       "BRANCH_PROTECTION_GITHUB_PRO",
       "CROSSWALK_RESTANTES_39",
       "VALIDACAO_AUTENTICADA"
     ],
-    "note": "Saneamento transversal frontend CI PASS 765/765 e tipos/build/brand/lint/prettier; Teste C final visual ainda em execução. Não declarar 39/39 100%."
+    "note": "Saneamento transversal frontend CI PASS 765/765 e tipos/build/brand/lint/prettier; Teste C final visual ainda em execução. Não declarar 39/39 100%.",
+    "notes": "Teste C do SHA 856209 PASS, 765/765 e visual 40 capturas públicas. Ainda não corresponde à validação das telas internas autenticadas, e Prompt 38/E2E do SYS-03/branch ruleset/crosswalk permanecem pendentes."
   },
   "evidence_latest": {
     "ci_green_sha": "856209dc9f59f29de6a62ea8b46b007fe9695dd8",
