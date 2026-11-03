@@ -34,7 +34,7 @@ if (!active) {
   console.log('Prompt Crosswalk PASS: inventário 100/100 e 97/97; nenhuma tarefa ativa exige vínculo específico.');
   process.exit(0);
 }
-const promptMatch = String(task.id || '').match(/PROMPT(\\d{1,2})(?:\\D|$)/);
+const promptMatch = new RegExp('PROMPT([0-9]{1,2})(?:[^0-9]|$)').exec(String(task.id || ''));
 const regular = task.prompt_crosswalk?.regular_prompt_id || (promptMatch ? number(Number(promptMatch[1]), 2) : null);
 ok(regular && regularIds.includes(regular), 'Tarefa ativa sem número regular 00–99 identificado.');
 ok(task.prompt_crosswalk?.source_evidence_missing === false, 'A tarefa ainda marca origem dos prompts como ausente.');
