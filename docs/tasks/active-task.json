@@ -2,7 +2,7 @@
   "id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
   "title": "PROMPT 38 / V1-17 — Requisito: detalhe e evidências",
   "status": "ativa",
-  "phase": "backend_build_authorized",
+  "phase": "frontend_plan",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
@@ -80,7 +80,7 @@
   },
   "backend_hml": {
     "project_ref": "gklhhhyosgasnyoxlrui",
-    "status": "B1_B2_APPLIED_HML_CI_RESTORE_GREEN_CONCURRENCY_TEST_ADDITION",
+    "status": "CERTIFICADO_V117_READ_INCREMENTAL_CONCORRENCIA",
     "existing_read_rpcs": [
       "public.obter_analise_competencia_v116",
       "public.obter_documentos_competencia_v115"
@@ -102,10 +102,34 @@
         "name": "v117_reanalise_requisitos_concorrencia",
         "version": "20261103172945"
       }
+    ],
+    "certification_doc": "docs/backend/V117_CERTIFICACAO_DETALHE_REQUISITO_2026-11-03.md",
+    "ci": {
+      "restore_isolado": {
+        "run_id": 41686766086,
+        "status": "SUCCESS"
+      },
+      "zero_drift": {
+        "run_id": 41686766756,
+        "status": "SUCCESS"
+      },
+      "historico_hml": {
+        "run_id": 41684700623,
+        "status": "SUCCESS"
+      }
+    },
+    "tests": [
+      "PASS_V117_NO_RESULT_ROLLBACK",
+      "PASS_V117_NA_HISTORY_PAGING_NEGATIVE_ROLLBACK",
+      "PASS_V117_INCREMENTAL_CONFLICT_IDEMPOTENCY_ROLLBACK",
+      "PASS_V117_TENANT_AB_SESSION_CROSS_SCOPE_ROLLBACK",
+      "PASS_V117_AUTHENTICATED_REAL_ROLE_ROLLBACK",
+      "PASS_V117_DOCUMENT_VERSION_LINK_ROLLBACK",
+      "PASS_V117_CONCORRENCIA_REAL"
     ]
   },
-  "database_changes_allowed": true,
-  "database_change_scope": "AUTORIZAÇÃO EXPLÍCITA em 03/11/2026 ('Para o v1-17 veja as lacunas e resolva'): somente DUAS migrations novas e imutáveis no HML: B1 create read-only public.obter_detalhe_requisito_v117 e grants mínimos; B2 replace privado.solicitar_reanalise_requisitos exclusivamente para segurança de concorrência/idempotência. Nenhum outro DDL/schema, nenhuma alteração a RLS/Auth/Edge/Storage/client/tipos/PROD. Ajuste de regressão permitido exclusivamente em supabase/tests/reanalysis_authz.sql para alinhar mensagem PT-BR de 42501, sem redução da cobertura. Autorizadas somente a adição do teste de concorrência de duas sessões em supabase/tests/v117_reanalysis_concurrency.sh e o hunk mínimo da chamada no workflow Restore Isolado. Teste executa exclusivamente sobre PostgreSQL local descartável do CI; nenhuma extensão de DDL no HML.",
+  "database_changes_allowed": false,
+  "database_change_scope": "Backend V1-17 certificado, congelado após as migrations HML 20261103172929 e 20261103172945. É proibido novo DDL/RLS/Auth/Edge/Storage sem novo manifesto e gate explícito. O frontend não pode alterar Supabase; PROD permanece intocado.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -172,5 +196,5 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Versionar teste de concorrência real com duas conexões no CI isolado; validar lock, um job, idempotência e PT409, depois certificar backend e iniciar Lovable PLAN."
+  "next_step": "Auditar o PLAN Lovable V1-17, obter aprovação humana se gate da plataforma exigir, executar somente frontend mínimo após PLAN aprovado; TDD RED->GREEN, regressão V1-16, Teste C read-only separado e Zero-Drift no SHA candidato. Backend HML congelado, PROD intocado."
 }
