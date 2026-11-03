@@ -154,7 +154,12 @@
     "contaos-hml-control:src/components/competencias/CompetenciaAnalise.tsx",
     "contaos-hml-control:src/test/competenciaAnalise.test.tsx",
     "contaos-hml-control:docs/frontend/lovable/PROMPT-38-*",
-    "contaos-hml-control:.lovable/plan.md"
+    "contaos-hml-control:.lovable/plan.md",
+    "docs/prompts/**",
+    "scripts/prompt-crosswalk-gate.mjs",
+    "prompts/zero-drift/**",
+    ".github/workflows/zero-drift.yml",
+    "docs/tasks/TEMPLATE.json"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -208,7 +213,7 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Build frontend V1-17 aprovado pelo usuário em 03/11/2026; todo prompt BUILD e Teste C deve reproduzir cláusula obrigatória ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE, executar TDD, auditoria visual 1440/1280/768/390 claro/escuro, diff, GitHub, regressão e Teste C read-only separado. Backend HML certificado/congelado. PROD intocado.",
+  "next_step": "Obrigação nova de cruzar todos os 100 prompts regulares com os 97 atômicos. Matriz pendente das fontes originais; execução frontend V1-17 pode manter trabalho preparatório já autorizado, mas NUNCA declarar certificação sem crosswalk verificado da tarefa. Registrar status real no CI e no Teste C.",
   "frontend_plan": {
     "project_id": "b113dd59-6caf-4c92-8302-457a037a0c6f",
     "plan_file": ".lovable/plan.md",
@@ -266,5 +271,15 @@
     "src/test/competenciaAnalise.test.tsx (hunk mínimo)",
     "docs/frontend/lovable/PROMPT-38-*",
     ".lovable/plan.md"
-  ]
+  ],
+  "prompt_crosswalk": {
+    "regular_prompt_id": "38",
+    "regular_range": "00-99",
+    "atomic_range": "000-096",
+    "catalog": "docs/prompts/PROMPT_TRACKS_4_1.json",
+    "matrix": "docs/prompts/MATRIZ_CRUZADA_00_99__000_096.md",
+    "status": "pendente_de_verificacao_dos_arquivos_fonte",
+    "source_evidence_missing": true,
+    "explanation": "Inventário declarativo 100 regulares + 97 atômicos está referenciado, mas os dois cadernos integrais de prompts não constam como arquivos individuais versionados no GitHub. É vedado inventar correspondências numéricas ou concluir cobertura plena."
+  }
 }
