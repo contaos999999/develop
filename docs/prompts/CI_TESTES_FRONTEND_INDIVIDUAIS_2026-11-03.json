@@ -1,0 +1,451 @@
+{
+  "schema_version": "1.0",
+  "data": "2026-11-03",
+  "fonte": "github-actions-run-log",
+  "repository": "contaos9999/contaos-hml-control",
+  "immutable_sha": "ad0b933943d4b69f7a9f23f203e4cff1211b4902",
+  "workflow_url": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+  "job_id": 126192999405,
+  "test_runner": "bunx vitest run --maxWorkers=1",
+  "resultado": "28 arquivos, 812/812 PASS, exit 0",
+  "tests_per_file": [
+    {
+      "file": "admUsuarios.test.tsx",
+      "passed": 58,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx"
+    },
+    {
+      "file": "competenciaDocumentos.test.tsx",
+      "passed": 69,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx"
+    },
+    {
+      "file": "competenciaAnalise.test.tsx",
+      "passed": 94,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx"
+    },
+    {
+      "file": "documentosContrato.test.tsx",
+      "passed": 33,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx"
+    },
+    {
+      "file": "documentoDetalhe.test.tsx",
+      "passed": 35,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx"
+    },
+    {
+      "file": "baseNormativa.test.tsx",
+      "passed": 30,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx"
+    },
+    {
+      "file": "orcamento.test.tsx",
+      "passed": 27,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx"
+    },
+    {
+      "file": "requisitoDetalhe.test.tsx",
+      "passed": 47,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx"
+    },
+    {
+      "file": "contratantes.test.tsx",
+      "passed": 34,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx"
+    },
+    {
+      "file": "regrasContrato.test.tsx",
+      "passed": 22,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx"
+    },
+    {
+      "file": "contratoDetalhe.test.tsx",
+      "passed": 32,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx"
+    },
+    {
+      "file": "novoContratante.test.tsx",
+      "passed": 35,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx"
+    },
+    {
+      "file": "competenciaVisaoGeral.test.tsx",
+      "passed": 32,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx"
+    },
+    {
+      "file": "contratos.test.tsx",
+      "passed": 26,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx"
+    },
+    {
+      "file": "editarContratante.test.tsx",
+      "passed": 30,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx"
+    },
+    {
+      "file": "novoContrato.test.tsx",
+      "passed": 25,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx"
+    },
+    {
+      "file": "competenciasContrato.test.tsx",
+      "passed": 19,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx"
+    },
+    {
+      "file": "novaCompetencia.test.tsx",
+      "passed": 24,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx"
+    },
+    {
+      "file": "selecionarOrganizacao.test.tsx",
+      "passed": 21,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx"
+    },
+    {
+      "file": "dashboard.test.tsx",
+      "passed": 14,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx"
+    },
+    {
+      "file": "brand.test.tsx",
+      "passed": 45,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/brand.test.tsx"
+    },
+    {
+      "file": "resetPassword.test.tsx",
+      "passed": 15,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx"
+    },
+    {
+      "file": "login.test.tsx",
+      "passed": 14,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx"
+    },
+    {
+      "file": "admUsuariosLogica.test.ts",
+      "passed": 12,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts"
+    },
+    {
+      "file": "forgotPassword.test.tsx",
+      "passed": 9,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx"
+    },
+    {
+      "file": "rootLocale.test.tsx",
+      "passed": 4,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/rootLocale.test.tsx"
+    },
+    {
+      "file": "resolverDestinoPosLogin.test.ts",
+      "passed": 5,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts"
+    },
+    {
+      "file": "app-routing.test.tsx",
+      "passed": 1,
+      "source_url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/app-routing.test.tsx"
+    }
+  ],
+  "individual_by_regular_prompt": [
+    {
+      "prompt": "00",
+      "tests": [
+        {
+          "file": "brand.test.tsx",
+          "passed": 45,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/brand.test.tsx"
+        },
+        {
+          "file": "rootLocale.test.tsx",
+          "passed": 4,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/rootLocale.test.tsx"
+        }
+      ],
+      "total_in_related_files": 49
+    },
+    {
+      "prompt": "16",
+      "tests": [
+        {
+          "file": "login.test.tsx",
+          "passed": 14,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/login.test.tsx"
+        }
+      ],
+      "total_in_related_files": 14
+    },
+    {
+      "prompt": "17",
+      "tests": [
+        {
+          "file": "forgotPassword.test.tsx",
+          "passed": 9,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/forgotPassword.test.tsx"
+        }
+      ],
+      "total_in_related_files": 9
+    },
+    {
+      "prompt": "18",
+      "tests": [
+        {
+          "file": "resetPassword.test.tsx",
+          "passed": 15,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx"
+        }
+      ],
+      "total_in_related_files": 15
+    },
+    {
+      "prompt": "19",
+      "tests": [
+        {
+          "file": "selecionarOrganizacao.test.tsx",
+          "passed": 21,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/selecionarOrganizacao.test.tsx"
+        },
+        {
+          "file": "resolverDestinoPosLogin.test.ts",
+          "passed": 5,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resolverDestinoPosLogin.test.ts"
+        }
+      ],
+      "total_in_related_files": 26
+    },
+    {
+      "prompt": "20",
+      "tests": [
+        {
+          "file": "dashboard.test.tsx",
+          "passed": 14,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/dashboard.test.tsx"
+        }
+      ],
+      "total_in_related_files": 14
+    },
+    {
+      "prompt": "21",
+      "tests": [
+        {
+          "file": "admUsuarios.test.tsx",
+          "passed": 58,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuarios.test.tsx"
+        },
+        {
+          "file": "admUsuariosLogica.test.ts",
+          "passed": 12,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/admUsuariosLogica.test.ts"
+        }
+      ],
+      "total_in_related_files": 70
+    },
+    {
+      "prompt": "22",
+      "tests": [
+        {
+          "file": "contratantes.test.tsx",
+          "passed": 34,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratantes.test.tsx"
+        }
+      ],
+      "total_in_related_files": 34
+    },
+    {
+      "prompt": "23",
+      "tests": [
+        {
+          "file": "novoContratante.test.tsx",
+          "passed": 35,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContratante.test.tsx"
+        }
+      ],
+      "total_in_related_files": 35
+    },
+    {
+      "prompt": "24",
+      "tests": [
+        {
+          "file": "editarContratante.test.tsx",
+          "passed": 30,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/editarContratante.test.tsx"
+        }
+      ],
+      "total_in_related_files": 30
+    },
+    {
+      "prompt": "25",
+      "tests": [
+        {
+          "file": "contratos.test.tsx",
+          "passed": 26,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratos.test.tsx"
+        }
+      ],
+      "total_in_related_files": 26
+    },
+    {
+      "prompt": "26",
+      "tests": [
+        {
+          "file": "novoContrato.test.tsx",
+          "passed": 25,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novoContrato.test.tsx"
+        }
+      ],
+      "total_in_related_files": 25
+    },
+    {
+      "prompt": "27",
+      "tests": [
+        {
+          "file": "contratoDetalhe.test.tsx",
+          "passed": 32,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/contratoDetalhe.test.tsx"
+        }
+      ],
+      "total_in_related_files": 32
+    },
+    {
+      "prompt": "28",
+      "tests": [
+        {
+          "file": "baseNormativa.test.tsx",
+          "passed": 30,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/baseNormativa.test.tsx"
+        }
+      ],
+      "total_in_related_files": 30
+    },
+    {
+      "prompt": "29",
+      "tests": [
+        {
+          "file": "orcamento.test.tsx",
+          "passed": 27,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/orcamento.test.tsx"
+        }
+      ],
+      "total_in_related_files": 27
+    },
+    {
+      "prompt": "30",
+      "tests": [
+        {
+          "file": "regrasContrato.test.tsx",
+          "passed": 22,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/regrasContrato.test.tsx"
+        }
+      ],
+      "total_in_related_files": 22
+    },
+    {
+      "prompt": "31",
+      "tests": [
+        {
+          "file": "documentosContrato.test.tsx",
+          "passed": 33,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentosContrato.test.tsx"
+        }
+      ],
+      "total_in_related_files": 33
+    },
+    {
+      "prompt": "32",
+      "tests": [
+        {
+          "file": "documentoDetalhe.test.tsx",
+          "passed": 35,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/documentoDetalhe.test.tsx"
+        }
+      ],
+      "total_in_related_files": 35
+    },
+    {
+      "prompt": "33",
+      "tests": [
+        {
+          "file": "competenciasContrato.test.tsx",
+          "passed": 19,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciasContrato.test.tsx"
+        }
+      ],
+      "total_in_related_files": 19
+    },
+    {
+      "prompt": "34",
+      "tests": [
+        {
+          "file": "novaCompetencia.test.tsx",
+          "passed": 24,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/novaCompetencia.test.tsx"
+        }
+      ],
+      "total_in_related_files": 24
+    },
+    {
+      "prompt": "35",
+      "tests": [
+        {
+          "file": "competenciaVisaoGeral.test.tsx",
+          "passed": 32,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaVisaoGeral.test.tsx"
+        }
+      ],
+      "total_in_related_files": 32
+    },
+    {
+      "prompt": "36",
+      "tests": [
+        {
+          "file": "competenciaDocumentos.test.tsx",
+          "passed": 69,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx"
+        }
+      ],
+      "total_in_related_files": 69
+    },
+    {
+      "prompt": "37",
+      "tests": [
+        {
+          "file": "competenciaAnalise.test.tsx",
+          "passed": 94,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx"
+        }
+      ],
+      "total_in_related_files": 94
+    },
+    {
+      "prompt": "38",
+      "tests": [
+        {
+          "file": "requisitoDetalhe.test.tsx",
+          "passed": 47,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx"
+        },
+        {
+          "file": "competenciaAnalise.test.tsx",
+          "passed": 94,
+          "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx"
+        }
+      ],
+      "total_in_related_files": 141
+    }
+  ],
+  "not_primary_to_prompt": [
+    {
+      "file": "app-routing.test.tsx",
+      "passed": 1
+    }
+  ],
+  "limits": [
+    "Critérios e contagens são evidências de testes automatizados no CI, não de E2E autenticado real nem aprovação material jurídica.",
+    "Arquivos reutilizados em múltiplos prompts (ex. competenciaAnalise) têm contagem repetida como referência cruzada; soma por prompt não é 812.",
+    "PROMPT 18 continua sem E2E do titular.",
+    "V1-17 tem novo Teste C separado em andamento, distinto deste CI."
+  ]
+}
