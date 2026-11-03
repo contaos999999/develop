@@ -17,20 +17,24 @@
         {
           "index": 1,
           "criterio": "- Project Instructions contêm backend Supabase próprio;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Project Knowledge do Lovable confirma arquitetura Supabase único e 100/97 inventário; exige prova completa das instruções por item.",
+          "status": "PASS_INSTRUCOES_PROJETO",
+          "explanation": "Project Knowledge e AGENTS definem Supabase oficial HML, frontend Lovable, backend único. Instruções atuais, sem reconstituição histórica.",
           "proof": [
-            "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_PROMPT00_CONSTITUICAO_KNOWLEDGE_2026-11-03.md",
+            "https://github.com/contaos9999/contaos-hml-control/blob/main/AGENTS.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 2,
           "criterio": "- AGENTS.md existe;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "AGENTS.md consta no frontend e governance; não certifica histórico de uso em cada tarefa.",
+          "status": "PASS_ARQUIVO_EXISTENTE",
+          "explanation": "AGENTS.md foi consultado diretamente no SHA vigente da branch frontend.",
           "proof": [
-            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/AGENTS.md"
-          ]
+            "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/AGENTS.md",
+            "https://github.com/contaos9999/contaos-hml-control/blob/main/AGENTS.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 3,
@@ -85,11 +89,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -159,11 +165,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -233,11 +241,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -307,11 +317,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -381,11 +393,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -455,11 +469,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -529,11 +545,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -603,11 +621,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -677,11 +697,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -751,11 +773,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -825,11 +849,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -899,11 +925,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -973,11 +1001,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -1047,11 +1077,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -1121,11 +1153,13 @@
         {
           "index": 3,
           "criterio": "3. RLS habilitada onde aplicável;",
-          "status": "PARCIAL_CONFIGURACAO",
-          "explanation": "Inspeção HML confirmou RLS nas 117 tabelas públicas; não prova isolamento A/B ou cobertura de policies.",
+          "status": "PASS_RLS_CONFIGURACAO",
+          "explanation": "Consulta HML: RLS 117/117 tabelas públicas, 183 políticas e nenhuma tabela pública sem política. Não há prova A/B de isolamento de cada policy.",
           "proof": [
-            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md"
-          ]
+            "docs/prompts/RETRO_VALIDACAO_BACKEND_01_15_2026-11-03.md",
+            "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md"
+          ],
+          "scope_limit": "Prova limitada à configuração/artefato indicado; não substitui os demais critérios da etapa."
         },
         {
           "index": 4,
@@ -3697,35 +3731,48 @@
         {
           "index": 7,
           "criterio": "7. desktop 1440 e 1280 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_VISUAL_MOCK",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Desktop 1440 e 1280. Sessão HML real não executada.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+          ],
+          "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
         {
           "index": 8,
           "criterio": "8. tablet 768 ok;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_VISUAL_MOCK",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Tablet 768. Sessão HML real não executada.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+          ],
+          "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
         {
           "index": 9,
           "criterio": "9. mobile 390 preserva dados críticos;",
-          "status": "NÃO_VERIFICADO_INDIVIDUALMENTE",
-          "explanation": "Evidência por cenário e ator ainda não vinculada ao critério específico.",
-          "proof": []
+          "status": "PASS_VISUAL_MOCK",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Mobile 390. Sessão HML real não executada.",
+          "proof": [
+            "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+            "https://github.com/contaos9999/contaos-hml-control/issues/8"
+          ],
+          "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
         {
           "index": 10,
           "criterio": "10. teclado/foco/labels ok;",
-          "status": "TESTE_C_FINAL_EM_EXECUCAO",
-          "explanation": "Falha histórica acessibilidade foi corrigida no SHA ad0b...; aguarda Teste C independente read-only.",
+          "status": "PASS_VISUAL_MOCK",
+          "explanation": "Teste C independente SHA ad0b933 com navegador mock em 4 larguras×2 temas, controle Fechar único, foco e Escape verificados. Teclado/foco/labels. Sessão HML real não executada.",
           "proof": [
             "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx",
             "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx",
             "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
             "https://github.com/contaos9999/contaos-hml-control/issues/8"
-          ]
+          ],
+          "scope_limit": "Testado em navegador com sessão e dados simulados; não comprova autorização real no HML."
         },
         {
           "index": 11,
@@ -3759,6 +3806,14 @@
     "criteria_with_partial_or_pending_evidence": 198,
     "criteria_fully_certified": 0,
     "remaining_unverified": 218,
-    "note": "Contagem de evidências parciais não representa progresso percentual ou PASS. Somente testes individuais reproduzidos com prova podem fechar um critério."
+    "note": "Itens com PASS são confirmados apenas no escopo da prova (configuração RLS, artefato ou MOCK). Demais critérios e E2E com usuários reais ainda exigem evidência. Certificação integral 39/39 permanece aberta.",
+    "criteria_positive_scope": 21
+  },
+  "revalidacao": {
+    "data": "2026-11-03",
+    "evidencia_config_rls": "https://github.com/contaos9999/develop/blob/main/docs/prompts/AUDITORIA_RLS_117_183_RPC6_HML_2026-11-03.md",
+    "evidencia_visual_v117": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "autolock": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41718861663",
+    "nota": "PASS de critério circunscrito ao escopo documental, configuração ou visual mock; não constitui homologação das 39 etapas."
   }
 }
