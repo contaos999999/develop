@@ -157,10 +157,13 @@ Certificação base no commit `14ce84f463f6e5b3ef194d4e64525bd7536c6165`:
 - `ContaOS Zero-Drift`: run `41617653591` — **SUCCESS**.
 - `ContaOS Restore Isolado`: run `41617653453` — **SUCCESS**.
 
-O patch `42f4011c354f95d1acbf029520bf014f5d0f74f5` deve igualmente encerrar os três gates canônicos antes do BUILD frontend. Os IDs dos runs do patch serão registrados na tarefa ativa após a conclusão.
+Patch no commit `42f4011c354f95d1acbf029520bf014f5d0f74f5`:
+- `Verificar histórico HML`: run `41624992277` — **SUCCESS**.
+- `ContaOS Zero-Drift`: run `41624992207` — **SUCCESS**.
+- `ContaOS Restore Isolado`: run `41624992252` — **SUCCESS**.
 
 ## Conclusão
 
-**BACKEND V1-15 RECERTIFICADO FUNCIONALMENTE APÓS PATCH DE AUTORIDADE DOCUMENTAL.**
+**BACKEND V1-15 RECERTIFICADO E LIBERADO PARA CONSUMO DO FRONTEND.**
 
-O BUILD frontend permanece bloqueado até os três gates GitHub do patch estarem verdes. Em seguida o banco volta a ficar congelado.
+A partir deste ponto o banco volta a ficar congelado durante PLAN/BUILD frontend do Prompt 36.
