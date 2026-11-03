@@ -2,12 +2,12 @@
   "id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
   "title": "PROMPT 38 / V1-17 — Requisito: detalhe e evidências",
   "status": "ativa",
-  "phase": "frontend_plan_awaiting_human_gate",
+  "phase": "frontend_build_authorized",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-03",
-  "context_read_by": "ChatGPT/Codex — continuidade após certificação V1-15 / Prompt 36; contexto canônico 4.1 integral reancorado",
-  "context_manifest_sha256": "7d94268b07bab1f2a4baec1e622fafb80438b561350a1e09db74721839947f51",
+  "context_read_by": "ChatGPT/Codex — reancoragem do contexto canônico 4.1 após revisão da regra transversal de identidade visual e economia Lovable",
+  "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
     "01_PRD_MESTRE_4_1.md",
@@ -143,7 +143,18 @@
     "supabase/tests/reanalysis_authz.sql",
     "supabase/tests/v117_reanalysis_concurrency.sh",
     ".github/workflows/restore-isolado.yml",
-    "contaos-hml-control:.lovable/plan.md (PLAN, aprovado somente após gate humano)"
+    "contaos-hml-control:.lovable/plan.md (PLAN, aprovado somente após gate humano)",
+    "07_ZERO_DRIFT_GOVERNANCA_4_1.md",
+    "12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md",
+    "AI_CONTEXT_MANIFEST.md",
+    "contaos-hml-control:src/lib/competencias/requisitoDetalheDados.ts",
+    "contaos-hml-control:src/components/competencias/RequirementDrawer.tsx",
+    "contaos-hml-control:src/components/competencias/requisito/*",
+    "contaos-hml-control:src/test/requisitoDetalhe.test.tsx",
+    "contaos-hml-control:src/components/competencias/CompetenciaAnalise.tsx",
+    "contaos-hml-control:src/test/competenciaAnalise.test.tsx",
+    "contaos-hml-control:docs/frontend/lovable/PROMPT-38-*",
+    "contaos-hml-control:.lovable/plan.md"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -197,7 +208,7 @@
     ]
   },
   "prod_untouched": true,
-  "next_step": "Gate obrigatório Lovable plan--show aguardando aprovação humana explícita. Auditoria do plano não encontrou desvio bloqueante; backend HML V1-17 certificado, CI verde. Depois da aprovação, liberar allowed_paths frontend, executar BUILD TDD RED→GREEN, regressões, diff, Teste C separado. PROD/backend congelados.",
+  "next_step": "Build frontend V1-17 aprovado pelo usuário em 03/11/2026; todo prompt BUILD e Teste C deve reproduzir cláusula obrigatória ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE, executar TDD, auditoria visual 1440/1280/768/390 claro/escuro, diff, GitHub, regressão e Teste C read-only separado. Backend HML certificado/congelado. PROD intocado.",
   "frontend_plan": {
     "project_id": "b113dd59-6caf-4c92-8302-457a037a0c6f",
     "plan_file": ".lovable/plan.md",
@@ -205,7 +216,55 @@
     "plan_file_sha": "eb5d58e097004fba601cefe7e921eb8dbb7db5ca",
     "approval_event_id": "main:agent#00000000019672#tcb:HVXG75AD",
     "approval_tool": "plan--show",
-    "approval_state": "awaiting_explicit_human_approval",
-    "plan_review": "Escopo do drawer, RPC V1-17, N/A, fonte/evidência, download autorizado, ação incremental, TDD e Teste C em conformidade. O plano ainda cita CI concorrente pendente, porém CI 41686766086 e Zero-Drift 41686766756 já passaram após a redação."
-  }
+    "approval_state": "approved_by_user",
+    "plan_review": "Escopo do drawer, RPC V1-17, N/A, fonte/evidência, download autorizado, ação incremental, TDD e Teste C em conformidade. O plano ainda cita CI concorrente pendente, porém CI 41686766086 e Zero-Drift 41686766756 já passaram após a redação.",
+    "approved_at": "2026-11-03",
+    "approval_decision": "approved"
+  },
+  "prompt_policy": {
+    "version": "ContaOS 4.1 — Zero-Drift seção 11",
+    "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE",
+    "scope": "Todos os prompts regulares 00–99, transversais 000–096, PLAN, BUILD, correções, auditorias, TESTE C; backend registra N/A visual justificado.",
+    "visual": {
+      "brand": "ContaOS Brand v1.0",
+      "source_docs": [
+        "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
+        "20_PROMPT_000_BRAND_01.md"
+      ],
+      "reuse_priority": "REUTILIZAR > ESTENDER > CRIAR",
+      "breakpoints": [
+        1440,
+        1280,
+        768,
+        390
+      ],
+      "themes": [
+        "claro",
+        "escuro"
+      ],
+      "evidence": "Evidência visual verificável em cada entrega frontend; não declarar PASS sem prova",
+      "status": "OBRIGATÓRIA"
+    },
+    "lovable_credits": {
+      "policy": "Minimizar crédito sem reduzir segurança, TDD, regressões, Zero-Drift, Teste C ou fidelidade PRD",
+      "operations": [
+        "Consultar estado do turno antes de reenviar",
+        "Usar GitHub e Supabase diretamente quando possível",
+        "Consolidar instruções e alterações mínimas",
+        "Reutilizar evidências válidas",
+        "Manter gates humanos específicos"
+      ],
+      "status": "OBRIGATÓRIA"
+    }
+  },
+  "frontend_allowed_files": [
+    "src/lib/competencias/requisitoDetalheDados.ts",
+    "src/components/competencias/RequirementDrawer.tsx",
+    "src/components/competencias/requisito/*",
+    "src/test/requisitoDetalhe.test.tsx",
+    "src/components/competencias/CompetenciaAnalise.tsx (hunk mínimo)",
+    "src/test/competenciaAnalise.test.tsx (hunk mínimo)",
+    "docs/frontend/lovable/PROMPT-38-*",
+    ".lovable/plan.md"
+  ]
 }
