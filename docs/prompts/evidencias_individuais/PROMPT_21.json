@@ -15,7 +15,8 @@
     "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
     "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
     "docs/backend/ADM01_USUARIOS_VINCULOS_2026-11-02.md",
-    "https://github.com/contaos9999/contaos-hml-control/issues/3"
+    "https://github.com/contaos9999/contaos-hml-control/issues/3",
+    "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
   ],
   "verificacao_individual": "Histórico de Teste C por feature quando disponível, mais saneamento transversal CI 765/765/22 telas e 40 capturas públicas no SHA 856209dc; isto não constitui teste visual autenticado da feature",
   "limites": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -45,5 +46,15 @@
     ],
     "tests_in_related_files": 70,
     "limit": "Provas Vitest por arquivo não substituem E2E autenticado/segurança do backend."
+  },
+  "auditoria_visual_lote_2026_11_03": {
+    "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+    "auditor": "Lovable em git archive isolado",
+    "combinacoes": "8/8 relatadas, 1440/1280/768/390 × claro/escuro",
+    "resultado": "SEM_FALHA_IDENTIFICADA_NO_ESCOPO_VISUAL_MOCK",
+    "capturas_originais": "TEMPORARIAS_EM_TMP_NAO_ARQUIVADAS",
+    "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+    "prova_independente": "LIMITADA_A_RELATO_E_CI",
+    "restricoes": "Sessão real, E2E de senha, autenticação e RLS A/B não testados; contraste WCAG ainda sem medição independente"
   }
 }

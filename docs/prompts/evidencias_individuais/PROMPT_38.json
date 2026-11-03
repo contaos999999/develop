@@ -25,7 +25,8 @@
     "https://github.com/contaos9999/contaos-hml-control/actions/runs/41718861663",
     "https://github.com/contaos9999/contaos-hml-control/blob/main/.github/workflows/contaos-types-autolock.yml",
     "docs/prompts/CI_TESTES_FRONTEND_INDIVIDUAIS_2026-11-03.json",
-    "docs/prompts/CRITERIOS_ORIGINAIS_39_PROMPTS_2026-11-03.json"
+    "docs/prompts/CRITERIOS_ORIGINAIS_39_PROMPTS_2026-11-03.json",
+    "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
   ],
   "verificacao_individual": "V1-17 implementada e reparada, Teste C independente PASS no SHA imutável ad0b933; 812/812 testes CI; browser mock 1440/1280/768/390 claro/escuro; acesso real HML não testado.",
   "limites": "LIMITAÇÃO REMANESCENTE: não há sessão real com perfil autorizado/negado no HML; não há evidência de exercício do isolamento entre organizações em runtime. Teste C e CI certificados SOMENTE no escopo código/acessibilidade/browser MOCK.",
@@ -64,5 +65,15 @@
     "browser": "8 combinações com mock; um botão Fechar acessível, zero Close, foco e Escape, largura 390–1440",
     "conectividade_hml": "RPCs conferidas em leitura ao vivo por ferramenta Supabase, sessão real não demonstrada",
     "hash_protegido": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19"
+  },
+  "auditoria_visual_lote_2026_11_03": {
+    "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+    "auditor": "Lovable em git archive isolado",
+    "combinacoes": "8/8 relatadas, 1440/1280/768/390 × claro/escuro",
+    "resultado": "SEM_FALHA_IDENTIFICADA_NO_ESCOPO_VISUAL_MOCK",
+    "capturas_originais": "TEMPORARIAS_EM_TMP_NAO_ARQUIVADAS",
+    "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+    "prova_independente": "LIMITADA_A_RELATO_E_CI",
+    "restricoes": "Sessão HML real, upload, mutação e negativa RLS não testados; contraste WCAG sem medição independente"
   }
 }

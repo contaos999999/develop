@@ -13,7 +13,8 @@
     "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
     "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
     "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+    "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+    "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
   ],
   "verificacao_individual": "PT-BR/BRAND-01 certificados no escopo; E2E de recuperação e novo login com titular NÃO VERIFICADO",
   "limites": "Teste C do saneamento PT-BR/BRAND passou, mas E2E real de redefinição com titular (link, nova senha e login) não foi executado; avaliação 100% continua bloqueada.",
@@ -36,5 +37,15 @@
     ],
     "tests_in_related_files": 15,
     "limit": "Provas Vitest por arquivo não substituem E2E autenticado/segurança do backend."
+  },
+  "auditoria_visual_lote_2026_11_03": {
+    "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+    "auditor": "Lovable em git archive isolado",
+    "combinacoes": "8/8 relatadas, 1440/1280/768/390 × claro/escuro",
+    "resultado": "SEM_FALHA_IDENTIFICADA_NO_ESCOPO_VISUAL_MOCK",
+    "capturas_originais": "TEMPORARIAS_EM_TMP_NAO_ARQUIVADAS",
+    "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+    "prova_independente": "LIMITADA_A_RELATO_E_CI",
+    "restricoes": "Sessão real, E2E de senha, autenticação e RLS A/B não testados; contraste WCAG ainda sem medição independente"
   }
 }

@@ -678,7 +678,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -689,7 +690,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_16.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_16.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "17",
@@ -722,7 +730,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -733,7 +742,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_17.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_17.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "18",
@@ -764,7 +780,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Teste C do saneamento PT-BR/BRAND passou, mas E2E real de redefinição com titular (link, nova senha e login) não foi executado; avaliação 100% continua bloqueada.",
@@ -775,7 +792,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_18.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_18.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "19",
@@ -808,7 +832,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -819,7 +844,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_19.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_19.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "20",
@@ -852,7 +884,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -863,7 +896,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_20.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_20.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "21",
@@ -896,7 +936,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -907,7 +948,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_21.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_21.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "22",
@@ -940,7 +988,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -951,7 +1000,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_22.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_22.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "23",
@@ -984,7 +1040,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -995,7 +1052,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_23.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_23.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "24",
@@ -1028,7 +1092,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1039,7 +1104,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_24.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_24.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "25",
@@ -1072,7 +1144,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1083,7 +1156,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_25.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_25.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "26",
@@ -1116,7 +1196,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1127,7 +1208,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_26.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_26.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "27",
@@ -1164,7 +1252,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1175,7 +1264,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_27.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_27.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "28",
@@ -1212,7 +1308,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1223,7 +1320,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_28.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_28.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "29",
@@ -1261,7 +1365,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1272,7 +1377,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_29.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_29.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "30",
@@ -1309,7 +1421,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1320,7 +1433,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_30.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_30.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "31",
@@ -1364,7 +1484,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1375,7 +1496,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_31.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_31.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "32",
@@ -1414,7 +1542,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1425,7 +1554,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_32.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_32.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "33",
@@ -1458,7 +1594,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1469,7 +1606,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_33.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_33.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "34",
@@ -1502,7 +1646,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1513,7 +1658,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_34.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_34.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "35",
@@ -1550,7 +1702,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1561,7 +1714,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_35.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_35.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "36",
@@ -1599,7 +1759,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1610,7 +1771,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_36.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_36.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "37",
@@ -1648,7 +1816,8 @@
         "docs/prompts/AUDITORIA_IDENTIDADE_VISUAL_22_TELAS_2026-11-03.md",
         "docs/prompts/RETRO_SANEAMENTO_PTBR_BRAND_FRONTEND_2026-11-03.md",
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41701693096",
-        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md"
+        "docs/prompts/TESTE_C_SANEAMENTO_PTBR_BRAND_2026-11-03.md",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "Evidências transversais completas ainda não vinculadas a este prompt.",
@@ -1659,7 +1828,14 @@
         "limite": "A prova de 22/22 telas é estática/código; 40 screenshots cobrem somente 5 telas públicas. Evidência interna autenticada segue pendente.",
         "sem_conclusao_integral": true
       },
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_37.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_37.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     },
     {
       "prompt_id": "38",
@@ -1703,11 +1879,19 @@
         "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
         "https://github.com/contaos9999/contaos-hml-control/issues/8",
         "https://github.com/contaos9999/contaos-hml-control/blob/main/.github/workflows/contaos-types-autolock.yml",
-        "docs/prompts/evidencias_individuais/PROMPT_38.json"
+        "docs/prompts/evidencias_individuais/PROMPT_38.json",
+        "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md"
       ],
       "prova_100_por_prompt": false,
       "justificativa_bloqueio": "LIMITAÇÃO REMANESCENTE: não há sessão real com perfil autorizado/negado no HML; não há evidência de exercício do isolamento entre organizações em runtime. Teste C e CI certificados SOMENTE no escopo código/acessibilidade/browser MOCK.",
-      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_38.json"
+      "dossie_individual": "docs/prompts/evidencias_individuais/PROMPT_38.json",
+      "auditoria_visual_lote_2026_11_03": {
+        "fonte": "docs/prompts/TESTE_C_VISUAL_LOTE_23_TELAS_2026-11-03.md",
+        "sha": "c36c9c817ec97948885acbf8330181d6a7e325e9",
+        "resultado": "23/23 SEM_FALHAS_VISUAIS_IDENTIFICADAS_MOCK",
+        "combinacoes": "8/8 por tela",
+        "restricao": "capturas temporárias não versionadas; falta E2E HML e contraste WCAG independente"
+      }
     }
   ],
   "summary": {
@@ -1731,7 +1915,8 @@
       "BRAND_40_CAPTURAS_PUBLICAS_PASS"
     ],
     "global_coverage_installed": [
-      "FRONTEND_CI_BRAND_22"
+      "FRONTEND_CI_BRAND_22",
+      "TESTE_C_VISUAL_MOCK_LOTE_23_TELAS_EVIDENCIA_RELATO"
     ],
     "critical_blockers": [
       "SYS03_E2E_REAL",
@@ -1740,7 +1925,7 @@
       "VALIDACAO_AUTENTICADA",
       "V117_SESSAO_REAL_HML"
     ],
-    "note": "V1-17 implementada com Teste C independente PASS e CI 812/812; types Auto-Lock adicionado e TESTE ISOLADO PASS; prova E2E autenticada ainda pendente. Não declarar 39/39.",
+    "note": "Teste C visual reportou 23/23 telas e 184 combinações sem falha visual sob MOCK, 70 capturas extras, todas efêmeras. GitHub Auto-Lock corrigiu types.ts com push real. Ainda faltam provas de autenticação/RLS A/B, e-mail SYS-03 e WCAG medido; não declarar 39/39.",
     "notes": "Teste C do SHA 856209 PASS, 765/765 e visual 40 capturas públicas. Ainda não corresponde à validação das telas internas autenticadas, e Prompt 38/E2E do SYS-03/branch ruleset/crosswalk permanecem pendentes."
   },
   "evidence_latest": {
