@@ -30,5 +30,20 @@
     "Conferir BRAND-01/estados/4 larguras+2 temas e economia",
     "Conferir GitHub diff, segurança, regressões e Teste C"
   ],
-  "certificacao_integral": false
+  "certificacao_integral": false,
+  "ci_frontend_individual": {
+    "sha": "ad0b933943d4b69f7a9f23f203e4cff1211b4902",
+    "workflow": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "result": "SUCESSO",
+    "source": "docs/prompts/CI_TESTES_FRONTEND_INDIVIDUAIS_2026-11-03.json",
+    "files": [
+      {
+        "file": "competenciaDocumentos.test.tsx",
+        "passed": 69,
+        "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaDocumentos.test.tsx"
+      }
+    ],
+    "tests_in_related_files": 69,
+    "limit": "Prova automatizada, não equivale a E2E autenticado nem Teste C."
+  }
 }

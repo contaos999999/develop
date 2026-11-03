@@ -21,5 +21,20 @@
     "Completar E2E real reset senha sem expor token/senha",
     "Registrar resultado prova real ou dependência com titular"
   ],
-  "certificacao_integral": false
+  "certificacao_integral": false,
+  "ci_frontend_individual": {
+    "sha": "ad0b933943d4b69f7a9f23f203e4cff1211b4902",
+    "workflow": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "result": "SUCESSO",
+    "source": "docs/prompts/CI_TESTES_FRONTEND_INDIVIDUAIS_2026-11-03.json",
+    "files": [
+      {
+        "file": "resetPassword.test.tsx",
+        "passed": 15,
+        "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/resetPassword.test.tsx"
+      }
+    ],
+    "tests_in_related_files": 15,
+    "limit": "Provas Vitest por arquivo não substituem E2E autenticado/segurança do backend."
+  }
 }

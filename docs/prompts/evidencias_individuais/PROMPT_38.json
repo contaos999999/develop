@@ -2,7 +2,7 @@
   "id": "38",
   "nome": "V1-17 – Detalhe do requisito",
   "escopo": "frontend_lovable",
-  "status": "PLAN_APROVADO_FRONTEND_BUILD_PENDENTE",
+  "status": "BUILD_CORRETIVO_CI_PASS_TESTE_C_INDEPENDENTE_EM_EXECUCAO",
   "diagnostico": "SOMENTE PLAN FRONTEND",
   "requisitos_atomicos_mapeados": [
     "000",
@@ -21,11 +21,31 @@
     "docs/backend/V117_CERTIFICACAO_DETALHE_REQUISITO_2026-11-03.md",
     "https://github.com/contaos9999/contaos-hml-control/blob/main/.lovable/plan/prompt-38-v1-17-detalhe-do-requisito-drawer-na-análise-2026-11-03.md"
   ],
-  "verificacao_individual": "V1-17 backend certificado, PLAN aprovado; BUILD solicitado ao Lovable, sem SHA ou Teste C próprios disponíveis nesta leitura",
+  "verificacao_individual": "CI 812/812 PASS no SHA ad0b...; correção do 'Close' duplicado aplicada. Teste C final ainda não concluído.",
   "limites": "V1-17 só tem PLAN frontend aprovado; falta BUILD com TDD RED/GREEN, CI, browser real e Teste C independente; saneamento transversal anterior não autoriza declarar V1-17 implementado.",
   "acoes_de_fechamento": [
     "Implementar drawer V1-17 conforme plano",
     "TDD, regressão, visual validado e Teste C imutável"
   ],
-  "certificacao_integral": false
+  "certificacao_integral": false,
+  "ci_frontend_individual": {
+    "sha": "ad0b933943d4b69f7a9f23f203e4cff1211b4902",
+    "workflow": "https://github.com/contaos9999/contaos-hml-control/actions/runs/41715123958",
+    "result": "SUCESSO",
+    "source": "docs/prompts/CI_TESTES_FRONTEND_INDIVIDUAIS_2026-11-03.json",
+    "files": [
+      {
+        "file": "requisitoDetalhe.test.tsx",
+        "passed": 47,
+        "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/requisitoDetalhe.test.tsx"
+      },
+      {
+        "file": "competenciaAnalise.test.tsx",
+        "passed": 94,
+        "url": "https://github.com/contaos9999/contaos-hml-control/blob/ad0b933943d4b69f7a9f23f203e4cff1211b4902/src/test/competenciaAnalise.test.tsx"
+      }
+    ],
+    "tests_in_related_files": 141,
+    "limit": "Prova automatizada, não equivale a E2E autenticado nem Teste C."
+  }
 }
