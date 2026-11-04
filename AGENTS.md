@@ -6,7 +6,7 @@
 
 **O DESENVOLVIMENTO DEVE SEGUIR V1 → certificação V1 → V2 → certificação V2 → V3 → certificação V3 → V4 → certificação V4 → V5 → certificação V5 → auditoria/certificação GLOBAL e GO/NO-GO**, NUNCA a numeração simples dos regulares. Executar/avaliar com prova **todos os 100 regulares (00–99) e 97 atômicos (000–096)**. No estado atual: regular **43/V1-22**, depois **75/V1-23**, revisão do legado V1 00–42, **certificar V1 antes de iniciar 44/V2-01**. Sequência completa e regras de certificação no documento P0. A versão seguinte está **BLOQUEADA** sem certificado PASS integrado e CI/Teste C, sem aprovação falsa.
 
-Esta regra prioriza **ordem e certificação**, é aditiva e **NÃO enfraquece** PRD, arquitetura, BRAN​D-01, segurança, RLS, idempotência, Zero-Drift, RNFs, autorização humana ou PRO​D. Ensaio RLS HML A/B operacional pós-99 mantém status facultativo e NÃO VERIFICADO, sem dispensar outros testes. Nada nesta decisão autoriza mudança de backend certificado ou promoção a produção.
+Esta regra prioriza **ordem e certificação**, é aditiva e **NÃO enfraquece** PRD, arquitetura, BRAND-01, segurança, RLS, idempotência, Zero-Drift, RNFs, autorização humana ou PROD. Ensaio RLS HML A/B operacional pós-99 mantém status facultativo e NÃO VERIFICADO, sem dispensar outros testes. Nada nesta decisão autoriza mudança de backend certificado ou promoção a produção.
 
 
 
