@@ -47,10 +47,19 @@ const m = manifest.match(/Fingerprint SHA-256 combinado:\s*`([a-f0-9]{64})`/i);
 if (!m) throw new Error('Fingerprint não encontrado no AI_CONTEXT_MANIFEST.md.');
 if (m[1].toLowerCase() !== fingerprint) throw new Error(`Contexto alterado sem regenerar manifesto. Esperado no arquivo: ${m[1]}; calculado: ${fingerprint}.`);
 
+// P0 é aditiva aos 23 arquivos com fingerprint: não altera hashes canônicos.
+const p0 = 'docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md';
+if (!fs.existsSync(p0)) throw new Error('PRIORIDADE ZERO FAIL: regra P0 de ordem por versão ausente.');
+const p0body = fs.readFileSync(p0, 'utf8');
+for (const marker of ['PRIORIDADE ZERO','V1','V2','V3','V4','V5','100 prompts regulares','97 prompts atômicos','75 (V1-23']) {
+  if (!p0body.includes(marker)) throw new Error('PRIORIDADE ZERO FAIL: regra incompleta: ' + marker);
+}
+
 for (const f of ['AGENTS.md','CLAUDE.md','GEMINI.md','LOVABLE.md','.github/copilot-instructions.md']) {
   if (!fs.existsSync(f)) throw new Error(`Instrução obrigatória de agente ausente: ${f}`);
   const c=fs.readFileSync(f,'utf8');
   if (!c.includes('00_AI_LEIA_ANTES_DE_ALTERAR.md')) throw new Error(`${f} não aponta para a leitura obrigatória do contexto.`);
+  if (!c.includes(p0)) throw new Error(`${f} não exige leitura da REGRA CANÔNICA P0 por versão.`);
 }
 
 const env = process.env.ZERO_DRIFT_CHANGED_FILES?.trim();
