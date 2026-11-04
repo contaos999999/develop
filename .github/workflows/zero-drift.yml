@@ -38,6 +38,10 @@ jobs:
         run: node scripts/zero-drift-check.mjs
       - name: Prompt Crosswalk — regular 00–99 x atômico 000–096
         run: node scripts/prompt-crosswalk-gate.mjs
+      - name: RNF — contrato estático de carga (sem acesso HML)
+        run: |
+          node --check tests/load/k6-hml.js
+          node --test tests/load/rnf-contract.test.mjs
       - name: Architecture Guard
         run: node scripts/architecture-guard.mjs
       - name: SQL Security Guard
