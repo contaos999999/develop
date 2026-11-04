@@ -136,7 +136,14 @@
     "docs/rnf/RNF_001_012_CRITERIOS_E_EVIDENCIAS_4_1.md",
     "tests/load/k6-hml.js",
     "tests/load/rnf-contract.test.mjs",
-    ".github/workflows/zero-drift.yml"
+    ".github/workflows/zero-drift.yml",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "LOVABLE.md",
+    ".github/copilot-instructions.md",
+    "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
+    "scripts/ai-context-gate.mjs"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -322,5 +329,41 @@
     "NFR-010",
     "NFR-011",
     "NFR-012"
-  ]
+  ],
+  "p0_governance_addendum": {
+    "priority": "ZERO",
+    "decisao_expressa": "2026-11-04",
+    "tipo": "governanca_aditiva_sem_backend",
+    "description": "Incluir norma P0 sequenciamento V1→V5 antes de qualquer V2; 100 regulares 00–99 e 97 atômicos 000–096 sem exclusões; sem alterar task RNF anterior ou alegar certificação funcional.",
+    "documento": "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
+    "allowed_paths": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "GEMINI.md",
+      "LOVABLE.md",
+      ".github/copilot-instructions.md",
+      "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
+      "scripts/ai-context-gate.mjs",
+      "docs/tasks/active-task.json"
+    ],
+    "forbidden": [
+      "supabase/**",
+      "src/**",
+      "public/**",
+      "AI_CONTEXT_MANIFEST.md",
+      "00_AI_LEIA_ANTES_DE_ALTERAR.md",
+      "PRD/",
+      "PROD/**"
+    ],
+    "backend_untouched": true,
+    "certificacao_versionada_v1": "PENDENTE",
+    "proximo_regular": "43",
+    "next_after_v1": "44 (somente após certificado V1)",
+    "tests": [
+      "node scripts/ai-context-gate.mjs",
+      "node scripts/zero-drift-check.mjs",
+      "node scripts/prompt-crosswalk-gate.mjs",
+      "CI ContaOS Zero-Drift"
+    ]
+  }
 }
