@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "post_rls_jwt_executado_com_falha_funcional_historico",
+  "phase": "plan_gate_historico_fila_68",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -56,7 +56,8 @@
     ".github/workflows/p0-v1-master-rls-history-repair.yml",
     "docs/backend/P0_V1_POST_RLS_JWT_GATE_2026-11-05.md",
     "supabase/tests/p0_v1_post_rls_jwt_probe.py",
-    "docs/backend/P0_V1_POST_RLS_JWT_RESULTADO_2026-11-05.md"
+    "docs/backend/P0_V1_POST_RLS_JWT_RESULTADO_2026-11-05.md",
+    "docs/backend/P0_V1_HISTORICO_FILA_68_PLAN_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -73,7 +74,7 @@
   "authorization": {
     "by": "titular",
     "date": "2026-11-05",
-    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções."
+    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -125,7 +126,7 @@
     "RLS ativo e migração com um registro; 13 definições de funções idênticas",
     "CI do código/escopo não substitui FAIL funcional documentado"
   ],
-  "next_step": "Corrigir issue #68 (CHECK de execucoes_assincronas incompatível com fila historico) sob novo PLAN/GATE/migration CLI e reexecutar positivos falhos. Não repetir reconciliação 20261105221559. Matriz RBAC persistente/editável permanece issue #53. V1 não certificada.",
+  "next_step": "Nova migração CLI para incluir historico no CHECK, depois retestar somente cinco positivos reais JWT HML",
   "database_change_scope": "Nenhum DDL/RLS/grants/Auth config/Storage/PROD autorizado nesta fase concluída. Fixtures pós-RLS em quarentena verificada. Próxima correção da fila histórica exige PLAN/GATE e manifesto próprio.",
   "evidence": {
     "test_pr": 52,
