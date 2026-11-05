@@ -57,8 +57,7 @@
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
-    "PROD/**",
-    ".github/**"
+    "PROD/**"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
