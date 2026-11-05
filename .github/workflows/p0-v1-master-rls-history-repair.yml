@@ -20,7 +20,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$DATABASE_URL"
+          if [[ -z "$DATABASE_URL" ]]; then
+            echo "::error::CONTAOS_HML_DATABASE_URL indisponivel no job environment hml"
+            echo "::notice::Verifique escopo do secret: repositorio contaos999999/develop ou environment hml desse repositorio"
+            echo "::notice::Secrets de outros repositorios nao sao compartilhados. Nunca imprima a credencial."
+            exit 1
+          fi
+          echo "Secret disponivel, valor oculto"
           test -f supabase/migrations/20261105221559_p0_v1_master_rls_defense.sql
           python3 - <<'PY'
           import os,sys
