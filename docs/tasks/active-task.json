@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "tdd_red_rbac_matriz_ausente",
+  "phase": "inventario_rbac_build_preparacao",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -45,7 +45,8 @@
     "docs/backend/P0_V1_RBAC_BUILD_MANIFESTO_2026-11-05.md",
     "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md",
     "supabase/tests/p0_v1_rbac_matrix_red.sql",
-    "docs/backend/P0_V1_RBAC_RED_RESULTADO_2026-11-05.md"
+    "docs/backend/P0_V1_RBAC_RED_RESULTADO_2026-11-05.md",
+    "docs/backend/P0_V1_RBAC_INVENTARIO_HML_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/migrations/**",
@@ -114,7 +115,7 @@
     "CI Zero-Drift",
     "Gate dedicado antes de DDL"
   ],
-  "next_step": "Confirmar CI do RED, integrar teste esperado-falhar sem executá-lo no guard; inventariar RLS/RPC e preparar migration com CLI e gate BUILD",
+  "next_step": "Conferir CI do inventário, criar migration via Supabase CLI em ambiente com CLI instalada, depois gate BUILD e allowlist para DDL; nenhuma DDL autorizada ainda",
   "database_change_scope": "Somente dados sintéticos de prova (prefixo p0rbac-); nenhum DDL/RLS/grants/Auth config. Criar e remover apenas fixtures próprias, revogar sessões antes do cleanup; preservar auditoria.",
   "evidence": {
     "test_pr": 52,
@@ -138,6 +139,14 @@
     "v1_certified": false,
     "prod_untouched": true,
     "rbac_build_gate": "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md",
-    "red_catalog_inspection": "HML 2026-11-05: 0 tabelas rbac_* e 0 RPCs consultar_permissoes_efetivas/atualizar_matriz_rbac_master/rbac_permite"
+    "red_catalog_inspection": "HML 2026-11-05: 0 tabelas rbac_* e 0 RPCs consultar_permissoes_efetivas/atualizar_matriz_rbac_master/rbac_permite",
+    "rbac_inventory": {
+      "policies": 184,
+      "policy_tables": 118,
+      "functions": 284,
+      "definer_functions": 178,
+      "storage_policies": 1,
+      "cli_available": false
+    }
   }
 }
