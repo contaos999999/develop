@@ -134,7 +134,6 @@
     "docs/tasks/active-task.json",
     "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
     "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
-    "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
     "supabase/tests/v123_auditoria_capacidade.sql",
     "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql"
   ],
@@ -371,6 +370,7 @@
     "old": "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
     "new": "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql",
     "required": "byte-for-byte identical SQL; do not execute DDL or mutate supabase_migrations history",
-    "status": "GATE_PENDENTE"
+    "status": "GIT_RENAMED_SQL_IDENTICAL",
+    "proof_blob_sha": "dd9ddc38435d9673818ca4fad7bae761e7311354"
   }
 }

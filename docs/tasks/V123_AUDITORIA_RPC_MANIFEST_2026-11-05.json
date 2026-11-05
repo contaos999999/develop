@@ -16,7 +16,7 @@
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "planned_paths": [
-    "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
+    "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql",
     "supabase/tests/v123_auditoria_capacidade.sql",
     "docs/tasks/active-task.json",
     "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
@@ -49,5 +49,11 @@
     "Run CI green before DDL"
   ],
   "certification": "PENDENTE",
-  "note": "Ativação proposta no PR de gate, sem DDL executada. Execução somente após CI do manifesto e verificação de estado HML."
+  "note": "Ativação proposta no PR de gate, sem DDL executada. Execução somente após CI do manifesto e verificação de estado HML.",
+  "migration_reconciliation": {
+    "applied_version": "20261105102019",
+    "git_path": "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql",
+    "sql_blob_sha": "dd9ddc38435d9673818ca4fad7bae761e7311354",
+    "status": "PENDENTE_CI_MERGE"
+  }
 }
