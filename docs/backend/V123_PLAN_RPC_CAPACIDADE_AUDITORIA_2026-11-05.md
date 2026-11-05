@@ -44,3 +44,9 @@ PR #40 integrou o caminho deste documento à allowlist do manifesto, com CI 4200
 - **Divergência de histórico a resolver antes da certificação:** conector Supabase registrou versão aplicada `20261105102019_v123_auditoria_capacidade`, mas arquivo versionado em Git é `20261105120000_v123_auditoria_capacidade.sql`. Não alterar histórico aplicado nem declarar sincronização até conciliação segura via gate específico; manter SQL da função sem reaplicar.
 - Teste SQL inicial falhou apenas na asserção da serialização de `search_path` (PostgreSQL retornou `search_path=""`); correção em PR separado para aceitar ambas representações. **Reexecutar o teste e registrar resultado.**
 - Testes JWT reais de perfis, isolamento A/B, restore isolado e regressão canônica permanecem **PENDENTES**. Nenhum PASS ou certificação V1 declarado.
+
+## Evidências adicionais de verificação (05/11/2026)
+- PR #44 integrado, CI `42010044037` SUCCESS. Teste `supabase/tests/v123_auditoria_capacidade.sql` executado no HML após correção: **PASS** (DO sem exceções).
+- Teste SQL em transação `BEGIN; SET LOCAL ROLE authenticated; SELECT public.pode_consultar_auditoria_organizacao('00000000-0000-0000-0000-000000000001'::uuid); ROLLBACK;`: resultado **false** sem JWT.
+- Consulta de leitura em `supabase_migrations.schema_migrations` confirmou `version=20261105102019`, `name=v123_auditoria_capacidade` e o SQL original da migration aplicada; arquivo Git atual tem prefixo `20261105120000`. **Divergência nominal ainda aberta**: propor reconciliação por PR específico que alinhe o arquivo versionado ao identificador aplicado, com prévia verificação de CI/restore e sem modificar diretamente a tabela de histórico do Supabase. Não duplicar DDL nem editar migration já aplicada no banco.
+- Teste estrutural não substitui testes com JWT reais de perfis (master, admin, auditor, jurídico, comum) e isolamento A/B, nem restore limpo. **Certificação pendente.**
