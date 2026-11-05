@@ -143,7 +143,8 @@
     "LOVABLE.md",
     ".github/copilot-instructions.md",
     "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
-    "scripts/ai-context-gate.mjs"
+    "scripts/ai-context-gate.mjs",
+    "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -365,5 +366,12 @@
       "node scripts/prompt-crosswalk-gate.mjs",
       "CI ContaOS Zero-Drift"
     ]
+  },
+  "v123_auditoria_plan_only": {
+    "decision": "2026-11-05: titular autorizou planejamento e posterior implementação sujeita aos gates",
+    "allowed_document": "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
+    "scope": "Somente documento PLAN; NÃO autoriza DDL/migrations nem altera fase RNF em andamento",
+    "build_gate": "NO-GO até novo manifesto dedicado, verificação de CI, migration e testes",
+    "database_changes_allowed": false
   }
 }
