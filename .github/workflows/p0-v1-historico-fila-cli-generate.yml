@@ -6,6 +6,9 @@ on:
     paths:
       - '.github/workflows/p0-v1-historico-fila-cli-generate.yml'
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/p0-v1-historico-fila-cli-generate.yml'
 permissions:
   contents: read
 jobs:
