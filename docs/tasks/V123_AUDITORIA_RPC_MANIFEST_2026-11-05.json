@@ -48,7 +48,23 @@
     "Confirm new migration filename and allowlist",
     "Run CI green before DDL"
   ],
-  "certification": "PENDENTE",
+  "certification": {
+    "status": "CERTIFICADA_CONDICIONADA_POR_SIMULACAO",
+    "authorized_by": "titular",
+    "authorized_at": "2026-11-05",
+    "scope": "V1-23 RPC capacidade Auditoria",
+    "evidence": "10/10 matriz logica simulada; smoke estrutural real PASS; negacao sem sessao PASS; CI e migration conciliados",
+    "not_performed": [
+      "JWT e sessoes reais",
+      "RPC real por perfis",
+      "isolamento A/B autenticado",
+      "RLS autenticada eventos_auditoria",
+      "restore isolado",
+      "regressao integral"
+    ],
+    "production_release_authorized": false,
+    "v1_full_certified": false
+  },
   "note": "Ativação proposta no PR de gate, sem DDL executada. Execução somente após CI do manifesto e verificação de estado HML.",
   "migration_reconciliation": {
     "applied_version": "20261105102019",

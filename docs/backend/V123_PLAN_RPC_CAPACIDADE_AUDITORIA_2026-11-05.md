@@ -58,3 +58,11 @@ Executada consulta SQL de leitura, sem persistir dados, com dez linhas `VALUES` 
 - O teste SQL estrutural real da RPC e o caso authenticated sem JWT foram aprovados separadamente.
 - Não houve INSERT/UPDATE/DELETE nem modificação de AUTH, RLS ou PROD.
 - Gates ainda pendentes: JWT/sessões reais para cada perfil, RLS de eventos_auditoria, restore isolado e regressão. **Não certificar V1/V1-23 integralmente.**
+
+## Decisão expressa do titular: certificação excepcional condicionada (05/11/2026)
+**Decisão:** titular autorizou validar e certificar V1-23 com base nos testes simulados, sem sessões reais, exigindo registro explícito da metodologia.
+**Status de decisão:** `V1-23_CERTIFICADA_CONDICIONADA_POR_SIMULACAO`, limitado à capacidade de consulta da Auditoria (RPC), **não equivale a homologação de segurança end-to-end, aceite de produção ou certificação integral da Versão 1**.
+**Evidências executadas:** PR #43 integrado (CI 42009775650, 42009775526); migration HML aplicada; PR #44 CI 42010044037; teste SQL estrutural real PASS; RPC retorna false sem sessão; PR #47 integrado (CI 42010846859, 42010847448), versão migration conciliada sem mudança de SQL; PR #48 CI 42012945882 e merge 8f39534e3303537483926875f134b87834d2342a; matriz SQL lógica simulada 10/10 PASS.
+**Não executados e NÃO aprovados:** login com sessões reais válidas, autorização real por perfil via RPC, isolamento real A/B com JWT, RLS autenticada em eventos_auditoria, restore isolado e regressão integral. Tais lacunas permanecem pendências rastreadas e são gates para homologação integral/produção.
+**Escopo técnico:** função read-only `public.pode_consultar_auditoria_organizacao(uuid)`, sem alterar RLS/Auth/Edge/Storage ou produção. Não autoriza desativação de controles ou afirmações de equivalência dos testes simulados aos reais.
+**Próxima tarefa:** confirmar compatibilidade FE/BE da V1-23, implementar menu Auditoria conforme perfis com PLAN→BUILD→TEST→AUDIT e preservar bloqueio de certificação integral V1 até os demais gates.
