@@ -1,8 +1,8 @@
 {
-  "id": "RNF-AUD-001-STATIC-20261104",
-  "title": "Auditoria estática RNF 001–012",
+  "id": "V123-AUDITORIA-CAPACIDADE-RPC-HML-20261105",
+  "title": "V1-23 RPC de capacidade Auditoria HML",
   "status": "ativa",
-  "phase": "build_estatico_sem_servicos",
+  "phase": "gate_pre_build",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-04",
@@ -44,7 +44,7 @@
   ],
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
-  "objective": "Criar matriz rastreável RNF, restringir k6 a HML e validar objetivos de leitura por CI, sem execução HML.",
+  "objective": "RPC pública read-only para perfil auditor e juridico_conformidade respeitando RLS",
   "canonical_requirements": [
     "NFR-001",
     "NFR-002",
@@ -124,7 +124,7 @@
       "PASS_V117_CONCORRENCIA_REAL"
     ]
   },
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "database_change_scope": "Backend V1-17 certificado, congelado após as migrations HML 20261103172929 e 20261103172945. É proibido novo DDL/RLS/Auth/Edge/Storage sem novo manifesto e gate explícito. O frontend não pode alterar Supabase; PROD permanece intocado.",
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
@@ -132,20 +132,10 @@
   "storage_changes_allowed": false,
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/tasks/RNF_AUD_001_PLAN_2026-11-04.md",
-    "docs/rnf/RNF_001_012_CRITERIOS_E_EVIDENCIAS_4_1.md",
-    "tests/load/k6-hml.js",
-    "tests/load/rnf-contract.test.mjs",
-    ".github/workflows/zero-drift.yml",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "GEMINI.md",
-    "LOVABLE.md",
-    ".github/copilot-instructions.md",
-    "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
-    "scripts/ai-context-gate.mjs",
+    "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
     "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
-    "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json"
+    "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
+    "supabase/tests/v123_auditoria_capacidade.sql"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -156,19 +146,20 @@
     "contaos-hml-control:.lovable/plan.md"
   ],
   "forbidden_paths": [
-    "supabase/**",
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
-    "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md",
-    "PROD/**"
+    "PROD/**",
+    "supabase/functions/**",
+    "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md"
   ],
   "acceptance": [
-    "Metas RNF preservadas",
-    "Cenário k6 read-only HML",
-    "Regressões Node PASS",
-    "CI Zero-Drift PASS",
-    "Nada em backend, frontend ou PROD alterado"
+    "CI Zero-Drift",
+    "TDD perfis e isolamento A/B",
+    "migration versionada",
+    "restore isolado",
+    "grants anon negados",
+    "RLS eventos inalterada"
   ],
   "tests": [
     "node --check tests/load/k6-hml.js",
@@ -176,14 +167,9 @@
     "ContaOS Zero-Drift"
   ],
   "authorization": {
-    "date": "2026-11-03",
-    "by": "usuário",
-    "scope": "Resolver lacunas da V1-17 incluindo as duas mudanças delimitadas de Supabase HML, documentação/GitHub e frontend condicionado à certificação do backend; gates humanos obrigatórios do Lovable permanecem individuais.",
-    "database_ddl_scope_specific": true,
-    "authorized_objects": [
-      "public.obter_detalhe_requisito_v117 (CREATE FUNCTION+GRANT mínimo)",
-      "privado.solicitar_reanalise_requisitos (CREATE OR REPLACE FUNCTION sem mudança assinatura ou GRANT)"
-    ]
+    "by": "titular",
+    "date": "2026-11-05",
+    "scope": "Opção A: ampliar backend Auditoria; planejar e seguir implementação após gates canônicos; apenas RPC read-only HML, sem RLS/PROD"
   },
   "prod_untouched": true,
   "next_step": "V1-17 BUILD autorizado; antes de afirmar PASS, verificar crosswalk de Prompt 38 com atômicos 000,011-014,021-024 e NFR 089,091-094, BRAND-01, testes e economia de créditos. Não reenviar Lovable enquanto turno pendente. PROD/backend congelados.",
@@ -315,7 +301,7 @@
     "prod_allowed": false,
     "frontend_root_and_brand_code_changes": "somente após aprovação específica do PLAN Lovable"
   },
-  "previous_task_id": "PROMPT38-V1-17-REQUISITO-DETALHE-EVIDENCIAS-HML-2026-11-03",
+  "previous_task_id": "RNF-AUD-001-STATIC-20261104",
   "previous_task_commit": "cb65f4980f4eeca6ccd33caf6198a801b7e60328",
   "branch": "audit/rnf-001-012-static-20261104",
   "requirements_impacted": [
@@ -377,5 +363,6 @@
     "dedicated_manifest": "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
     "status": "PLANEJAMENTO_SEM_DDL",
     "note": "Manifesto dedicado proposto; tarefa RNF permanece ativa e supabase/** proibido até ativação controlada de tarefa própria"
-  }
+  },
+  "previous_task_snapshot": "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json"
 }
