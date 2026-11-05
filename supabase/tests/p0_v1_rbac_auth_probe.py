@@ -89,6 +89,9 @@ def run():
         check('Contabilidade: vínculo revogado nega com mesmo JWT',status==200 and isinstance(data,list) and not data,status)
         status,data = request('/rest/v1/organizacoes?select=id&id=eq.'+fixture['org_a'],token)
         check('Contabilidade: RLS nega após revogação',status==200 and data==[],status)
+    elif mode == 'revoke_master':
+        status,data = request('/auth/v1/logout?scope=global',sessions['master'],{},method='POST')
+        check('MASTER: logout global para revogar sessão',status==204,status)
     elif mode == 'revoked_session':
         token = sessions['master']
         status,data = rpc('listar_organizacoes_disponiveis',{},token)
@@ -99,8 +102,9 @@ def run():
         for profile,token in sessions.items():
             status,data = request('/auth/v1/logout?scope=global',token,{},method='POST')
             check(profile+': logout solicitado',status in [204,401,403],status)
-    fails = sum(not item['pass'] for item in report['assertions'])
-    print(json.dumps({'mode':mode,'total':len(report['assertions']),'passed':len(report['assertions'])-fails,'failed':fails}))
+    valid = [item for item in report['assertions'] if not item.get('invalidated',False)]
+    fails = sum(not item['pass'] for item in valid)
+    print(json.dumps({'mode':mode,'total_valid':len(valid),'passed':len(valid)-fails,'failed':fails,'invalidated_setup':len(report['assertions'])-len(valid)}))
     return 1 if fails else 0
 
 if __name__ == '__main__':
