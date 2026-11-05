@@ -1,4 +1,5 @@
 import json, os, sys, urllib.request, urllib.error
+from uuid import UUID, uuid5
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
@@ -71,6 +72,17 @@ def run():
         check('anônimo: organizações negadas',status in [401,403],status)
         status, data = rpc('listar_organizacoes_disponiveis', {}, 'invalid.token.signature')
         check('JWT inválido: organizações negadas',status == 401,status)
+    elif mode == 'mutations_denied':
+        def deny_write(user):
+            if user['profile'] in ['master','administrador','gestor_contrato']:
+                return
+            target = str(uuid5(UUID(fixture['org_a']),user['profile']))
+            status,data = request('/rest/v1/contratantes',sessions[user['profile']],{'id':target,'id_organizacao':fixture['org_a'],'razao_social':'p0rbac-negative-write'})
+            check(user['profile']+': INSERT contratante negado',status==403 and data.get('code')=='42501',status)
+            status,data = request('/rest/v1/contratantes?select=id&id=eq.'+target,sessions['master'])
+            check(user['profile']+': INSERT negado sem efeito persistido',status==200 and data==[],status)
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            list(pool.map(deny_write,fixture['users']))
     elif mode == 'revoked_membership':
         token = sessions['contabilidade']
         status,data = rpc('listar_organizacoes_disponiveis',{},token)
