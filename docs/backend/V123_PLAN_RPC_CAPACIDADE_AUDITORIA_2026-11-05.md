@@ -36,3 +36,11 @@ Impacto visual backend: **N/A**; esta tarefa não modifica marca, componentes, C
 
 ## Gate de escopo atualizado
 PR #40 integrou o caminho deste documento à allowlist do manifesto, com CI 42008835804 SUCCESS. Esta atualização de documentação força reexecução dos checks sobre o estado vigente da main; não concede permissão de DDL nem altera a tarefa RNF.
+
+## Evidência de execução parcial (05/11/2026)
+- PR #42: manifesto V123 ativado, CI 42009509252 SUCCESS.
+- PR #43: migration e teste integrados, CI 42009775650 e 42009775526 SUCCESS; merge `0d0670bbe746774a81e4aa3b7eb61ad8a20d2a32`.
+- Supabase HML `gklhhhyosgasnyoxlrui`: aplicação da RPC retornou `success=true`. Catálogo confirma `SECURITY INVOKER`, `STABLE`, search_path vazio, anon EXECUTE=false, authenticated EXECUTE=true; sem sessão e com UUID nulo retornou false.
+- **Divergência de histórico a resolver antes da certificação:** conector Supabase registrou versão aplicada `20261105102019_v123_auditoria_capacidade`, mas arquivo versionado em Git é `20261105120000_v123_auditoria_capacidade.sql`. Não alterar histórico aplicado nem declarar sincronização até conciliação segura via gate específico; manter SQL da função sem reaplicar.
+- Teste SQL inicial falhou apenas na asserção da serialização de `search_path` (PostgreSQL retornou `search_path=""`); correção em PR separado para aceitar ambas representações. **Reexecutar o teste e registrar resultado.**
+- Testes JWT reais de perfis, isolamento A/B, restore isolado e regressão canônica permanecem **PENDENTES**. Nenhum PASS ou certificação V1 declarado.
