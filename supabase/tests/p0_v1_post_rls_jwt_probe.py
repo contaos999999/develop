@@ -102,6 +102,9 @@ def run():
                 status,data=rpc(name,payload,token)
                 check(label+':'+name,status in [401,403],status,data,'DENY')
     elif mode=='membership_revoked':test_nine('contabilidade',sessions['contabilidade'],'A1',True)
+    elif mode=='revoked_both':
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            list(pool.map(lambda profile:test_nine(profile,sessions[profile],'A1',True),['contabilidade','master']))
     elif mode=='revoke':
         status,data=request('/auth/v1/logout?scope=global',sessions['master'],{},method='POST')
         check('master:logout revocation',status==204,status)
