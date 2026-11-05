@@ -60,8 +60,8 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
-  "rls_changes_allowed": false,
+  "database_changes_allowed": true,
+  "rls_changes_allowed": true,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
@@ -118,7 +118,7 @@
     "CI Zero-Drift",
     "Gate dedicado antes de DDL"
   ],
-  "next_step": "Gate BUILD: revisão SQL e PR; CI Zero-Drift; após integração validar baseline JWT real e aplicar exclusivamente HML com rollback auditado; não considerar merge como aplicação",
+  "next_step": "Permissão restrita ao SQL versionado no PR; após Zero-Drift e merge executar somente HML com JWT antes/depois e rollback, PROD proibida",
   "database_change_scope": "Somente dados sintéticos de prova (prefixo p0rbac-); nenhum DDL/RLS/grants/Auth config. Criar e remover apenas fixtures próprias, revogar sessões antes do cleanup; preservar auditoria.",
   "evidence": {
     "test_pr": 52,
