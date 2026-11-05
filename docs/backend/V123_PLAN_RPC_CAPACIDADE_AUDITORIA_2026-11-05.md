@@ -33,3 +33,6 @@ Impacto visual backend: **N/A**; esta tarefa não modifica marca, componentes, C
 **PLAN:** evidências de 25 fontes e SHA, manifesto backend dedicado aprovado, gates e CI de planejamento, aprovação de escopo de DDL, rollback e testes definidos. **BUILD:** migration aplicada e sincronizada Git/HML, perfis e isolamento A/B comprovados, CI e restore verdes, sem mudanças em PROD. **Frontend:** contrato HML comprovado antes de validar PLAN/BUILD; não inferir permissão de sessionStorage.
 
 **Situação desta proposta:** somente planejamento. Nenhuma migration executada, nenhuma nova RPC implantada, V1 não certificada.
+
+## Gate de escopo atualizado
+PR #40 integrou o caminho deste documento à allowlist do manifesto, com CI 42008835804 SUCCESS. Esta atualização de documentação força reexecução dos checks sobre o estado vigente da main; não concede permissão de DDL nem altera a tarefa RNF.
