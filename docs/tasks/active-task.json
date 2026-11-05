@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "gate_hml_master_rls_execution",
+  "phase": "post_rls_verify_reconcile_plan",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -51,7 +51,8 @@
     "docs/backend/P0_V1_MIGRATION_CLI_RUNNER_PLAN_2026-11-05.md",
     ".github/workflows/p0-v1-migration-cli-generate.yml",
     "supabase/migrations/20261105221559_p0_v1_master_rls_defense.sql",
-    "docs/backend/P0_V1_MASTER_RLS_BUILD_EVIDENCIA_2026-11-05.md"
+    "docs/backend/P0_V1_MASTER_RLS_BUILD_EVIDENCIA_2026-11-05.md",
+    "docs/backend/P0_V1_MASTER_RLS_POSTDEPLOY_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -60,8 +61,8 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
-  "rls_changes_allowed": true,
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
@@ -119,8 +120,8 @@
     "Aplicar SQL versionado exclusivamente HML",
     "Pós-condições e JWT MASTER/perfis reais; rollback auditado se necessário"
   ],
-  "next_step": "Executar DDL RLS convencional apenas HML após gate e baseline, verificar pós-condições e testes JWT reais; sem PROD",
-  "database_change_scope": "EXCLUSIVAMENTE HML gklhhhyosgasnyoxlrui: aplicar uma vez SQL já versionado supabase/migrations/20261105221559_p0_v1_master_rls_defense.sql, habilitando RLS convencional em privado.administradores_master; sem FORCE, policies, grants, alteração de dados/Auth/PROD. Capturar baseline e pós-condições, regressão JWT MASTER e perfis. Suspender se divergência.",
+  "next_step": "Aprovar Zero-Drift; documentar ausencia da versao 20261105221559 no historico, criar gate separado de reconciliacao sem DDL e executar novos testes JWT apos novas fixtures autorizadas",
+  "database_change_scope": "NENHUMA ALTERACAO DE BANCO NESTA ETAPA. RLS MASTER ja ativo HML. Nao reaplicar SQL; reconciliacao do historico por gate separado com CLI.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -143,6 +144,17 @@
     "v1_certified": false,
     "prod_untouched": true,
     "rbac_build_gate": "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md",
-    "red_catalog_inspection": "HML 2026-11-05: 0 tabelas rbac_* e 0 RPCs consultar_permissoes_efetivas/atualizar_matriz_rbac_master/rbac_permite"
+    "red_catalog_inspection": "HML 2026-11-05: 0 tabelas rbac_* e 0 RPCs consultar_permissoes_efetivas/atualizar_matriz_rbac_master/rbac_permite",
+    "master_rls_hml": {
+      "rls": true,
+      "force": false,
+      "anon_select": false,
+      "authenticated_select": false,
+      "policies": 0,
+      "migration_version": "20261105221559",
+      "migration_history_recorded": false,
+      "post_ddl_jwt": "PENDENTE",
+      "prod_untouched": true
+    }
   }
 }
