@@ -15,7 +15,7 @@ begin
   if not has_function_privilege('authenticated',v_oid,'EXECUTE') then
     raise exception 'V123: authenticated deve executar RPC';
   end if;
-  if (select proconfig is null or not ('search_path=' = any(proconfig)) from pg_proc where oid=v_oid) then
+  if (select proconfig is null or not exists (select 1 from unnest(proconfig) as setting where setting in ('search_path=', 'search_path=""')) from pg_proc where oid=v_oid) then
     raise exception 'V123: search_path nao protegido';
   end if;
   if public.pode_consultar_auditoria_organizacao(null::uuid) is distinct from false then
