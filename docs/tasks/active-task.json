@@ -1,12 +1,12 @@
 {
-  "id": "V123-AUDITORIA-CAPACIDADE-RPC-HML-20261105",
-  "title": "V1-23 RPC de capacidade Auditoria HML",
+  "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
+  "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "gate_pre_build",
+  "phase": "plan_documental",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-04",
-  "context_read_by": "ChatGPT/GPT-6: pacote RNF 08 e contexto ContaOS 4.1",
+  "context_read_acknowledged_at": "2026-11-05",
+  "context_read_by": "Codex: leitura das fontes canônicas atuais, RBAC/MASTER e organizações HML",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -33,206 +33,38 @@
     "17_FONTES_TECNICAS_E_QA_4_1.md",
     "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md",
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
-    "20_PROMPT_000_BRAND_01.md",
-    "docs/frontend/V115_COMPETENCIA_DOCUMENTOS_TESTE_C_2026-11-03.md",
-    "docs/backend/V116_CERTIFICACAO_ANALISE_COMPETENCIA_2026-11-03.md",
-    "FE_v3_DOWNLOAD(2).docx V1-16 pages 64-65",
-    "ContaOS_PRD_Final.docx motor de auditoria",
-    "docs/frontend/V116_COMPETENCIA_ANALISE_TESTE_C_2026-11-03.md",
-    "docs/backend/V117_DIAGNOSTICO_LACUNAS_REQUISITO_2026-11-03.md",
-    "FE_v3_DOWNLOAD(2).docx seção V1-17 (página 66)"
+    "20_PROMPT_000_BRAND_01.md"
   ],
-  "brand_context": "ContaOS Brand v1.0",
-  "prompt_000_brand_01_read": true,
-  "objective": "RPC pública read-only para perfil auditor e juridico_conformidade respeitando RLS",
-  "canonical_requirements": [
-    "NFR-001",
-    "NFR-002",
-    "NFR-003",
-    "NFR-004",
-    "NFR-005",
-    "NFR-006",
-    "NFR-007",
-    "NFR-008",
-    "NFR-009",
-    "NFR-010",
-    "NFR-011",
-    "NFR-012"
-  ],
-  "screens_impacted": [
-    "V1-17 drawer requisito/detalhe/evidências",
-    "V1-16 apenas habilitar abrir requisito após V1-17 GREEN",
-    "V1-15 apenas reutilizar helper de download autorizado, sem modificar V1-15",
-    "V1-18 continua staged"
-  ],
-  "frontend_baseline": {
-    "repository": "contaos9999/contaos-hml-control",
-    "branch": "main",
-    "v116_audited_sha": "d4b9b77dafa7ff6ca7644a99fee737bfed590a1e",
-    "v116_restored_main_sha": "d7a418bbd96f065c839191ae03b2f2b818d649b8",
-    "tree_equivalence": "d4b9b77 -> d7a418bb = zero files diferentes",
-    "types_blob_sha": "8ea7750b75fd9d76b29c36ce7613392e3ab65e19",
-    "v116_tests": "Teste C PASS; 126/126 focados; 739/739 full serial; tsgo --noEmit e vite build exit 0"
-  },
-  "backend_hml": {
-    "project_ref": "gklhhhyosgasnyoxlrui",
-    "status": "CERTIFICADO_V117_READ_INCREMENTAL_CONCORRENCIA",
-    "existing_read_rpcs": [
-      "public.obter_analise_competencia_v116",
-      "public.obter_documentos_competencia_v115"
-    ],
-    "missing_feature": "leitura agregada de detalhe por id_requisito, histórico/evidências/NA válido em uma resposta versionada",
-    "existing_write_rpc": "public.solicitar_reanalise_requisitos(uuid,uuid[])",
-    "incremental_risk": "privado.solicitar_reanalise_requisitos altera requisitos_afetados após chamar job parcial; verificar comportamento quando recebe id de execução já existente, sem sobrescrever seleção ou histórico",
-    "source_of_truth": "docs/backend/V117_DIAGNOSTICO_LACUNAS_REQUISITO_2026-11-03.md",
-    "prod_untouched": true,
-    "plan_doc": "docs/backend/V117_PLAN_BACKEND_REQUISITO_DETALHE_2026-11-03.md",
-    "risk_classification": "B1 leitura: contrato ausente. B2 concorrência: job idempotente existente pode ter requisitos_afetados sobrescritos; não habilitar frontend incremental sem prova e hardening.",
-    "download_reference": "src/lib/contratos/documentosDados.ts:baixarDocumento(idArquivo) -> storage-sign-download autorizado; id_versao_documento não é id_arquivo",
-    "migration_hml": [
-      {
-        "name": "v117_obter_detalhe_requisito",
-        "version": "20261103172929"
-      },
-      {
-        "name": "v117_reanalise_requisitos_concorrencia",
-        "version": "20261103172945"
-      }
-    ],
-    "certification_doc": "docs/backend/V117_CERTIFICACAO_DETALHE_REQUISITO_2026-11-03.md",
-    "ci": {
-      "restore_isolado": {
-        "run_id": 41686766086,
-        "status": "SUCCESS"
-      },
-      "zero_drift": {
-        "run_id": 41686766756,
-        "status": "SUCCESS"
-      },
-      "historico_hml": {
-        "run_id": 41684700623,
-        "status": "SUCCESS"
-      }
-    },
-    "tests": [
-      "PASS_V117_NO_RESULT_ROLLBACK",
-      "PASS_V117_NA_HISTORY_PAGING_NEGATIVE_ROLLBACK",
-      "PASS_V117_INCREMENTAL_CONFLICT_IDEMPOTENCY_ROLLBACK",
-      "PASS_V117_TENANT_AB_SESSION_CROSS_SCOPE_ROLLBACK",
-      "PASS_V117_AUTHENTICATED_REAL_ROLE_ROLLBACK",
-      "PASS_V117_DOCUMENT_VERSION_LINK_ROLLBACK",
-      "PASS_V117_CONCORRENCIA_REAL"
-    ]
-  },
-  "database_changes_allowed": true,
-  "database_change_scope": "Backend V1-17 certificado, congelado após as migrations HML 20261103172929 e 20261103172945. É proibido novo DDL/RLS/Auth/Edge/Storage sem novo manifesto e gate explícito. O frontend não pode alterar Supabase; PROD permanece intocado.",
-  "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
-  "auth_changes_allowed": false,
-  "storage_changes_allowed": false,
+  "objective": "Completar matriz RBAC e testes autenticados positivos/negativos, começando por PLAN documental dedicado.",
   "allowed_paths": [
-    "docs/tasks/active-task.json",
-    "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
-    "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
-    "supabase/tests/v123_auditoria_capacidade.sql",
-    "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql"
-  ],
-  "future_paths_subject_to_plan": [
-    "contaos-hml-control:src/components/competencias/*Requisito*",
-    "contaos-hml-control:src/components/competencias/CompetenciaAnalise.tsx hunk mínimo de abertura drawer",
-    "contaos-hml-control:src/lib/competencias/*requisito*",
-    "contaos-hml-control:src/test/*requisito*",
-    "contaos-hml-control:docs/frontend/lovable/PROMPT-38-*",
-    "contaos-hml-control:.lovable/plan.md"
+    "docs/backend/P0_V1_RBAC_ORGANIZACOES_PLAN_2026-11-05.md",
+    "docs/tasks/active-task.json"
   ],
   "forbidden_paths": [
+    "supabase/**",
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**",
-    "supabase/functions/**",
-    "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md"
+    ".github/**"
   ],
-  "acceptance": [
-    "CI Zero-Drift",
-    "TDD perfis e isolamento A/B",
-    "migration versionada",
-    "restore isolado",
-    "grants anon negados",
-    "RLS eventos inalterada"
-  ],
-  "tests": [
-    "node --check tests/load/k6-hml.js",
-    "node --test tests/load/rnf-contract.test.mjs",
-    "ContaOS Zero-Drift"
-  ],
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
+  "edge_function_changes_allowed": false,
+  "auth_changes_allowed": false,
+  "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
     "date": "2026-11-05",
-    "scope": "Opção A: ampliar backend Auditoria; planejar e seguir implementação após gates canônicos; apenas RPC read-only HML, sem RLS/PROD"
+    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD."
   },
-  "prod_untouched": true,
-  "next_step": "V1-17 BUILD autorizado; antes de afirmar PASS, verificar crosswalk de Prompt 38 com atômicos 000,011-014,021-024 e NFR 089,091-094, BRAND-01, testes e economia de créditos. Não reenviar Lovable enquanto turno pendente. PROD/backend congelados.",
-  "frontend_plan": {
-    "project_id": "b113dd59-6caf-4c92-8302-457a037a0c6f",
-    "plan_file": ".lovable/plan.md",
-    "plan_revision_commit": "868446ff20ff22c77651ea1313151c2c90feb2f1",
-    "plan_file_sha": "eb5d58e097004fba601cefe7e921eb8dbb7db5ca",
-    "approval_event_id": "main:agent#00000000019672#tcb:HVXG75AD",
-    "approval_tool": "plan--show",
-    "approval_state": "approved_by_user",
-    "plan_review": "Escopo do drawer, RPC V1-17, N/A, fonte/evidência, download autorizado, ação incremental, TDD e Teste C em conformidade. O plano ainda cita CI concorrente pendente, porém CI 41686766086 e Zero-Drift 41686766756 já passaram após a redação.",
-    "approved_at": "2026-11-03",
-    "approval_decision": "approved"
-  },
+  "brand_context": "ContaOS Brand v1.0",
+  "prompt_000_brand_01_read": true,
   "prompt_policy": {
-    "version": "ContaOS 4.1 — Zero-Drift seção 11",
-    "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE",
-    "scope": "Todos os prompts regulares 00–99, transversais 000–096, PLAN, BUILD, correções, auditorias, TESTE C; backend registra N/A visual justificado.",
-    "visual": {
-      "brand": "ContaOS Brand v1.0",
-      "source_docs": [
-        "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
-        "20_PROMPT_000_BRAND_01.md"
-      ],
-      "reuse_priority": "REUTILIZAR > ESTENDER > CRIAR",
-      "breakpoints": [
-        1440,
-        1280,
-        768,
-        390
-      ],
-      "themes": [
-        "claro",
-        "escuro"
-      ],
-      "evidence": "Evidência visual verificável em cada entrega frontend; não declarar PASS sem prova",
-      "status": "OBRIGATÓRIA"
-    },
-    "lovable_credits": {
-      "policy": "Minimizar crédito sem reduzir segurança, TDD, regressões, Zero-Drift, Teste C ou fidelidade PRD",
-      "operations": [
-        "Consultar estado do turno antes de reenviar",
-        "Usar GitHub e Supabase diretamente quando possível",
-        "Consolidar instruções e alterações mínimas",
-        "Reutilizar evidências válidas",
-        "Manter gates humanos específicos"
-      ],
-      "status": "OBRIGATÓRIA"
-    }
+    "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE"
   },
-  "frontend_allowed_files": [
-    "src/lib/competencias/requisitoDetalheDados.ts",
-    "src/components/competencias/RequirementDrawer.tsx",
-    "src/components/competencias/requisito/*",
-    "src/test/requisitoDetalhe.test.tsx",
-    "src/components/competencias/CompetenciaAnalise.tsx (hunk mínimo)",
-    "src/test/competenciaAnalise.test.tsx (hunk mínimo)",
-    "docs/frontend/lovable/PROMPT-38-*",
-    ".lovable/plan.md"
-  ],
   "prompt_crosswalk": {
-    "regular_prompt_id": "38",
+    "regular_prompt_id": "21",
     "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
     "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
     "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
@@ -241,33 +73,19 @@
     "regular_range_verified": "00-99 (100/100)",
     "atomic_range_verified": "000-096 (97/97)",
     "direct_atomic_ids": [
-      "000",
-      "011",
-      "012",
-      "013",
-      "014",
-      "021",
-      "022",
-      "023",
-      "024"
+      "000"
     ],
     "additional_transversal_atomic_ids": [
       "089",
+      "090",
       "091",
       "092",
       "093",
-      "094"
+      "094",
+      "095",
+      "096"
     ],
-    "direct_requirement_ids": [
-      "V1-CHK-001",
-      "V1-CHK-002",
-      "V1-CHK-003",
-      "V1-CHK-004",
-      "V1-AUD-002",
-      "V1-AUD-003",
-      "V1-AUD-004",
-      "V1-AUD-005"
-    ],
+    "direct_requirement_ids": [],
     "additional_transversal_requirement_ids": [
       "NFR-005",
       "NFR-007",
@@ -275,102 +93,18 @@
       "NFR-009",
       "NFR-010"
     ],
-    "status": "fontes_originais_verificadas_e_correlacao_v117_auditada",
+    "status": "PLANEJAMENTO_RBAC_ADM01_SEM_CERTIFICACAO",
     "source_evidence_missing": false,
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Escopo do Prompt 38 revisado contra os requisitos com indicação explícita de V1-17, mais os NFR transversais da tarefa; não significa certificação dos 100 planos funcionais. Antes de TESTE C, comparar artefato final com todos os requisitos associados."
   },
-  "retrospective_remediation": {
-    "request": "Resolver as 39 linhas 00–38 e desvios da identidade visual com evidência 100%",
-    "user_authorized_at": "2026-11-03",
-    "tracking_file": "docs/prompts/PLANO_SANEAMENTO_39_PROMPTS_2026-11-03.json",
-    "governance": "07_ZERO_DRIFT_GOVERNANCA_4_1.md §11",
-    "actions_persisted": [
-      "Lovable Knowledge 100/97 + gates",
-      "types.ts blob certificado restaurado",
-      "CI frontend Zero-Drift instalado, RED real",
-      "Auditoria estática BRAND-01 com novo desvio dark",
-      "Prova estrutural HML para 01–15"
-    ],
-    "lovable_plan_gate": {
-      "status": "aguardando_aprovacao_especifica",
-      "message_id": "umsg_01m6hb7qg3ffnrwa5m03jn4svm",
-      "event_id": "main:agent#00000000019742#tcb:Y7UTQ2BE"
-    },
-    "backend_migrations_allowed": false,
-    "prod_allowed": false,
-    "frontend_root_and_brand_code_changes": "somente após aprovação específica do PLAN Lovable"
-  },
-  "previous_task_id": "RNF-AUD-001-STATIC-20261104",
-  "previous_task_commit": "cb65f4980f4eeca6ccd33caf6198a801b7e60328",
-  "branch": "audit/rnf-001-012-static-20261104",
-  "requirements_impacted": [
-    "NFR-001",
-    "NFR-002",
-    "NFR-003",
-    "NFR-004",
-    "NFR-005",
-    "NFR-006",
-    "NFR-007",
-    "NFR-008",
-    "NFR-009",
-    "NFR-010",
-    "NFR-011",
-    "NFR-012"
+  "previous_task_id": "V123-AUDITORIA-CAPACIDADE-RPC-HML-20261105",
+  "previous_task_snapshot_commit": "3aa4af7a292b80243045e0a426ee6399ba948ff2",
+  "prod_untouched": true,
+  "acceptance": [
+    "PLAN com escopo fechado",
+    "CI Zero-Drift",
+    "Gate dedicado antes de DDL"
   ],
-  "p0_governance_addendum": {
-    "priority": "ZERO",
-    "decisao_expressa": "2026-11-04",
-    "tipo": "governanca_aditiva_sem_backend",
-    "description": "Incluir norma P0 sequenciamento V1→V5 antes de qualquer V2; 100 regulares 00–99 e 97 atômicos 000–096 sem exclusões; sem alterar task RNF anterior ou alegar certificação funcional.",
-    "documento": "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
-    "allowed_paths": [
-      "AGENTS.md",
-      "CLAUDE.md",
-      "GEMINI.md",
-      "LOVABLE.md",
-      ".github/copilot-instructions.md",
-      "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
-      "scripts/ai-context-gate.mjs",
-      "docs/tasks/active-task.json"
-    ],
-    "forbidden": [
-      "supabase/**",
-      "src/**",
-      "public/**",
-      "AI_CONTEXT_MANIFEST.md",
-      "00_AI_LEIA_ANTES_DE_ALTERAR.md",
-      "PRD/",
-      "PROD/**"
-    ],
-    "backend_untouched": true,
-    "certificacao_versionada_v1": "PENDENTE",
-    "proximo_regular": "43",
-    "next_after_v1": "44 (somente após certificado V1)",
-    "tests": [
-      "node scripts/ai-context-gate.mjs",
-      "node scripts/zero-drift-check.mjs",
-      "node scripts/prompt-crosswalk-gate.mjs",
-      "CI ContaOS Zero-Drift"
-    ]
-  },
-  "v123_auditoria_plan_only": {
-    "decision": "2026-11-05: titular autorizou planejamento e posterior implementação sujeita aos gates",
-    "allowed_document": "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
-    "scope": "Somente documento PLAN; NÃO autoriza DDL/migrations nem altera fase RNF em andamento",
-    "build_gate": "NO-GO até novo manifesto dedicado, verificação de CI, migration e testes",
-    "database_changes_allowed": false,
-    "dedicated_manifest": "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
-    "status": "PLANEJAMENTO_SEM_DDL",
-    "note": "Manifesto dedicado proposto; tarefa RNF permanece ativa e supabase/** proibido até ativação controlada de tarefa própria"
-  },
-  "previous_task_snapshot": "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
-  "v123_migration_reconciliation": {
-    "type": "rename_git_file_only",
-    "old": "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
-    "new": "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql",
-    "required": "byte-for-byte identical SQL; do not execute DDL or mutate supabase_migrations history",
-    "status": "GIT_RENAMED_SQL_IDENTICAL",
-    "proof_blob_sha": "dd9ddc38435d9673818ca4fad7bae761e7311354"
-  }
+  "next_step": "Concluir inventário de operações V1 e manifesto BUILD; não executar DDL com este manifesto."
 }
