@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "gate_hml_migration_history_repair",
+  "phase": "post_rls_jwt_nine_functions",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -53,7 +53,10 @@
     "supabase/migrations/20261105221559_p0_v1_master_rls_defense.sql",
     "docs/backend/P0_V1_MASTER_RLS_BUILD_EVIDENCIA_2026-11-05.md",
     "docs/backend/P0_V1_MASTER_RLS_POSTDEPLOY_2026-11-05.md",
-    ".github/workflows/p0-v1-master-rls-history-repair.yml"
+    ".github/workflows/p0-v1-master-rls-history-repair.yml",
+    "docs/backend/P0_V1_POST_RLS_JWT_GATE_2026-11-05.md",
+    "supabase/tests/p0_v1_post_rls_jwt_probe.py",
+    "docs/backend/P0_V1_POST_RLS_JWT_RESULTADO_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -62,15 +65,15 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": false,
+  "auth_changes_allowed": true,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
     "date": "2026-11-05",
-    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD."
+    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -121,8 +124,8 @@
     "Aplicar SQL versionado exclusivamente HML",
     "Pós-condições e JWT MASTER/perfis reais; rollback auditado se necessário"
   ],
-  "next_step": "Após CI verde e merge, executar workflow_dispatch P0 V1 MASTER RLS history repair (HML only), verificar list_migrations e estado RLS. Nunca reexecutar migration SQL.",
-  "database_change_scope": "Somente reconciliacao de historico Supabase migration 20261105221559 no HML gklhhhyosgasnyoxlrui via CLI migration repair --status applied. Nenhum DDL de aplicacao, nenhuma alteracao de RLS, grants, Auth, PROD. Exigir preflight estado real RLS e versao ausente.",
+  "next_step": "Executar provas pós-RLS com MASTER, dez perfis, usuário sem vínculo e escopo restrito; nove funções, A/B e sessão revogada. Sem reaplicar migration.",
+  "database_change_scope": "Somente fixtures sintéticas p0postrls com usuários, organizações, contratos/competências e metadados de teste. Nenhum DDL/RLS/grants/Storage/config Auth/history repair. JWT emitido pelo Auth real. Replays idempotentes sem novos jobs para cinco funções mutantes; tratamento histórico pode escrever apenas em apontamento sintético. Ao final revogar sessões/vínculos/MASTER, bloquear contas e inativar organizações; preservar auditoria. Nenhuma conta/registro real alterado.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
