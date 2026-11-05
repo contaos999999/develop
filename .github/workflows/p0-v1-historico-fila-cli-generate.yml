@@ -2,7 +2,7 @@ name: P0 V1 historico fila migration CLI (offline)
 on:
   push:
     branches:
-      - fix/p0-v1-historico-fila-68-build
+      - main
     paths:
       - '.github/workflows/p0-v1-historico-fila-cli-generate.yml'
   workflow_dispatch:
