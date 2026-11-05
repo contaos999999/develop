@@ -1,6 +1,6 @@
 {
   "id": "V123-AUDITORIA-CAPACIDADE-RPC-HML-20261105",
-  "status": "PROPOSTO_AGUARDANDO_ATIVACAO",
+  "status": "GATE_PRE_BUILD",
   "context_pack_version": "4.1",
   "decision": "Titular autorizou opcao A e prosseguimento, 05/11/2026",
   "plan": "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
@@ -9,15 +9,15 @@
   "frontend_repository": "contaos999999/contaos-hml-control",
   "hml_project_ref": "gklhhhyosgasnyoxlrui",
   "prod_changes_allowed": false,
-  "db_ddl_scope": "Somente criar public.pode_consultar_auditoria_organizacao(uuid), grants mínimos e testes; sem modificar RLS",
-  "database_changes_allowed": false,
+  "db_ddl_scope": "Somente nova public.pode_consultar_auditoria_organizacao(uuid), grants mínimos, HML; sem RLS",
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "planned_paths": [
-    "supabase/migrations/NOVA_MIGRATION_V123_AUDITORIA_RPC.sql",
-    "supabase/tests/V123_AUDITORIA_RPC_AUTH_AB.sql",
+    "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
+    "supabase/tests/v123_auditoria_capacidade.sql",
     "docs/tasks/active-task.json",
     "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
     "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md"
@@ -49,5 +49,5 @@
     "Run CI green before DDL"
   ],
   "certification": "PENDENTE",
-  "note": "Este arquivo é proposta de manifesto. Não ativa permissão de DDL nem executa migration."
+  "note": "Ativação proposta no PR de gate, sem DDL executada. Execução somente após CI do manifesto e verificação de estado HML."
 }
