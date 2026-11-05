@@ -32,3 +32,5 @@ jobs:
           path: supabase/migrations/*_p0_v1_historico_fila_check.sql
           if-no-files-found: error
           retention-days: 7
+
+# Trigger: isolated CLI artifact generation after workflow registration on main.
