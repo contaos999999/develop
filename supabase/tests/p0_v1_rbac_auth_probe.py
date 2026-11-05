@@ -1,5 +1,7 @@
 import json, os, sys, urllib.request, urllib.error
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 
 ROOT = Path(__file__).parent
 URL = 'https://gklhhhyosgasnyoxlrui.supabase.co'
@@ -27,20 +29,23 @@ def run():
     fixture = json.loads(FIXTURE.read_text())
     report = json.loads(REPORT.read_text()) if REPORT.exists() else {'mode':'REAL_AUTH_HTTP_HML', 'assertions':[]}
     sessions = json.loads(STATE.read_text()) if STATE.exists() else {}
+    lock = Lock()
     def check(name, passed, status=None):
-        report['assertions'].append({'name':name,'pass':bool(passed),'http':status})
-        REPORT.write_text(json.dumps(report, indent=2) + '\n')
+        with lock:
+            report['assertions'].append({'name':name,'pass':bool(passed),'http':status})
+            REPORT.write_text(json.dumps(report, indent=2) + '\n')
     def rpc(name, payload, token):
         return request('/rest/v1/rpc/' + name, token, payload)
     mode = sys.argv[1] if len(sys.argv)>1 else 'baseline'
     if mode == 'baseline':
-        for user in fixture['users']:
+        def check_user(user):
             status, data = request('/auth/v1/token?grant_type=password', payload={'email':user['email'],'password':user['password']})
             token = data.get('access_token') if isinstance(data,dict) else None
             check(user['profile'] + ': Auth login real', status == 200 and isinstance(token,str), status)
-            if not token: continue
-            sessions[user['profile']] = token
-            STATE.write_text(json.dumps(sessions)); os.chmod(STATE,0o600)
+            if not token: return
+            with lock:
+                sessions[user['profile']] = token
+                STATE.write_text(json.dumps(sessions)); os.chmod(STATE,0o600)
             status, data = request('/auth/v1/user', token)
             check(user['profile'] + ': identidade confirmada pelo Auth', status == 200 and data.get('id') == user['id'], status)
             status, data = rpc('listar_organizacoes_disponiveis', {}, token)
@@ -58,6 +63,10 @@ def run():
                 status, data = rpc('pode_consultar_auditoria_organizacao',{'p_id_organizacao':fixture[key]},token)
                 allowed = user['profile']=='master' or (key=='org_a' and user['profile'] in ['administrador','auditor','juridico_conformidade'])
                 check(user['profile']+': auditoria '+key,status == 200 and data is allowed,status)
+        completed = {u['profile'] for u in fixture['users'] if sum(x['name'].startswith(u['profile']+':') for x in report['assertions']) == 8}
+        report['assertions'] = [x for x in report['assertions'] if x['name'].split(':')[0] in completed]
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            list(pool.map(check_user,[u for u in fixture['users'] if u['profile'] not in completed]))
         status, data = rpc('listar_organizacoes_disponiveis', {}, None)
         check('anônimo: organizações negadas',status in [401,403],status)
         status, data = rpc('listar_organizacoes_disponiveis', {}, 'invalid.token.signature')
