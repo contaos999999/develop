@@ -50,3 +50,11 @@ PR #40 integrou o caminho deste documento à allowlist do manifesto, com CI 4200
 - Teste SQL em transação `BEGIN; SET LOCAL ROLE authenticated; SELECT public.pode_consultar_auditoria_organizacao('00000000-0000-0000-0000-000000000001'::uuid); ROLLBACK;`: resultado **false** sem JWT.
 - Consulta de leitura em `supabase_migrations.schema_migrations` confirmou `version=20261105102019`, `name=v123_auditoria_capacidade` e o SQL original da migration aplicada; arquivo Git atual tem prefixo `20261105120000`. **Divergência nominal ainda aberta**: propor reconciliação por PR específico que alinhe o arquivo versionado ao identificador aplicado, com prévia verificação de CI/restore e sem modificar diretamente a tabela de histórico do Supabase. Não duplicar DDL nem editar migration já aplicada no banco.
 - Teste estrutural não substitui testes com JWT reais de perfis (master, admin, auditor, jurídico, comum) e isolamento A/B, nem restore limpo. **Certificação pendente.**
+
+## Matriz simulada de autorização HML (05/11/2026)
+Executada consulta SQL de leitura, sem persistir dados, com dez linhas `VALUES` e a mesma conjunção de condições de `privado.usuario_possui_perfil`: sessão ativa, perfil permitido, vínculo ativo, vigência e correspondência da organização.
+- 10/10 casos com resultado esperado: administrador A, auditor A, jurídico A = permitido; usuário comum, auditor A→B, auditor B→A, inativo, expirado, futuro e sem sessão = negado.
+- **Escopo de evidência: simulação lógica**, não chamadas RPC autenticadas, não RLS com JWT real e não teste end-to-end de isolamento A/B.
+- O teste SQL estrutural real da RPC e o caso authenticated sem JWT foram aprovados separadamente.
+- Não houve INSERT/UPDATE/DELETE nem modificação de AUTH, RLS ou PROD.
+- Gates ainda pendentes: JWT/sessões reais para cada perfil, RLS de eventos_auditoria, restore isolado e regressão. **Não certificar V1/V1-23 integralmente.**
