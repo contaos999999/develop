@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "post_rls_jwt_nine_functions",
+  "phase": "post_rls_jwt_executado_com_falha_funcional_historico",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -68,7 +68,7 @@
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": true,
+  "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
@@ -119,13 +119,14 @@
   "previous_task_snapshot_commit": "3aa4af7a292b80243045e0a426ee6399ba948ff2",
   "prod_untouched": true,
   "acceptance": [
-    "Zero-Drift verde PR #62 run 42120653752 e merge 9de83d6baeee2dfda3e1b0b3e9fd6326e382f042",
-    "Baseline HML relrowsecurity=false, relforcerowsecurity=false",
-    "Aplicar SQL versionado exclusivamente HML",
-    "Pós-condições e JWT MASTER/perfis reais; rollback auditado se necessário"
+    "Provas JWT reais pós-RLS concluídas: 354 casos, 349 PASS, 5 FAIL funcional histórico",
+    "203 negações RPC PASS; MASTER/usuários/organizações/escopo/revogação comprovados no relatório",
+    "Quarentena: 13 contas banidas, zero sessões/MASTER/vínculos/escopos ativos, duas organizações inativas",
+    "RLS ativo e migração com um registro; 13 definições de funções idênticas",
+    "CI do código/escopo não substitui FAIL funcional documentado"
   ],
-  "next_step": "Executar provas pós-RLS com MASTER, dez perfis, usuário sem vínculo e escopo restrito; nove funções, A/B e sessão revogada. Sem reaplicar migration.",
-  "database_change_scope": "Somente fixtures sintéticas p0postrls com usuários, organizações, contratos/competências e metadados de teste. Nenhum DDL/RLS/grants/Storage/config Auth/history repair. JWT emitido pelo Auth real. Replays idempotentes sem novos jobs para cinco funções mutantes; tratamento histórico pode escrever apenas em apontamento sintético. Ao final revogar sessões/vínculos/MASTER, bloquear contas e inativar organizações; preservar auditoria. Nenhuma conta/registro real alterado.",
+  "next_step": "Corrigir issue #68 (CHECK de execucoes_assincronas incompatível com fila historico) sob novo PLAN/GATE/migration CLI e reexecutar positivos falhos. Não repetir reconciliação 20261105221559. Matriz RBAC persistente/editável permanece issue #53. V1 não certificada.",
+  "database_change_scope": "Nenhum DDL/RLS/grants/Auth config/Storage/PROD autorizado nesta fase concluída. Fixtures pós-RLS em quarentena verificada. Próxima correção da fila histórica exige PLAN/GATE e manifesto próprio.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -156,9 +157,38 @@
       "authenticated_select": false,
       "policies": 0,
       "migration_version": "20261105221559",
-      "migration_history_recorded": false,
-      "post_ddl_jwt": "PENDENTE",
+      "migration_history_recorded": true,
+      "post_ddl_jwt": "EXECUTADO; autorização/isolamento nos cenários testados PASS, funcional ingestão histórica FAIL",
       "prod_untouched": true
+    },
+    "post_rls_jwt": {
+      "pr": 67,
+      "report": "docs/backend/P0_V1_POST_RLS_JWT_RESULTADO_2026-11-05.md",
+      "assertions": 354,
+      "passed": 349,
+      "failed": 5,
+      "rpc_denials": 203,
+      "rpc_denials_passed": 203,
+      "functions_public": 9,
+      "function_definitions_unchanged": 13,
+      "identities": 13,
+      "organizations": 2,
+      "contracts": 3,
+      "real_auth": true,
+      "code_ci": 42126233013,
+      "code_commit": "e3ee1a46f39a241dbd0dd00a17675dbbbb5e39c7",
+      "failure_issue": 68,
+      "failure_sqlstate": "23514",
+      "quarantine": {
+        "banned_accounts": 13,
+        "sessions": 0,
+        "active_master": 0,
+        "active_memberships": 0,
+        "active_contract_scopes": 0,
+        "inactive_organizations": 2
+      },
+      "positive_write_limit": "Criação documental/nova versão e registro histórico usaram replay; não comprova primeira criação/upload/worker",
+      "full_v1_certified": false
     }
   }
 }
