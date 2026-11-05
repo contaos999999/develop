@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "gate_rbac_red_sem_ddl",
+  "phase": "tdd_red_rbac_matriz_ausente",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -43,7 +43,9 @@
     "supabase/tests/p0_v1_rbac_auth_probe.py",
     "docs/backend/P0_V1_RBAC_AUTH_RESULTADO_2026-11-05.md",
     "docs/backend/P0_V1_RBAC_BUILD_MANIFESTO_2026-11-05.md",
-    "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md"
+    "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md",
+    "supabase/tests/p0_v1_rbac_matrix_red.sql",
+    "docs/backend/P0_V1_RBAC_RED_RESULTADO_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/migrations/**",
@@ -112,7 +114,7 @@
     "CI Zero-Drift",
     "Gate dedicado antes de DDL"
   ],
-  "next_step": "Validar CI deste GATE, integrar, criar TDD RED e inventário completo antes de habilitar migrations em HML",
+  "next_step": "Confirmar CI do RED, integrar teste esperado-falhar sem executá-lo no guard; inventariar RLS/RPC e preparar migration com CLI e gate BUILD",
   "database_change_scope": "Somente dados sintéticos de prova (prefixo p0rbac-); nenhum DDL/RLS/grants/Auth config. Criar e remover apenas fixtures próprias, revogar sessões antes do cleanup; preservar auditoria.",
   "evidence": {
     "test_pr": 52,
@@ -135,6 +137,7 @@
     "rbac_matrix_implemented": false,
     "v1_certified": false,
     "prod_untouched": true,
-    "rbac_build_gate": "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md"
+    "rbac_build_gate": "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md",
+    "red_catalog_inspection": "HML 2026-11-05: 0 tabelas rbac_* e 0 RPCs consultar_permissoes_efetivas/atualizar_matriz_rbac_master/rbac_permite"
   }
 }
