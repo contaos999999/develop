@@ -101,6 +101,7 @@ def run():
             for name,payload in zip(NAMES,payloads(f['cases']['A1'],'A1',label)):
                 status,data=rpc(name,payload,token)
                 check(label+':'+name,status in [401,403],status,data,'DENY')
+    elif mode=='membership_revoked':test_nine('contabilidade',sessions['contabilidade'],'A1',True)
     elif mode=='revoke':
         status,data=request('/auth/v1/logout?scope=global',sessions['master'],{},method='POST')
         check('master:logout revocation',status==204,status)
