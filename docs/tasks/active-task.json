@@ -135,7 +135,8 @@
     "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
     "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
     "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
-    "supabase/tests/v123_auditoria_capacidade.sql"
+    "supabase/tests/v123_auditoria_capacidade.sql",
+    "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql"
   ],
   "future_paths_subject_to_plan": [
     "contaos-hml-control:src/components/competencias/*Requisito*",
@@ -364,5 +365,12 @@
     "status": "PLANEJAMENTO_SEM_DDL",
     "note": "Manifesto dedicado proposto; tarefa RNF permanece ativa e supabase/** proibido até ativação controlada de tarefa própria"
   },
-  "previous_task_snapshot": "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json"
+  "previous_task_snapshot": "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
+  "v123_migration_reconciliation": {
+    "type": "rename_git_file_only",
+    "old": "supabase/migrations/20261105120000_v123_auditoria_capacidade.sql",
+    "new": "supabase/migrations/20261105102019_v123_auditoria_capacidade.sql",
+    "required": "byte-for-byte identical SQL; do not execute DDL or mutate supabase_migrations history",
+    "status": "GATE_PENDENTE"
+  }
 }
