@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "prova_autenticada_baseline",
+  "phase": "baseline_autenticado_concluido_rbac_build_pendente",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -55,7 +55,7 @@
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": true,
+  "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
@@ -110,6 +110,28 @@
     "CI Zero-Drift",
     "Gate dedicado antes de DDL"
   ],
-  "next_step": "Implementar e executar probe real do baseline com JWT Auth; resultados não certificam matriz granular ainda ausente.",
-  "database_change_scope": "Somente dados sintéticos de prova (prefixo p0rbac-); nenhum DDL/RLS/grants/Auth config. Criar e remover apenas fixtures próprias, revogar sessões antes do cleanup; preservar auditoria."
+  "next_step": "Implementar matriz granular persistente/editável sob novo manifesto BUILD e TDD; backend issue #53. Não repetir 133 provas válidas sem motivo; não declarar matriz pronta. DELETE definitivo de fixtures aguarda confirmação do conector.",
+  "database_change_scope": "Somente dados sintéticos de prova (prefixo p0rbac-); nenhum DDL/RLS/grants/Auth config. Criar e remover apenas fixtures próprias, revogar sessões antes do cleanup; preservar auditoria.",
+  "evidence": {
+    "test_pr": 52,
+    "valid_assertions": 133,
+    "passed": 133,
+    "invalidated_setup_assertions": 2,
+    "real_auth_identities": 12,
+    "report": "docs/backend/P0_V1_RBAC_AUTH_RESULTADO_2026-11-05.md",
+    "test_code_commit": "4f5c55ca53345d4601e1e6fa772a3030515073c6",
+    "test_code_ci": 42112254536,
+    "cleanup": {
+      "state": "QUARENTENA_VERIFICADA_DELETE_PENDENTE",
+      "banned_synthetic_accounts": 12,
+      "active_sessions": 0,
+      "active_master_grants": 0,
+      "active_memberships": 0,
+      "inactive_synthetic_organizations": 2,
+      "unauthorized_inserts": 0
+    },
+    "rbac_matrix_implemented": false,
+    "v1_certified": false,
+    "prod_untouched": true
+  }
 }
