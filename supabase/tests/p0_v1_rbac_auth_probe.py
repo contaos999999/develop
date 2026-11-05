@@ -99,9 +99,12 @@ def run():
         status,data = request('/rest/v1/organizacoes?select=id&id=eq.'+fixture['org_a'],token)
         check('MASTER: RLS nega após revogar sessão',status==200 and data==[],status)
     elif mode == 'logout':
-        for profile,token in sessions.items():
+        def logout(item):
+            profile,token = item
             status,data = request('/auth/v1/logout?scope=global',token,{},method='POST')
             check(profile+': logout solicitado',status in [204,401,403],status)
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            list(pool.map(logout,sessions.items()))
     valid = [item for item in report['assertions'] if not item.get('invalidated',False)]
     fails = sum(not item['pass'] for item in valid)
     print(json.dumps({'mode':mode,'total_valid':len(valid),'passed':len(valid)-fails,'failed':fails,'invalidated_setup':len(report['assertions'])-len(valid)}))
