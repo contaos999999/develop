@@ -1,0 +1,53 @@
+{
+  "id": "V123-AUDITORIA-CAPACIDADE-RPC-HML-20261105",
+  "status": "PROPOSTO_AGUARDANDO_ATIVACAO",
+  "context_pack_version": "4.1",
+  "decision": "Titular autorizou opcao A e prosseguimento, 05/11/2026",
+  "plan": "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md",
+  "previous_active_task": "RNF-AUD-001-STATIC-20261104",
+  "backend_repository": "contaos999999/develop",
+  "frontend_repository": "contaos999999/contaos-hml-control",
+  "hml_project_ref": "gklhhhyosgasnyoxlrui",
+  "prod_changes_allowed": false,
+  "db_ddl_scope": "Somente criar public.pode_consultar_auditoria_organizacao(uuid), grants mínimos e testes; sem modificar RLS",
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
+  "edge_function_changes_allowed": false,
+  "auth_changes_allowed": false,
+  "storage_changes_allowed": false,
+  "planned_paths": [
+    "supabase/migrations/NOVA_MIGRATION_V123_AUDITORIA_RPC.sql",
+    "supabase/tests/V123_AUDITORIA_RPC_AUTH_AB.sql",
+    "docs/tasks/active-task.json",
+    "docs/tasks/V123_AUDITORIA_RPC_MANIFEST_2026-11-05.json",
+    "docs/backend/V123_PLAN_RPC_CAPACIDADE_AUDITORIA_2026-11-05.md"
+  ],
+  "forbidden_paths": [
+    "PROD/**",
+    "supabase/functions/**",
+    "src/**",
+    "public/**",
+    "AI_CONTEXT_MANIFEST.md"
+  ],
+  "required_tests": [
+    "anon denied",
+    "admin master/admin org/auditor/juridico allowed",
+    "ordinary user denied",
+    "inactive/expired membership denied",
+    "cross-tenant A/B denied",
+    "RLS unchanged",
+    "restore isolated",
+    "96/96 regression",
+    "Zero-Drift and secret scan"
+  ],
+  "pre_build_gates": [
+    "Reconcile active RNF task",
+    "Confirm canonical SHA and complete context manifest",
+    "Confirm SQL signature and grants",
+    "Set dedicated active manifest through controlled PR",
+    "Confirm new migration filename and allowlist",
+    "Run CI green before DDL"
+  ],
+  "certification": "PENDENTE",
+  "note": "Este arquivo é proposta de manifesto. Não ativa permissão de DDL nem executa migration."
+}
