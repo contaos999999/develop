@@ -1,0 +1,34 @@
+name: P0 V1 historico fila migration CLI (offline)
+on:
+  push:
+    branches:
+      - fix/p0-v1-historico-fila-68-build
+    paths:
+      - '.github/workflows/p0-v1-historico-fila-cli-generate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate isolated migration with pinned Supabase CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes supabase@2.81.3 --version
+          npx --yes supabase@2.81.3 migration new --help >/dev/null
+          npx --yes supabase@2.81.3 migration new p0_v1_historico_fila_check
+          find supabase/migrations -maxdepth 1 -name '*_p0_v1_historico_fila_check.sql' -type f -print | tee "$RUNNER_TEMP/generated-path.txt"
+          test "$(wc -l < "$RUNNER_TEMP/generated-path.txt")" -eq 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p0-v1-historico-fila-cli-generated
+          path: supabase/migrations/*_p0_v1_historico_fila_check.sql
+          if-no-files-found: error
+          retention-days: 7
