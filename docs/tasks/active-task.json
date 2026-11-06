@@ -242,7 +242,10 @@
     "docs/backend/P0_V1_RBAC_JWT_EDGE_RESULTADO_2026-11-06.md",
     "supabase/tests/rbac_nine_jwt_probe.py",
     "docs/backend/P0_V1_RBAC_NOVE_JWT_GATE_2026-11-06.md",
-    "docs/backend/P0_V1_RBAC_NOVE_JWT_RESULTADO_2026-11-06.md"
+    "docs/backend/P0_V1_RBAC_NOVE_JWT_RESULTADO_2026-11-06.md",
+    "docs/backend/P0_V1_RESTAURACAO_SINTETICA_PLAN_2026-11-06.md",
+    "scripts/p0-v1-synthetic-data-restore.sh",
+    "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -310,7 +313,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Concluir frontend matriz MASTER e navegação contextual sob PLAN180; SYS03 real, Teste C/WCAG privado, RNFs e486critérios literais. Não reutilizar contas bloqueadas. V1 não certificada.",
+  "next_step": "Concluir frontend matriz MASTER e navegação contextual sob PLAN180; SYS03 real, Teste C/WCAG privado, RNFs e486critérios literais. Não reutilizar contas bloqueadas. V1 não certificada. | PLAN 06/11: após CI/merge específico, executar job isolado de restauração sintética em duas instâncias locais, reportar sem alegar RPO/RTO/PITR.",
   "database_change_scope": "Sem DDL/RLS/history/configuração. Nova rodada P0-RBAC-NINE:14 contas Auth sintéticas novas,2 organizações,3 contratos,3 competências/requisitos/arquivos/documentos/versões/relatórios/apontamentos próprios,processamento documental sintético concluído,84 comandos documentais de replay. JWT sobre nove APIs;enqueue histórico pode criar3 mensagens/execuções próprias, arquivar/cancelar peloescopo exato ao final. Zero upload físico e zero worker certificado. Nenhuma mutação da matriz nesta rodada. Revogar um vínculo,logout,quarentena14UUIDs+scope e verificar0sessões/privilégios;preservarauditoria.",
   "evidence": {
     "test_pr": 52,
@@ -527,5 +530,19 @@
       ],
       "v1_certified": false
     }
+  },
+  "restore_synthetic_plan": {
+    "status": "PLAN_NAO_EXECUTADO",
+    "context_pack_version": "4.1",
+    "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
+    "scope": "Somente runner local GitHub Actions: duas instâncias Supabase CLI sequenciais, dados de uma organização fictícia em public.organizacoes; zero HML remoto/PROD/DDL externo",
+    "allowed_paths": [
+      ".github/workflows/restore-isolado.yml",
+      "docs/backend/P0_V1_RESTAURACAO_SINTETICA_PLAN_2026-11-06.md",
+      "scripts/p0-v1-synthetic-data-restore.sh",
+      "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md"
+    ],
+    "authorization": "Titular autorizou fechamento integral V1 sem PROD; PLAN antes do BUILD; sem mudança de Auth/RLS/Edge/Storage.",
+    "evidence_requirement": "PR PLAN CI verde + merge; PR BUILD CI Zero-Drift e restore job green + script/sha, row/rls/migration hashes, cleanup, resultado fiel."
   }
 }
