@@ -1039,28 +1039,17 @@ $function$
 ;
 
 -- Explicit matrix guard; original business checks are preserved.
-CREATE OR REPLACE FUNCTION privado.validar_administrador_organizacao(p_id_organizacao uuid)
- RETURNS void
+CREATE OR REPLACE FUNCTION public.validar_administrador_organizacao(p_id_organizacao uuid)
+ RETURNS boolean
  LANGUAGE plpgsql
- STABLE SECURITY DEFINER
+ STABLE
  SET search_path TO ''
 AS $function$
 begin
-  perform privado.exigir_permissao_rbac(p_id_organizacao,'usuarios','consultar',null::uuid);
+  perform privado.exigir_permissao_rbac(p_id_organizacao,'usuarios','administrar',null::uuid);
 
-  if p_id_organizacao is null then
-    raise sqlstate 'PT400' using
-      message = 'Organização inválida.',
-      detail = 'Informe a organização selecionada antes de continuar.',
-      hint = 'Selecione novamente a organização e repita a ação.';
-  end if;
-
-  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
-    raise sqlstate '42501' using
-      message = 'Você não tem permissão para administrar usuários desta organização.',
-      detail = 'A operação exige vínculo ativo com perfil administrador.',
-      hint = 'Selecione uma organização em que você seja administrador ou procure um administrador autorizado.';
-  end if;
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+  return true;
 end;
 $function$
 ;

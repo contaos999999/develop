@@ -169,8 +169,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -v ON_ERROR_STOP=1 -f supabase/tests/rbac_matrix.sql | tee restore-proof/rbac-matrix.txt
-          grep -Fxq ' RBAC_ISOLATED_PASS' restore-proof/rbac-matrix.txt
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/rbac_matrix.sql | tee restore-proof/rbac-matrix.txt
+          grep -Fxq 'RBAC_ISOLATED_PASS' restore-proof/rbac-matrix.txt
+
+      - name: Teste 13 - Concorrência real RBAC
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          python3 supabase/tests/rbac_concurrency.py | tee restore-proof/rbac-concurrency.txt
+          grep -Fq 'RBAC_CONCURRENCY_PASS' restore-proof/rbac-concurrency.txt
 
       - name: Registrar histórico reconstruído
         shell: bash

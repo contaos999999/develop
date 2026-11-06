@@ -72,7 +72,8 @@
     "supabase/tests/rbac_matrix.sql",
     "docs/backend/P0_V1_RBAC_BUILD_COBERTURA_2026-11-06.json",
     "docs/backend/P0_V1_RBAC_BUILD_EXECUCAO_2026-11-06.md",
-    ".github/workflows/restore-isolado.yml"
+    ".github/workflows/restore-isolado.yml",
+    "supabase/tests/rbac_concurrency.py"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -258,6 +259,15 @@
       "tables": 40,
       "guarded_functions": 43,
       "deployed": false
+    },
+    "rbac_review": {
+      "findings_fixed": [
+        "policy catalog mismatch",
+        "new contract must not pre-exist"
+      ],
+      "legacy_apis_authenticated_execute": false,
+      "initial_restore_failure": "canonical reanalysis error message changed; fixed without relaxing test",
+      "edge_upload_enforcement": "pending separate change after RPC stabilization"
     }
   }
 }

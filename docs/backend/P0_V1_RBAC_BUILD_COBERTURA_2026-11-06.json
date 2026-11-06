@@ -489,11 +489,11 @@
       "contract": "null::uuid"
     },
     {
-      "schema": "privado",
+      "schema": "public",
       "name": "validar_administrador_organizacao",
       "endpoint": "validar_administrador_organizacao",
       "resource": "usuarios",
-      "action": "consultar",
+      "action": "administrar",
       "org": "p_id_organizacao",
       "contract": "null::uuid"
     },
