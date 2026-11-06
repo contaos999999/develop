@@ -1,0 +1,122 @@
+name: ContaOS HML migration version parity
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/p0-hml-migration-version-parity.yml']
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'repair_68 or deploy_one'
+        type: choice
+        options: [repair_68, deploy_one]
+        required: true
+      migration_version:
+        description: '14-digit CLI-generated migration version for deploy_one'
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: contaos-hml-migration-version-parity
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    environment: hml
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+      PROJECT_REF: gklhhhyosgasnyoxlrui
+      OPERATION: ${{ github.event_name == 'push' && 'repair_68' || inputs.operation }}
+      TARGET_VERSION: ${{ inputs.migration_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify target and CLI contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$DATABASE_URL" || { echo "::error::Missing HML secret"; exit 1; }
+          python3 - <<'PY'
+          import os,sys
+          from urllib.parse import urlsplit
+          u=urlsplit(os.environ['DATABASE_URL'])
+          if u.scheme not in ('postgres','postgresql') or u.username != 'postgres.'+os.environ['PROJECT_REF'] or not (u.hostname or '').endswith('.pooler.supabase.com'):
+              sys.exit('::error::Unexpected database host or user')
+          PY
+          npx --yes supabase@2.81.3 --version
+          npx --yes supabase@2.81.3 migration repair --help | grep -q -- '--db-url'
+          npx --yes supabase@2.81.3 db push --help | grep -q -- '--db-url'
+      - name: Reconcile legacy HML history without replaying SQL
+        if: env.OPERATION == 'repair_68'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f supabase/migrations/20261105232056_p0_v1_historico_fila_check.sql
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+          DO \$check\$
+          DECLARE def text;
+          BEGIN
+            SELECT pg_get_constraintdef(oid) INTO def FROM pg_constraint
+            WHERE conrelid='public.execucoes_assincronas'::regclass
+            AND conname='execucoes_assincronas_fila_check';
+            IF def IS DISTINCT FROM 'CHECK ((fila = ANY (ARRAY[''documents''::text, ''ocr''::text, ''ai''::text, ''embeddings''::text, ''finance_imports''::text, ''reports''::text, ''integrations''::text, ''webhooks''::text, ''historico''::text])))'
+              THEN RAISE EXCEPTION 'Live CHECK does not match approved migration';
+            END IF;
+            IF (SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='20261106003138' AND name='p0_v1_historico_fila_check') <> 1
+              OR EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version='20261105232056')
+              THEN RAISE EXCEPTION 'History precondition mismatch';
+            END IF;
+          END \$check\$;"
+          npx --yes supabase@2.81.3 migration repair --status applied 20261105232056 --db-url "$DATABASE_URL"
+          npx --yes supabase@2.81.3 migration repair --status reverted 20261106003138 --db-url "$DATABASE_URL"
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+          DO \$verify\$
+          BEGIN
+            IF (SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='20261105232056' AND name='p0_v1_historico_fila_check') <> 1
+              OR EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version='20261106003138')
+              THEN RAISE EXCEPTION 'History parity failed';
+            END IF;
+          END \$verify\$;"
+          echo 'PASS: HML version equals GitHub CLI filename'
+      - name: Verify exactly one pending migration before CLI deploy
+        if: env.OPERATION == 'deploy_one'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,re,sys,subprocess,pathlib
+          v=os.environ['TARGET_VERSION']
+          if not re.fullmatch(r'\d{14}',v):sys.exit('::error::Invalid migration version')
+          files=list(pathlib.Path('supabase/migrations').glob(v+'_*.sql'))
+          if len(files)!=1:sys.exit('::error::Expected exactly one CLI versioned file')
+          remote=subprocess.check_output(['psql',os.environ['DATABASE_URL'],'-X','-Atqc','SELECT version FROM supabase_migrations.schema_migrations'],text=True).splitlines()
+          local={p.name.split('_')[0] for p in pathlib.Path('supabase/migrations').glob('*.sql')}
+          remote=set(remote)
+          if v in remote:sys.exit('::error::Target already applied')
+          pending=local-remote
+          if pending!={v}:sys.exit('::error::Refuse deploy: other pending migrations or missing history; '+str(len(pending))+' pending')
+          extra=remote-local
+          if extra:sys.exit('::error::Remote history has versions absent from GitHub: '+str(len(extra)))
+          print('PASS: exactly one pending CLI migration; no orphan remote versions')
+          PY
+      - name: Deploy only approved CLI migration
+        if: env.OPERATION == 'deploy_one'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes supabase@2.81.3 db push --db-url "$DATABASE_URL" --yes
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "SELECT CASE WHEN count(*)=1 THEN 'PASS' ELSE (1/0)::text END FROM supabase_migrations.schema_migrations WHERE version='$TARGET_VERSION'"
+      - name: Verify global local/remote history parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os,pathlib,subprocess,sys
+          local={p.name.split('_')[0] for p in pathlib.Path('supabase/migrations').glob('*.sql')}
+          remote=set(subprocess.check_output(['psql',os.environ['DATABASE_URL'],'-X','-Atqc','SELECT version FROM supabase_migrations.schema_migrations'],text=True).splitlines())
+          if local!=remote:sys.exit('::error::Migration history mismatch: local-only='+str(len(local-remote))+' remote-only='+str(len(remote-local)))
+          print('PASS: every HML migration version matches a GitHub migration filename')
+          PY
