@@ -1,8 +1,8 @@
 {
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
-  "title": "PLAN matriz RBAC e provas reais Auth HML",
+  "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "retry68_cinco_casos_pass_concluido",
+  "phase": "rbac_red_executado_geracao_cli",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -35,7 +35,7 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Completar matriz RBAC e testes autenticados positivos/negativos, começando por PLAN documental dedicado.",
+  "objective": "Executar integralmente fechamento V1, começando por RBAC persistente e integração administrativa, preservando provas já válidas.",
   "allowed_paths": [
     "docs/backend/P0_V1_RBAC_ORGANIZACOES_PLAN_2026-11-05.md",
     "docs/tasks/active-task.json",
@@ -65,7 +65,9 @@
     "docs/backend/P0_HML_MIGRATION_VERSION_PARITY_2026-11-05.md",
     "docs/backend/P0_V1_RETRY68_JWT_GATE_2026-11-05.md",
     "supabase/tests/p0_v1_retry68_jwt_five.py",
-    "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md"
+    "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md",
+    ".github/workflows/p0-v1-rbac-cli-generate.yml",
+    "docs/backend/P0_V1_FECHAMENTO_UNICO_EXECUCAO_2026-11-06.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -82,7 +84,7 @@
   "authorization": {
     "by": "titular",
     "date": "2026-11-05",
-    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado. Continuidade expressa: resolver os cinco reprovados e executar somente esse subconjunto; fixtures próprias autorizadas."
+    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado. Continuidade expressa: resolver os cinco reprovados e executar somente esse subconjunto; fixtures próprias autorizadas. Solicitação atual: resolver todas as pendências em plano único e executar integralmente, com gates canônicos HML e sem PROD."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -134,7 +136,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Cinco casos #68 PASS com prova real; não repetir 349 anteriores nem reconciliação de migração. Retomar matriz RBAC persistente/editável (issue #53) e demais gates V1. V1 ainda não certificada.",
+  "next_step": "Recuperar migration vazia gerada por CLI, concluir catálogo RLS/RPC V1, BUILD exato e testes antes de deploy. Demais frentes no plano único.",
   "database_change_scope": "Reteste concluído; nenhuma nova mutação autorizada por este escopo. Fixtures em quarentena, mensagens arquivadas, execuções sintéticas encerradas. Próxima tarefa exige manifesto próprio; sem DDL/PROD.",
   "evidence": {
     "test_pr": 52,
@@ -236,6 +238,11 @@
       "worker_certified": false,
       "v1_certified": false,
       "prod_untouched": true
+    },
+    "rbac_red_execution": {
+      "sqlstate": "P0001",
+      "missing_objects": 6,
+      "actual_execution": true
     }
   }
 }
