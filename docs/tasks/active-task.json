@@ -313,7 +313,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Concluir frontend matriz MASTER e navegação contextual sob PLAN180; SYS03 real, Teste C/WCAG privado, RNFs e486critérios literais. Não reutilizar contas bloqueadas. V1 não certificada. | PLAN 06/11: após CI/merge específico, executar job isolado de restauração sintética em duas instâncias locais, reportar sem alegar RPO/RTO/PITR.",
+  "next_step": "Concluir frontend matriz MASTER e navegação contextual sob PLAN180; SYS03 real, Teste C/WCAG privado, RNFs e486critérios literais. Não reutilizar contas bloqueadas. V1 não certificada. | PLAN 06/11: após CI/merge específico, executar job isolado de restauração sintética em duas instâncias locais, reportar sem alegar RPO/RTO/PITR. | PASS de restauração sintética local delimitada, registrar 126/126 e manter SYS03/TesteC privado, RNFs end-to-end e 486/488 como próximos gates. V1 não certificada.",
   "database_change_scope": "Sem DDL/RLS/history/configuração. Nova rodada P0-RBAC-NINE:14 contas Auth sintéticas novas,2 organizações,3 contratos,3 competências/requisitos/arquivos/documentos/versões/relatórios/apontamentos próprios,processamento documental sintético concluído,84 comandos documentais de replay. JWT sobre nove APIs;enqueue histórico pode criar3 mensagens/execuções próprias, arquivar/cancelar peloescopo exato ao final. Zero upload físico e zero worker certificado. Nenhuma mutação da matriz nesta rodada. Revogar um vínculo,logout,quarentena14UUIDs+scope e verificar0sessões/privilégios;preservarauditoria.",
   "evidence": {
     "test_pr": 52,
@@ -532,7 +532,7 @@
     }
   },
   "restore_synthetic_plan": {
-    "status": "PLAN_NAO_EXECUTADO",
+    "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
     "context_pack_version": "4.1",
     "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
     "scope": "Somente runner local GitHub Actions: duas instâncias Supabase CLI sequenciais, dados de uma organização fictícia em public.organizacoes; zero HML remoto/PROD/DDL externo",
@@ -543,6 +543,20 @@
       "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md"
     ],
     "authorization": "Titular autorizou fechamento integral V1 sem PROD; PLAN antes do BUILD; sem mudança de Auth/RLS/Edge/Storage.",
-    "evidence_requirement": "PR PLAN CI verde + merge; PR BUILD CI Zero-Drift e restore job green + script/sha, row/rls/migration hashes, cleanup, resultado fiel."
+    "evidence_requirement": "PR PLAN CI verde + merge; PR BUILD CI Zero-Drift e restore job green + script/sha, row/rls/migration hashes, cleanup, resultado fiel.",
+    "last_verified_build_merge": "0b790304ae3fd7d8e44dd6cfca1ca6e0a9a64a7f",
+    "zero_drift_run": "42168969380",
+    "restore_run": "42168969390",
+    "artifact_id": "13480626051",
+    "criteria_proved": {
+      "one_synthetic_row_restored": true,
+      "distinct_local_containers": true,
+      "migration_versions_matching": 126,
+      "rls_matching": true,
+      "row_sha256_matching": true,
+      "cleanup_verified": true
+    },
+    "scope_limit": "PASS apenas restore de uma tabela sintética com migrations locais; RPO/RTO/PITR, Storage, restore integral HML e disponibilidade NÃO VERIFICADOS",
+    "prior_failure": "run42168549551: second container ID stale after db reset; fixed in 5cffdd1028; failure preserved"
   }
 }
