@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 112568)
-Total output lines: 18248
-
 {
   "tables": [
     {
@@ -8937,7 +8934,2246 @@ Total output lines: 18248
       "name": "titulo",
       "type": "text",
       "table": "planos_acao",
-      "schem…12568 tokens truncated…": "sessoes_copiloto",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "descricao",
+      "type": "text",
+      "table": "planos_acao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "responsavel",
+      "type": "uuid",
+      "table": "planos_acao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "planos_acao",
+      "schema": "public",
+      "default": "'aberto'::text",
+      "notnull": true
+    },
+    {
+      "name": "versao_registro",
+      "type": "bigint",
+      "table": "planos_acao",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "planos_acao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "planos_acao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_nao_conformidade",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "acoes",
+      "type": "jsonb",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "responsavel",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "prazo",
+      "type": "date",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": "'aberto'::text",
+      "notnull": true
+    },
+    {
+      "name": "evidencias",
+      "type": "jsonb",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": "'[]'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "versao_registro",
+      "type": "bigint",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "criado_por",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "concluido_por",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "concluido_em",
+      "type": "timestamp with time zone",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "validado_por",
+      "type": "uuid",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "validado_em",
+      "type": "timestamp with time zone",
+      "table": "planos_remediacao",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "entidade_tipo",
+      "type": "text",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "entidade_id",
+      "type": "uuid",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "modelo_versao",
+      "type": "text",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "score",
+      "type": "numeric(8,6)",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "fatores",
+      "type": "jsonb",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": "'[]'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "explicacao",
+      "type": "text",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "fontes",
+      "type": "jsonb",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": "'[]'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "pontuacoes_risco",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contratante",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato_origem",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "competencia_origem",
+      "type": "date",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "problema",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "solucao",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "desfecho",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "fonte_tipo",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "'historico'::text",
+      "notnull": true
+    },
+    {
+      "name": "fonte_id",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "confianca",
+      "type": "numeric(6,5)",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "embedding",
+      "type": "vector(384)",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "'ativo'::text",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "categoria",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "valor_referencia",
+      "type": "numeric(18,2)",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "rubrica",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "documento_tipo",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "confirmacoes",
+      "type": "integer",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "ultima_confirmacao_em",
+      "type": "timestamp with time zone",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "hierarquia_normativa",
+      "type": "integer",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "0",
+      "notnull": true
+    },
+    {
+      "name": "forca_score",
+      "type": "numeric(8,6)",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_apontamento_historico",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_relatorio_origem",
+      "type": "uuid",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "titulo",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "escopo_aplicacao",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "'contrato'::text",
+      "notnull": true
+    },
+    {
+      "name": "vigencia_inicio",
+      "type": "date",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "vigencia_fim",
+      "type": "date",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "revisado_por_humano",
+      "type": "boolean",
+      "table": "precedentes",
+      "schema": "public",
+      "default": "false",
+      "notnull": true
+    },
+    {
+      "name": "revisado_em",
+      "type": "timestamp with time zone",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "unidade_origem",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "item_origem",
+      "type": "text",
+      "table": "precedentes",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_usuario",
+      "type": "uuid",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "evento",
+      "type": "text",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "canal",
+      "type": "text",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": "'in_app'::text",
+      "notnull": true
+    },
+    {
+      "name": "habilitado",
+      "type": "boolean",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": "true",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "preferencias_notificacao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_versao_documento",
+      "type": "uuid",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "etapa",
+      "type": "text",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": "'pendente'::text",
+      "notnull": true
+    },
+    {
+      "name": "tentativas",
+      "type": "integer",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": "0",
+      "notnull": true
+    },
+    {
+      "name": "erro_codigo",
+      "type": "text",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "erro_detalhe",
+      "type": "text",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "resultado",
+      "type": "jsonb",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "iniciado_em",
+      "type": "timestamp with time zone",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "concluido_em",
+      "type": "timestamp with time zone",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "processamentos_documento",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "titulo",
+      "type": "text",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "situacao",
+      "type": "text",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": "'rascunho'::text",
+      "notnull": true
+    },
+    {
+      "name": "versao_atual",
+      "type": "integer",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": "0",
+      "notnull": true
+    },
+    {
+      "name": "versao_registro",
+      "type": "bigint",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "propostas_orcamentarias",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_regra_candidata",
+      "type": "uuid",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_regra_preventiva",
+      "type": "uuid",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_avaliacao_impacto",
+      "type": "uuid",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "vigencia_inicio",
+      "type": "date",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "vigencia_fim",
+      "type": "date",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": "'publicada'::text",
+      "notnull": true
+    },
+    {
+      "name": "aprovado_por",
+      "type": "uuid",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "aprovado_em",
+      "type": "timestamp with time zone",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "hash",
+      "type": "text",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "publicacoes_regras",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "recurso",
+      "type": "text",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "habilitado",
+      "type": "boolean",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": "true",
+      "notnull": true
+    },
+    {
+      "name": "configuracao",
+      "type": "jsonb",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "recursos_organizacao",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "origem_tipo",
+      "type": "text",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "origem_id",
+      "type": "uuid",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "descricao",
+      "type": "text",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "fonte",
+      "type": "jsonb",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "efeito_proposto",
+      "type": "text",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": "'informativo'::text",
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": "'candidata'::text",
+      "notnull": true
+    },
+    {
+      "name": "criado_por",
+      "type": "uuid",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "regras_candidatas",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "codigo",
+      "type": "text",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "descricao",
+      "type": "text",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "tipo",
+      "type": "text",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "'deterministica'::text",
+      "notnull": true
+    },
+    {
+      "name": "efeito_portao",
+      "type": "boolean",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "true",
+      "notnull": true
+    },
+    {
+      "name": "id_fonte_versao",
+      "type": "uuid",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "configuracao",
+      "type": "jsonb",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "situacao",
+      "type": "text",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "'rascunho'::text",
+      "notnull": true
+    },
+    {
+      "name": "versao_registro",
+      "type": "bigint",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "vigencia_inicio",
+      "type": "date",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "vigencia_fim",
+      "type": "date",
+      "table": "regras_conformidade",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_contratante",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "codigo_regra",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "origem_precedente",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "descricao",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "efeito",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "'informativo'::text",
+      "notnull": true
+    },
+    {
+      "name": "criticidade",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "'media'::text",
+      "notnull": true
+    },
+    {
+      "name": "escopo_aplicacao",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "'contrato'::text",
+      "notnull": true
+    },
+    {
+      "name": "tipo_contrato",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "vigencia_inicio",
+      "type": "date",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "vigencia_fim",
+      "type": "date",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "numero_versao",
+      "type": "integer",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "situacao",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "'candidata'::text",
+      "notnull": true
+    },
+    {
+      "name": "versao_registro",
+      "type": "bigint",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "fonte",
+      "type": "jsonb",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "motivo",
+      "type": "text",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "aprovada_por",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "aprovada_em",
+      "type": "timestamp with time zone",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "configuracao",
+      "type": "jsonb",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "id_fonte_formal_versao",
+      "type": "uuid",
+      "table": "regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "origem_tipo",
+      "type": "text",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "origem_id",
+      "type": "uuid",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "destino_tipo",
+      "type": "text",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "destino_id",
+      "type": "uuid",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "relacao",
+      "type": "text",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "peso",
+      "type": "numeric(8,5)",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "metadados",
+      "type": "jsonb",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "relacionamentos_conhecimento",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_arquivo",
+      "type": "uuid",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "competencia_referencia",
+      "type": "date",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "tipo",
+      "type": "text",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "data_documento",
+      "type": "date",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "numero_documento",
+      "type": "text",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "resultado_geral",
+      "type": "text",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "origem_temporal",
+      "type": "text",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": "'pre_implantacao'::text",
+      "notnull": true
+    },
+    {
+      "name": "status_processamento",
+      "type": "text",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": "'pendente'::text",
+      "notnull": true
+    },
+    {
+      "name": "criado_por",
+      "type": "uuid",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "relatorios_historicos_contratante",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_competencia",
+      "type": "uuid",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "origem_tipo",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "origem_id",
+      "type": "uuid",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "origem_versao",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "codigo",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "descricao",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "categoria",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "obrigatorio",
+      "type": "boolean",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "true",
+      "notnull": true
+    },
+    {
+      "name": "aplicavel",
+      "type": "boolean",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "true",
+      "notnull": true
+    },
+    {
+      "name": "impeditivo",
+      "type": "boolean",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "false",
+      "notnull": true
+    },
+    {
+      "name": "criticidade",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "'media'::text",
+      "notnull": true
+    },
+    {
+      "name": "fonte_tipo",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "fonte_referencia",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "fonte_detalhe",
+      "type": "jsonb",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "efeito_portao",
+      "type": "boolean",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "true",
+      "notnull": true
+    },
+    {
+      "name": "ordem",
+      "type": "integer",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "0",
+      "notnull": true
+    },
+    {
+      "name": "hash_snapshot",
+      "type": "text",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "regra_validacao",
+      "type": "jsonb",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "condicao_aplicabilidade",
+      "type": "jsonb",
+      "table": "requisitos_competencia",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_apontamento",
+      "type": "uuid",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "texto",
+      "type": "text",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_versao_documento_resposta",
+      "type": "uuid",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "respostas_historicas",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_competencia",
+      "type": "uuid",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_execucao",
+      "type": "uuid",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_requisito",
+      "type": "uuid",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "resultado",
+      "type": "text",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "confianca",
+      "type": "numeric(6,5)",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "justificativa",
+      "type": "text",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "fundamento",
+      "type": "text",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "hash_evidencias",
+      "type": "text",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "metadados",
+      "type": "jsonb",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "resultados_requisitos",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_consulta",
+      "type": "uuid",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_execucao_analise",
+      "type": "uuid",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "provedor",
+      "type": "text",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "modelo",
+      "type": "text",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "prompt_versao",
+      "type": "text",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "resposta",
+      "type": "jsonb",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "uso_tokens",
+      "type": "jsonb",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": "'concluido'::text",
+      "notnull": true
+    },
+    {
+      "name": "fontes",
+      "type": "jsonb",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": "'[]'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "retornos_modelo",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "id_regra",
+      "type": "uuid",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "versao",
+      "type": "integer",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "decisao",
+      "type": "text",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "fundamento",
+      "type": "text",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "revisor",
+      "type": "uuid",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "data",
+      "type": "timestamp with time zone",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "snapshot",
+      "type": "jsonb",
+      "table": "revisoes_regras_preventivas",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_entidade_organizacional",
+      "type": "uuid",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "codigo",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "titulo",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "categoria",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "descricao",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "probabilidade",
+      "type": "numeric(6,5)",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "impacto",
+      "type": "numeric(18,4)",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "exposicao",
+      "type": "numeric(18,4)",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "nivel",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "'medio'::text",
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "'aberto'::text",
+      "notnull": true
+    },
+    {
+      "name": "responsavel",
+      "type": "uuid",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "tratamento",
+      "type": "text",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "prazo",
+      "type": "date",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "fontes",
+      "type": "jsonb",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "'[]'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "versao_registro",
+      "type": "bigint",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "1",
+      "notnull": true
+    },
+    {
+      "name": "criado_em",
+      "type": "timestamp with time zone",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "atualizado_em",
+      "type": "timestamp with time zone",
+      "table": "riscos_corporativos",
+      "schema": "public",
+      "default": "now()",
+      "notnull": true
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sessoes_copiloto",
+      "schema": "public",
+      "default": "gen_random_uuid()",
+      "notnull": true
+    },
+    {
+      "name": "id_organizacao",
+      "type": "uuid",
+      "table": "sessoes_copiloto",
+      "schema": "public",
+      "default": null,
+      "notnull": true
+    },
+    {
+      "name": "id_contrato",
+      "type": "uuid",
+      "table": "sessoes_copiloto",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "titulo",
+      "type": "text",
+      "table": "sessoes_copiloto",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    },
+    {
+      "name": "escopo",
+      "type": "jsonb",
+      "table": "sessoes_copiloto",
+      "schema": "public",
+      "default": "'{}'::jsonb",
+      "notnull": true
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "sessoes_copiloto",
       "schema": "public",
       "default": "'ativa'::text",
       "notnull": true

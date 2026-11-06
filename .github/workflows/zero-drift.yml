@@ -62,6 +62,7 @@ jobs:
         run: |
           node scripts/hml-history-source-gate.mjs
           node --test scripts/hml-history-source-gate.test.mjs
+          python3 -m json.tool supabase/tests/history-catalog-before.json > /dev/null
       - name: Segredos proibidos
         shell: bash
         run: |
