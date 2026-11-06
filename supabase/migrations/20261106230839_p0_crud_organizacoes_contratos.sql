@@ -55,7 +55,7 @@ create trigger contratos_touch before update on public.contratos for each row ex
 create function privado.crud_cadastro_mutar_v1(p_id_organizacao uuid,p_entidade text,p_id uuid,p_versao_esperada bigint,p_acao text,p_alteracoes jsonb,p_motivo text,p_request_id uuid)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare
- contexto jsonb; antes jsonb; depois jsonb; resposta jsonb; comando text; hash text; existente public.comandos_idempotentes%rowtype;
+ contexto jsonb; antes jsonb; depois jsonb; resposta jsonb; v_comando text; hash text; existente public.comandos_idempotentes%rowtype;
  org public.organizacoes%rowtype; contrato public.contratos%rowtype; dados jsonb; permitidos text[]; evento uuid; prox integer;
 begin
  if p_acao not in ('editar','situacao') or p_acao is null then raise exception using errcode='PT422',message='Operação inválida.'; end if;
@@ -71,10 +71,10 @@ begin
   select * into org from public.organizacoes where id=p_id_organizacao for share;
   if org.situacao is distinct from 'ativa' then raise exception using errcode='42501',message='A organização precisa estar ativa.'; end if;
  end if;
- comando:='crud-cadastro-v1:'||p_entidade||':'||p_acao;
+ v_comando:='crud-cadastro-v1:'||p_entidade||':'||p_acao;
  hash:=encode(extensions.digest(jsonb_build_object('ator',auth.uid(),'org',p_id_organizacao,'id',p_id,'versao',p_versao_esperada,'acao',p_acao,'alteracoes',p_alteracoes,'motivo',p_motivo)::text,'sha256'),'hex');
- perform pg_advisory_xact_lock(hashtextextended(p_id_organizacao::text||comando||p_request_id::text,0));
- select * into existente from public.comandos_idempotentes where id_organizacao=p_id_organizacao and comandos_idempotentes.comando=crud_cadastro_mutar_v1.comando and chave=p_request_id::text;
+ perform pg_advisory_xact_lock(hashtextextended(p_id_organizacao::text||v_comando||p_request_id::text,0));
+ select * into existente from public.comandos_idempotentes where id_organizacao=p_id_organizacao and comandos_idempotentes.comando=v_comando and chave=p_request_id::text;
  if found then
   if existente.hash_payload is distinct from hash or existente.status<>'concluido' then raise exception using errcode='PT409',message='Identificador já utilizado para outra operação.'; end if;
   return existente.resposta;
@@ -112,7 +112,7 @@ begin
  resposta:=privado.crud_cadastro_consultar_v1(p_id_organizacao,p_entidade,p_id); depois:=resposta->'registro';
  evento:=privado.registrar_evento_auditoria(p_id_organizacao,'CadastroOperacionalAtualizado',p_entidade,p_id,antes,depois,jsonb_build_object('acao',p_acao,'motivo',trim(p_motivo),'request_id',p_request_id));
  resposta:=resposta||jsonb_build_object('request_id',p_request_id,'evento_id',evento);
- insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,resposta) values(p_id_organizacao,comando,p_request_id::text,hash,'concluido',resposta);
+ insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,resposta) values(p_id_organizacao,v_comando,p_request_id::text,hash,'concluido',resposta);
  return resposta;
 exception when invalid_text_representation or datetime_field_overflow or invalid_datetime_format or check_violation or not_null_violation or numeric_value_out_of_range then
  raise exception using errcode='PT422',message='Valor inválido para os campos do cadastro.';
