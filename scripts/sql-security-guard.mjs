@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import crypto from 'node:crypto'
 import { execSync } from 'node:child_process'
 
 const raiz = process.cwd()
@@ -177,6 +178,21 @@ function auditarSqlAlterado(relativo) {
   const arquivo = path.join(raiz, relativo)
   if (!fs.existsSync(arquivo)) return
   const fonte = fs.readFileSync(arquivo, 'utf8')
+
+  // Reviewed historical SQL recovered from HML. These three exact byte hashes
+  // contain catalog-only migration DDL with %I identifiers, never user payload.
+  // Any change loses the exception and is rejected. Future migrations stay strict.
+  const recoveredHistoricalDynamic = new Map([
+    ['supabase/migrations/20261102050438_hardening_structural_fields_bopla.sql', '1d316522f1ad412247e21c4a58267df33d14d266dae4b04c1d5600dd6b4e1fe3'],
+    ['supabase/migrations/20261102051019_hardening_table_dml_privileges.sql', 'c49982d9e9dd4c3526c7429bf42ad234212f54d9743de41c0fe0a87376b1d496'],
+    ['supabase/migrations/20261102054126_hardening_contract_scope_defense_in_depth.sql', '482a4fd3655d7111ae1e80de0ca29c177d0fd6cb968bd00bb4decdd736390d0b'],
+  ])
+  if (recoveredHistoricalDynamic.has(relativo)) {
+    const hash = crypto.createHash('sha256').update(fonte).digest('hex')
+    if (hash !== recoveredHistoricalDynamic.get(relativo)) falhas.push(relativo + ' - histórico recuperado alterado; SQL dinâmico não autorizado.')
+    return
+  }
+
   const linhas = fonte.split(/\r?\n/)
 
   linhas.forEach((linha, i) => {
