@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "hml_migration_version_parity_gate",
+  "phase": "retry68_cinco_casos_pass_concluido",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -62,7 +62,10 @@
     "supabase/migrations/*_p0_v1_historico_fila_check.sql",
     "supabase/migrations/20261105232056_p0_v1_historico_fila_check.sql",
     ".github/workflows/p0-hml-migration-version-parity.yml",
-    "docs/backend/P0_HML_MIGRATION_VERSION_PARITY_2026-11-05.md"
+    "docs/backend/P0_HML_MIGRATION_VERSION_PARITY_2026-11-05.md",
+    "docs/backend/P0_V1_RETRY68_JWT_GATE_2026-11-05.md",
+    "supabase/tests/p0_v1_retry68_jwt_five.py",
+    "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -79,7 +82,7 @@
   "authorization": {
     "by": "titular",
     "date": "2026-11-05",
-    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado."
+    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado. Continuidade expressa: resolver os cinco reprovados e executar somente esse subconjunto; fixtures próprias autorizadas."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -125,14 +128,14 @@
   "previous_task_snapshot_commit": "3aa4af7a292b80243045e0a426ee6399ba948ff2",
   "prod_untouched": true,
   "acceptance": [
-    "Provas JWT reais pós-RLS concluídas: 354 casos, 349 PASS, 5 FAIL funcional histórico",
-    "203 negações RPC PASS; MASTER/usuários/organizações/escopo/revogação comprovados no relatório",
-    "Quarentena: 13 contas banidas, zero sessões/MASTER/vínculos/escopos ativos, duas organizações inativas",
-    "RLS ativo e migração com um registro; 13 definições de funções idênticas",
-    "CI do código/escopo não substitui FAIL funcional documentado"
+    "Cinco cenários anteriormente FAIL agora PASS com JWT Auth real",
+    "HTTP 200 + UUID + linha + mensagem/escopo + idempotência conferidos",
+    "349 provas anteriores preservadas sem repetição",
+    "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
+    "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Aprovar workflow CI de reconciliação 20261106003138 -> 20261105232056, sem replay SQL, e deploy futuro via CLI com paridade obrigatória.",
-  "database_change_scope": "Sem DDL nesta tarefa: somente reconciliação controlada do histórico de migração no HML, após comprovar CHECK e aprovação CI; sem PROD.",
+  "next_step": "Cinco casos #68 PASS com prova real; não repetir 349 anteriores nem reconciliação de migração. Retomar matriz RBAC persistente/editável (issue #53) e demais gates V1. V1 ainda não certificada.",
+  "database_change_scope": "Reteste concluído; nenhuma nova mutação autorizada por este escopo. Fixtures em quarentena, mensagens arquivadas, execuções sintéticas encerradas. Próxima tarefa exige manifesto próprio; sem DDL/PROD.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -195,6 +198,44 @@
       },
       "positive_write_limit": "Criação documental/nova versão e registro histórico usaram replay; não comprova primeira criação/upload/worker",
       "full_v1_certified": false
+    },
+    "historico_retry68": {
+      "pr": 75,
+      "cases": 5,
+      "passed": 5,
+      "failed": 0,
+      "real_auth_identities": 3,
+      "scenarios": [
+        "gestor A1",
+        "administrador A1",
+        "MASTER A1",
+        "MASTER A2",
+        "MASTER B1"
+      ],
+      "rpc_http_calls": 10,
+      "created_executions": 3,
+      "created_messages": 3,
+      "idempotency": true,
+      "db_scope_payload_verified": true,
+      "preserved_prior_functional_passes": 349,
+      "migration_version": "20261105232056",
+      "divergent_version_absent": true,
+      "report": "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md",
+      "code_commit": "1b3846b43e1503b48c1ecfd5364960994237529f",
+      "code_ci": 42143425452,
+      "cleanup": {
+        "banned_accounts": 3,
+        "sessions": 0,
+        "active_master": 0,
+        "active_memberships": 0,
+        "inactive_organizations": 2,
+        "messages_archived": 3,
+        "messages_pending": 0,
+        "test_executions_cancelled": 3
+      },
+      "worker_certified": false,
+      "v1_certified": false,
+      "prod_untouched": true
     }
   }
 }
