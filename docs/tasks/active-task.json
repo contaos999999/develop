@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "hml_migration_version_parity_gate",
+  "phase": "retry_only_five_historico_68_real_jwt",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -62,7 +62,10 @@
     "supabase/migrations/*_p0_v1_historico_fila_check.sql",
     "supabase/migrations/20261105232056_p0_v1_historico_fila_check.sql",
     ".github/workflows/p0-hml-migration-version-parity.yml",
-    "docs/backend/P0_HML_MIGRATION_VERSION_PARITY_2026-11-05.md"
+    "docs/backend/P0_HML_MIGRATION_VERSION_PARITY_2026-11-05.md",
+    "docs/backend/P0_V1_RETRY68_JWT_GATE_2026-11-05.md",
+    "supabase/tests/p0_v1_retry68_jwt_five.py",
+    "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -74,12 +77,12 @@
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": false,
+  "auth_changes_allowed": true,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
     "date": "2026-11-05",
-    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado."
+    "scope": "FAÇA completar a matriz RBAC, verificar o acesso às organizações e executar testes autenticados de autorização e negação. Implementação HML condicionada a PLAN/GATE; nenhuma mudança PROD. Solicitação expressa atual: executar provas funcionais JWT pós-RLS, incluindo MASTER, usuários comuns, isolamento e nove funções. Autorizada correção dos cinco FAIL históricos com PLAN/GATE e reteste focado. Continuidade expressa: resolver os cinco reprovados e executar somente esse subconjunto; fixtures próprias autorizadas."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -131,8 +134,8 @@
     "RLS ativo e migração com um registro; 13 definições de funções idênticas",
     "CI do código/escopo não substitui FAIL funcional documentado"
   ],
-  "next_step": "Aprovar workflow CI de reconciliação 20261106003138 -> 20261105232056, sem replay SQL, e deploy futuro via CLI com paridade obrigatória.",
-  "database_change_scope": "Sem DDL nesta tarefa: somente reconciliação controlada do histórico de migração no HML, após comprovar CHECK e aprovação CI; sem PROD.",
+  "next_step": "Retestar somente gestor A1, administrador A1 e MASTER A1/A2/B1. Exigir JWT Auth real, HTTP 200 UUID, execução fila historico, mensagem com escopo correto e idempotência; preservar 349 provas anteriores.",
+  "database_change_scope": "Somente novas fixtures sintéticas p0retry68 em HML e sua quarentena. Sem DDL, RLS, grants, Auth config ou migração. Autoriza criar três usuários sintéticos e metadados para A1/A2/B1; RPC REST real cria execução/mensagem. Apenas mensagens dessas fixtures podem ter vt postergado durante prova e ser arquivadas na limpeza; não alterar configuração de fila/worker/Cron nem dados reais.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
