@@ -2,6 +2,11 @@ name: ContaOS Restore Isolado
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/rbac_matrix.sql'
+      - '.github/workflows/restore-isolado.yml'
   push:
     branches: [main]
     paths:
@@ -159,6 +164,13 @@ jobs:
           set -euo pipefail
           export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           bash supabase/tests/v117_reanalysis_concurrency.sh | tee restore-proof/v117-concurrency.txt
+
+      - name: Teste 12 - Matriz RBAC V1
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -v ON_ERROR_STOP=1 -f supabase/tests/rbac_matrix.sql | tee restore-proof/rbac-matrix.txt
+          grep -Fxq ' RBAC_ISOLATED_PASS' restore-proof/rbac-matrix.txt
 
       - name: Registrar histórico reconstruído
         shell: bash
