@@ -1,0 +1,832 @@
+{
+  "resources": {
+    "organizacoes": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "administrar": [
+        "administrador"
+      ]
+    },
+    "usuarios": {
+      "consultar": [
+        "administrador"
+      ],
+      "administrar": [
+        "administrador"
+      ]
+    },
+    "auditoria": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "juridico_conformidade"
+      ]
+    },
+    "contratantes": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato"
+      ]
+    },
+    "contratos": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato"
+      ]
+    },
+    "orcamentos": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "financeiro",
+        "contabilidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "financeiro",
+        "contabilidade"
+      ],
+      "aprovar": [
+        "administrador",
+        "gestor_contrato",
+        "financeiro",
+        "contabilidade"
+      ]
+    },
+    "normativos": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "juridico_conformidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "juridico_conformidade"
+      ],
+      "aprovar": [
+        "administrador",
+        "gestor_contrato",
+        "juridico_conformidade"
+      ]
+    },
+    "listas": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "juridico_conformidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "juridico_conformidade"
+      ]
+    },
+    "documentos_contrato": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "juridico_conformidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "juridico_conformidade"
+      ]
+    },
+    "documentos_competencia": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "financeiro",
+        "contabilidade",
+        "rh_dp",
+        "juridico_conformidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "financeiro",
+        "contabilidade",
+        "rh_dp",
+        "juridico_conformidade"
+      ]
+    },
+    "competencias": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas"
+      ]
+    },
+    "analises": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "processar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "auditor",
+        "juridico_conformidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "auditor",
+        "juridico_conformidade"
+      ]
+    },
+    "pareceres": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "auditor",
+        "juridico_conformidade"
+      ],
+      "aprovar": [
+        "administrador",
+        "gestor_contrato",
+        "direcao_aprovador",
+        "juridico_conformidade"
+      ]
+    },
+    "apresentacoes": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "aprovar": [
+        "administrador",
+        "gestor_contrato",
+        "direcao_aprovador"
+      ],
+      "apresentar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas"
+      ]
+    },
+    "historico": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "auditor",
+        "juridico_conformidade"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato"
+      ],
+      "processar": [
+        "administrador",
+        "gestor_contrato"
+      ]
+    },
+    "arquivos": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "criar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ],
+      "editar": [
+        "administrador",
+        "gestor_contrato",
+        "prestacao_contas",
+        "financeiro",
+        "contabilidade",
+        "rh_dp",
+        "juridico_conformidade"
+      ]
+    },
+    "dashboard": {
+      "consultar": [
+        "administrador",
+        "auditor",
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "leitor",
+        "prestacao_contas",
+        "rh_dp"
+      ]
+    }
+  },
+  "tables": {
+    "organizacoes": "organizacoes",
+    "recursos_organizacao": "organizacoes",
+    "eventos_auditoria": "auditoria",
+    "contratantes": "contratantes",
+    "contratos": "contratos",
+    "versoes_contrato": "contratos",
+    "propostas_orcamentarias": "orcamentos",
+    "versoes_proposta": "orcamentos",
+    "linhas_orcamentarias": "orcamentos",
+    "fontes_normativas": "normativos",
+    "versoes_fontes_normativas": "normativos",
+    "aplicabilidades_fonte": "normativos",
+    "listas_verificacao": "listas",
+    "versoes_lista": "listas",
+    "itens_lista": "listas",
+    "regras_conformidade": "listas",
+    "documentos_contrato": "documentos_contrato",
+    "documentos_competencia": "documentos_competencia",
+    "competencias": "competencias",
+    "requisitos_competencia": "analises",
+    "execucoes_analise": "analises",
+    "resultados_requisitos": "analises",
+    "evidencias_resultado": "analises",
+    "apontamentos_internos": "analises",
+    "analises_apontamentos": "analises",
+    "pareceres_internos": "pareceres",
+    "aprovacoes": "apresentacoes",
+    "apresentacoes_contratante": "apresentacoes",
+    "pacotes_competencia": "apresentacoes",
+    "itens_pacote_competencia": "apresentacoes",
+    "relatorios_historicos_contratante": "historico",
+    "apontamentos_historicos": "historico",
+    "respostas_historicas": "historico",
+    "desfechos_historicos": "historico",
+    "arquivos": "arquivos",
+    "versoes_documento": "arquivos",
+    "paginas_documento": "arquivos",
+    "fragmentos_documento": "arquivos",
+    "processamentos_documento": "arquivos",
+    "sugestoes_extracao_documento": "arquivos"
+  },
+  "functions": [
+    {
+      "schema": "privado",
+      "name": "listar_usuarios_vinculos_adm",
+      "endpoint": "listar_usuarios_vinculos_adm",
+      "resource": "usuarios",
+      "action": "consultar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "listar_escopo_contratos_usuario_adm",
+      "endpoint": "listar_escopo_contratos_usuario_adm",
+      "resource": "usuarios",
+      "action": "consultar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "listar_auditoria_vinculo_usuario_adm",
+      "endpoint": "listar_auditoria_vinculo_usuario_adm",
+      "resource": "usuarios",
+      "action": "consultar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "validar_administrador_organizacao",
+      "endpoint": "validar_administrador_organizacao",
+      "resource": "usuarios",
+      "action": "consultar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "salvar_vinculo_usuario_adm",
+      "endpoint": "salvar_vinculo_usuario_adm",
+      "resource": "usuarios",
+      "action": "administrar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "atualizar_contratante",
+      "endpoint": "atualizar_contratante",
+      "resource": "contratantes",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "public",
+      "name": "obter_resumo_dashboard",
+      "endpoint": "obter_resumo_dashboard",
+      "resource": "dashboard",
+      "action": "consultar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "salvar_fonte_normativa_v107",
+      "endpoint": "salvar_fonte_normativa_v107",
+      "resource": "normativos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "registrar_versao_fonte_v107",
+      "endpoint": "registrar_versao_fonte_v107",
+      "resource": "normativos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "aprovar_versao_fonte_v107",
+      "endpoint": "aprovar_versao_fonte_v107",
+      "resource": "normativos",
+      "action": "aprovar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "definir_aplicabilidade_fonte_v107",
+      "endpoint": "definir_aplicabilidade_fonte_v107",
+      "resource": "normativos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "salvar_proposta_orcamentaria_v108",
+      "endpoint": "salvar_proposta_orcamentaria_v108",
+      "resource": "orcamentos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "registrar_versao_proposta_v108",
+      "endpoint": "registrar_versao_proposta_v108",
+      "resource": "orcamentos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "salvar_linha_orcamentaria_v108",
+      "endpoint": "salvar_linha_orcamentaria_v108",
+      "resource": "orcamentos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "remover_linha_orcamentaria_v108",
+      "endpoint": "remover_linha_orcamentaria_v108",
+      "resource": "orcamentos",
+      "action": "editar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "publicar_versao_proposta_v108",
+      "endpoint": "publicar_versao_proposta_v108",
+      "resource": "orcamentos",
+      "action": "aprovar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "criar_documento_contrato_v110",
+      "endpoint": "criar_documento_contrato",
+      "resource": "documentos_contrato",
+      "action": "criar",
+      "org": "(select id_organizacao from public.contratos where id=p_id_contrato)",
+      "contract": "p_id_contrato"
+    },
+    {
+      "schema": "privado",
+      "name": "criar_documento_contrato_v111",
+      "endpoint": "criar_documento_contrato_completo",
+      "resource": "documentos_contrato",
+      "action": "criar",
+      "org": "(select id_organizacao from public.contratos where id=p_id_contrato)",
+      "contract": "p_id_contrato"
+    },
+    {
+      "schema": "privado",
+      "name": "adicionar_versao_documento_contrato_v110",
+      "endpoint": "adicionar_versao_documento_contrato",
+      "resource": "documentos_contrato",
+      "action": "editar",
+      "org": "(select id_organizacao from public.documentos_contrato where id=p_id_documento)",
+      "contract": "(select id_contrato from public.documentos_contrato where id=p_id_documento)"
+    },
+    {
+      "schema": "privado",
+      "name": "criar_competencia",
+      "endpoint": "criar_competencia",
+      "resource": "competencias",
+      "action": "criar",
+      "org": "(select id_organizacao from public.contratos where id=p_id_contrato)",
+      "contract": "p_id_contrato"
+    },
+    {
+      "schema": "privado",
+      "name": "obter_visao_geral_competencia",
+      "endpoint": "obter_visao_geral_competencia",
+      "resource": "competencias",
+      "action": "consultar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "obter_documentos_competencia_v115",
+      "endpoint": "obter_documentos_competencia_v115",
+      "resource": "documentos_competencia",
+      "action": "consultar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "criar_documento_competencia",
+      "endpoint": "criar_documento_competencia",
+      "resource": "documentos_competencia",
+      "action": "criar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "criar_documento_competencia_v115",
+      "endpoint": "criar_documento_competencia_v115",
+      "resource": "documentos_competencia",
+      "action": "criar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "adicionar_versao_documento_competencia",
+      "endpoint": "adicionar_versao_documento_competencia",
+      "resource": "documentos_competencia",
+      "action": "editar",
+      "org": "(select id_organizacao from public.documentos_competencia where id=p_id_documento)",
+      "contract": "(select id_contrato from public.documentos_competencia where id=p_id_documento)"
+    },
+    {
+      "schema": "privado",
+      "name": "adicionar_versao_documento_competencia_v115",
+      "endpoint": "adicionar_versao_documento_competencia_v115",
+      "resource": "documentos_competencia",
+      "action": "editar",
+      "org": "(select id_organizacao from public.documentos_competencia where id=p_id_documento)",
+      "contract": "(select id_contrato from public.documentos_competencia where id=p_id_documento)"
+    },
+    {
+      "schema": "public",
+      "name": "obter_analise_competencia_v116",
+      "endpoint": "obter_analise_competencia_v116",
+      "resource": "analises",
+      "action": "consultar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "public",
+      "name": "obter_detalhe_requisito_v117",
+      "endpoint": "obter_detalhe_requisito_v117",
+      "resource": "analises",
+      "action": "consultar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "avaliar_portao_conformidade",
+      "endpoint": "avaliar_portao_conformidade",
+      "resource": "analises",
+      "action": "consultar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "solicitar_analise_competencia",
+      "endpoint": "solicitar_analise_competencia",
+      "resource": "analises",
+      "action": "processar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "solicitar_reanalise_requisitos",
+      "endpoint": "solicitar_reanalise_requisitos",
+      "resource": "analises",
+      "action": "processar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "registrar_resultado_requisito",
+      "endpoint": "registrar_resultado_requisito",
+      "resource": "analises",
+      "action": "editar",
+      "org": "(select id_organizacao from public.execucoes_analise where id=p_id_execucao)",
+      "contract": "(select id_contrato from public.execucoes_analise where id=p_id_execucao)"
+    },
+    {
+      "schema": "privado",
+      "name": "solicitar_parecer_interno",
+      "endpoint": "solicitar_parecer_interno",
+      "resource": "pareceres",
+      "action": "criar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "aprovar_parecer_interno",
+      "endpoint": "aprovar_parecer_interno",
+      "resource": "pareceres",
+      "action": "aprovar",
+      "org": "(select id_organizacao from public.pareceres_internos where id=p_id_parecer)",
+      "contract": "(select id_contrato from public.pareceres_internos where id=p_id_parecer)"
+    },
+    {
+      "schema": "privado",
+      "name": "aprovar_apresentacao",
+      "endpoint": "aprovar_apresentacao",
+      "resource": "apresentacoes",
+      "action": "aprovar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "privado",
+      "name": "registrar_apresentacao",
+      "endpoint": "registrar_apresentacao",
+      "resource": "apresentacoes",
+      "action": "apresentar",
+      "org": "(select id_organizacao from public.competencias where id=p_id_competencia)",
+      "contract": "(select id_contrato from public.competencias where id=p_id_competencia)"
+    },
+    {
+      "schema": "public",
+      "name": "enfileirar_ingestao_historica_hml",
+      "endpoint": "enfileirar_ingestao_historica_hml",
+      "resource": "historico",
+      "action": "processar",
+      "org": "(select id_organizacao from public.relatorios_historicos_contratante where id=p_id_relatorio)",
+      "contract": "(select id_contrato from public.relatorios_historicos_contratante where id=p_id_relatorio)"
+    },
+    {
+      "schema": "public",
+      "name": "registrar_relatorio_historico_hml",
+      "endpoint": "registrar_relatorio_historico_hml",
+      "resource": "historico",
+      "action": "criar",
+      "org": "(select id_organizacao from public.arquivos where id=p_id_arquivo)",
+      "contract": "(select id_contrato from public.arquivos where id=p_id_arquivo)"
+    },
+    {
+      "schema": "public",
+      "name": "vincular_tratamento_historico_hml",
+      "endpoint": "vincular_tratamento_historico_hml",
+      "resource": "historico",
+      "action": "editar",
+      "org": "(select id_organizacao from public.apontamentos_historicos where id=p_id_apontamento)",
+      "contract": "(select id_contrato from public.apontamentos_historicos where id=p_id_apontamento)"
+    },
+    {
+      "schema": "privado",
+      "name": "confirmar_upload_arquivo",
+      "endpoint": "confirmar_upload_arquivo",
+      "resource": "arquivos",
+      "action": "criar",
+      "org": "p_id_organizacao",
+      "contract": "null::uuid"
+    },
+    {
+      "schema": "privado",
+      "name": "enfileirar_processamento_documento",
+      "endpoint": "enfileirar_processamento_documento",
+      "resource": "arquivos",
+      "action": "editar",
+      "org": "(select id_organizacao from public.versoes_documento where id=p_id_versao_documento)",
+      "contract": "(select id_contrato from public.versoes_documento where id=p_id_versao_documento)"
+    },
+    {
+      "schema": "privado",
+      "name": "revisar_sugestao_extracao",
+      "endpoint": "revisar_sugestao_extracao",
+      "resource": "arquivos",
+      "action": "editar",
+      "org": "(select id_organizacao from public.sugestoes_extracao_documento where id=p_id_sugestao)",
+      "contract": "(select id_contrato from public.sugestoes_extracao_documento where id=p_id_sugestao)"
+    },
+    {
+      "schema": "privado",
+      "name": "definir_vigencia_sugestao_extracao_v111",
+      "endpoint": "definir_vigencia_sugestao_extracao",
+      "resource": "arquivos",
+      "action": "editar",
+      "org": "(select id_organizacao from public.sugestoes_extracao_documento where id=p_id_sugestao)",
+      "contract": "(select id_contrato from public.sugestoes_extracao_documento where id=p_id_sugestao)"
+    }
+  ]
+}
