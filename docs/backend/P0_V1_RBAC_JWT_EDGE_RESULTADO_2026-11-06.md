@@ -68,3 +68,40 @@ O Advisor também informa 5 `INFO` de RLS sem policy em tabelas privadas, estado
 ## ZERO-DRIFT — identidade visual e escopo
 
 Registro somente documental, sem mudança visual, código, RLS, grants, Auth, Storage ou worker. Fonte canônica Brand 1.0 permanece obrigatória. Este relatório **não** declara aprovação de JWT real, quarentena, E2E ou certificação V1.
+
+## Atualização comprovada da rodada JWT e quarentena
+
+Esta seção substitui somente o estado operacional provisório acima. A análise estrutural das nove funções continua insuficiente para sua certificação funcional.
+
+- Probe aprovado no PR #80, HEAD 2c52101b4594aa816987f2326f0e289b4524b172; CI 42150663608.
+- Matriz: 120 verificações iniciais aprovadas; concorrência de dois escritores, conflito de versão, replay, payload divergente, revogação com o mesmo JWT e restauração aprovados. Interrupção proposital após commit também restaurou e conferiu o valor original.
+- Comparação final das 480 permissões via RPC MASTER: igualdade integral com a captura anterior; versão 5; estado de restauração dirty=false.
+- Primeiro teste Edge: MASTER, administrador e leitor receberam HTTP 500. Causa reproduzida: PostgREST fornece thenable sem método catch. O mock anterior usava Promise completa. Falhas preservadas, sem apagamento de evidência.
+- Correção PR #82: HEAD a551d686b88b4e684f0edfe0e361f5bbf767ac3a; CI 42153421502 SUCCESS; merge 4c21fe2961f54218891e1f1edf25ef5e21137106. Testes com thenable realista: 8 RED antes, 8 GREEN depois.
+- Implantação Edge versão 6 ACTIVE, verify_jwt=true. Fonte retornada pelo HML idêntica à fonte aprovada; ezbr SHA256 1562cdc549369430bcbd53d7474619d167443a4fc6d7bfd303b88ba29caff880.
+- Reteste JWT Edge: MASTER e administrador HTTP 200; leitor e sem vínculo negados sem URL/token. Somente assinatura testada; nenhum blob enviado e nenhum worker certificado.
+- Revogação de vínculo contabilidade: mesmo JWT negado HTTP 403/42501.
+- Logout: 14 respostas HTTP 204; JWT MASTER anterior rejeitado pela RPC com HTTP 403/42501.
+- Registro integral: 152 tentativas, 149 aprovadas e 3 falhas históricas corrigidas. Resultado mais recente por nome: 147/147 cenários distintos aprovados. Nome de restauração repetido em duas fases; não inflar quantidade de cenários.
+- SHA256 do relatório local sanitizado: 93efe4d243330f94033570efdcb90d7b0b63ad817af263476e5dedf2855d0f9c. Credenciais e tokens não integram este documento.
+
+### Quarentena e conferência independente
+
+DML limitado aos 14 UUIDs próprios, metadado scope=P0-RBAC-BUILD, duas organizações e três contratos sintéticos. Senhas invalidadas, contas bloqueadas por 100 anos, concessão MASTER e vínculos desativados, organizações inativas, auditoria preservada. Nenhuma exclusão de conta.
+
+| Verificação | Resultado |
+|---|---:|
+| Contas sintéticas bloqueadas | 14 |
+| Sessões persistidas | 0 |
+| MASTER sintético ativo | 0 |
+| Vínculos ativos | 0 |
+| Escopos contratuais ativos | 0 |
+| Organizações sintéticas inativas | 2 |
+
+Consulta independente após a transação repetiu 14 bloqueadas / 0 sessões / 0 MASTER / 0 vínculos. A matriz já estava restaurada antes do logout e bloqueio.
+
+### Última etapa e continuidade
+
+Última etapa comprovada: matriz persistente implantada, rodada JWT da matriz/isolamento/assinador/revogação encerrada e quarentena conferida. Próxima tarefa: regressão funcional das nove RPCs sob as novas restrições RBAC, seguida da integração frontend da matriz e navegação; SYS-03, WCAG/Teste C privado, RNFs e reconciliação dos critérios continuam no plano único. A recuperação dos DOCX originais confirmou 486 critérios literais V1, preservando os 488 registros históricos para análise do diferencial, sem dispensar obrigações de outras fontes.
+
+Frontend de referência: be842a39a413c8ef53c71412ff83be3b0a49b8a9; baseline local 35 suites/886 testes aprovados antes de alterações, tipos congelados preservados. V1 NÃO CERTIFICADA; V2 bloqueada; PROD intacta.
