@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "rbac_jwt_matrix_edge_cleanup_pass_nine_rpc_pending",
+  "phase": "rbac_nine_jwt_regression_gate",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -239,7 +239,10 @@
     "supabase/tests/storage_upload_rbac.test.mjs",
     "supabase/tests/rbac_jwt_probe.py",
     "docs/backend/P0_V1_RBAC_JWT_EDGE_GATE_2026-11-06.md",
-    "docs/backend/P0_V1_RBAC_JWT_EDGE_RESULTADO_2026-11-06.md"
+    "docs/backend/P0_V1_RBAC_JWT_EDGE_RESULTADO_2026-11-06.md",
+    "supabase/tests/rbac_nine_jwt_probe.py",
+    "docs/backend/P0_V1_RBAC_NOVE_JWT_GATE_2026-11-06.md",
+    "docs/backend/P0_V1_RBAC_NOVE_JWT_RESULTADO_2026-11-06.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -308,7 +311,7 @@
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
   "next_step": "Regressão JWT das nove RPCs após RBAC, integração frontend da matriz/navegação, SYS03, WCAG/Teste C, RNFs e critérios originais. Não reutilizar fixtures bloqueadas.",
-  "database_change_scope": "Sem nova DDL/RLS/migration/history. Auth somente14 contas sintéticas novas P0-RBAC-BUILD;2 organizações e3 contratos próprios; nenhum usuário real. Matriz: alterar temporariamente só leitor/contratos/consultar, apenas se não houver vínculo leitor ativo externo às fixtures, restaurar valor original por RPC antes de logout. Quarentena final exata e auditoria preservada. Edge permitida exclusivamente storage-sign-upload, verify_jwt=true, fonte GitHub aprovada.",
+  "database_change_scope": "Sem DDL/RLS/history/configuração. Nova rodada P0-RBAC-NINE:14 contas Auth sintéticas novas,2 organizações,3 contratos,3 competências/requisitos/arquivos/documentos/versões/relatórios/apontamentos próprios,processamento documental sintético concluído,84 comandos documentais de replay. JWT sobre nove APIs;enqueue histórico pode criar3 mensagens/execuções próprias, arquivar/cancelar peloescopo exato ao final. Zero upload físico e zero worker certificado. Nenhuma mutação da matriz nesta rodada. Revogar um vínculo,logout,quarentena14UUIDs+scope e verificar0sessões/privilégios;preservarauditoria.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
