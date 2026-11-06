@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
       actions: write
+      checks: read
     outputs:
       tested_head: ${{ steps.gate.outputs.tested_head }}
     env:
