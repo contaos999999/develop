@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "rbac_red_executado_geracao_cli",
+  "phase": "rbac_build_restore_isolado",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -67,7 +67,12 @@
     "supabase/tests/p0_v1_retry68_jwt_five.py",
     "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md",
     ".github/workflows/p0-v1-rbac-cli-generate.yml",
-    "docs/backend/P0_V1_FECHAMENTO_UNICO_EXECUCAO_2026-11-06.md"
+    "docs/backend/P0_V1_FECHAMENTO_UNICO_EXECUCAO_2026-11-06.md",
+    "supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql",
+    "supabase/tests/rbac_matrix.sql",
+    "docs/backend/P0_V1_RBAC_BUILD_COBERTURA_2026-11-06.json",
+    "docs/backend/P0_V1_RBAC_BUILD_EXECUCAO_2026-11-06.md",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -76,8 +81,8 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
-  "rls_changes_allowed": false,
+  "database_changes_allowed": true,
+  "rls_changes_allowed": true,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
@@ -136,8 +141,8 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Recuperar migration vazia gerada por CLI, concluir catálogo RLS/RPC V1, BUILD exato e testes antes de deploy. Demais frentes no plano único.",
-  "database_change_scope": "Reteste concluído; nenhuma nova mutação autorizada por este escopo. Fixtures em quarentena, mensagens arquivadas, execuções sintéticas encerradas. Próxima tarefa exige manifesto próprio; sem DDL/PROD.",
+  "next_step": "Concluir restore isolado e revisão do BUILD RBAC; só depois deploy_one HML, JWT real e frontend. Não certificar V1.",
+  "database_change_scope": "BUILD RBAC V1 exato: supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql. Aplicação HML somente pelo deploy_one canônico após CI e restore isolado. Sem DDL por execute_sql/apply_migration. Auth fixtures só em testes isolados nesta etapa. PROD proibida.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -243,6 +248,16 @@
       "sqlstate": "P0001",
       "missing_objects": 6,
       "actual_execution": true
+    },
+    "rbac_build_candidate": {
+      "migration": "supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql",
+      "cli_run": 42145435501,
+      "artifact": 13469991773,
+      "artifact_sha256": "453a2f19b28fa5e3bc65b31d8b9417ad16910f3ead78aba434c01d0107fb7607",
+      "resources": 17,
+      "tables": 40,
+      "guarded_functions": 43,
+      "deployed": false
     }
   }
 }
