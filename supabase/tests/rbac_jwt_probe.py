@@ -1,5 +1,6 @@
 """HML-only real Auth/JWT matrix checks. Credentials stay outside the checkout."""
-import os,json,secrets,uuid,urllib.request,urllib.error,sys
+import os,json,secrets,uuid,urllib.request,urllib.error,sys,hashlib
+from datetime import datetime,timezone
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 URL='https://gklhhhyosgasnyoxlrui.supabase.co'
@@ -92,10 +93,11 @@ def baseline():
    status,data=rpc(name,payload,token);check(label+': '+name,status in [401,403],status,data)
  for org,contract,label in [(f['org_a'],f['cases']['B1']['contract'],'mismatched tenant/contract'),(str(uuid.uuid4()),None,'unknown organization')]:
   status,data=rpc('consultar_permissoes_efetivas',{'p_id_organizacao':org,'p_id_contrato':contract},master);check('MASTER: '+label+' denied',status==403 and data.get('code')=='42501',status,data)
-def change_matrix():
+def _change_matrix():
  f=read('fixture.json');s=read('sessions.json');before=read('matrix-before.json');v=before['versao']
  change=[{'perfil':'leitor','recurso':'contratos','acao':'consultar','permitido':False}]
  requests=[{'p_versao_esperada':v,'p_request_id':str(uuid.uuid4()),'p_alteracoes':change} for _ in range(2)]
+ state=read('matrix-restore-state.json');state['requests']=requests;write('matrix-restore-state.json',state)
  with ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(lambda p:rpc('atualizar_matriz_rbac_master',p,s['master']),requests))
  check('HTTP concurrency: exactly one writer',sorted(x[0] for x in results)==[200,409])
  winner=next((i for i,x in enumerate(results) if x[0]==200),None)
@@ -106,11 +108,31 @@ def change_matrix():
  status,data=rpc('atualizar_matriz_rbac_master',altered,s['master']);check('request payload conflict',status==409 and data.get('code')=='PT409',status,data)
  status,data=request('/rest/v1/contratos?select=id&id=eq.'+f['cases']['A1']['contract'],s['leitor']);check('live matrix revoke blocks direct RLS SELECT',status==200 and data==[],status)
  status,data=rpc('consultar_permissoes_efetivas',{'p_id_organizacao':f['org_a'],'p_id_contrato':f['cases']['A1']['contract']},s['leitor']);check('same JWT receives revoked permission immediately',status==200 and not any(x['recurso']=='contratos' and x['acao']=='consultar' for x in data.get('permissoes',[])),status)
- restore=[{'perfil':'leitor','recurso':'contratos','acao':'consultar','permitido':next(x['permitido'] for x in before['permissoes'] if x['perfil']=='leitor' and x['recurso']=='contratos' and x['acao']=='consultar')}]
- status,current=rpc('obter_matriz_rbac_master',{},s['master'])
- if status!=200:check('read matrix for safe restore',False,status,current);return
- status,data=rpc('atualizar_matriz_rbac_master',{'p_versao_esperada':current['versao'],'p_request_id':str(uuid.uuid4()),'p_alteracoes':restore},s['master']);check('restore original matrix permission',status==200,status,data)
- status,data=request('/rest/v1/contratos?select=id&id=eq.'+f['cases']['A1']['contract'],s['leitor']);check('restored permission restores scoped read',status==200 and len(data)==1,status)
+def change_matrix(action=None):
+ f=read('fixture.json');preflight=read('matrix-preflight.json')
+ identity_hash=hashlib.sha256('\n'.join(sorted(u['id'] for u in f['users'])).encode()).hexdigest()
+ age=(datetime.now(timezone.utc)-datetime.fromisoformat(preflight['captured_at'])).total_seconds()
+ if preflight.get('scope')!=f['scope'] or preflight.get('fixture_user_ids_sha256')!=identity_hash or preflight.get('external_active_leitor')!=0 or not 0<=age<=120:
+  raise SystemExit('Global matrix preflight missing, stale or not bound to these fixtures')
+ if any(not r['pass'] for r in read('report.json')['assertions']):raise SystemExit('Baseline must pass before global mutation')
+ if (ROOT/'matrix-restore-state.json').exists() and read('matrix-restore-state.json').get('dirty'):raise SystemExit('Restore previous operation first')
+ before=read('matrix-before.json')
+ original=next(x for x in before['permissoes'] if x['perfil']=='leitor' and x['recurso']=='contratos' and x['acao']=='consultar')
+ write('matrix-restore-state.json',{'dirty':True,'original':original,'requests':[],'scope':f['scope'],'fixture_user_ids_sha256':identity_hash})
+ try:(action or _change_matrix)()
+ finally:restore_matrix()
+def interruption():
+ class FixtureInterrupted(Exception):pass
+ def fail_after_commit():
+  s=read('sessions.json');status,current=rpc('obter_matriz_rbac_master',{},s['master'])
+  if status!=200:raise RuntimeError('Cannot prepare interruption fixture')
+  payload={'p_versao_esperada':current['versao'],'p_request_id':str(uuid.uuid4()),'p_alteracoes':[{'perfil':'leitor','recurso':'contratos','acao':'consultar','permitido':False}]}
+  state=read('matrix-restore-state.json');state['requests']=[payload];write('matrix-restore-state.json',state)
+  status,response=rpc('atualizar_matriz_rbac_master',payload,s['master'])
+  if status!=200:raise RuntimeError('Interruption fixture mutation failed')
+  raise FixtureInterrupted('Intentional failure after committed fixture mutation')
+ try:change_matrix(fail_after_commit)
+ except FixtureInterrupted:check('finally restored matrix after committed-request interruption',read('matrix-restore-state.json')['dirty'] is False)
 def edge():
  f=read('fixture.json');s=read('sessions.json')
  for p in ['master','administrador','leitor','sem_vinculo']:
@@ -118,26 +140,43 @@ def edge():
   allowed=p in ['master','administrador']
   check(p+': live Edge upload signer',status==200 and data.get('ok') is True if allowed else status in [401,403] and not data.get('signed_url') and not data.get('token'),status)
 def restore_matrix():
- s=read('sessions.json');before=read('matrix-before.json')
+ if not (ROOT/'matrix-restore-state.json').exists():return True
+ state=read('matrix-restore-state.json')
+ if not state.get('dirty'):return True
+ s=read('sessions.json')
  status,current=rpc('obter_matriz_rbac_master',{},s['master'])
- if status!=200:check('cleanup can read matrix',False,status,current);return
- original=next(x for x in before['permissoes'] if x['perfil']=='leitor' and x['recurso']=='contratos' and x['acao']=='consultar')
+ if status!=200:raise RuntimeError('Pending matrix restore: MASTER read failed; logout/cleanup blocked')
+ original=state['original']
  now=next(x for x in current['permissoes'] if x['perfil']=='leitor' and x['recurso']=='contratos' and x['acao']=='consultar')
  if now['permitido']!=original['permitido']:
+  owned=False
+  for payload in state['requests']:
+   replay,response=rpc('atualizar_matriz_rbac_master',payload,s['master'])
+   if replay==200:owned=True;break
+  if not owned:raise RuntimeError('Cannot attribute matrix change to this fixture; restore and logout blocked')
+  status,current=rpc('obter_matriz_rbac_master',{},s['master'])
+  if status!=200:raise RuntimeError('Cannot read current matrix version for safe restore')
   status,data=rpc('atualizar_matriz_rbac_master',{'p_versao_esperada':current['versao'],'p_request_id':str(uuid.uuid4()),'p_alteracoes':[original]},s['master'])
-  check('cleanup restored original tested permission',status==200,status,data)
- else:check('cleanup matrix already restored',True)
+  if status!=200:raise RuntimeError('Pending matrix restore: write failed; logout/cleanup blocked')
+ status,verified=rpc('obter_matriz_rbac_master',{},s['master'])
+ if status!=200 or next(x for x in verified['permissoes'] if x['perfil']=='leitor' and x['recurso']=='contratos' and x['acao']=='consultar')['permitido']!=original['permitido']:
+  raise RuntimeError('Matrix restore readback failed; logout/cleanup blocked')
+ state['dirty']=False;state['restored_version']=verified['versao'];state['verified_at']=datetime.now(timezone.utc).isoformat();write('matrix-restore-state.json',state)
+ check('original permission restored and read back',True)
+ return True
 def revoked_membership():
  f=read('fixture.json');s=read('sessions.json')
  status,data=rpc('consultar_permissoes_efetivas',{'p_id_organizacao':f['org_a'],'p_id_contrato':None},s['contabilidade']);check('membership revoked with same JWT',status==403 and data.get('code')=='42501',status,data)
 def logout():
+ restore_matrix()
+ if (ROOT/'matrix-restore-state.json').exists() and read('matrix-restore-state.json').get('dirty'):raise RuntimeError('Restore pending: logout blocked')
  s=read('sessions.json')
  for p,t in s.items():
   status,data=request('/auth/v1/logout?scope=global',t,{},'POST');check(p+': logout',status in [204,401,403],status)
  status,data=rpc('obter_matriz_rbac_master',{},s['master']);check('revoked MASTER JWT rejected',status==403 and data.get('code')=='42501',status,data)
 if __name__=='__main__':
  mode=sys.argv[1]
- {'prepare':prepare,'baseline':baseline,'matrix':change_matrix,'restore':restore_matrix,'edge':edge,'membership_revoked':revoked_membership,'logout':logout}[mode]()
+ {'prepare':prepare,'baseline':baseline,'matrix':change_matrix,'interruption':interruption,'restore':restore_matrix,'edge':edge,'membership_revoked':revoked_membership,'logout':logout}[mode]()
  if (ROOT/'report.json').exists():
   rows=read('report.json')['assertions'];failed=[r for r in rows if not r['pass']]
   print(json.dumps({'phase':mode,'assertions':len(rows),'passed':len(rows)-len(failed),'failed':len(failed),'failures':failed}))
