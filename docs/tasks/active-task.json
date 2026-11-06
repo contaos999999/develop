@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "retry_only_five_historico_68_real_jwt",
+  "phase": "retry68_cinco_casos_pass_concluido",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -77,7 +77,7 @@
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": true,
+  "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
@@ -128,14 +128,14 @@
   "previous_task_snapshot_commit": "3aa4af7a292b80243045e0a426ee6399ba948ff2",
   "prod_untouched": true,
   "acceptance": [
-    "Provas JWT reais pós-RLS concluídas: 354 casos, 349 PASS, 5 FAIL funcional histórico",
-    "203 negações RPC PASS; MASTER/usuários/organizações/escopo/revogação comprovados no relatório",
-    "Quarentena: 13 contas banidas, zero sessões/MASTER/vínculos/escopos ativos, duas organizações inativas",
-    "RLS ativo e migração com um registro; 13 definições de funções idênticas",
-    "CI do código/escopo não substitui FAIL funcional documentado"
+    "Cinco cenários anteriormente FAIL agora PASS com JWT Auth real",
+    "HTTP 200 + UUID + linha + mensagem/escopo + idempotência conferidos",
+    "349 provas anteriores preservadas sem repetição",
+    "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
+    "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Retestar somente gestor A1, administrador A1 e MASTER A1/A2/B1. Exigir JWT Auth real, HTTP 200 UUID, execução fila historico, mensagem com escopo correto e idempotência; preservar 349 provas anteriores.",
-  "database_change_scope": "Somente novas fixtures sintéticas p0retry68 em HML e sua quarentena. Sem DDL, RLS, grants, Auth config ou migração. Autoriza criar três usuários sintéticos e metadados para A1/A2/B1; RPC REST real cria execução/mensagem. Apenas mensagens dessas fixtures podem ter vt postergado durante prova e ser arquivadas na limpeza; não alterar configuração de fila/worker/Cron nem dados reais.",
+  "next_step": "Cinco casos #68 PASS com prova real; não repetir 349 anteriores nem reconciliação de migração. Retomar matriz RBAC persistente/editável (issue #53) e demais gates V1. V1 ainda não certificada.",
+  "database_change_scope": "Reteste concluído; nenhuma nova mutação autorizada por este escopo. Fixtures em quarentena, mensagens arquivadas, execuções sintéticas encerradas. Próxima tarefa exige manifesto próprio; sem DDL/PROD.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -198,6 +198,44 @@
       },
       "positive_write_limit": "Criação documental/nova versão e registro histórico usaram replay; não comprova primeira criação/upload/worker",
       "full_v1_certified": false
+    },
+    "historico_retry68": {
+      "pr": 75,
+      "cases": 5,
+      "passed": 5,
+      "failed": 0,
+      "real_auth_identities": 3,
+      "scenarios": [
+        "gestor A1",
+        "administrador A1",
+        "MASTER A1",
+        "MASTER A2",
+        "MASTER B1"
+      ],
+      "rpc_http_calls": 10,
+      "created_executions": 3,
+      "created_messages": 3,
+      "idempotency": true,
+      "db_scope_payload_verified": true,
+      "preserved_prior_functional_passes": 349,
+      "migration_version": "20261105232056",
+      "divergent_version_absent": true,
+      "report": "docs/backend/P0_V1_RETRY68_JWT_RESULTADO_2026-11-05.md",
+      "code_commit": "1b3846b43e1503b48c1ecfd5364960994237529f",
+      "code_ci": 42143425452,
+      "cleanup": {
+        "banned_accounts": 3,
+        "sessions": 0,
+        "active_master": 0,
+        "active_memberships": 0,
+        "inactive_organizations": 2,
+        "messages_archived": 3,
+        "messages_pending": 0,
+        "test_executions_cancelled": 3
+      },
+      "worker_certified": false,
+      "v1_certified": false,
+      "prod_untouched": true
     }
   }
 }
