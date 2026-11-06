@@ -47,7 +47,8 @@ Deno.serve(async(req:Request)=>{
  if(!orgOk) return resp({ok:false,codigo:'AUTH_ACESSO_NEGADO',titulo:'Acesso não permitido',mensagem:'Seu usuário não possui acesso à organização informada.'},403)
  if(contrato){const {data:c}=await client.from('contratos').select('id,id_organizacao').eq('id',contrato).eq('id_organizacao',org).maybeSingle(); if(!c) return resp({ok:false,codigo:'AUTH_ACESSO_NEGADO',titulo:'Acesso não permitido',mensagem:'Seu usuário não possui acesso ao contrato informado.'},403)}
 
- const {data:rbac,error:rbacErr}=await client.rpc('consultar_permissoes_efetivas',{p_id_organizacao:org,p_id_contrato:contrato}).catch(()=>({data:null,error:true}))
+ let rbac:any=null; let rbacErr:unknown=true
+ try{const resultado=await client.rpc('consultar_permissoes_efetivas',{p_id_organizacao:org,p_id_contrato:contrato});rbac=resultado.data;rbacErr=resultado.error}catch{}
  const podeEnviar=!rbacErr&&Array.isArray(rbac?.permissoes)&&rbac.permissoes.some((p:{recurso?:unknown;acao?:unknown})=>p?.recurso==='arquivos'&&p?.acao==='criar')
  if(!podeEnviar) return resp({ok:false,codigo:'AUTH_ACESSO_NEGADO',titulo:'Acesso não permitido',mensagem:'Você não tem permissão para enviar arquivos neste contexto.'},403)
 

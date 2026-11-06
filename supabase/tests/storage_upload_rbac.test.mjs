@@ -13,7 +13,7 @@ async function invoke(rbac, rpcError = null, contract = null) {
   } }) } };
   const caller = {
     auth: { getUser: async () => ({ data: { user: { id: 'fixture' } }, error: null }) },
-    rpc: async (name, payload) => { calls.push({ sender: 'caller', name, payload }); if(rpcError==='throw')throw new Error('transport');return { data: rbac, error: rpcError }; },
+    rpc: (name, payload) => { calls.push({ sender: 'caller', name, payload }); return { then(resolve,reject) { return (rpcError==='throw'?Promise.reject(new Error('transport')):Promise.resolve({data:rbac,error:rpcError})).then(resolve,reject); } }; },
     from: (table) => {
       const chain = { select: () => chain, eq: () => chain,
         maybeSingle: async () => ({ data: { id: 'org' } }),
