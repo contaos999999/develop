@@ -5,6 +5,8 @@ on:
   pull_request:
     paths:
       - 'supabase/migrations/**'
+      - 'supabase/tests/p0_crud_cadastros*'
+      - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/rbac_matrix.sql'
       - '.github/workflows/restore-isolado.yml'
   push:
@@ -12,6 +14,8 @@ on:
     paths:
       - 'supabase/config.toml'
       - 'supabase/migrations/**'
+      - 'supabase/tests/p0_crud_cadastros*'
+      - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/hml_acceptance.sql'
       - 'supabase/tests/workflow_bopla.sql'
       - 'supabase/tests/alert_task_bopla.sql'
@@ -188,6 +192,13 @@ jobs:
           python3 supabase/tests/rbac_concurrency.py | tee restore-proof/rbac-concurrency.txt
           grep -Fq 'RBAC_CONCURRENCY_PASS' restore-proof/rbac-concurrency.txt
 
+      - name: Teste 14 - CRUD cadastros isolado
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/p0_crud_cadastros.sql | tee restore-proof/crud-cadastros.txt
+          grep -Fxq 'CRUD_CADASTROS_ISOLATED_PASS' restore-proof/crud-cadastros.txt
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
@@ -237,3 +248,4 @@ jobs:
           path: restore-proof-synthetic/
           if-no-files-found: warn
           retention-days: 30
+
