@@ -165,6 +165,14 @@ jobs:
           export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           bash supabase/tests/v117_reanalysis_concurrency.sh | tee restore-proof/v117-concurrency.txt
 
+      - name: Compare historical HML metadata after source recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          python3 supabase/tests/history_catalog_compare.py | tee restore-proof/history-catalog.txt
+          grep -Fq 'HISTORY_CATALOG_PASS' restore-proof/history-catalog.txt
+
       - name: Teste 12 - Matriz RBAC V1
         shell: bash
         run: |

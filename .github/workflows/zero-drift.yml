@@ -58,6 +58,11 @@ jobs:
         run: |
           node supabase/scripts/materialize-migrations.mjs
           git diff --exit-code -- supabase/migrations
+      - name: Historical HML source integrity
+        run: |
+          node scripts/hml-history-source-gate.mjs
+          node --test scripts/hml-history-source-gate.test.mjs
+          python3 -m json.tool supabase/tests/history-catalog-before.json > /dev/null
       - name: Segredos proibidos
         shell: bash
         run: |

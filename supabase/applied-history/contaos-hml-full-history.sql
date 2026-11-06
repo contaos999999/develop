@@ -4897,7 +4897,6 @@ as $$ select privado.materializar_alertas_transversais_v4($1,$2,$3,$4) $$;
 revoke all on function public.worker_materializar_alertas_transversais_v4(uuid,vector,jsonb,integer) from public,anon,authenticated;
 grant execute on function public.worker_materializar_alertas_transversais_v4(uuid,vector,jsonb,integer) to service_role;
 
-
 -- ============================================================
 
 -- MIGRATION 20261101222715_0032b_v4_governanca_regra_formal_perfil_contratante
@@ -5073,7 +5072,6 @@ returns uuid language sql security definer set search_path=''
 as $$ select privado.recalcular_perfil_contratante_v4($1,$2) $$;
 revoke all on function public.worker_recalcular_perfil_contratante_v4(uuid,uuid) from public,anon,authenticated;
 grant execute on function public.worker_recalcular_perfil_contratante_v4(uuid,uuid) to service_role;
-
 
 -- ============================================================
 
@@ -5335,3 +5333,7440 @@ revoke all on function public.worker_exportar_historico_migrations() from public
 grant execute on function public.worker_exportar_historico_migrations() to service_role;
 
 commit;
+
+-- ============================================================
+
+-- MIGRATION 20261101230710_0041_auth_onboarding_timezone_brasilia
+begin;
+
+alter table public.organizacoes alter column timezone set default 'America/Sao_Paulo';
+update public.organizacoes set timezone='America/Sao_Paulo' where timezone is distinct from 'America/Sao_Paulo';
+
+create or replace function privado.criar_perfil_usuario_auth()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+begin
+  insert into public.usuarios(id_usuario,nome,email,situacao,criado_em,atualizado_em)
+  values(
+    new.id,
+    coalesce(nullif(trim(new.raw_user_meta_data->>'nome'),''),nullif(trim(new.raw_user_meta_data->>'name'),'')),
+    new.email,
+    'ativo',
+    now(),
+    now()
+  )
+  on conflict(id_usuario) do update
+    set email=excluded.email,
+        nome=coalesce(public.usuarios.nome,excluded.nome),
+        atualizado_em=now();
+  return new;
+end;
+$$;
+revoke all on function privado.criar_perfil_usuario_auth() from public,anon,authenticated;
+
+drop trigger if exists contaos_auth_usuario_criado on auth.users;
+create trigger contaos_auth_usuario_criado
+after insert or update of email,raw_user_meta_data on auth.users
+for each row execute function privado.criar_perfil_usuario_auth();
+
+insert into public.usuarios(id_usuario,nome,email,situacao,criado_em,atualizado_em)
+select u.id,
+       coalesce(nullif(trim(u.raw_user_meta_data->>'nome'),''),nullif(trim(u.raw_user_meta_data->>'name'),'')),
+       u.email,
+       'ativo',
+       coalesce(u.created_at,now()),
+       now()
+from auth.users u
+on conflict(id_usuario) do update set
+  email=excluded.email,
+  nome=coalesce(public.usuarios.nome,excluded.nome),
+  atualizado_em=now();
+
+create or replace function public.criar_organizacao(
+  p_razao_social text,
+  p_nome_fantasia text default null,
+  p_cnpj varchar default null,
+  p_timezone text default 'America/Sao_Paulo'
+)
+returns uuid
+language sql
+security invoker
+set search_path=''
+as $$select privado.criar_organizacao($1,$2,$3,$4)$$;
+revoke all on function public.criar_organizacao(text,text,varchar,text) from public,anon;
+grant execute on function public.criar_organizacao(text,text,varchar,text) to authenticated;
+
+grant execute on function privado.criar_organizacao(text,text,varchar,text) to authenticated;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261101233244_0042_hardening_grants_anon
+begin;
+
+-- Menor privilégio para visitantes não autenticados.
+-- Remove qualquer grant herdado por objetos criados após o hardening inicial.
+revoke all privileges on all tables in schema public from anon;
+
+-- Somente catálogos estritamente públicos necessários antes do login.
+grant select on public.catalogo_mensagens_sistema to anon;
+grant select on public.catalogo_status_ui to anon;
+grant select on public.configuracao_localizacao to anon;
+
+-- Funções públicas de apresentação/normalização que não acessam dados do tenant.
+revoke execute on all functions in schema public from anon;
+grant execute on function public.obter_mensagem_sistema(text) to anon;
+grant execute on function public.normalizar_erro_backend(text,text) to anon;
+grant execute on function public.formatar_data_br(date) to anon;
+grant execute on function public.formatar_data_hora_br(timestamptz) to anon;
+grant execute on function public.formatar_hora_br(timestamptz) to anon;
+grant execute on function public.agora_brasilia() to anon;
+
+comment on schema public is 'Schema público do ContaOS. A role anon possui somente leitura dos catálogos de interface/localização e funções de formatação sem acesso a dados de organizações.';
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261101233447_0042_onboarding_configuracao_automacao
+begin;
+
+create or replace function privado.criar_configuracao_automacao_padrao()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+begin
+  insert into public.configuracoes_automacao(
+    id_organizacao,
+    provedor_ia,
+    modelo_ia,
+    provedor_ocr,
+    modelo_ocr,
+    modo_ia,
+    modo_ocr,
+    configuracao_publica,
+    ativo
+  )
+  values(
+    new.id,
+    'openai',
+    'gpt-6.1-sol',
+    'openai',
+    'gpt-6-luna',
+    'assistido',
+    'assistido',
+    jsonb_build_object(
+      'idioma','pt-BR',
+      'timezone','America/Sao_Paulo',
+      'aprovacao_humana_obrigatoria',true
+    ),
+    true
+  )
+  on conflict(id_organizacao) do nothing;
+  return new;
+end;
+$$;
+
+revoke all on function privado.criar_configuracao_automacao_padrao() from public,anon,authenticated;
+
+drop trigger if exists contaos_organizacao_config_automacao on public.organizacoes;
+create trigger contaos_organizacao_config_automacao
+after insert on public.organizacoes
+for each row execute function privado.criar_configuracao_automacao_padrao();
+
+insert into public.configuracoes_automacao(
+  id_organizacao,
+  provedor_ia,
+  modelo_ia,
+  provedor_ocr,
+  modelo_ocr,
+  modo_ia,
+  modo_ocr,
+  configuracao_publica,
+  ativo
+)
+select
+  o.id,
+  'openai',
+  'gpt-6.1-sol',
+  'openai',
+  'gpt-6-luna',
+  'assistido',
+  'assistido',
+  jsonb_build_object(
+    'idioma','pt-BR',
+    'timezone','America/Sao_Paulo',
+    'aprovacao_humana_obrigatoria',true
+  ),
+  true
+from public.organizacoes o
+on conflict(id_organizacao) do nothing;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261101233537_0043_hardening_funcoes_privadas
+begin;
+
+revoke usage on schema privado from public, anon;
+revoke execute on all functions in schema privado from public, anon;
+alter default privileges in schema privado revoke execute on functions from public;
+
+do $$
+declare r record;
+begin
+  for r in
+    select p.oid::regprocedure as assinatura
+    from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='privado'
+      and exists(
+        select 1
+        from pg_proc q
+        join pg_namespace nq on nq.oid=q.pronamespace
+        where nq.nspname='public'
+          and q.proname=p.proname
+          and q.proargtypes=p.proargtypes
+      )
+  loop
+    execute format('grant execute on function %s to authenticated', r.assinatura);
+  end loop;
+end $$;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261101235147_0044_rls_defesa_em_profundidade_privado
+alter table privado.configuracoes_internas enable row level security;
+alter table privado.consumo_rate_limit_api enable row level security;
+
+revoke all on privado.configuracoes_internas from public, anon, authenticated;
+revoke all on privado.consumo_rate_limit_api from public, anon, authenticated;
+
+comment on table privado.configuracoes_internas is 'Configurações internas do ContaOS. RLS habilitada como defesa em profundidade; sem policies para roles de cliente.';
+comment on table privado.consumo_rate_limit_api is 'Contador interno de rate limit. RLS habilitada como defesa em profundidade; sem policies para roles de cliente.';
+
+-- ============================================================
+
+-- MIGRATION 20261101235431_0045_policies_negativas_schema_privado
+create policy privado_configuracoes_sem_acesso_cliente
+on privado.configuracoes_internas
+for all
+to anon, authenticated
+using (false)
+with check (false);
+
+create policy privado_rate_limit_sem_acesso_cliente
+on privado.consumo_rate_limit_api
+for all
+to anon, authenticated
+using (false)
+with check (false);
+
+comment on policy privado_configuracoes_sem_acesso_cliente on privado.configuracoes_internas is 'Bloqueio explícito para roles de cliente. Acesso permitido apenas por funções internas/roles privilegiadas.';
+comment on policy privado_rate_limit_sem_acesso_cliente on privado.consumo_rate_limit_api is 'Bloqueio explícito para roles de cliente. Acesso permitido apenas por funções internas/roles privilegiadas.';
+
+-- ============================================================
+
+-- MIGRATION 20261102000441_0046_openai_modelo_analise_operacional
+alter table public.configuracoes_automacao alter column modelo_ia set default 'gpt-6-luna';
+update public.configuracoes_automacao set modelo_ia='gpt-6-luna', atualizado_em=now(), versao_registro=versao_registro+1 where modelo_ia='gpt-6.1-sol';
+
+create or replace function privado.criar_configuracao_automacao_padrao()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $function$
+begin
+  insert into public.configuracoes_automacao(
+    id_organizacao, provedor_ia, modelo_ia, provedor_ocr, modelo_ocr,
+    modo_ia, modo_ocr, configuracao_publica, ativo
+  ) values(
+    new.id, 'openai', 'gpt-6-luna', 'openai', 'gpt-6-luna',
+    'assistido', 'assistido',
+    jsonb_build_object(
+      'idioma','pt-BR',
+      'timezone','America/Sao_Paulo',
+      'aprovacao_humana_obrigatoria',true,
+      'modelo_analise_preferencial_quando_disponivel','gpt-6.1-sol'
+    ), true
+  ) on conflict(id_organizacao) do nothing;
+  return new;
+end;
+$function$;
+
+comment on column public.configuracoes_automacao.modelo_ia is 'Modelo operacional de análise OpenAI. HML usa gpt-6-luna; modelo de maior capacidade pode ser configurado quando houver quota, sem alterar regras de negócio.';
+
+-- ============================================================
+
+-- MIGRATION 20261102021203_0047_contexto_portao_antidrift
+-- ContaOS 4.1 - invalidação automática de portão e anti-stale context
+
+create or replace function privado.snapshot_contexto_competencia(p_id_competencia uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=''
+as $$
+declare
+  v public.competencias%rowtype;
+  v_contrato jsonb;
+begin
+  select * into v from public.competencias where id=p_id_competencia;
+  if v.id is null then
+    raise exception 'Não encontramos a competência informada.';
+  end if;
+
+  select jsonb_build_object(
+    'id',c.id,
+    'numero',c.numero,
+    'objeto',c.objeto,
+    'tipo_contrato',c.tipo_contrato,
+    'inicio',c.inicio,
+    'fim',c.fim,
+    'valor_global',c.valor_global,
+    'periodicidade',c.periodicidade,
+    'prazo_prestacao_dias',c.prazo_prestacao_dias,
+    'situacao',c.situacao,
+    'criticidade',c.criticidade,
+    'configuracao_diligencia',c.configuracao_diligencia,
+    'configuracao_financeira',c.configuracao_financeira,
+    'versao_registro',c.versao_registro
+  ) into v_contrato
+  from public.contratos c where c.id=v.id_contrato;
+
+  return jsonb_build_object(
+    'competencia',jsonb_build_object(
+      'id',v.id,
+      'referencia',v.competencia_referencia,
+      'periodo_inicio',v.periodo_inicio,
+      'periodo_fim',v.periodo_fim,
+      'data_limite',v.data_limite
+    ),
+    'contrato',coalesce(v_contrato,'{}'::jsonb),
+    'requisitos',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id',r.id,
+        'origem_tipo',r.origem_tipo,
+        'origem_id',r.origem_id,
+        'origem_versao',r.origem_versao,
+        'codigo',r.codigo,
+        'hash',r.hash_snapshot,
+        'obrigatorio',r.obrigatorio,
+        'aplicavel',r.aplicavel,
+        'impeditivo',r.impeditivo,
+        'efeito_portao',r.efeito_portao,
+        'regra_validacao',r.regra_validacao
+      ) order by r.ordem,r.id)
+      from public.requisitos_competencia r where r.id_competencia=v.id
+    ),'[]'::jsonb),
+    'documentos',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id_documento',d.id,
+        'tipo',d.tipo,
+        'categoria',d.categoria,
+        'situacao',d.situacao,
+        'id_requisito',d.id_requisito_competencia,
+        'id_versao',vd.id,
+        'numero_versao',vd.numero_versao,
+        'hash',vd.hash
+      ) order by d.id)
+      from public.documentos_competencia d
+      join lateral (
+        select x.* from public.versoes_documento x
+        where x.id_documento_competencia=d.id
+        order by x.numero_versao desc limit 1
+      ) vd on true
+      where d.id_competencia=v.id and d.situacao='ativo'
+    ),'[]'::jsonb),
+    'propostas',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id_versao',vp.id,
+        'id_proposta',vp.id_proposta,
+        'numero_versao',vp.numero_versao,
+        'vigencia_inicio',vp.vigencia_inicio,
+        'vigencia_fim',vp.vigencia_fim,
+        'valor_total',vp.valor_total,
+        'hash',vp.hash,
+        'situacao',vp.situacao
+      ) order by vp.vigencia_inicio,vp.numero_versao,vp.id)
+      from public.versoes_proposta vp
+      where vp.id_contrato=v.id_contrato
+        and vp.vigencia_inicio <= v.periodo_fim
+        and (vp.vigencia_fim is null or vp.vigencia_fim >= v.periodo_inicio)
+    ),'[]'::jsonb),
+    'linhas_orcamentarias',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id',l.id,
+        'id_versao_proposta',l.id_versao_proposta,
+        'codigo',l.codigo,
+        'grupo',l.grupo,
+        'rubrica',l.rubrica,
+        'subrubrica',l.subrubrica,
+        'descricao',l.descricao,
+        'quantidade',l.quantidade,
+        'valor_unitario',l.valor_unitario,
+        'valor_total',l.valor_total,
+        'limite_remanejamento_percentual',l.limite_remanejamento_percentual,
+        'metadados',l.metadados
+      ) order by l.codigo,l.id)
+      from public.linhas_orcamentarias l
+      join public.versoes_proposta vp on vp.id=l.id_versao_proposta
+      where l.id_contrato=v.id_contrato
+        and vp.vigencia_inicio <= v.periodo_fim
+        and (vp.vigencia_fim is null or vp.vigencia_fim >= v.periodo_inicio)
+    ),'[]'::jsonb),
+    'transacoes',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id',t.id,
+        'data',t.data,
+        'descricao',t.descricao,
+        'documento',t.documento,
+        'id_fornecedor',t.id_fornecedor,
+        'fornecedor_nome_original',t.fornecedor_nome_original,
+        'fornecedor_documento_original',t.fornecedor_documento_original,
+        'valor',t.valor,
+        'tipo',t.tipo,
+        'hash_origem',t.hash_origem,
+        'id_linha_orcamentaria',t.id_linha_orcamentaria,
+        'conta_bancaria',t.conta_bancaria
+      ) order by t.data,t.id)
+      from public.transacoes_financeiras t
+      where t.id_contrato=v.id_contrato and t.data between v.periodo_inicio and v.periodo_fim
+    ),'[]'::jsonb),
+    'conciliacoes',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id',c.id,
+        'periodo',c.periodo,
+        'tipo',c.tipo,
+        'status',c.status,
+        'saldo_origem',c.saldo_origem,
+        'saldo_contaos',c.saldo_contaos,
+        'diferenca',c.diferenca,
+        'resultado',c.resultado
+      ) order by c.periodo,c.tipo,c.id)
+      from public.conciliacoes c
+      where c.id_contrato=v.id_contrato
+        and c.periodo between date_trunc('month',v.periodo_inicio)::date and date_trunc('month',v.periodo_fim)::date
+    ),'[]'::jsonb),
+    'motor','contaos',
+    'versao_snapshot','4.1',
+    'idioma','pt-BR',
+    'timezone','America/Sao_Paulo'
+  );
+end;
+$$;
+
+create or replace function privado.hash_contexto_competencia(p_id_competencia uuid)
+returns text
+language sql
+stable
+security definer
+set search_path=''
+as $$
+  select encode(extensions.digest(privado.snapshot_contexto_competencia(p_id_competencia)::text,'sha256'),'hex');
+$$;
+
+revoke all on function privado.snapshot_contexto_competencia(uuid) from public,anon,authenticated;
+revoke all on function privado.hash_contexto_competencia(uuid) from public,anon,authenticated;
+grant execute on function privado.snapshot_contexto_competencia(uuid) to service_role;
+grant execute on function privado.hash_contexto_competencia(uuid) to service_role;
+
+create or replace function privado.invalidar_portao_competencia(
+  p_id_competencia uuid,
+  p_motivo text,
+  p_entidade_tipo text default null,
+  p_entidade_id uuid default null
+)
+returns boolean
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v public.competencias%rowtype;
+  v_status_anterior text;
+begin
+  select * into v from public.competencias where id=p_id_competencia for update;
+  if v.id is null then return false; end if;
+
+  if v.situacao not in ('pode_apresentar_contratante','pode_reapresentar_contratante') then
+    return false;
+  end if;
+
+  v_status_anterior:=v.situacao;
+  update public.competencias
+     set situacao='em_reanalise',
+         percentual_conformidade=0,
+         liberada_para_apresentacao_em=null,
+         liberada_para_reapresentacao_em=null
+   where id=v.id;
+
+  perform privado.registrar_evento_auditoria(
+    v.id_organizacao,
+    'PortaoInvalidadoPorAlteracaoMaterial',
+    'competencias',
+    v.id,
+    jsonb_build_object('situacao',v_status_anterior,'percentual_conformidade',v.percentual_conformidade),
+    jsonb_build_object(
+      'situacao','em_reanalise',
+      'percentual_conformidade',0,
+      'motivo',coalesce(p_motivo,'Alteração material após liberação.'),
+      'entidade_tipo',p_entidade_tipo,
+      'entidade_id',p_entidade_id
+    )
+  );
+  return true;
+end;
+$$;
+
+revoke all on function privado.invalidar_portao_competencia(uuid,text,text,uuid) from public,anon,authenticated;
+grant execute on function privado.invalidar_portao_competencia(uuid,text,text,uuid) to service_role;
+
+create or replace function privado.tg_invalidar_portao_documento()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v_comp uuid; v_id uuid;
+begin
+  if tg_table_name='versoes_documento' then
+    v_id:=new.id;
+    select d.id_competencia into v_comp from public.documentos_competencia d where d.id=new.id_documento_competencia;
+  else
+    v_id:=coalesce(new.id,old.id);
+    v_comp:=coalesce(new.id_competencia,old.id_competencia);
+  end if;
+  if v_comp is not null then
+    perform privado.invalidar_portao_competencia(v_comp,'Alteração documental após liberação exige nova análise completa.',tg_table_name,v_id);
+  end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+create or replace function privado.tg_invalidar_portao_requisito()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v_comp uuid:=coalesce(new.id_competencia,old.id_competencia); v_id uuid:=coalesce(new.id,old.id);
+begin
+  if v_comp is not null then
+    perform privado.invalidar_portao_competencia(v_comp,'Alteração de requisito/dado da competência após liberação exige nova análise completa.',tg_table_name,v_id);
+  end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+create or replace function privado.tg_invalidar_portao_transacao()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare r record; v_contrato uuid:=coalesce(new.id_contrato,old.id_contrato); v_data date:=coalesce(new.data,old.data); v_id uuid:=coalesce(new.id,old.id);
+begin
+  if tg_op='UPDATE' and (to_jsonb(new) - 'pre_validada' - 'pre_validada_em' - 'status_fluxo' - 'criado_em') = (to_jsonb(old) - 'pre_validada' - 'pre_validada_em' - 'status_fluxo' - 'criado_em') then
+    return new;
+  end if;
+  for r in select id from public.competencias where id_contrato=v_contrato and v_data between periodo_inicio and periodo_fim loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração de transação financeira após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+create or replace function privado.tg_invalidar_portao_conciliacao()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare r record; v_contrato uuid:=coalesce(new.id_contrato,old.id_contrato); v_periodo date:=coalesce(new.periodo,old.periodo); v_id uuid:=coalesce(new.id,old.id);
+begin
+  for r in select id from public.competencias where id_contrato=v_contrato and v_periodo between date_trunc('month',periodo_inicio)::date and date_trunc('month',periodo_fim)::date loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração de conciliação após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+create or replace function privado.tg_invalidar_portao_contrato()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare r record; v_id uuid:=coalesce(new.id,old.id);
+begin
+  if tg_op='UPDATE' and (to_jsonb(new)-'atualizado_em'-'versao_registro')=(to_jsonb(old)-'atualizado_em'-'versao_registro') then
+    return new;
+  end if;
+  for r in select id from public.competencias where id_contrato=v_id loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração material do contrato após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+create or replace function privado.tg_invalidar_portao_proposta()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare r record; v_contrato uuid:=coalesce(new.id_contrato,old.id_contrato); v_ini date:=coalesce(new.vigencia_inicio,old.vigencia_inicio); v_fim date:=coalesce(new.vigencia_fim,old.vigencia_fim); v_id uuid:=coalesce(new.id,old.id);
+begin
+  for r in select id from public.competencias where id_contrato=v_contrato and v_ini <= periodo_fim and (v_fim is null or v_fim >= periodo_inicio) loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração material de proposta orçamentária após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+create or replace function privado.tg_invalidar_portao_linha_orcamentaria()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare r record; v_contrato uuid:=coalesce(new.id_contrato,old.id_contrato); v_vp uuid:=coalesce(new.id_versao_proposta,old.id_versao_proposta); v_id uuid:=coalesce(new.id,old.id); v_ini date; v_fim date;
+begin
+  select vigencia_inicio,vigencia_fim into v_ini,v_fim from public.versoes_proposta where id=v_vp;
+  for r in select id from public.competencias where id_contrato=v_contrato and (v_ini is null or v_ini <= periodo_fim) and (v_fim is null or v_fim >= periodo_inicio) loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração material de linha orçamentária após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+revoke all on function privado.tg_invalidar_portao_documento() from public,anon,authenticated;
+revoke all on function privado.tg_invalidar_portao_requisito() from public,anon,authenticated;
+revoke all on function privado.tg_invalidar_portao_transacao() from public,anon,authenticated;
+revoke all on function privado.tg_invalidar_portao_conciliacao() from public,anon,authenticated;
+revoke all on function privado.tg_invalidar_portao_contrato() from public,anon,authenticated;
+revoke all on function privado.tg_invalidar_portao_proposta() from public,anon,authenticated;
+revoke all on function privado.tg_invalidar_portao_linha_orcamentaria() from public,anon,authenticated;
+
+drop trigger if exists contaos_invalidar_portao_versao_documento on public.versoes_documento;
+create trigger contaos_invalidar_portao_versao_documento after insert on public.versoes_documento for each row execute function privado.tg_invalidar_portao_documento();
+
+drop trigger if exists contaos_invalidar_portao_documento on public.documentos_competencia;
+create trigger contaos_invalidar_portao_documento after insert or update or delete on public.documentos_competencia for each row execute function privado.tg_invalidar_portao_documento();
+
+drop trigger if exists contaos_invalidar_portao_requisito on public.requisitos_competencia;
+create trigger contaos_invalidar_portao_requisito after insert or update or delete on public.requisitos_competencia for each row execute function privado.tg_invalidar_portao_requisito();
+
+drop trigger if exists contaos_invalidar_portao_transacao on public.transacoes_financeiras;
+create trigger contaos_invalidar_portao_transacao after insert or update or delete on public.transacoes_financeiras for each row execute function privado.tg_invalidar_portao_transacao();
+
+drop trigger if exists contaos_invalidar_portao_conciliacao on public.conciliacoes;
+create trigger contaos_invalidar_portao_conciliacao after insert or update or delete on public.conciliacoes for each row execute function privado.tg_invalidar_portao_conciliacao();
+
+drop trigger if exists contaos_invalidar_portao_contrato on public.contratos;
+create trigger contaos_invalidar_portao_contrato after update on public.contratos for each row execute function privado.tg_invalidar_portao_contrato();
+
+drop trigger if exists contaos_invalidar_portao_proposta on public.versoes_proposta;
+create trigger contaos_invalidar_portao_proposta after insert or update or delete on public.versoes_proposta for each row execute function privado.tg_invalidar_portao_proposta();
+
+drop trigger if exists contaos_invalidar_portao_linha_orcamentaria on public.linhas_orcamentarias;
+create trigger contaos_invalidar_portao_linha_orcamentaria after insert or update or delete on public.linhas_orcamentarias for each row execute function privado.tg_invalidar_portao_linha_orcamentaria();
+
+-- ============================================================
+
+-- MIGRATION 20261102021238_0048_gate_context_hash_checks
+create or replace function privado.solicitar_analise_competencia(p_id_competencia uuid, p_tipo text default 'completa'::text)
+returns uuid
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v public.competencias%rowtype; v_exec uuid; v_snapshot jsonb; v_hash text;
+begin
+  select * into v from public.competencias where id=p_id_competencia for update;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+  if p_tipo not in ('completa','reanálise','parcial') then raise exception 'O tipo de análise informado não é válido.'; end if;
+  if auth.uid() is null or not privado.usuario_tem_acesso_contrato(v.id_contrato) then raise exception 'Seu usuário não possui acesso a este contrato.'; end if;
+  if not privado.usuario_possui_perfil(v.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade','auditor']::text[]) then raise exception 'Seu perfil atual não permite solicitar esta análise.'; end if;
+  if v.situacao in ('apresentado','aguardando_contratante','validada','encerrada','cancelada') then raise exception 'A situação atual desta competência não permite iniciar uma nova análise.'; end if;
+  v_snapshot:=privado.snapshot_contexto_competencia(v.id);
+  v_hash:=encode(extensions.digest(v_snapshot::text,'sha256'),'hex');
+  insert into public.execucoes_analise(id_organizacao,id_contrato,id_competencia,tipo,status,hash_entrada,motor,versao_motor,prompt_versao,iniciada_por,iniciada_em,snapshot_entrada)
+  values(v.id_organizacao,v.id_contrato,v.id,p_tipo,'pendente',v_hash,'contaos','4.1','analise-pt-BR-v4.1',auth.uid(),now(),v_snapshot) returning id into v_exec;
+  update public.competencias set situacao=case when p_tipo='reanálise' then 'em_reanalise' else 'em_analise' end where id=v.id;
+  perform privado.enfileirar_job('ai',v.id_organizacao,v.id_contrato,'execucao_analise',v_exec,jsonb_build_object('entidade_tipo','execucao_analise','id_execucao',v_exec,'id_competencia',v.id),'analysis:'||v_exec::text);
+  perform privado.registrar_evento_auditoria(v.id_organizacao,'AnaliseSolicitada','execucoes_analise',v_exec,null,jsonb_build_object('id_competencia',v.id,'tipo',p_tipo,'hash_entrada',v_hash,'versao_snapshot','4.1'));
+  return v_exec;
+end;
+$$;
+
+create or replace function privado.aprovar_apresentacao(p_id_competencia uuid, p_fundamento text default null::text)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v public.competencias%rowtype; v_portao jsonb; v_exec uuid; v_exec_hash text; v_exec_tipo text; v_parecer uuid; v_aprov uuid; v_hash_atual text;
+begin
+  select * into v from public.competencias where id=p_id_competencia for update;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+  if auth.uid() is null or not privado.usuario_tem_acesso_contrato(v.id_contrato) then raise exception 'Seu usuário não possui acesso a este contrato.'; end if;
+  if not privado.usuario_possui_perfil(v.id_organizacao,array['administrador','direcao_aprovador','gestor_contrato']::text[]) then raise exception 'Seu perfil atual não permite liberar esta apresentação.'; end if;
+  if v.situacao not in ('em_analise','em_reanalise','pendente_correcao','rascunho') then raise exception 'A situação atual desta competência ainda não permite a liberação.'; end if;
+  v_portao:=privado.avaliar_portao_conformidade(v.id);
+  if coalesce((v_portao->>'liberado')::boolean,false) is not true then raise exception 'A competência ainda não atingiu 100,00%% de conformidade dos requisitos obrigatórios e aplicáveis.'; end if;
+  select id into v_parecer from public.pareceres_internos where id_competencia=v.id and status='aprovado' order by versao desc limit 1;
+  if v_parecer is null then raise exception 'Antes de liberar a apresentação, gere o parecer interno e obtenha a aprovação do responsável autorizado.'; end if;
+  select id,hash_entrada,tipo into v_exec,v_exec_hash,v_exec_tipo from public.execucoes_analise where id_competencia=v.id and status='concluida' order by concluida_em desc nulls last,criado_em desc limit 1;
+  if v_exec is null or v_exec_tipo not in ('completa','reanálise') then raise exception 'Execute uma análise completa ou reanálise concluída antes de liberar a apresentação.'; end if;
+  v_hash_atual:=privado.hash_contexto_competencia(v.id);
+  if v_exec_hash is distinct from v_hash_atual then raise exception 'Os documentos ou dados da competência foram alterados após a análise. Execute nova análise completa antes de liberar a apresentação.'; end if;
+  insert into public.aprovacoes(id_organizacao,id_contrato,id_competencia,tipo,status,aprovado_por,fundamento,hash_contexto,percentual_conformidade,id_execucao_analise)
+  values(v.id_organizacao,v.id_contrato,v.id,'apresentacao','aprovada',auth.uid(),p_fundamento,v_hash_atual,100.00,v_exec) returning id into v_aprov;
+  update public.competencias set situacao='pode_apresentar_contratante',percentual_conformidade=100.00,liberada_para_apresentacao_em=now() where id=v.id;
+  perform privado.registrar_evento_auditoria(v.id_organizacao,'CompetenciaLiberadaParaApresentacao','competencias',v.id,jsonb_build_object('situacao',v.situacao),jsonb_build_object('situacao','pode_apresentar_contratante','id_aprovacao',v_aprov,'id_parecer',v_parecer,'hash_contexto',v_hash_atual));
+  return jsonb_build_object('id_aprovacao',v_aprov,'situacao','pode_apresentar_contratante','percentual_conformidade',100.00,'id_parecer',v_parecer,'hash_contexto',v_hash_atual);
+end;
+$$;
+
+create or replace function privado.registrar_apresentacao(p_id_competencia uuid, p_idempotency_key text, p_protocolo text default null::text, p_forma_apresentacao text default null::text, p_id_comprovante_arquivo uuid default null::uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v public.competencias%rowtype; v_pacote uuid; v_num integer; v_hash text; v_apres uuid; v_exist uuid; v_hash_atual text; v_hash_aprovado text; v_hash_exec text;
+begin
+  if nullif(trim(p_idempotency_key),'') is null then raise exception 'idempotency_key obrigatório.'; end if;
+  select * into v from public.competencias where id=p_id_competencia for update;
+  if v.id is null then raise exception 'Competência não encontrada.'; end if;
+  if not privado.usuario_tem_acesso_contrato(v.id_contrato) then raise exception 'Acesso negado.'; end if;
+  if not privado.usuario_possui_perfil(v.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','direcao_aprovador']::text[]) then raise exception 'Perfil sem permissão.'; end if;
+  select id into v_exist from public.apresentacoes_contratante where id_organizacao=v.id_organizacao and idempotency_key=p_idempotency_key;
+  if v_exist is not null then return v_exist; end if;
+  if v.situacao <> 'pode_apresentar_contratante' then raise exception 'Competência não liberada para apresentação.'; end if;
+  v_hash_atual:=privado.hash_contexto_competencia(v.id);
+  select a.hash_contexto into v_hash_aprovado from public.aprovacoes a where a.id_competencia=v.id and a.tipo='apresentacao' and a.status='aprovada' order by a.criado_em desc limit 1;
+  if v_hash_aprovado is null then raise exception 'Aprovação humana ausente.'; end if;
+  if v_hash_aprovado is distinct from v_hash_atual then raise exception 'Os documentos ou dados mudaram após a aprovação. Execute nova análise e nova aprovação antes de apresentar.'; end if;
+  select e.hash_entrada into v_hash_exec from public.execucoes_analise e where e.id_competencia=v.id and e.status='concluida' and e.tipo in ('completa','reanálise') order by e.concluida_em desc nulls last,e.criado_em desc limit 1;
+  if v_hash_exec is distinct from v_hash_atual then raise exception 'A análise concluída não corresponde mais aos documentos e dados atuais. Execute nova análise antes de apresentar.'; end if;
+  select coalesce(max(numero),0)+1 into v_num from public.pacotes_competencia where id_competencia=v.id and tipo='apresentacao';
+  select encode(extensions.digest(string_agg(x.hash,'|' order by x.id::text),'sha256'),'hex') into v_hash from (
+    select vd.id,vd.hash from public.versoes_documento vd join public.documentos_competencia dc on dc.id=vd.id_documento_competencia where dc.id_competencia=v.id and dc.situacao='ativo'
+    union all
+    select pi.id,pi.hash from public.pareceres_internos pi where pi.id_competencia=v.id and pi.status='aprovado'
+  ) x;
+  v_hash:=coalesce(v_hash,encode(extensions.digest(v.id::text,'sha256'),'hex'));
+  insert into public.pacotes_competencia(id_organizacao,id_contrato,id_competencia,numero,tipo,status,hash_pacote,criado_por,congelado_em)
+  values(v.id_organizacao,v.id_contrato,v.id,v_num,'apresentacao','congelado',v_hash,auth.uid(),now()) returning id into v_pacote;
+  insert into public.itens_pacote_competencia(id_organizacao,id_contrato,id_competencia,id_pacote,entidade_tipo,entidade_id,versao_id,hash,ordem)
+  select v.id_organizacao,v.id_contrato,v.id,v_pacote,'documento_competencia',dc.id,vd.id,vd.hash,row_number() over(order by dc.tipo,dc.id)
+  from public.documentos_competencia dc join lateral (select * from public.versoes_documento x where x.id_documento_competencia=dc.id order by numero_versao desc limit 1) vd on true
+  where dc.id_competencia=v.id and dc.situacao='ativo';
+  insert into public.apresentacoes_contratante(id_organizacao,id_contrato,id_competencia,id_pacote,numero_rodada,tipo,protocolo,forma_apresentacao,id_comprovante_arquivo,idempotency_key,apresentado_por)
+  values(v.id_organizacao,v.id_contrato,v.id,v_pacote,1,'apresentacao',p_protocolo,p_forma_apresentacao,p_id_comprovante_arquivo,p_idempotency_key,auth.uid()) returning id into v_apres;
+  update public.pacotes_competencia set status='apresentado' where id=v_pacote;
+  update public.competencias set situacao='aguardando_contratante',versao_pacote_atual=v_num where id=v.id;
+  perform privado.registrar_evento_auditoria(v.id_organizacao,'ApresentacaoRegistrada','apresentacoes_contratante',v_apres,null,jsonb_build_object('id_competencia',v.id,'id_pacote',v_pacote,'protocolo',p_protocolo,'hash_contexto',v_hash_atual));
+  return v_apres;
+end;
+$$;
+
+create or replace function privado.liberar_reapresentacao(p_id_ciclo uuid, p_fundamento text default null::text)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v public.ciclos_diligencia%rowtype; v_portao jsonb; v_aprov uuid; v_hash_atual text; v_exec uuid; v_exec_hash text; v_exec_tipo text;
+begin
+ select * into v from public.ciclos_diligencia where id=p_id_ciclo for update;
+ if v.id is null then raise exception 'Ciclo não encontrado.'; end if;
+ if not privado.usuario_possui_perfil(v.id_organizacao,array['administrador','direcao_aprovador','gestor_contrato']::text[]) then raise exception 'Perfil sem permissão.'; end if;
+ v_portao:=public.avaliar_portao_reapresentacao(v.id);
+ if coalesce((v_portao->>'liberado')::boolean,false) is not true then raise exception 'A rodada não está 100%% tratada.'; end if;
+ select id,hash_entrada,tipo into v_exec,v_exec_hash,v_exec_tipo from public.execucoes_analise where id_competencia=v.id_competencia and status='concluida' order by concluida_em desc nulls last,criado_em desc limit 1;
+ if v_exec is null or v_exec_tipo not in ('completa','reanálise') then raise exception 'Execute uma reanálise completa da competência antes de liberar a reapresentação.'; end if;
+ v_hash_atual:=privado.hash_contexto_competencia(v.id_competencia);
+ if v_exec_hash is distinct from v_hash_atual then raise exception 'Os documentos ou dados foram alterados após a última análise. Execute nova reanálise completa antes de liberar a reapresentação.'; end if;
+ insert into public.aprovacoes(id_organizacao,id_contrato,id_competencia,tipo,status,aprovado_por,fundamento,hash_contexto,id_execucao_analise)
+ values(v.id_organizacao,v.id_contrato,v.id_competencia,'reapresentacao','aprovada',auth.uid(),p_fundamento,v_hash_atual,v_exec) returning id into v_aprov;
+ update public.ciclos_diligencia set status='pronto_reapresentar' where id=v.id;
+ update public.competencias set situacao='pode_reapresentar_contratante',liberada_para_reapresentacao_em=now() where id=v.id_competencia;
+ perform privado.registrar_evento_auditoria(v.id_organizacao,'CompetenciaLiberadaParaReapresentacao','competencias',v.id_competencia,null,jsonb_build_object('id_ciclo',v.id,'id_aprovacao',v_aprov,'hash_contexto',v_hash_atual));
+ return jsonb_build_object('id_aprovacao',v_aprov,'situacao','pode_reapresentar_contratante','hash_contexto',v_hash_atual);
+end;
+$$;
+
+create or replace function privado.registrar_reapresentacao(p_id_ciclo uuid, p_idempotency_key text, p_protocolo text default null::text, p_forma_apresentacao text default null::text, p_id_comprovante_arquivo uuid default null::uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare v public.ciclos_diligencia%rowtype; v_comp public.competencias%rowtype; v_num int; v_hash text; v_pack_reap uuid; v_pack_comp uuid; v_apres uuid; v_exist uuid; v_hash_atual text; v_hash_aprovado text; v_hash_exec text;
+begin
+ if auth.uid() is null then raise exception 'Usuário não autenticado.'; end if;
+ if nullif(trim(p_idempotency_key),'') is null then raise exception 'idempotency_key obrigatório.'; end if;
+ select * into v from public.ciclos_diligencia where id=p_id_ciclo for update;
+ if v.id is null then raise exception 'Ciclo não encontrado.'; end if;
+ select * into v_comp from public.competencias where id=v.id_competencia for update;
+ if not privado.usuario_tem_acesso_contrato(v.id_contrato) or not privado.usuario_possui_perfil(v.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','direcao_aprovador']::text[]) then raise exception 'Acesso negado.'; end if;
+ select id into v_exist from public.apresentacoes_contratante where id_organizacao=v.id_organizacao and idempotency_key=p_idempotency_key;
+ if v_exist is not null then return v_exist; end if;
+ if v.status<>'pronto_reapresentar' or v_comp.situacao<>'pode_reapresentar_contratante' then raise exception 'Reapresentação não liberada.'; end if;
+ v_hash_atual:=privado.hash_contexto_competencia(v.id_competencia);
+ select a.hash_contexto into v_hash_aprovado from public.aprovacoes a where a.id_competencia=v.id_competencia and a.tipo='reapresentacao' and a.status='aprovada' order by a.criado_em desc limit 1;
+ select e.hash_entrada into v_hash_exec from public.execucoes_analise e where e.id_competencia=v.id_competencia and e.status='concluida' and e.tipo in ('completa','reanálise') order by e.concluida_em desc nulls last,e.criado_em desc limit 1;
+ if v_hash_aprovado is distinct from v_hash_atual or v_hash_exec is distinct from v_hash_atual then raise exception 'Os documentos ou dados mudaram após a liberação. Execute nova reanálise e nova aprovação antes de reapresentar.'; end if;
+ select coalesce(max(numero),0)+1 into v_num from public.pacotes_reapresentacao where id_ciclo=v.id;
+ select encode(extensions.digest(string_agg(z.h,'|' order by z.h),'sha256'),'hex') into v_hash from (
+   select coalesce(hash,'') h from public.contestacoes where id_ciclo=v.id and status_aprovacao='aprovada'
+   union all select coalesce(vd.hash,'') from public.tarefas_diligencia td join public.versoes_documento vd on vd.id=td.id_evidencia_versao_documento where td.id_ciclo=v.id and td.status='concluida'
+ ) z;
+ v_hash:=coalesce(v_hash,encode(extensions.digest(v.id::text,'sha256'),'hex'));
+ insert into public.pacotes_reapresentacao(id_organizacao,id_contrato,id_competencia,id_ciclo,numero,hash,snapshot,criado_por)
+ values(v.id_organizacao,v.id_contrato,v.id_competencia,v.id,v_num,v_hash,jsonb_build_object('rodada',v.numero_rodada,'portao',public.avaliar_portao_reapresentacao(v.id),'hash_contexto',v_hash_atual),auth.uid()) returning id into v_pack_reap;
+ insert into public.pacotes_competencia(id_organizacao,id_contrato,id_competencia,numero,tipo,status,hash_pacote,criado_por,congelado_em)
+ values(v.id_organizacao,v.id_contrato,v.id_competencia,v_num,'reapresentacao','apresentado',v_hash,auth.uid(),now()) returning id into v_pack_comp;
+ insert into public.apresentacoes_contratante(id_organizacao,id_contrato,id_competencia,id_pacote,numero_rodada,tipo,protocolo,forma_apresentacao,id_comprovante_arquivo,idempotency_key,apresentado_por)
+ values(v.id_organizacao,v.id_contrato,v.id_competencia,v_pack_comp,v.numero_rodada+1,'reapresentacao',p_protocolo,p_forma_apresentacao,p_id_comprovante_arquivo,p_idempotency_key,auth.uid()) returning id into v_apres;
+ update public.pacotes_reapresentacao set reapresentado_em=now() where id=v_pack_reap;
+ update public.ciclos_diligencia set status='reapresentado' where id=v.id;
+ update public.competencias set situacao='reapresentado' where id=v.id_competencia;
+ perform privado.registrar_evento_auditoria(v.id_organizacao,'ReapresentacaoRegistrada','apresentacoes_contratante',v_apres,null,jsonb_build_object('id_ciclo',v.id,'id_pacote_reapresentacao',v_pack_reap,'id_pacote_competencia',v_pack_comp,'hash_contexto',v_hash_atual));
+ return v_apres;
+end;
+$$;
+
+revoke all on function privado.solicitar_analise_competencia(uuid,text) from public,anon;
+grant execute on function privado.solicitar_analise_competencia(uuid,text) to authenticated,service_role;
+revoke all on function privado.aprovar_apresentacao(uuid,text) from public,anon;
+grant execute on function privado.aprovar_apresentacao(uuid,text) to authenticated,service_role;
+revoke all on function privado.registrar_apresentacao(uuid,text,text,text,uuid) from public,anon;
+grant execute on function privado.registrar_apresentacao(uuid,text,text,text,uuid) to authenticated,service_role;
+revoke all on function privado.liberar_reapresentacao(uuid,text) from public,anon;
+grant execute on function privado.liberar_reapresentacao(uuid,text) to authenticated,service_role;
+revoke all on function privado.registrar_reapresentacao(uuid,text,text,text,uuid) from public,anon;
+grant execute on function privado.registrar_reapresentacao(uuid,text,text,text,uuid) to authenticated,service_role;
+
+-- ============================================================
+
+-- MIGRATION 20261102021325_0049_context_hash_material_fields
+create or replace function privado.snapshot_contexto_competencia(p_id_competencia uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=''
+as $$
+declare
+  v public.competencias%rowtype;
+  v_contrato jsonb;
+begin
+  select * into v from public.competencias where id=p_id_competencia;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+
+  select to_jsonb(c)-'criado_em'-'atualizado_em' into v_contrato from public.contratos c where c.id=v.id_contrato;
+
+  return jsonb_build_object(
+    'competencia',jsonb_build_object('id',v.id,'referencia',v.competencia_referencia,'periodo_inicio',v.periodo_inicio,'periodo_fim',v.periodo_fim,'data_limite',v.data_limite),
+    'contrato',coalesce(v_contrato,'{}'::jsonb),
+    'requisitos',coalesce((
+      select jsonb_agg((to_jsonb(r)-'criado_em') order by r.ordem,r.id)
+      from public.requisitos_competencia r where r.id_competencia=v.id
+    ),'[]'::jsonb),
+    'documentos',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'documento',to_jsonb(d)-'criado_em'-'atualizado_em',
+        'versao',to_jsonb(vd)-'criado_em'-'enviado_por'
+      ) order by d.id)
+      from public.documentos_competencia d
+      join lateral (select x.* from public.versoes_documento x where x.id_documento_competencia=d.id order by x.numero_versao desc limit 1) vd on true
+      where d.id_competencia=v.id and d.situacao='ativo'
+    ),'[]'::jsonb),
+    'propostas',coalesce((
+      select jsonb_agg((to_jsonb(vp)-'criado_em'-'aprovado_em'-'aprovado_por') order by vp.vigencia_inicio,vp.numero_versao,vp.id)
+      from public.versoes_proposta vp
+      where vp.id_contrato=v.id_contrato and vp.vigencia_inicio<=v.periodo_fim and (vp.vigencia_fim is null or vp.vigencia_fim>=v.periodo_inicio)
+    ),'[]'::jsonb),
+    'linhas_orcamentarias',coalesce((
+      select jsonb_agg((to_jsonb(l)-'criado_em') order by l.codigo,l.id)
+      from public.linhas_orcamentarias l join public.versoes_proposta vp on vp.id=l.id_versao_proposta
+      where l.id_contrato=v.id_contrato and vp.vigencia_inicio<=v.periodo_fim and (vp.vigencia_fim is null or vp.vigencia_fim>=v.periodo_inicio)
+    ),'[]'::jsonb),
+    'transacoes',coalesce((
+      select jsonb_agg((to_jsonb(t)-'criado_em'-'pre_validada'-'pre_validada_em'-'status_fluxo') order by t.data,t.id)
+      from public.transacoes_financeiras t where t.id_contrato=v.id_contrato and t.data between v.periodo_inicio and v.periodo_fim
+    ),'[]'::jsonb),
+    'conciliacoes',coalesce((
+      select jsonb_agg((to_jsonb(c)-'criado_em'-'concluido_em'-'concluido_por') order by c.periodo,c.tipo,c.id)
+      from public.conciliacoes c where c.id_contrato=v.id_contrato and c.periodo between date_trunc('month',v.periodo_inicio)::date and date_trunc('month',v.periodo_fim)::date
+    ),'[]'::jsonb),
+    'motor','contaos','versao_snapshot','4.1','idioma','pt-BR','timezone','America/Sao_Paulo'
+  );
+end;
+$$;
+revoke all on function privado.snapshot_contexto_competencia(uuid) from public,anon,authenticated;
+grant execute on function privado.snapshot_contexto_competencia(uuid) to service_role;
+
+-- ============================================================
+
+-- MIGRATION 20261102032942_0050_upload_security_limits
+alter table public.configuracao_upload
+  add column if not exists tamanho_maximo_processamento_bytes bigint;
+
+update public.configuracao_upload
+set tamanho_maximo_bytes = 524288000,
+    tamanho_maximo_processamento_bytes = 50331648,
+    atualizado_em = now()
+where id = true;
+
+alter table public.configuracao_upload
+  alter column tamanho_maximo_processamento_bytes set default 50331648,
+  alter column tamanho_maximo_processamento_bytes set not null;
+
+update storage.buckets
+set file_size_limit = 524288000,
+    allowed_mime_types = array[
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'image/png',
+      'image/jpeg',
+      'image/webp',
+      'text/plain',
+      'application/json',
+      'application/xml',
+      'text/xml'
+    ]::text[]
+where id = 'contaos-documentos';
+
+create or replace function privado.confirmar_upload_arquivo(
+  p_id_organizacao uuid,
+  p_id_contrato uuid,
+  p_path text,
+  p_nome_original text,
+  p_mime text,
+  p_tamanho bigint,
+  p_sha256 text,
+  p_origem text default 'upload_usuario'::text
+) returns uuid
+language plpgsql
+security definer
+set search_path to ''
+as $function$
+declare
+  v_id uuid;
+  v_cfg public.configuracao_upload%rowtype;
+  v_ext text;
+  v_tamanho_real bigint;
+  v_mime_real text;
+  v_padrao_path text;
+begin
+  if auth.uid() is null then raise exception 'Para continuar, faça login novamente.'; end if;
+  if not privado.usuario_tem_acesso_organizacao(p_id_organizacao) then raise exception 'Seu usuário não possui acesso à organização informada.'; end if;
+  if p_id_contrato is not null and not privado.usuario_tem_acesso_contrato(p_id_contrato) then raise exception 'Seu usuário não possui acesso ao contrato informado.'; end if;
+
+  v_padrao_path := '^' || p_id_organizacao::text || '/uploads/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/[A-Za-z0-9._-]{1,180}$';
+  if p_path is null or p_path !~ v_padrao_path then
+    raise exception 'O caminho do arquivo não corresponde ao padrão seguro de upload desta organização.';
+  end if;
+
+  select * into v_cfg from public.configuracao_upload where id=true;
+  if not found then raise exception 'A configuração de upload não está disponível.'; end if;
+
+  v_ext := lower(regexp_replace(p_nome_original,'^.*\\.','','g'));
+  if not (v_ext=any(v_cfg.extensoes_permitidas)) then raise exception 'Este formato de arquivo não é aceito pelo ContaOS.'; end if;
+  if p_mime is null or not (lower(p_mime)=any(v_cfg.mimes_permitidos)) then raise exception 'O tipo do arquivo enviado não é aceito pelo ContaOS.'; end if;
+  if p_tamanho < 0 then raise exception 'O tamanho do arquivo informado é inválido.'; end if;
+  if v_cfg.tamanho_maximo_bytes is not null and p_tamanho > v_cfg.tamanho_maximo_bytes then raise exception 'O arquivo ultrapassa o limite configurado para este ambiente.'; end if;
+  if p_sha256 !~ '^[0-9a-fA-F]{64}$' then raise exception 'Não foi possível confirmar a integridade do arquivo. Tente enviar novamente.'; end if;
+
+  select
+    case when (o.metadata->>'size') ~ '^[0-9]+$' then (o.metadata->>'size')::bigint else null end,
+    lower(nullif(o.metadata->>'mimetype',''))
+  into v_tamanho_real, v_mime_real
+  from storage.objects o
+  where o.bucket_id='contaos-documentos' and o.name=p_path;
+
+  if not found then raise exception 'O upload ainda não foi concluído no armazenamento.'; end if;
+  if v_tamanho_real is null then raise exception 'Não foi possível confirmar o tamanho real do arquivo armazenado.'; end if;
+  if v_cfg.tamanho_maximo_bytes is not null and v_tamanho_real > v_cfg.tamanho_maximo_bytes then raise exception 'O arquivo armazenado ultrapassa o limite configurado para este ambiente.'; end if;
+  if v_tamanho_real <> p_tamanho then raise exception 'O tamanho informado não corresponde ao arquivo realmente armazenado.'; end if;
+  if v_mime_real is null or not (v_mime_real=any(v_cfg.mimes_permitidos)) then raise exception 'O tipo real registrado no armazenamento não é aceito pelo ContaOS.'; end if;
+  if v_mime_real <> lower(p_mime) then raise exception 'O tipo informado não corresponde ao arquivo realmente armazenado.'; end if;
+
+  insert into public.arquivos(id_organizacao,id_contrato,bucket,path,nome_original,mime,tamanho,sha256,status_seguranca,origem,criado_por)
+  values(p_id_organizacao,p_id_contrato,'contaos-documentos',p_path,p_nome_original,v_mime_real,v_tamanho_real,lower(p_sha256),'pendente',coalesce(nullif(trim(p_origem),''),'upload_usuario'),auth.uid())
+  returning id into v_id;
+
+  perform privado.registrar_evento_auditoria(
+    p_id_organizacao,
+    'UploadArquivoConfirmado',
+    'arquivos',
+    v_id,
+    null,
+    jsonb_build_object('id_contrato',p_id_contrato,'nome_original',p_nome_original,'tamanho',v_tamanho_real,'mime',v_mime_real,'sha256',lower(p_sha256))
+  );
+  return v_id;
+end;
+$function$;
+
+-- ============================================================
+
+-- MIGRATION 20261102033032_0051_upload_mime_zip_guard
+alter table public.configuracao_upload
+  add column if not exists tamanho_maximo_descompactado_bytes bigint,
+  add column if not exists max_entradas_compactadas integer,
+  add column if not exists razao_maxima_compactacao integer;
+
+update public.configuracao_upload
+set tamanho_maximo_descompactado_bytes = 104857600,
+    max_entradas_compactadas = 5000,
+    razao_maxima_compactacao = 200,
+    atualizado_em = now()
+where id = true;
+
+alter table public.configuracao_upload
+  alter column tamanho_maximo_descompactado_bytes set default 104857600,
+  alter column tamanho_maximo_descompactado_bytes set not null,
+  alter column max_entradas_compactadas set default 5000,
+  alter column max_entradas_compactadas set not null,
+  alter column razao_maxima_compactacao set default 200,
+  alter column razao_maxima_compactacao set not null;
+
+create or replace function privado.mime_compativel_extensao(p_ext text, p_mime text)
+returns boolean
+language sql
+immutable
+set search_path to ''
+as $function$
+  select case lower(coalesce(p_ext,''))
+    when 'pdf' then lower(coalesce(p_mime,'')) = 'application/pdf'
+    when 'xlsx' then lower(coalesce(p_mime,'')) = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    when 'csv' then lower(coalesce(p_mime,'')) = 'text/csv'
+    when 'docx' then lower(coalesce(p_mime,'')) = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    when 'png' then lower(coalesce(p_mime,'')) = 'image/png'
+    when 'jpg' then lower(coalesce(p_mime,'')) = 'image/jpeg'
+    when 'jpeg' then lower(coalesce(p_mime,'')) = 'image/jpeg'
+    when 'webp' then lower(coalesce(p_mime,'')) = 'image/webp'
+    when 'txt' then lower(coalesce(p_mime,'')) = 'text/plain'
+    when 'json' then lower(coalesce(p_mime,'')) = 'application/json'
+    when 'xml' then lower(coalesce(p_mime,'')) in ('application/xml','text/xml')
+    else false
+  end
+$function$;
+
+revoke all on function privado.mime_compativel_extensao(text,text) from public, anon, authenticated;
+grant execute on function privado.mime_compativel_extensao(text,text) to service_role;
+
+create or replace function privado.confirmar_upload_arquivo(
+  p_id_organizacao uuid,
+  p_id_contrato uuid,
+  p_path text,
+  p_nome_original text,
+  p_mime text,
+  p_tamanho bigint,
+  p_sha256 text,
+  p_origem text default 'upload_usuario'::text
+) returns uuid
+language plpgsql
+security definer
+set search_path to ''
+as $function$
+declare
+  v_id uuid;
+  v_cfg public.configuracao_upload%rowtype;
+  v_ext text;
+  v_tamanho_real bigint;
+  v_mime_real text;
+  v_padrao_path text;
+begin
+  if auth.uid() is null then raise exception 'Para continuar, faça login novamente.'; end if;
+  if not privado.usuario_tem_acesso_organizacao(p_id_organizacao) then raise exception 'Seu usuário não possui acesso à organização informada.'; end if;
+  if p_id_contrato is not null and not privado.usuario_tem_acesso_contrato(p_id_contrato) then raise exception 'Seu usuário não possui acesso ao contrato informado.'; end if;
+
+  v_padrao_path := '^' || p_id_organizacao::text || '/uploads/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}/[A-Za-z0-9._-]{1,180}$';
+  if p_path is null or p_path !~ v_padrao_path then
+    raise exception 'O caminho do arquivo não corresponde ao padrão seguro de upload desta organização.';
+  end if;
+
+  select * into v_cfg from public.configuracao_upload where id=true;
+  if not found then raise exception 'A configuração de upload não está disponível.'; end if;
+
+  v_ext := lower(regexp_replace(p_nome_original,'^.*\\.','','g'));
+  if not (v_ext=any(v_cfg.extensoes_permitidas)) then raise exception 'Este formato de arquivo não é aceito pelo ContaOS.'; end if;
+  if p_mime is null or not (lower(p_mime)=any(v_cfg.mimes_permitidos)) then raise exception 'O tipo do arquivo enviado não é aceito pelo ContaOS.'; end if;
+  if not privado.mime_compativel_extensao(v_ext, p_mime) then raise exception 'A extensão e o tipo do arquivo informado não são compatíveis.'; end if;
+  if p_tamanho < 0 then raise exception 'O tamanho do arquivo informado é inválido.'; end if;
+  if v_cfg.tamanho_maximo_bytes is not null and p_tamanho > v_cfg.tamanho_maximo_bytes then raise exception 'O arquivo ultrapassa o limite configurado para este ambiente.'; end if;
+  if p_sha256 !~ '^[0-9a-fA-F]{64}$' then raise exception 'Não foi possível confirmar a integridade do arquivo. Tente enviar novamente.'; end if;
+
+  select
+    case when (o.metadata->>'size') ~ '^[0-9]+$' then (o.metadata->>'size')::bigint else null end,
+    lower(nullif(o.metadata->>'mimetype',''))
+  into v_tamanho_real, v_mime_real
+  from storage.objects o
+  where o.bucket_id='contaos-documentos' and o.name=p_path;
+
+  if not found then raise exception 'O upload ainda não foi concluído no armazenamento.'; end if;
+  if v_tamanho_real is null then raise exception 'Não foi possível confirmar o tamanho real do arquivo armazenado.'; end if;
+  if v_cfg.tamanho_maximo_bytes is not null and v_tamanho_real > v_cfg.tamanho_maximo_bytes then raise exception 'O arquivo armazenado ultrapassa o limite configurado para este ambiente.'; end if;
+  if v_tamanho_real <> p_tamanho then raise exception 'O tamanho informado não corresponde ao arquivo realmente armazenado.'; end if;
+  if v_mime_real is null or not (v_mime_real=any(v_cfg.mimes_permitidos)) then raise exception 'O tipo real registrado no armazenamento não é aceito pelo ContaOS.'; end if;
+  if v_mime_real <> lower(p_mime) then raise exception 'O tipo informado não corresponde ao arquivo realmente armazenado.'; end if;
+  if not privado.mime_compativel_extensao(v_ext, v_mime_real) then raise exception 'A extensão e o tipo real do arquivo armazenado não são compatíveis.'; end if;
+
+  insert into public.arquivos(id_organizacao,id_contrato,bucket,path,nome_original,mime,tamanho,sha256,status_seguranca,origem,criado_por)
+  values(p_id_organizacao,p_id_contrato,'contaos-documentos',p_path,p_nome_original,v_mime_real,v_tamanho_real,lower(p_sha256),'pendente',coalesce(nullif(trim(p_origem),''),'upload_usuario'),auth.uid())
+  returning id into v_id;
+
+  perform privado.registrar_evento_auditoria(
+    p_id_organizacao,'UploadArquivoConfirmado','arquivos',v_id,null,
+    jsonb_build_object('id_contrato',p_id_contrato,'nome_original',p_nome_original,'tamanho',v_tamanho_real,'mime',v_mime_real,'sha256',lower(p_sha256))
+  );
+  return v_id;
+end;
+$function$;
+
+-- ============================================================
+
+-- MIGRATION 20261102040503_hardening_privilegios_helpers_assincronos
+revoke execute on function privado.enfileirar_job(text, uuid, uuid, text, uuid, jsonb, text) from public, anon, authenticated;
+revoke execute on function privado.marcar_execucao_assincrona(uuid, text, text, text) from public, anon, authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261102040657_hardening_rls_update_with_check
+alter policy apontamentos_internos_update on public.apontamentos_internos
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','prestacao_contas','auditor','juridico_conformidade']::text[]));
+
+alter policy contratos_update on public.contratos
+  with check (privado.usuario_tem_acesso_contrato(id) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato']::text[]));
+
+alter policy contratos_fornecedores_update on public.contratos_fornecedores
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','financeiro','juridico_conformidade']::text[]));
+
+alter policy documentos_competencia_update on public.documentos_competencia
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade']::text[]));
+
+alter policy documentos_contrato_update on public.documentos_contrato
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','prestacao_contas','juridico_conformidade']::text[]));
+
+alter policy fontes_financeiras_update on public.fontes_financeiras
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','financeiro']::text[]));
+
+alter policy itens_lista_update on public.itens_lista
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','prestacao_contas','juridico_conformidade']::text[]));
+
+alter policy linhas_orcamentarias_update on public.linhas_orcamentarias
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','financeiro','contabilidade']::text[]));
+
+alter policy listas_update on public.listas_verificacao
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','prestacao_contas','juridico_conformidade']::text[]));
+
+alter policy planos_acao_update on public.planos_acao
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','prestacao_contas','juridico_conformidade']::text[]));
+
+alter policy propostas_update on public.propostas_orcamentarias
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','financeiro','contabilidade']::text[]));
+
+alter policy regras_conformidade_update on public.regras_conformidade
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','juridico_conformidade']::text[]));
+
+alter policy tarefas_alerta_update on public.tarefas_alerta
+  with check (privado.usuario_tem_acesso_contrato(id_contrato) and privado.usuario_possui_perfil(id_organizacao,array['administrador','gestor_contrato','financeiro','contabilidade']::text[]));
+
+-- ============================================================
+
+-- MIGRATION 20261102041517_hardening_tenant_contract_integrity
+do $migration$
+declare
+  r record;
+  v_constraint_name text;
+  v_on_delete text;
+begin
+  for r in
+    with tenant_tables as (
+      select c.oid, c.relname as table_name
+      from pg_catalog.pg_class c
+      join pg_catalog.pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public'
+        and c.relkind in ('r','p')
+        and exists (
+          select 1 from pg_catalog.pg_attribute a
+          where a.attrelid = c.oid and a.attname = 'id_organizacao' and not a.attisdropped
+        )
+        and exists (
+          select 1 from pg_catalog.pg_attribute a
+          where a.attrelid = c.oid and a.attname = 'id_contrato' and not a.attisdropped
+        )
+    ), existing_composite as (
+      select con.conrelid
+      from pg_catalog.pg_constraint con
+      join lateral unnest(con.conkey, con.confkey) with ordinality as x(local_attnum, foreign_attnum, ord) on true
+      join pg_catalog.pg_attribute a on a.attrelid = con.conrelid and a.attnum = x.local_attnum
+      join pg_catalog.pg_attribute af on af.attrelid = con.confrelid and af.attnum = x.foreign_attnum
+      where con.contype = 'f'
+        and con.confrelid = 'public.contratos'::regclass
+      group by con.conrelid, con.oid
+      having array_agg(a.attname order by x.ord) = array['id_contrato','id_organizacao']::name[]
+         and array_agg(af.attname order by x.ord) = array['id','id_organizacao']::name[]
+    ), contract_fk as (
+      select con.conrelid, con.confdeltype
+      from pg_catalog.pg_constraint con
+      join pg_catalog.pg_attribute a
+        on a.attrelid = con.conrelid and a.attnum = con.conkey[1]
+      where con.contype = 'f'
+        and con.confrelid = 'public.contratos'::regclass
+        and cardinality(con.conkey) = 1
+        and a.attname = 'id_contrato'
+    )
+    select t.oid, t.table_name, f.confdeltype
+    from tenant_tables t
+    join contract_fk f on f.conrelid = t.oid
+    left join existing_composite e on e.conrelid = t.oid
+    where e.conrelid is null
+    order by t.table_name
+  loop
+    v_constraint_name := 'fk_tenant_contract_' || substr(md5(r.table_name), 1, 12);
+    v_on_delete := case r.confdeltype
+      when 'c' then 'CASCADE'
+      when 'r' then 'RESTRICT'
+      when 'n' then 'SET NULL'
+      when 'd' then 'SET DEFAULT'
+      else 'NO ACTION'
+    end;
+
+    execute format(
+      'alter table public.%I add constraint %I foreign key (id_contrato, id_organizacao) references public.contratos(id, id_organizacao) on delete %s not valid',
+      r.table_name,
+      v_constraint_name,
+      v_on_delete
+    );
+
+    execute format(
+      'alter table public.%I validate constraint %I',
+      r.table_name,
+      v_constraint_name
+    );
+  end loop;
+end
+$migration$;
+
+alter table public.execucoes_assincronas
+  add constraint execucoes_assincronas_contrato_exige_org_chk
+  check (id_contrato is null or id_organizacao is not null) not valid;
+alter table public.execucoes_assincronas
+  validate constraint execucoes_assincronas_contrato_exige_org_chk;
+
+alter table public.jobs_dlq
+  add constraint jobs_dlq_contrato_exige_org_chk
+  check (id_contrato is null or id_organizacao is not null) not valid;
+alter table public.jobs_dlq
+  validate constraint jobs_dlq_contrato_exige_org_chk;
+
+-- ============================================================
+
+-- MIGRATION 20261102041905_hardening_audit_log_internal_only
+revoke execute on function privado.registrar_evento_auditoria(uuid, text, text, uuid, jsonb, jsonb, jsonb) from public, anon, authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261102042802_hardening_file_scope_integrity
+alter table public.arquivos
+  add constraint arquivos_id_organizacao_uk unique (id, id_organizacao);
+
+alter table public.arquivos
+  add constraint arquivos_id_organizacao_contrato_uk unique (id, id_organizacao, id_contrato);
+
+alter table public.importacoes_financeiras
+  add constraint importacoes_financeiras_arquivo_org_fk
+  foreign key (id_arquivo, id_organizacao)
+  references public.arquivos(id, id_organizacao)
+  on delete restrict not valid;
+alter table public.importacoes_financeiras validate constraint importacoes_financeiras_arquivo_org_fk;
+alter table public.importacoes_financeiras
+  add constraint importacoes_financeiras_arquivo_org_contrato_fk
+  foreign key (id_arquivo, id_organizacao, id_contrato)
+  references public.arquivos(id, id_organizacao, id_contrato)
+  on delete restrict not valid;
+alter table public.importacoes_financeiras validate constraint importacoes_financeiras_arquivo_org_contrato_fk;
+
+alter table public.pareceres_contratante
+  add constraint pareceres_contratante_arquivo_org_fk
+  foreign key (id_arquivo, id_organizacao)
+  references public.arquivos(id, id_organizacao)
+  on delete restrict not valid;
+alter table public.pareceres_contratante validate constraint pareceres_contratante_arquivo_org_fk;
+alter table public.pareceres_contratante
+  add constraint pareceres_contratante_arquivo_org_contrato_fk
+  foreign key (id_arquivo, id_organizacao, id_contrato)
+  references public.arquivos(id, id_organizacao, id_contrato)
+  on delete restrict not valid;
+alter table public.pareceres_contratante validate constraint pareceres_contratante_arquivo_org_contrato_fk;
+
+alter table public.relatorios_historicos_contratante
+  add constraint relatorios_historicos_arquivo_org_fk
+  foreign key (id_arquivo, id_organizacao)
+  references public.arquivos(id, id_organizacao)
+  on delete restrict not valid;
+alter table public.relatorios_historicos_contratante validate constraint relatorios_historicos_arquivo_org_fk;
+alter table public.relatorios_historicos_contratante
+  add constraint relatorios_historicos_arquivo_org_contrato_fk
+  foreign key (id_arquivo, id_organizacao, id_contrato)
+  references public.arquivos(id, id_organizacao, id_contrato)
+  on delete restrict not valid;
+alter table public.relatorios_historicos_contratante validate constraint relatorios_historicos_arquivo_org_contrato_fk;
+
+alter table public.versoes_documento
+  add constraint versoes_documento_arquivo_org_fk
+  foreign key (id_arquivo, id_organizacao)
+  references public.arquivos(id, id_organizacao)
+  on delete restrict not valid;
+alter table public.versoes_documento validate constraint versoes_documento_arquivo_org_fk;
+alter table public.versoes_documento
+  add constraint versoes_documento_arquivo_org_contrato_fk
+  foreign key (id_arquivo, id_organizacao, id_contrato)
+  references public.arquivos(id, id_organizacao, id_contrato)
+  on delete restrict not valid;
+alter table public.versoes_documento validate constraint versoes_documento_arquivo_org_contrato_fk;
+
+alter table public.versoes_fontes_normativas
+  add constraint versoes_fontes_normativas_arquivo_org_fk
+  foreign key (id_arquivo, id_organizacao)
+  references public.arquivos(id, id_organizacao)
+  on delete restrict not valid;
+alter table public.versoes_fontes_normativas validate constraint versoes_fontes_normativas_arquivo_org_fk;
+alter table public.versoes_fontes_normativas
+  add constraint versoes_fontes_normativas_arquivo_org_contrato_fk
+  foreign key (id_arquivo, id_organizacao, id_contrato)
+  references public.arquivos(id, id_organizacao, id_contrato)
+  on delete restrict not valid;
+alter table public.versoes_fontes_normativas validate constraint versoes_fontes_normativas_arquivo_org_contrato_fk;
+
+create or replace function privado.solicitar_importacao_financeira(
+  p_id_fonte uuid,
+  p_id_arquivo uuid,
+  p_hash text,
+  p_chave_deduplicacao text
+) returns uuid
+language plpgsql
+security definer
+set search_path to ''
+as $function$
+declare
+  v_f public.fontes_financeiras%rowtype;
+  v_arq public.arquivos%rowtype;
+  v_imp uuid;
+  v_exist uuid;
+begin
+  select * into v_f from public.fontes_financeiras where id=p_id_fonte;
+  if v_f.id is null then raise exception 'Fonte financeira não encontrada.'; end if;
+  if not privado.usuario_tem_acesso_contrato(v_f.id_contrato)
+     or not privado.usuario_possui_perfil(v_f.id_organizacao,array['administrador','gestor_contrato','financeiro','contabilidade']::text[])
+  then raise exception 'Acesso negado.'; end if;
+
+  select * into v_arq from public.arquivos where id=p_id_arquivo;
+  if v_arq.id is null then raise exception 'Arquivo financeiro não encontrado.'; end if;
+  if v_arq.id_organizacao is distinct from v_f.id_organizacao
+     or v_arq.id_contrato is distinct from v_f.id_contrato
+  then
+    raise exception 'O arquivo informado não pertence à mesma organização e ao mesmo contrato da fonte financeira.';
+  end if;
+  if p_hash is null or p_hash !~ '^[0-9a-fA-F]{64}$' then
+    raise exception 'Não foi possível confirmar a integridade do arquivo financeiro.';
+  end if;
+  if lower(p_hash) <> lower(v_arq.sha256) then
+    raise exception 'O hash informado não corresponde ao arquivo financeiro confirmado.';
+  end if;
+
+  select id into v_exist
+  from public.importacoes_financeiras
+  where id_fonte=p_id_fonte and chave_deduplicacao=p_chave_deduplicacao;
+  if v_exist is not null then return v_exist; end if;
+
+  insert into public.importacoes_financeiras(
+    id_organizacao,id_contrato,id_fonte,id_arquivo,hash,chave_deduplicacao,status,criado_por
+  ) values(
+    v_f.id_organizacao,v_f.id_contrato,v_f.id,p_id_arquivo,lower(p_hash),p_chave_deduplicacao,'pendente',auth.uid()
+  ) returning id into v_imp;
+
+  perform privado.enfileirar_job(
+    'finance_imports',v_f.id_organizacao,v_f.id_contrato,'importacao_financeira',v_imp,
+    jsonb_build_object('id_importacao',v_imp),'finance:'||v_imp::text
+  );
+  perform privado.registrar_evento_auditoria(
+    v_f.id_organizacao,'ImportacaoFinanceiraSolicitada','importacoes_financeiras',v_imp,null,
+    jsonb_build_object('id_fonte',v_f.id,'id_arquivo',p_id_arquivo)
+  );
+  return v_imp;
+end;
+$function$;
+
+-- ============================================================
+
+-- MIGRATION 20261102043205_hardening_finance_parser_limits
+alter table public.configuracao_upload
+  add column if not exists max_linhas_planilha integer,
+  add column if not exists max_colunas_planilha integer;
+
+update public.configuracao_upload
+set max_linhas_planilha = coalesce(max_linhas_planilha, 100000),
+    max_colunas_planilha = coalesce(max_colunas_planilha, 200),
+    atualizado_em = now()
+where id = true;
+
+alter table public.configuracao_upload
+  alter column max_linhas_planilha set default 100000,
+  alter column max_linhas_planilha set not null,
+  alter column max_colunas_planilha set default 200,
+  alter column max_colunas_planilha set not null;
+
+alter table public.configuracao_upload
+  add constraint configuracao_upload_max_linhas_planilha_ck
+  check (max_linhas_planilha between 1 and 1000000) not valid;
+alter table public.configuracao_upload
+  validate constraint configuracao_upload_max_linhas_planilha_ck;
+
+alter table public.configuracao_upload
+  add constraint configuracao_upload_max_colunas_planilha_ck
+  check (max_colunas_planilha between 1 and 10000) not valid;
+alter table public.configuracao_upload
+  validate constraint configuracao_upload_max_colunas_planilha_ck;
+
+-- ============================================================
+
+-- MIGRATION 20261102044411_hardening_default_function_privileges
+begin;
+
+alter default privileges for role postgres in schema public
+  revoke execute on functions from public;
+
+alter default privileges for role postgres in schema public
+  revoke execute on functions from anon;
+
+alter default privileges for role postgres in schema public
+  revoke execute on functions from authenticated;
+
+alter default privileges for role postgres in schema public
+  grant execute on functions to service_role;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102044858_hardening_storage_contract_scope
+begin;
+
+drop policy if exists contaos_storage_insert on storage.objects;
+
+drop policy if exists contaos_storage_select on storage.objects;
+create policy contaos_storage_select
+on storage.objects
+for select
+to authenticated
+using (
+  bucket_id = 'contaos-documentos'
+  and exists (
+    select 1
+    from public.arquivos a
+    where a.bucket = storage.objects.bucket_id
+      and a.path = storage.objects.name
+      and (
+        (a.id_contrato is null and privado.usuario_tem_acesso_organizacao(a.id_organizacao))
+        or
+        (a.id_contrato is not null and privado.usuario_tem_acesso_contrato(a.id_contrato))
+      )
+  )
+);
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102045357_hardening_analysis_queue_idempotency
+begin;
+
+create unique index if not exists execucoes_analise_uma_ativa_por_competencia_idx
+on public.execucoes_analise(id_competencia)
+where status in ('pendente','processando');
+
+create or replace function privado.solicitar_analise_competencia(
+  p_id_competencia uuid,
+  p_tipo text default 'completa'
+) returns uuid
+language plpgsql
+security definer
+set search_path to ''
+as $function$
+declare
+  v public.competencias%rowtype;
+  v_exec uuid;
+  v_snapshot jsonb;
+  v_hash text;
+begin
+  select * into v
+  from public.competencias
+  where id=p_id_competencia
+  for update;
+
+  if v.id is null then
+    raise exception 'Não encontramos a competência informada.';
+  end if;
+  if p_tipo not in ('completa','reanálise','parcial') then
+    raise exception 'O tipo de análise informado não é válido.';
+  end if;
+  if auth.uid() is null or not privado.usuario_tem_acesso_contrato(v.id_contrato) then
+    raise exception 'Seu usuário não possui acesso a este contrato.';
+  end if;
+  if not privado.usuario_possui_perfil(
+    v.id_organizacao,
+    array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade','auditor']::text[]
+  ) then
+    raise exception 'Seu perfil atual não permite solicitar esta análise.';
+  end if;
+  if v.situacao in ('apresentado','aguardando_contratante','validada','encerrada','cancelada') then
+    raise exception 'A situação atual desta competência não permite iniciar uma nova análise.';
+  end if;
+
+  select ea.id into v_exec
+  from public.execucoes_analise ea
+  where ea.id_competencia=v.id
+    and ea.status in ('pendente','processando')
+  order by ea.criado_em desc
+  limit 1;
+
+  if v_exec is not null then
+    return v_exec;
+  end if;
+
+  v_snapshot:=privado.snapshot_contexto_competencia(v.id);
+  v_hash:=encode(extensions.digest(v_snapshot::text,'sha256'),'hex');
+
+  insert into public.execucoes_analise(
+    id_organizacao,id_contrato,id_competencia,tipo,status,hash_entrada,motor,
+    versao_motor,prompt_versao,iniciada_por,iniciada_em,snapshot_entrada
+  ) values(
+    v.id_organizacao,v.id_contrato,v.id,p_tipo,'pendente',v_hash,'contaos',
+    '4.1','analise-pt-BR-v4.1',auth.uid(),now(),v_snapshot
+  ) returning id into v_exec;
+
+  update public.competencias
+  set situacao=case when p_tipo='reanálise' then 'em_reanalise' else 'em_analise' end
+  where id=v.id;
+
+  perform privado.enfileirar_job(
+    'ai',v.id_organizacao,v.id_contrato,'execucao_analise',v_exec,
+    jsonb_build_object('entidade_tipo','execucao_analise','id_execucao',v_exec,'id_competencia',v.id),
+    'analysis:'||v_exec::text
+  );
+
+  perform privado.registrar_evento_auditoria(
+    v.id_organizacao,'AnaliseSolicitada','execucoes_analise',v_exec,null,
+    jsonb_build_object('id_competencia',v.id,'tipo',p_tipo,'hash_entrada',v_hash,'versao_snapshot','4.1')
+  );
+  return v_exec;
+end;
+$function$;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102045640_hardening_active_session_authorization
+begin;
+
+create or replace function privado.sessao_usuario_ativa()
+returns boolean
+language sql
+stable
+security definer
+set search_path to ''
+as $function$
+  select
+    auth.uid() is not null
+    and privado.uuid_seguro(auth.jwt()->>'session_id') is not null
+    and exists (
+      select 1
+      from auth.sessions s
+      where s.id = privado.uuid_seguro(auth.jwt()->>'session_id')
+        and s.user_id = auth.uid()
+        and (s.not_after is null or s.not_after > now())
+    );
+$function$;
+
+create or replace function privado.sessao_usuario_aal2_ativa()
+returns boolean
+language sql
+stable
+security definer
+set search_path to ''
+as $function$
+  select privado.sessao_usuario_ativa()
+     and coalesce(auth.jwt()->>'aal','aal1') = 'aal2';
+$function$;
+
+create or replace function privado.usuario_tem_acesso_organizacao(p_id_organizacao uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path to ''
+as $function$
+  select privado.sessao_usuario_ativa()
+     and exists (
+       select 1
+       from public.vinculos_usuarios v
+       where v.id_organizacao = p_id_organizacao
+         and v.id_usuario = auth.uid()
+         and v.ativo = true
+         and v.inicio_em <= now()
+         and (v.fim_em is null or v.fim_em > now())
+     );
+$function$;
+
+create or replace function privado.usuario_tem_acesso_contrato(p_id_contrato uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path to ''
+as $function$
+  select privado.sessao_usuario_ativa()
+     and exists (
+       select 1
+       from public.contratos c
+       join public.vinculos_usuarios v on v.id_organizacao = c.id_organizacao
+       where c.id = p_id_contrato
+         and v.id_usuario = auth.uid()
+         and v.ativo = true
+         and v.inicio_em <= now()
+         and (v.fim_em is null or v.fim_em > now())
+         and (
+           v.escopo_todos_contratos = true
+           or exists (
+             select 1
+             from public.vinculos_usuario_contratos vc
+             where vc.id_vinculo_usuario = v.id
+               and vc.id_contrato = c.id
+               and vc.ativo = true
+           )
+         )
+     );
+$function$;
+
+create or replace function privado.usuario_possui_perfil(p_id_organizacao uuid, p_perfis text[])
+returns boolean
+language sql
+stable
+security definer
+set search_path to ''
+as $function$
+  select privado.sessao_usuario_ativa()
+     and exists (
+       select 1
+       from public.vinculos_usuarios v
+       where v.id_organizacao = p_id_organizacao
+         and v.id_usuario = auth.uid()
+         and v.ativo = true
+         and v.inicio_em <= now()
+         and (v.fim_em is null or v.fim_em > now())
+         and v.perfil = any(p_perfis)
+     );
+$function$;
+
+revoke all on function privado.sessao_usuario_ativa() from public, anon;
+revoke all on function privado.sessao_usuario_aal2_ativa() from public, anon;
+grant execute on function privado.sessao_usuario_ativa() to authenticated, service_role;
+grant execute on function privado.sessao_usuario_aal2_ativa() to authenticated, service_role;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102050329_hardening_operational_config_visibility
+begin;
+
+drop policy if exists configuracao_api_leitura on public.configuracao_api;
+create policy configuracao_api_leitura
+on public.configuracao_api
+for select
+to authenticated
+using (true);
+
+drop policy if exists configuracao_upload_leitura on public.configuracao_upload;
+create policy configuracao_upload_leitura
+on public.configuracao_upload
+for select
+to authenticated
+using (true);
+
+revoke select on public.configuracao_api from anon;
+revoke select on public.configuracao_upload from anon;
+
+grant select on public.configuracao_api to authenticated;
+grant select on public.configuracao_upload to authenticated;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102050438_hardening_structural_fields_bopla
+begin;
+
+create or replace function privado.bloquear_mutacao_campos_estruturais()
+returns trigger
+language plpgsql
+set search_path to ''
+as $function$
+declare
+  v_antigo jsonb := to_jsonb(old);
+  v_novo jsonb := to_jsonb(new);
+  v_campo text;
+begin
+  if current_user <> 'authenticated' then
+    return new;
+  end if;
+
+  foreach v_campo in array array['id','id_organizacao','id_contrato','criado_em','criado_por']::text[]
+  loop
+    if v_antigo ? v_campo
+       and (v_novo -> v_campo) is distinct from (v_antigo -> v_campo) then
+      raise exception using
+        errcode = '42501',
+        message = 'Campo estrutural não pode ser alterado diretamente.',
+        detail = format('O campo %s deve permanecer imutável nesta operação.', v_campo),
+        hint = 'Use a operação oficial do ContaOS para mudanças estruturais.';
+    end if;
+  end loop;
+
+  return new;
+end;
+$function$;
+
+revoke all on function privado.bloquear_mutacao_campos_estruturais() from public, anon, authenticated;
+grant execute on function privado.bloquear_mutacao_campos_estruturais() to service_role;
+
+do $block$
+declare
+  r record;
+  v_trigger text;
+begin
+  for r in
+    select distinct p.tablename
+    from pg_policies p
+    where p.schemaname = 'public'
+      and p.cmd in ('UPDATE','ALL')
+      and ('authenticated' = any(p.roles) or 'public' = any(p.roles))
+    order by p.tablename
+  loop
+    v_trigger := 'trg_bopla_estrutural_' || r.tablename;
+    execute format('drop trigger if exists %I on public.%I', v_trigger, r.tablename);
+    execute format(
+      'create trigger %I before update on public.%I for each row execute function privado.bloquear_mutacao_campos_estruturais()',
+      v_trigger,
+      r.tablename
+    );
+  end loop;
+end;
+$block$;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102051019_hardening_table_dml_privileges
+begin;
+
+alter default privileges for role postgres in schema public
+  revoke insert, update, delete, truncate, references, trigger on tables from anon;
+
+alter default privileges for role postgres in schema public
+  revoke insert, update, delete, truncate, references, trigger on tables from authenticated;
+
+revoke truncate, references, trigger on all tables in schema public from anon, authenticated;
+
+do $block$
+declare
+  r record;
+  v_tem_policy boolean;
+begin
+  for r in
+    select c.oid, c.relname
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind = 'r'
+    order by c.relname
+  loop
+    if has_table_privilege('authenticated', r.oid, 'INSERT') then
+      select exists (
+        select 1 from pg_policies p
+        where p.schemaname = 'public'
+          and p.tablename = r.relname
+          and p.cmd in ('INSERT','ALL')
+          and ('authenticated' = any(p.roles) or 'public' = any(p.roles))
+      ) into v_tem_policy;
+      if not v_tem_policy then
+        execute format('revoke insert on table public.%I from authenticated', r.relname);
+      end if;
+    end if;
+
+    if has_table_privilege('authenticated', r.oid, 'UPDATE') then
+      select exists (
+        select 1 from pg_policies p
+        where p.schemaname = 'public'
+          and p.tablename = r.relname
+          and p.cmd in ('UPDATE','ALL')
+          and ('authenticated' = any(p.roles) or 'public' = any(p.roles))
+      ) into v_tem_policy;
+      if not v_tem_policy then
+        execute format('revoke update on table public.%I from authenticated', r.relname);
+      end if;
+    end if;
+
+    if has_table_privilege('authenticated', r.oid, 'DELETE') then
+      select exists (
+        select 1 from pg_policies p
+        where p.schemaname = 'public'
+          and p.tablename = r.relname
+          and p.cmd in ('DELETE','ALL')
+          and ('authenticated' = any(p.roles) or 'public' = any(p.roles))
+      ) into v_tem_policy;
+      if not v_tem_policy then
+        execute format('revoke delete on table public.%I from authenticated', r.relname);
+      end if;
+    end if;
+  end loop;
+end;
+$block$;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102051056_hardening_table_maintain_privilege
+begin;
+alter default privileges for role postgres in schema public revoke maintain on tables from anon;
+alter default privileges for role postgres in schema public revoke maintain on tables from authenticated;
+revoke maintain on all tables in schema public from anon, authenticated;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102052618_hardening_workflow_state_bopla
+begin;
+
+create or replace function privado.bloquear_mutacao_workflow_critico()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_antigo jsonb := to_jsonb(old);
+  v_novo jsonb := to_jsonb(new);
+  v_campo text;
+begin
+  if current_user <> 'authenticated' then
+    return new;
+  end if;
+
+  case tg_table_name
+    when 'planos_remediacao' then
+      if (v_novo ->> 'status') is distinct from (v_antigo ->> 'status')
+         and (
+           (v_novo ->> 'status') in ('concluido', 'validado')
+           or (v_antigo ->> 'status') in ('concluido', 'validado')
+         ) then
+        raise exception using
+          errcode = '42501',
+          message = 'Esta mudança de status precisa ser feita pela operação oficial de remediação.',
+          detail = 'Estados concluído e validado exigem as verificações de evidência, perfil e segregação de funções do ContaOS.',
+          hint = 'Use as ações Concluir remediação ou Validar remediação.';
+      end if;
+
+      foreach v_campo in array array['concluido_por','concluido_em','validado_por','validado_em']::text[]
+      loop
+        if (v_novo -> v_campo) is distinct from (v_antigo -> v_campo) then
+          raise exception using
+            errcode = '42501',
+            message = 'Os dados de conclusão e validação são preenchidos automaticamente pelo ContaOS.',
+            detail = format('O campo %s não pode ser alterado diretamente.', v_campo),
+            hint = 'Use a operação oficial correspondente.';
+        end if;
+      end loop;
+
+      if (v_antigo ->> 'status') in ('concluido', 'validado')
+         and (v_novo -> 'evidencias') is distinct from (v_antigo -> 'evidencias') then
+        raise exception using
+          errcode = '42501',
+          message = 'As evidências desta remediação já estão vinculadas a uma etapa concluída.',
+          detail = 'Não é permitido reescrever evidências após conclusão ou validação por atualização direta.',
+          hint = 'Use o fluxo oficial de remediação para qualquer nova decisão.';
+      end if;
+
+    when 'nao_conformidades' then
+      if (v_novo ->> 'status') is distinct from (v_antigo ->> 'status')
+         and (
+           (v_novo ->> 'status') in ('em_remediacao', 'resolvida', 'encerrada')
+           or (v_antigo ->> 'status') in ('em_remediacao', 'resolvida', 'encerrada')
+         ) then
+        raise exception using
+          errcode = '42501',
+          message = 'Esta mudança de status da não conformidade precisa seguir o fluxo oficial.',
+          detail = 'Remediação, resolução e encerramento dependem das validações e evidências previstas pelo ContaOS.',
+          hint = 'Use as operações oficiais de remediação, validação ou encerramento.';
+      end if;
+
+    when 'controles_conformidade' then
+      if (v_novo -> 'versao_atual') is distinct from (v_antigo -> 'versao_atual') then
+        raise exception using
+          errcode = '42501',
+          message = 'A versão atual do controle é gerenciada automaticamente pelo ContaOS.',
+          detail = 'versao_atual não pode ser alterada diretamente.',
+          hint = 'Use a operação Publicar controle.';
+      end if;
+
+      if (v_novo ->> 'situacao') is distinct from (v_antigo ->> 'situacao')
+         and (v_novo ->> 'situacao') = 'ativo' then
+        raise exception using
+          errcode = '42501',
+          message = 'Um controle só pode ser ativado por meio da publicação oficial.',
+          detail = 'A publicação cria a versão imutável, o hash, o aprovador e o registro de auditoria.',
+          hint = 'Use a operação Publicar controle.';
+      end if;
+
+    when 'usuarios' then
+      if (v_novo ->> 'situacao') is distinct from (v_antigo ->> 'situacao') then
+        raise exception using
+          errcode = '42501',
+          message = 'A situação da conta não pode ser alterada pelo próprio usuário.',
+          detail = 'Ativação e inativação são operações administrativas do ContaOS.',
+          hint = 'Solicite a alteração a um administrador autorizado.';
+      end if;
+  end case;
+
+  return new;
+end;
+$$;
+
+revoke all on function privado.bloquear_mutacao_workflow_critico() from public, anon, authenticated;
+grant execute on function privado.bloquear_mutacao_workflow_critico() to service_role;
+
+drop trigger if exists trg_bopla_workflow_planos_remediacao on public.planos_remediacao;
+create trigger trg_bopla_workflow_planos_remediacao
+before update on public.planos_remediacao
+for each row execute function privado.bloquear_mutacao_workflow_critico();
+
+drop trigger if exists trg_bopla_workflow_nao_conformidades on public.nao_conformidades;
+create trigger trg_bopla_workflow_nao_conformidades
+before update on public.nao_conformidades
+for each row execute function privado.bloquear_mutacao_workflow_critico();
+
+drop trigger if exists trg_bopla_workflow_controles_conformidade on public.controles_conformidade;
+create trigger trg_bopla_workflow_controles_conformidade
+before update on public.controles_conformidade
+for each row execute function privado.bloquear_mutacao_workflow_critico();
+
+drop trigger if exists trg_bopla_workflow_usuarios on public.usuarios;
+create trigger trg_bopla_workflow_usuarios
+before update on public.usuarios
+for each row execute function privado.bloquear_mutacao_workflow_critico();
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102052935_hardening_alert_task_completion
+begin;
+create or replace function privado.bloquear_conclusao_direta_tarefa_alerta()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if current_user <> 'authenticated' then
+    return new;
+  end if;
+  if new.status is distinct from old.status
+     and (new.status = 'concluida' or old.status = 'concluida') then
+    raise exception using
+      errcode = '42501',
+      message = 'A conclusão desta tarefa deve ocorrer pelo tratamento oficial do alerta.',
+      detail = 'O ContaOS precisa registrar decisão, fundamento, evidência aplicável e auditoria antes de concluir a tarefa.',
+      hint = 'Use a operação Tratar alerta preventivo.';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function privado.bloquear_conclusao_direta_tarefa_alerta() from public, anon, authenticated;
+grant execute on function privado.bloquear_conclusao_direta_tarefa_alerta() to service_role;
+drop trigger if exists trg_bopla_workflow_tarefas_alerta on public.tarefas_alerta;
+create trigger trg_bopla_workflow_tarefas_alerta
+before update on public.tarefas_alerta
+for each row execute function privado.bloquear_conclusao_direta_tarefa_alerta();
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102053232_hardening_user_membership_rpc_only
+begin;
+revoke insert, update on table public.vinculos_usuarios from authenticated;
+drop policy if exists vinculos_admin_insert on public.vinculos_usuarios;
+drop policy if exists vinculos_admin_update on public.vinculos_usuarios;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102053420_hardening_document_version_chain
+begin;
+revoke insert on table public.documentos_competencia from authenticated;
+drop policy if exists documentos_competencia_insert on public.documentos_competencia;
+create or replace function privado.bloquear_mutacao_versao_atual_documento()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if current_user = 'authenticated'
+     and new.versao_atual is distinct from old.versao_atual then
+    raise exception using
+      errcode = '42501',
+      message = 'A versão atual do documento é gerenciada automaticamente pelo ContaOS.',
+      detail = 'O ponteiro de versão deve corresponder a uma versão criada com arquivo, hash, processamento e auditoria.',
+      hint = 'Use a operação oficial de adicionar nova versão do documento.';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function privado.bloquear_mutacao_versao_atual_documento() from public, anon, authenticated;
+grant execute on function privado.bloquear_mutacao_versao_atual_documento() to service_role;
+drop trigger if exists trg_bopla_documentos_competencia_versao on public.documentos_competencia;
+create trigger trg_bopla_documentos_competencia_versao
+before update on public.documentos_competencia
+for each row execute function privado.bloquear_mutacao_versao_atual_documento();
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102053622_hardening_notification_columns_and_view_grants
+begin;
+revoke insert, update, delete on table public.v_central_excecoes_financeiras from authenticated;
+revoke update on table public.notificacoes from authenticated;
+grant update (lida_em) on table public.notificacoes to authenticated;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102053745_hardening_create_organization_active_session
+begin;
+create or replace function privado.criar_organizacao(
+  p_razao_social text,
+  p_nome_fantasia text default null,
+  p_cnpj varchar default null,
+  p_timezone text default 'America/Sao_Paulo'
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_usuario uuid := auth.uid();
+  v_org uuid;
+  v_timezone text := 'America/Sao_Paulo';
+begin
+  if v_usuario is null or not privado.sessao_usuario_ativa() then
+    raise exception 'Sua sessão não está mais ativa. Entre novamente para criar uma organização.';
+  end if;
+  insert into public.organizacoes(razao_social,nome_fantasia,cnpj,timezone)
+  values(p_razao_social,p_nome_fantasia,p_cnpj,v_timezone) returning id into v_org;
+  insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_todos_contratos)
+  values(v_org,v_usuario,'administrador',true);
+  insert into public.recursos_organizacao(id_organizacao,recurso,habilitado)
+  values(v_org,'contaos_1',true);
+  perform privado.registrar_evento_auditoria(v_org,'OrganizacaoCriada','organizacoes',v_org,null,jsonb_build_object('razao_social',p_razao_social,'timezone',v_timezone));
+  return v_org;
+end;
+$$;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102054126_hardening_contract_scope_defense_in_depth
+begin;
+create or replace function privado.bloquear_mutacao_fora_escopo_contrato()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_contrato_antigo uuid;
+  v_contrato_novo uuid;
+begin
+  if auth.uid() is null or coalesce(auth.role(),'') = 'service_role' then
+    if tg_op='DELETE' then return old; else return new; end if;
+  end if;
+  if tg_op <> 'INSERT' then
+    v_contrato_antigo := nullif(to_jsonb(old)->>'id_contrato','')::uuid;
+    if v_contrato_antigo is not null and not privado.usuario_tem_acesso_contrato(v_contrato_antigo) then
+      raise exception using errcode='42501',message='Você não possui acesso ao contrato deste registro.',detail='A operação foi bloqueada para preservar o isolamento entre contratos.',hint='Selecione um contrato ao qual seu usuário tenha acesso.';
+    end if;
+  end if;
+  if tg_op <> 'DELETE' then
+    v_contrato_novo := nullif(to_jsonb(new)->>'id_contrato','')::uuid;
+    if v_contrato_novo is not null and v_contrato_novo is distinct from v_contrato_antigo and not privado.usuario_tem_acesso_contrato(v_contrato_novo) then
+      raise exception using errcode='42501',message='Você não possui acesso ao contrato informado para este registro.',detail='A operação foi bloqueada para preservar o isolamento entre contratos.',hint='Selecione um contrato ao qual seu usuário tenha acesso.';
+    end if;
+  end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+revoke all on function privado.bloquear_mutacao_fora_escopo_contrato() from public, anon, authenticated;
+grant execute on function privado.bloquear_mutacao_fora_escopo_contrato() to service_role;
+do $$
+declare r record;
+begin
+  for r in
+    select c.table_schema,c.table_name
+    from information_schema.columns c
+    join information_schema.tables t on t.table_schema=c.table_schema and t.table_name=c.table_name
+    where c.table_schema='public' and c.column_name='id_contrato' and c.data_type='uuid' and t.table_type='BASE TABLE'
+    order by c.table_name
+  loop
+    execute format('drop trigger if exists trg_scope_contrato on %I.%I',r.table_schema,r.table_name);
+    execute format('create trigger trg_scope_contrato before insert or update or delete on %I.%I for each row execute function privado.bloquear_mutacao_fora_escopo_contrato()',r.table_schema,r.table_name);
+  end loop;
+end;
+$$;
+create or replace function privado.bloquear_plano_remediacao_fora_escopo_contrato()
+returns trigger language plpgsql set search_path = '' as $$
+declare v_id_nc uuid; v_id_contrato uuid;
+begin
+  if auth.uid() is null or coalesce(auth.role(),'')='service_role' then if tg_op='DELETE' then return old; else return new; end if; end if;
+  if tg_op='UPDATE' and new.id_nao_conformidade is distinct from old.id_nao_conformidade then
+    raise exception using errcode='42501',message='A não conformidade vinculada ao plano não pode ser alterada diretamente.',detail='O vínculo estrutural da remediação é imutável após a criação.';
+  end if;
+  if tg_op='DELETE' then v_id_nc:=old.id_nao_conformidade; else v_id_nc:=new.id_nao_conformidade; end if;
+  select id_contrato into v_id_contrato from public.nao_conformidades where id=v_id_nc;
+  if v_id_contrato is not null and not privado.usuario_tem_acesso_contrato(v_id_contrato) then
+    raise exception using errcode='42501',message='Você não possui acesso ao contrato desta remediação.',detail='A operação foi bloqueada para preservar o isolamento entre contratos.';
+  end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+revoke all on function privado.bloquear_plano_remediacao_fora_escopo_contrato() from public, anon, authenticated;
+grant execute on function privado.bloquear_plano_remediacao_fora_escopo_contrato() to service_role;
+drop trigger if exists trg_scope_contrato_plano_remediacao on public.planos_remediacao;
+create trigger trg_scope_contrato_plano_remediacao before insert or update or delete on public.planos_remediacao for each row execute function privado.bloquear_plano_remediacao_fora_escopo_contrato();
+create or replace function privado.bloquear_acesso_pacote_fora_escopo_contrato()
+returns trigger language plpgsql set search_path = '' as $$
+declare v_id_pacote uuid; v_id_contrato uuid;
+begin
+  if auth.uid() is null or coalesce(auth.role(),'')='service_role' then if tg_op='DELETE' then return old; else return new; end if; end if;
+  if tg_op='UPDATE' and new.id_pacote is distinct from old.id_pacote then
+    raise exception using errcode='42501',message='O pacote vinculado ao acesso temporário não pode ser alterado.',detail='Crie um novo acesso temporário para outro pacote.';
+  end if;
+  if tg_op='DELETE' then v_id_pacote:=old.id_pacote; else v_id_pacote:=new.id_pacote; end if;
+  select id_contrato into v_id_contrato from public.pacotes_evidencias where id=v_id_pacote;
+  if v_id_contrato is not null and not privado.usuario_tem_acesso_contrato(v_id_contrato) then
+    raise exception using errcode='42501',message='Você não possui acesso ao contrato deste pacote de evidências.',detail='A operação foi bloqueada para preservar o isolamento entre contratos.';
+  end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+revoke all on function privado.bloquear_acesso_pacote_fora_escopo_contrato() from public, anon, authenticated;
+grant execute on function privado.bloquear_acesso_pacote_fora_escopo_contrato() to service_role;
+drop trigger if exists trg_scope_contrato_acesso_pacote on public.acessos_pacote_evidencias;
+create trigger trg_scope_contrato_acesso_pacote before insert or update or delete on public.acessos_pacote_evidencias for each row execute function privado.bloquear_acesso_pacote_fora_escopo_contrato();
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102070957_hardening_auth_trigger_execute
+revoke execute on function privado.criar_usuario_auth() from authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261102071022_hardening_webhook_rpc_context
+begin;
+
+create or replace function privado.enfileirar_evento_webhook(
+  p_id_webhook uuid,
+  p_evento text,
+  p_entidade_tipo text,
+  p_entidade_id uuid,
+  p_payload_ref jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v public.webhooks%rowtype;
+  v_evt uuid;
+  v_hash text;
+  v_role text := coalesce(auth.role(),'');
+begin
+  select * into v
+  from public.webhooks
+  where id=p_id_webhook and ativo=true;
+
+  if v.id is null then
+    raise exception 'Webhook não encontrado ou inativo.';
+  end if;
+
+  if auth.uid() is null then
+    if v_role <> 'service_role' then
+      raise exception using
+        errcode='42501',
+        message='Acesso negado para enfileirar este evento de webhook.',
+        detail='A operação exige uma sessão administrativa válida ou o contexto interno service_role.';
+    end if;
+  else
+    if not privado.sessao_usuario_ativa()
+       or not privado.usuario_possui_perfil(v.id_organizacao,array['administrador']::text[]) then
+      raise exception using
+        errcode='42501',
+        message='Seu perfil atual não permite enfileirar eventos deste webhook.';
+    end if;
+  end if;
+
+  if not (p_evento=any(v.eventos)) then
+    raise exception 'Evento não habilitado para o webhook.';
+  end if;
+
+  v_hash:=encode(extensions.digest(coalesce(p_payload_ref,'{}'::jsonb)::text,'sha256'),'hex');
+
+  insert into public.eventos_webhook(
+    id_organizacao,id_webhook,evento,entidade_tipo,entidade_id,
+    payload_ref,payload_hash,status,proxima_tentativa
+  )
+  values(
+    v.id_organizacao,v.id,p_evento,p_entidade_tipo,p_entidade_id,
+    coalesce(p_payload_ref,'{}'::jsonb),v_hash,'enfileirado',now()
+  )
+  returning id into v_evt;
+
+  perform privado.enfileirar_job(
+    'webhooks',v.id_organizacao,null,'evento_webhook',v_evt,
+    jsonb_build_object('id_evento_webhook',v_evt),
+    'webhook:'||v_evt::text
+  );
+
+  return v_evt;
+end;
+$$;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102080111_hardening_reanalysis_authorization
+begin;
+
+create or replace function privado.solicitar_reanalise_requisitos(
+  p_id_competencia uuid,
+  p_requisitos uuid[]
+)
+returns uuid
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_exec uuid;
+  v_org uuid;
+  v_contrato uuid;
+begin
+  select c.id_organizacao, c.id_contrato
+    into v_org, v_contrato
+  from public.competencias c
+  where c.id = p_id_competencia;
+
+  if v_contrato is null
+     or auth.uid() is null
+     or not privado.usuario_tem_acesso_contrato(v_contrato) then
+    raise exception using
+      errcode = '42501',
+      message = 'Você não possui acesso à competência informada.';
+  end if;
+
+  if not privado.usuario_possui_perfil(
+    v_org,
+    array[
+      'administrador','gestor_contrato','prestacao_contas','financeiro',
+      'contabilidade','rh_dp','juridico_conformidade','auditor'
+    ]::text[]
+  ) then
+    raise exception using
+      errcode = '42501',
+      message = 'Seu perfil atual não permite solicitar esta reanálise.';
+  end if;
+
+  if p_requisitos is null or cardinality(p_requisitos) = 0 then
+    raise exception 'Selecione ao menos um requisito para reanálise.';
+  end if;
+
+  if exists(
+    select 1
+    from unnest(p_requisitos) x
+    where not exists(
+      select 1
+      from public.requisitos_competencia r
+      where r.id = x
+        and r.id_competencia = p_id_competencia
+    )
+  ) then
+    raise exception 'Um dos requisitos selecionados não pertence a esta competência.';
+  end if;
+
+  v_exec := privado.solicitar_analise_competencia(p_id_competencia,'parcial');
+
+  update public.execucoes_analise
+  set requisitos_afetados = p_requisitos,
+      metadados = metadados || jsonb_build_object('reanálise_incremental',true)
+  where id = v_exec;
+
+  return v_exec;
+end;
+$$;
+
+revoke all on function privado.solicitar_reanalise_requisitos(uuid,uuid[]) from public, anon;
+grant execute on function privado.solicitar_reanalise_requisitos(uuid,uuid[]) to authenticated;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102101304_hardening_security_alert_visibility
+begin;
+
+create or replace function privado.usuario_possui_vinculo_ativo()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select privado.sessao_usuario_ativa()
+     and exists (
+       select 1
+       from public.vinculos_usuarios v
+       where v.id_usuario = auth.uid()
+         and v.ativo = true
+         and v.inicio_em <= now()
+         and (v.fim_em is null or v.fim_em > now())
+     );
+$$;
+
+revoke all on function privado.usuario_possui_vinculo_ativo() from public;
+revoke all on function privado.usuario_possui_vinculo_ativo() from anon;
+grant execute on function privado.usuario_possui_vinculo_ativo() to authenticated, service_role;
+
+drop policy if exists configuracao_api_leitura on public.configuracao_api;
+create policy configuracao_api_leitura on public.configuracao_api for select to authenticated using ((select privado.usuario_possui_vinculo_ativo()));
+
+drop policy if exists configuracao_upload_leitura on public.configuracao_upload;
+create policy configuracao_upload_leitura on public.configuracao_upload for select to authenticated using ((select privado.usuario_possui_vinculo_ativo()));
+
+drop policy if exists perfis_select on public.perfis_usuarios;
+create policy perfis_select on public.perfis_usuarios for select to authenticated using ((select privado.usuario_possui_vinculo_ativo()));
+
+drop policy if exists catalogo_mensagens_leitura on public.catalogo_mensagens_sistema;
+create policy catalogo_mensagens_leitura on public.catalogo_mensagens_sistema for select to authenticated using ((select privado.usuario_possui_vinculo_ativo()));
+
+drop policy if exists catalogo_status_leitura on public.catalogo_status_ui;
+create policy catalogo_status_leitura on public.catalogo_status_ui for select to authenticated using ((select privado.usuario_possui_vinculo_ativo()));
+
+drop policy if exists configuracao_localizacao_leitura on public.configuracao_localizacao;
+create policy configuracao_localizacao_leitura on public.configuracao_localizacao for select to authenticated using ((select privado.usuario_possui_vinculo_ativo()));
+
+revoke select on public.configuracao_api from anon;
+revoke select on public.configuracao_upload from anon;
+revoke select on public.perfis_usuarios from anon;
+revoke select on public.catalogo_mensagens_sistema from anon;
+revoke select on public.catalogo_status_ui from anon;
+revoke select on public.configuracao_localizacao from anon;
+
+grant select on public.configuracao_api to authenticated;
+grant select on public.configuracao_upload to authenticated;
+grant select on public.perfis_usuarios to authenticated;
+grant select on public.catalogo_mensagens_sistema to authenticated;
+grant select on public.catalogo_status_ui to authenticated;
+grant select on public.configuracao_localizacao to authenticated;
+
+revoke execute on function public.obter_mensagem_sistema(text) from anon;
+revoke execute on function public.normalizar_erro_backend(text,text) from anon;
+grant execute on function public.obter_mensagem_sistema(text) to authenticated, service_role;
+grant execute on function public.normalizar_erro_backend(text,text) to authenticated, service_role;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102101651_remove_unused_pg_net
+begin;
+drop extension if exists pg_net restrict;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102114958_sys05_dashboard_summary
+create or replace function public.obter_resumo_dashboard(p_id_organizacao uuid)
+returns jsonb
+language plpgsql
+stable
+security invoker
+set search_path = ''
+as $$
+declare
+  v_organizacao jsonb;
+  v_resumo jsonb;
+  v_contratos_por_situacao jsonb;
+  v_competencias_por_situacao jsonb;
+  v_proximos_prazos jsonb;
+  v_atencoes_prioritarias jsonb;
+begin
+  if auth.uid() is null
+     or not privado.usuario_tem_acesso_organizacao(p_id_organizacao) then
+    raise exception using
+      errcode = '42501',
+      message = 'Acesso negado ao resumo desta organização.';
+  end if;
+
+  select jsonb_build_object(
+           'id', o.id,
+           'razao_social', o.razao_social,
+           'nome_fantasia', o.nome_fantasia,
+           'situacao', o.situacao
+         )
+    into v_organizacao
+    from public.organizacoes o
+   where o.id = p_id_organizacao;
+
+  if v_organizacao is null then
+    raise exception using
+      errcode = '42501',
+      message = 'Acesso negado ao resumo desta organização.';
+  end if;
+
+  select jsonb_build_object(
+    'contratos_visiveis', (select count(*) from public.contratos c where c.id_organizacao = p_id_organizacao),
+    'contratos_ativos', (select count(*) from public.contratos c where c.id_organizacao = p_id_organizacao and c.situacao = 'ativo'),
+    'competencias_em_fluxo', (select count(*) from public.competencias c where c.id_organizacao = p_id_organizacao and c.situacao not in ('validada','encerrada','cancelada')),
+    'competencias_exigem_atencao', (select count(*) from public.competencias c where c.id_organizacao = p_id_organizacao and c.situacao in ('pendente_correcao','com_apontamentos')),
+    'itens_com_prazo_vencido',
+      (select count(*) from public.competencias c where c.id_organizacao = p_id_organizacao and c.data_limite is not null and c.data_limite < (now() at time zone 'America/Sao_Paulo')::date and c.situacao not in ('validada','encerrada','cancelada'))
+      + (select count(*) from public.tarefas_diligencia t where t.id_organizacao = p_id_organizacao and t.prazo is not null and t.prazo < (now() at time zone 'America/Sao_Paulo')::date and t.status in ('pendente','em_execucao'))
+      + (select count(*) from public.nao_conformidades n where n.id_organizacao = p_id_organizacao and n.prazo is not null and n.prazo < (now() at time zone 'America/Sao_Paulo')::date and n.status in ('aberta','em_analise','em_remediacao')),
+    'atencoes_abertas',
+      (select count(*) from public.apontamentos_internos a where a.id_organizacao = p_id_organizacao and a.status in ('aberto','em_tratamento'))
+      + (select count(*) from public.apontamentos_contratante a where a.id_organizacao = p_id_organizacao and a.status in ('aberto','em_analise','procedente','em_tratamento','contestado','contestado_aprovado'))
+      + (select count(*) from public.nao_conformidades n where n.id_organizacao = p_id_organizacao and n.status in ('aberta','em_analise','em_remediacao'))
+  ) into v_resumo;
+
+  select coalesce(jsonb_agg(jsonb_build_object('situacao', x.situacao, 'quantidade', x.quantidade) order by x.situacao),'[]'::jsonb)
+    into v_contratos_por_situacao
+    from (select c.situacao, count(*)::bigint as quantidade from public.contratos c where c.id_organizacao = p_id_organizacao group by c.situacao) x;
+
+  select coalesce(jsonb_agg(jsonb_build_object('situacao', x.situacao, 'quantidade', x.quantidade) order by x.situacao),'[]'::jsonb)
+    into v_competencias_por_situacao
+    from (select c.situacao, count(*)::bigint as quantidade from public.competencias c where c.id_organizacao = p_id_organizacao group by c.situacao) x;
+
+  select coalesce(jsonb_agg(to_jsonb(x) - 'ordem_criticidade' order by x.prazo asc, x.ordem_criticidade desc, x.tipo, x.id),'[]'::jsonb)
+    into v_proximos_prazos
+    from (
+      select * from (
+        select 'competencia'::text as tipo, c.id, c.id_contrato, ct.numero as contrato_numero,
+               ('Competência ' || pg_catalog.to_char(c.competencia_referencia, 'MM/YYYY'))::text as titulo,
+               c.data_limite as prazo, c.situacao as status, ct.criticidade as criticidade,
+               case ct.criticidade when 'critica' then 4 when 'alta' then 3 when 'media' then 2 else 1 end as ordem_criticidade
+          from public.competencias c join public.contratos ct on ct.id = c.id_contrato
+         where c.id_organizacao = p_id_organizacao and c.data_limite is not null and c.situacao not in ('validada','encerrada','cancelada')
+        union all
+        select 'tarefa_diligencia'::text, t.id, t.id_contrato, ct.numero, pg_catalog.left(t.descricao, 180), t.prazo, t.status, t.prioridade,
+               case t.prioridade when 'critica' then 4 when 'alta' then 3 when 'media' then 2 else 1 end
+          from public.tarefas_diligencia t join public.contratos ct on ct.id = t.id_contrato
+         where t.id_organizacao = p_id_organizacao and t.prazo is not null and t.status in ('pendente','em_execucao')
+        union all
+        select 'nao_conformidade'::text, n.id, n.id_contrato, ct.numero, pg_catalog.left(n.descricao, 180), n.prazo, n.status, n.severidade,
+               case n.severidade when 'critica' then 4 when 'alta' then 3 when 'media' then 2 else 1 end
+          from public.nao_conformidades n left join public.contratos ct on ct.id = n.id_contrato
+         where n.id_organizacao = p_id_organizacao and n.prazo is not null and n.status in ('aberta','em_analise','em_remediacao')
+      ) z order by z.prazo asc, z.ordem_criticidade desc, z.tipo, z.id limit 8
+    ) x;
+
+  select coalesce(jsonb_agg(to_jsonb(x) - 'ordem_severidade' order by x.ordem_severidade desc, x.criado_em desc, x.tipo, x.id),'[]'::jsonb)
+    into v_atencoes_prioritarias
+    from (
+      select * from (
+        select 'apontamento_interno'::text as tipo, a.id, a.id_contrato, ct.numero as contrato_numero, a.id_competencia,
+               pg_catalog.left(a.descricao, 220) as descricao, a.severidade, a.status, null::date as prazo, a.criado_em,
+               case a.severidade when 'critica' then 5 when 'alta' then 4 when 'media' then 3 when 'baixa' then 2 else 1 end as ordem_severidade
+          from public.apontamentos_internos a join public.contratos ct on ct.id = a.id_contrato
+         where a.id_organizacao = p_id_organizacao and a.status in ('aberto','em_tratamento')
+        union all
+        select 'apontamento_contratante'::text, a.id, a.id_contrato, ct.numero, a.id_competencia,
+               pg_catalog.left(a.descricao, 220), a.severidade, a.status, null::date, a.criado_em,
+               case a.severidade when 'critica' then 5 when 'alta' then 4 when 'media' then 3 when 'baixa' then 2 else 1 end
+          from public.apontamentos_contratante a join public.contratos ct on ct.id = a.id_contrato
+         where a.id_organizacao = p_id_organizacao and a.status in ('aberto','em_analise','procedente','em_tratamento','contestado','contestado_aprovado')
+        union all
+        select 'nao_conformidade'::text, n.id, n.id_contrato, ct.numero, n.id_competencia,
+               pg_catalog.left(n.descricao, 220), n.severidade, n.status, n.prazo, n.criado_em,
+               case n.severidade when 'critica' then 5 when 'alta' then 4 when 'media' then 3 when 'baixa' then 2 else 1 end
+          from public.nao_conformidades n left join public.contratos ct on ct.id = n.id_contrato
+         where n.id_organizacao = p_id_organizacao and n.status in ('aberta','em_analise','em_remediacao')
+      ) z order by z.ordem_severidade desc, z.criado_em desc, z.tipo, z.id limit 8
+    ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'sys05-v1',
+    'gerado_em', public.formatar_data_hora_br(now()),
+    'organizacao', v_organizacao,
+    'resumo', v_resumo,
+    'contratos_por_situacao', v_contratos_por_situacao,
+    'competencias_por_situacao', v_competencias_por_situacao,
+    'proximos_prazos', v_proximos_prazos,
+    'atencoes_prioritarias', v_atencoes_prioritarias
+  );
+end;
+$$;
+
+revoke all on function public.obter_resumo_dashboard(uuid) from public;
+revoke all on function public.obter_resumo_dashboard(uuid) from anon;
+grant execute on function public.obter_resumo_dashboard(uuid) to authenticated, service_role;
+
+comment on function public.obter_resumo_dashboard(uuid) is
+'SYS-05: resumo operacional read-only da organização selecionada. SECURITY INVOKER preserva RLS por organização/contrato; não substitui o Painel Executivo 5.0 do PROMPT 88.';
+
+-- ============================================================
+
+-- MIGRATION 20261102124852_adm01_admin_usuarios_vinculos
+-- ContaOS 4.1 — PROMPT 21 / ADM-01
+-- Backend administrativo de usuários e vínculos.
+-- Transversais: 091/NFR-007 concorrência, 092/NFR-008 idempotência, 093/NFR-009 paginação.
+-- HML only. Sem tabela nova; sem Edge Function; RLS e grants de escrita direta preservados.
+
+create or replace function privado.listar_usuarios_vinculos_adm(
+  p_id_organizacao uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null,
+  p_ativo boolean default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 25), 1), 100);
+  v_offset integer;
+  v_busca text := nullif(pg_catalog.btrim(coalesce(p_busca, '')), '');
+  v_total bigint;
+  v_itens jsonb;
+  v_perfis jsonb;
+  v_org jsonb;
+begin
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para administrar usuários desta organização.';
+  end if;
+
+  select jsonb_build_object(
+           'id', o.id,
+           'razao_social', o.razao_social,
+           'nome_fantasia', o.nome_fantasia,
+           'situacao', o.situacao
+         )
+    into v_org
+    from public.organizacoes o
+   where o.id = p_id_organizacao;
+
+  if v_org is null then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para administrar usuários desta organização.';
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*)
+    into v_total
+    from public.vinculos_usuarios vu
+    join public.usuarios u on u.id_usuario = vu.id_usuario
+   where vu.id_organizacao = p_id_organizacao
+     and (p_ativo is null or vu.ativo = p_ativo)
+     and (
+       v_busca is null
+       or coalesce(u.nome, '') ilike '%' || v_busca || '%'
+       or coalesce(u.email, '') ilike '%' || v_busca || '%'
+     );
+
+  select coalesce(jsonb_agg(x.item order by x.ordem_nome, x.ordem_email, x.id_usuario), '[]'::jsonb)
+    into v_itens
+    from (
+      select lower(coalesce(u.nome, u.email, '')) as ordem_nome,
+             lower(coalesce(u.email, '')) as ordem_email,
+             u.id_usuario,
+             jsonb_build_object(
+               'id_usuario', u.id_usuario,
+               'nome', u.nome,
+               'email', u.email,
+               'telefone', u.telefone,
+               'situacao_usuario', u.situacao,
+               'versao_usuario', u.versao_registro,
+               'id_vinculo', vu.id,
+               'perfil', vu.perfil,
+               'escopo_todos_contratos', vu.escopo_todos_contratos,
+               'ativo', vu.ativo,
+               'inicio_em', vu.inicio_em,
+               'fim_em', vu.fim_em,
+               'versao_registro', vu.versao_registro,
+               'atualizado_em', vu.atualizado_em
+             ) as item
+        from public.vinculos_usuarios vu
+        join public.usuarios u on u.id_usuario = vu.id_usuario
+       where vu.id_organizacao = p_id_organizacao
+         and (p_ativo is null or vu.ativo = p_ativo)
+         and (
+           v_busca is null
+           or coalesce(u.nome, '') ilike '%' || v_busca || '%'
+           or coalesce(u.email, '') ilike '%' || v_busca || '%'
+         )
+       order by lower(coalesce(u.nome, u.email, '')), lower(coalesce(u.email, '')), u.id_usuario
+       limit v_tamanho offset v_offset
+    ) x;
+
+  select coalesce(jsonb_agg(jsonb_build_object('codigo', p.codigo, 'nome', p.nome) order by p.nome, p.codigo), '[]'::jsonb)
+    into v_perfis
+    from public.perfis_usuarios p;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v1',
+    'organizacao', v_org,
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'perfis_disponiveis', v_perfis,
+    'itens', v_itens
+  );
+end;
+$$;
+
+create or replace function public.listar_usuarios_vinculos_adm(
+  p_id_organizacao uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null,
+  p_ativo boolean default null
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select privado.listar_usuarios_vinculos_adm($1,$2,$3,$4,$5)
+$$;
+
+create or replace function privado.listar_escopo_contratos_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 25), 1), 100);
+  v_offset integer;
+  v_busca text := nullif(pg_catalog.btrim(coalesce(p_busca, '')), '');
+  v_total bigint;
+  v_vinculo uuid;
+  v_todos boolean;
+  v_itens jsonb;
+begin
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para administrar o escopo contratual.';
+  end if;
+
+  select vu.id, vu.escopo_todos_contratos
+    into v_vinculo, v_todos
+    from public.vinculos_usuarios vu
+   where vu.id_organizacao = p_id_organizacao
+     and vu.id_usuario = p_id_usuario;
+
+  if v_vinculo is null then
+    raise exception using errcode = 'PT404', message = 'Vínculo de usuário não encontrado nesta organização.';
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+    from public.contratos c
+   where c.id_organizacao = p_id_organizacao
+     and privado.usuario_tem_acesso_contrato(c.id)
+     and (
+       v_busca is null
+       or c.numero ilike '%' || v_busca || '%'
+       or c.objeto ilike '%' || v_busca || '%'
+     );
+
+  select coalesce(jsonb_agg(x.item order by x.numero, x.id), '[]'::jsonb)
+    into v_itens
+    from (
+      select c.numero, c.id,
+             jsonb_build_object(
+               'id', c.id,
+               'numero', c.numero,
+               'objeto', c.objeto,
+               'situacao', c.situacao,
+               'criticidade', c.criticidade,
+               'selecionado', case
+                 when v_todos then true
+                 else coalesce(vc.ativo, false)
+               end
+             ) as item
+        from public.contratos c
+        left join public.vinculos_usuario_contratos vc
+          on vc.id_vinculo_usuario = v_vinculo
+         and vc.id_contrato = c.id
+       where c.id_organizacao = p_id_organizacao
+         and privado.usuario_tem_acesso_contrato(c.id)
+         and (
+           v_busca is null
+           or c.numero ilike '%' || v_busca || '%'
+           or c.objeto ilike '%' || v_busca || '%'
+         )
+       order by c.numero, c.id
+       limit v_tamanho offset v_offset
+    ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v1',
+    'id_usuario', p_id_usuario,
+    'escopo_todos_contratos', v_todos,
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens
+  );
+end;
+$$;
+
+create or replace function public.listar_escopo_contratos_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select privado.listar_escopo_contratos_usuario_adm($1,$2,$3,$4,$5)
+$$;
+
+create or replace function privado.listar_auditoria_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 20
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 20), 1), 50);
+  v_offset integer;
+  v_total bigint;
+  v_itens jsonb;
+begin
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para consultar a auditoria deste vínculo.';
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+    from public.eventos_auditoria e
+   where e.id_organizacao = p_id_organizacao
+     and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+     and e.metadados->>'id_usuario' = p_id_usuario::text;
+
+  select coalesce(jsonb_agg(x.item order by x.criado_em desc, x.id desc), '[]'::jsonb)
+    into v_itens
+    from (
+      select e.criado_em, e.id,
+             jsonb_build_object(
+               'id', e.id,
+               'correlation_id', e.correlation_id,
+               'evento', e.evento,
+               'entidade', e.entidade,
+               'id_entidade', e.id_entidade,
+               'id_usuario_ator', e.id_usuario,
+               'ator_nome', ua.nome,
+               'ator_email', ua.email,
+               'antes', e.antes,
+               'depois', e.depois,
+               'metadados', e.metadados,
+               'criado_em', e.criado_em
+             ) as item
+        from public.eventos_auditoria e
+        left join public.usuarios ua on ua.id_usuario = e.id_usuario
+       where e.id_organizacao = p_id_organizacao
+         and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+         and e.metadados->>'id_usuario' = p_id_usuario::text
+       order by e.criado_em desc, e.id desc
+       limit v_tamanho offset v_offset
+    ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v1',
+    'id_usuario', p_id_usuario,
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens
+  );
+end;
+$$;
+
+create or replace function public.listar_auditoria_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 20
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select privado.listar_auditoria_vinculo_usuario_adm($1,$2,$3,$4)
+$$;
+
+create or replace function privado.salvar_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_email text,
+  p_perfil text,
+  p_escopo_todos_contratos boolean,
+  p_ativo boolean,
+  p_ids_contratos uuid[],
+  p_versao_esperada bigint,
+  p_chave_idempotencia text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_id_usuario uuid := p_id_usuario;
+  v_email text := nullif(lower(pg_catalog.btrim(coalesce(p_email, ''))), '');
+  v_perfil text := nullif(pg_catalog.btrim(coalesce(p_perfil, '')), '');
+  v_todos boolean := coalesce(p_escopo_todos_contratos, false);
+  v_ativo boolean := coalesce(p_ativo, true);
+  v_ids_contratos uuid[];
+  v_chave text := nullif(pg_catalog.btrim(coalesce(p_chave_idempotencia, '')), '');
+  v_hash text;
+  v_comando_id uuid;
+  v_comando_status text;
+  v_comando_hash text;
+  v_comando_resposta jsonb;
+  v_vinculo_id uuid;
+  v_versao_atual bigint;
+  v_antes jsonb;
+  v_depois jsonb;
+  v_escopo_antes jsonb;
+  v_escopo_depois jsonb;
+  v_evento_id uuid;
+  v_correlation_id uuid;
+  v_resposta jsonb;
+  v_qtd_contratos integer;
+begin
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para administrar usuários desta organização.';
+  end if;
+
+  if v_id_usuario is null then
+    if v_email is null then
+      raise exception using errcode = 'PT400', message = 'Informe um usuário ou e-mail válido.';
+    end if;
+    select u.id_usuario
+      into v_id_usuario
+      from public.usuarios u
+     where lower(u.email) = v_email
+     order by u.id_usuario
+     limit 1;
+  else
+    if not exists (select 1 from public.usuarios u where u.id_usuario = v_id_usuario) then
+      v_id_usuario := null;
+    elsif v_email is not null and not exists (
+      select 1 from public.usuarios u where u.id_usuario = v_id_usuario and lower(u.email) = v_email
+    ) then
+      raise exception using errcode = 'PT400', message = 'O e-mail informado não corresponde ao usuário selecionado.';
+    end if;
+  end if;
+
+  if v_id_usuario is null then
+    raise exception using
+      errcode = 'PT404',
+      message = 'Usuário ContaOS não encontrado.',
+      hint = 'Vincule uma conta já existente no ContaOS.';
+  end if;
+
+  if v_perfil is null or not exists (select 1 from public.perfis_usuarios p where p.codigo = v_perfil) then
+    raise exception using errcode = 'PT400', message = 'Perfil de acesso inválido.';
+  end if;
+
+  if v_chave is null or pg_catalog.length(v_chave) > 200 then
+    raise exception using errcode = 'PT400', message = 'Chave de idempotência inválida.';
+  end if;
+
+  if v_todos or not v_ativo then
+    v_ids_contratos := array[]::uuid[];
+  else
+    select coalesce(array_agg(x order by x), array[]::uuid[])
+      into v_ids_contratos
+      from (select distinct unnest(coalesce(p_ids_contratos, array[]::uuid[])) x) d;
+  end if;
+
+  select count(*) into v_qtd_contratos
+    from public.contratos c
+   where c.id_organizacao = p_id_organizacao
+     and c.id = any(v_ids_contratos)
+     and privado.usuario_tem_acesso_contrato(c.id);
+
+  if v_qtd_contratos <> cardinality(v_ids_contratos) then
+    raise exception using errcode = 'PT400', message = 'Um ou mais contratos informados não pertencem à organização.';
+  end if;
+
+  v_hash := pg_catalog.md5(jsonb_build_object(
+    'id_usuario', v_id_usuario,
+    'perfil', v_perfil,
+    'escopo_todos_contratos', v_todos,
+    'ativo', v_ativo,
+    'ids_contratos', to_jsonb(v_ids_contratos),
+    'versao_esperada', p_versao_esperada
+  )::text);
+
+  insert into public.comandos_idempotentes(id_organizacao, comando, chave, hash_payload, status, expira_em)
+  values(p_id_organizacao, 'adm01.salvar_vinculo_usuario', v_chave, v_hash, 'iniciado', now() + interval '24 hours')
+  on conflict(id_organizacao, comando, chave) do nothing
+  returning id into v_comando_id;
+
+  if v_comando_id is null then
+    select c.id, c.status, c.hash_payload, c.resposta
+      into v_comando_id, v_comando_status, v_comando_hash, v_comando_resposta
+      from public.comandos_idempotentes c
+     where c.id_organizacao = p_id_organizacao
+       and c.comando = 'adm01.salvar_vinculo_usuario'
+       and c.chave = v_chave
+     for update;
+
+    if v_comando_hash is distinct from v_hash then
+      raise exception using errcode = 'PT409', message = 'Esta chave de operação já foi usada com dados diferentes.';
+    end if;
+
+    if v_comando_status = 'concluido' and v_comando_resposta is not null then
+      return v_comando_resposta;
+    end if;
+
+    if v_comando_status = 'iniciado' then
+      raise exception using errcode = 'PT409', message = 'Esta operação já está em processamento. Atualize a tela antes de tentar novamente.';
+    end if;
+
+    update public.comandos_idempotentes
+       set status = 'iniciado', resposta = null
+     where id = v_comando_id;
+  end if;
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(p_id_organizacao::text || ':' || v_id_usuario::text, 0)
+  );
+
+  select vu.id, vu.versao_registro, to_jsonb(vu)
+    into v_vinculo_id, v_versao_atual, v_antes
+    from public.vinculos_usuarios vu
+   where vu.id_organizacao = p_id_organizacao
+     and vu.id_usuario = v_id_usuario
+   for update;
+
+  if v_vinculo_id is null then
+    if p_versao_esperada is not null then
+      raise exception using errcode = 'PT409', message = 'O vínculo mudou desde a última leitura. Atualize a tela e tente novamente.';
+    end if;
+  else
+    if p_versao_esperada is null or p_versao_esperada <> v_versao_atual then
+      raise exception using errcode = 'PT409', message = 'Este vínculo foi atualizado por outra pessoa. Atualize a tela, confira a versão mais recente e tente novamente.';
+    end if;
+  end if;
+
+  select coalesce(jsonb_agg(jsonb_build_object('id_contrato', vc.id_contrato, 'ativo', vc.ativo) order by vc.id_contrato), '[]'::jsonb)
+    into v_escopo_antes
+    from public.vinculos_usuario_contratos vc
+   where vc.id_vinculo_usuario = v_vinculo_id;
+
+  if v_vinculo_id is null then
+    insert into public.vinculos_usuarios(
+      id_organizacao, id_usuario, perfil, escopo_todos_contratos, ativo, fim_em
+    )
+    values(
+      p_id_organizacao, v_id_usuario, v_perfil, v_todos, v_ativo,
+      case when v_ativo then null else pg_catalog.clock_timestamp() end
+    )
+    returning id into v_vinculo_id;
+  else
+    update public.vinculos_usuarios
+       set perfil = v_perfil,
+           escopo_todos_contratos = v_todos,
+           ativo = v_ativo,
+           fim_em = case
+             when v_ativo then null
+             else coalesce(fim_em, pg_catalog.clock_timestamp())
+           end
+     where id = v_vinculo_id;
+  end if;
+
+  if v_todos or not v_ativo then
+    update public.vinculos_usuario_contratos
+       set ativo = false,
+           revogado_em = coalesce(revogado_em, pg_catalog.clock_timestamp())
+     where id_vinculo_usuario = v_vinculo_id
+       and ativo = true;
+  else
+    insert into public.vinculos_usuario_contratos(
+      id_organizacao, id_vinculo_usuario, id_contrato, ativo, revogado_em
+    )
+    select p_id_organizacao, v_vinculo_id, x, true, null
+      from unnest(v_ids_contratos) x
+    on conflict(id_vinculo_usuario, id_contrato)
+    do update set ativo = true, revogado_em = null;
+
+    update public.vinculos_usuario_contratos
+       set ativo = false,
+           revogado_em = coalesce(revogado_em, pg_catalog.clock_timestamp())
+     where id_vinculo_usuario = v_vinculo_id
+       and ativo = true
+       and not (id_contrato = any(v_ids_contratos));
+  end if;
+
+  select to_jsonb(vu)
+    into v_depois
+    from public.vinculos_usuarios vu
+   where vu.id = v_vinculo_id;
+
+  select coalesce(jsonb_agg(jsonb_build_object('id_contrato', vc.id_contrato, 'ativo', vc.ativo) order by vc.id_contrato), '[]'::jsonb)
+    into v_escopo_depois
+    from public.vinculos_usuario_contratos vc
+   where vc.id_vinculo_usuario = v_vinculo_id;
+
+  v_evento_id := privado.registrar_evento_auditoria(
+    p_id_organizacao,
+    'VinculoUsuarioAdministrativoSalvo',
+    'vinculos_usuarios',
+    v_vinculo_id,
+    jsonb_build_object('vinculo', v_antes, 'escopo_contratos', v_escopo_antes),
+    jsonb_build_object('vinculo', v_depois, 'escopo_contratos', v_escopo_depois),
+    jsonb_build_object('id_usuario', v_id_usuario, 'chave_idempotencia', v_chave)
+  );
+
+  select e.correlation_id into v_correlation_id
+    from public.eventos_auditoria e
+   where e.id = v_evento_id;
+
+  v_resposta := jsonb_build_object(
+    'schema_versao', 'adm01-v1',
+    'correlation_id', v_correlation_id,
+    'id_usuario', v_id_usuario,
+    'vinculo', v_depois
+  );
+
+  update public.comandos_idempotentes
+     set status = 'concluido', resposta = v_resposta
+   where id = v_comando_id;
+
+  return v_resposta;
+end;
+$$;
+
+create or replace function public.salvar_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_email text,
+  p_perfil text,
+  p_escopo_todos_contratos boolean,
+  p_ativo boolean,
+  p_ids_contratos uuid[],
+  p_versao_esperada bigint,
+  p_chave_idempotencia text
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $$
+  select privado.salvar_vinculo_usuario_adm($1,$2,$3,$4,$5,$6,$7,$8,$9)
+$$;
+
+revoke execute on function public.definir_vinculo_usuario(uuid,uuid,text,boolean,boolean) from public, anon, authenticated;
+revoke execute on function public.definir_acesso_contrato_usuario(uuid,uuid,uuid,boolean) from public, anon, authenticated;
+revoke execute on function privado.definir_vinculo_usuario(uuid,uuid,text,boolean,boolean) from public, anon, authenticated;
+revoke execute on function privado.definir_acesso_contrato_usuario(uuid,uuid,uuid,boolean) from public, anon, authenticated;
+grant execute on function public.definir_vinculo_usuario(uuid,uuid,text,boolean,boolean) to service_role;
+grant execute on function public.definir_acesso_contrato_usuario(uuid,uuid,uuid,boolean) to service_role;
+grant execute on function privado.definir_vinculo_usuario(uuid,uuid,text,boolean,boolean) to service_role;
+grant execute on function privado.definir_acesso_contrato_usuario(uuid,uuid,uuid,boolean) to service_role;
+
+revoke execute on function privado.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean) from public, anon;
+revoke execute on function privado.listar_escopo_contratos_usuario_adm(uuid,uuid,integer,integer,text) from public, anon;
+revoke execute on function privado.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) from public, anon;
+revoke execute on function privado.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text) from public, anon;
+grant execute on function privado.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean) to authenticated, service_role;
+grant execute on function privado.listar_escopo_contratos_usuario_adm(uuid,uuid,integer,integer,text) to authenticated, service_role;
+grant execute on function privado.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) to authenticated, service_role;
+grant execute on function privado.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text) to authenticated, service_role;
+
+revoke execute on function public.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean) from public, anon;
+revoke execute on function public.listar_escopo_contratos_usuario_adm(uuid,uuid,integer,integer,text) from public, anon;
+revoke execute on function public.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) from public, anon;
+revoke execute on function public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text) from public, anon;
+grant execute on function public.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean) to authenticated, service_role;
+grant execute on function public.listar_escopo_contratos_usuario_adm(uuid,uuid,integer,integer,text) to authenticated, service_role;
+grant execute on function public.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) to authenticated, service_role;
+grant execute on function public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text) to authenticated, service_role;
+
+-- ============================================================
+
+-- MIGRATION 20261102125242_adm01_usuarios_vinculos_backend
+-- ContaOS HML 4.1 — PROMPT 21 / ADM-01
+-- Backend oficial para usuários e vínculos, com concorrência, idempotência,
+-- paginação e auditoria. PROD não é alterado por esta migration.
+
+create or replace function privado.validar_administrador_organizacao(p_id_organizacao uuid)
+returns void
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  if p_id_organizacao is null then
+    raise sqlstate 'PT400' using
+      message = 'Organização inválida.',
+      detail = 'Informe a organização selecionada antes de continuar.',
+      hint = 'Selecione novamente a organização e repita a ação.';
+  end if;
+
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise sqlstate '42501' using
+      message = 'Você não tem permissão para administrar usuários desta organização.',
+      detail = 'A operação exige vínculo ativo com perfil administrador.',
+      hint = 'Selecione uma organização em que você seja administrador ou procure um administrador autorizado.';
+  end if;
+end;
+$$;
+
+revoke all on function privado.validar_administrador_organizacao(uuid) from public, anon;
+grant execute on function privado.validar_administrador_organizacao(uuid) to authenticated;
+
+create or replace function public.validar_administrador_organizacao(p_id_organizacao uuid)
+returns boolean
+language plpgsql
+stable
+security invoker
+set search_path = ''
+as $$
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+  return true;
+end;
+$$;
+
+revoke all on function public.validar_administrador_organizacao(uuid) from public, anon;
+grant execute on function public.validar_administrador_organizacao(uuid) to authenticated;
+
+create or replace function privado.listar_usuarios_adm(
+  p_id_organizacao uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null,
+  p_situacao text default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(100, greatest(coalesce(p_tamanho_pagina, 25), 1));
+  v_busca text := nullif(btrim(coalesce(p_busca, '')), '');
+  v_situacao text := nullif(lower(btrim(coalesce(p_situacao, ''))), '');
+  v_total bigint := 0;
+  v_itens jsonb := '[]'::jsonb;
+  v_perfis jsonb := '[]'::jsonb;
+  v_contratos jsonb := '[]'::jsonb;
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+
+  if v_situacao is not null and v_situacao not in ('ativo', 'inativo') then
+    raise sqlstate 'PT422' using
+      message = 'Filtro de situação inválido.',
+      detail = 'Use ativo, inativo ou deixe o filtro vazio.',
+      hint = 'Revise o filtro e tente novamente.';
+  end if;
+
+  select count(*) into v_total
+  from public.vinculos_usuarios v
+  join public.usuarios u on u.id_usuario = v.id_usuario
+  where v.id_organizacao = p_id_organizacao
+    and (v_situacao is null or (v_situacao = 'ativo' and v.ativo) or (v_situacao = 'inativo' and not v.ativo))
+    and (v_busca is null or lower(coalesce(u.nome, '') || ' ' || coalesce(u.email, '') || ' ' || coalesce(v.perfil, '')) like '%' || lower(v_busca) || '%');
+
+  select coalesce(jsonb_agg(q.item order by q.ord_nome, q.ord_email, q.ord_id), '[]'::jsonb) into v_itens
+  from (
+    select lower(coalesce(u.nome, u.email, '')) ord_nome,
+           lower(coalesce(u.email, '')) ord_email,
+           u.id_usuario ord_id,
+           jsonb_build_object(
+             'id_usuario',u.id_usuario,'nome',u.nome,'email',u.email,'telefone',u.telefone,
+             'situacao_usuario',u.situacao,'versao_usuario',u.versao_registro,'atualizado_em',u.atualizado_em,
+             'vinculo',jsonb_build_object('id',v.id,'perfil',v.perfil,'perfil_nome',p.nome,'escopo_todos_contratos',v.escopo_todos_contratos,'ativo',v.ativo,'inicio_em',v.inicio_em,'fim_em',v.fim_em,'versao_registro',v.versao_registro,'atualizado_em',v.atualizado_em),
+             'contratos_vinculados',coalesce((
+               select jsonb_agg(jsonb_build_object('id_contrato',c.id,'numero',c.numero,'objeto',c.objeto,'situacao',c.situacao) order by c.numero,c.id)
+               from public.vinculos_usuario_contratos vc
+               join public.contratos c on c.id=vc.id_contrato and c.id_organizacao=vc.id_organizacao
+               where vc.id_vinculo_usuario=v.id and vc.id_organizacao=p_id_organizacao and vc.ativo=true and privado.usuario_tem_acesso_contrato(c.id)
+             ),'[]'::jsonb)
+           ) item
+    from public.vinculos_usuarios v
+    join public.usuarios u on u.id_usuario=v.id_usuario
+    join public.perfis_usuarios p on p.codigo=v.perfil
+    where v.id_organizacao=p_id_organizacao
+      and (v_situacao is null or (v_situacao='ativo' and v.ativo) or (v_situacao='inativo' and not v.ativo))
+      and (v_busca is null or lower(coalesce(u.nome,'')||' '||coalesce(u.email,'')||' '||coalesce(v.perfil,'')) like '%'||lower(v_busca)||'%')
+    order by lower(coalesce(u.nome,u.email,'')),lower(coalesce(u.email,'')),u.id_usuario
+    limit v_tamanho offset ((v_pagina-1)*v_tamanho)
+  ) q;
+
+  select coalesce(jsonb_agg(jsonb_build_object('codigo',p.codigo,'nome',p.nome,'descricao',p.descricao) order by p.nome,p.codigo),'[]'::jsonb) into v_perfis from public.perfis_usuarios p;
+  select coalesce(jsonb_agg(jsonb_build_object('id_contrato',c.id,'numero',c.numero,'objeto',c.objeto,'situacao',c.situacao) order by c.numero,c.id),'[]'::jsonb) into v_contratos
+  from public.contratos c where c.id_organizacao=p_id_organizacao and privado.usuario_tem_acesso_contrato(c.id);
+
+  return jsonb_build_object('schema_versao','adm01-v1','pagina',v_pagina,'tamanho_pagina',v_tamanho,'total',v_total,'total_paginas',case when v_total=0 then 0 else ceil(v_total::numeric/v_tamanho::numeric)::integer end,'itens',v_itens,'perfis_disponiveis',v_perfis,'contratos_disponiveis',v_contratos,'gerado_em',now());
+end;
+$$;
+revoke all on function privado.listar_usuarios_adm(uuid,integer,integer,text,text) from public, anon;
+grant execute on function privado.listar_usuarios_adm(uuid,integer,integer,text,text) to authenticated;
+
+create or replace function public.listar_usuarios_adm(p_id_organizacao uuid,p_pagina integer default 1,p_tamanho_pagina integer default 25,p_busca text default null,p_situacao text default null)
+returns jsonb language sql stable security invoker set search_path=''
+as $$ select privado.listar_usuarios_adm($1,$2,$3,$4,$5) $$;
+revoke all on function public.listar_usuarios_adm(uuid,integer,integer,text,text) from public, anon;
+grant execute on function public.listar_usuarios_adm(uuid,integer,integer,text,text) to authenticated;
+
+create or replace function privado.listar_auditoria_usuario_adm(p_id_organizacao uuid,p_id_usuario uuid,p_limite integer default 50)
+returns jsonb language plpgsql stable security definer set search_path=''
+as $$
+declare v_limite integer:=least(100,greatest(coalesce(p_limite,50),1)); v_eventos jsonb:='[]'::jsonb;
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+  if not exists(select 1 from public.vinculos_usuarios v where v.id_organizacao=p_id_organizacao and v.id_usuario=p_id_usuario) then
+    raise sqlstate 'PT404' using message='Vínculo de usuário não encontrado.',detail='O usuário informado não possui vínculo com esta organização.',hint='Atualize a lista e tente novamente.';
+  end if;
+  select coalesce(jsonb_agg(q.item order by q.criado_em desc,q.id desc),'[]'::jsonb) into v_eventos
+  from (
+    select e.id,e.criado_em,jsonb_build_object('id',e.id,'evento',e.evento,'entidade',e.entidade,'antes',e.antes,'depois',e.depois,'metadados',e.metadados,'correlation_id',e.correlation_id,'criado_em',e.criado_em,'ator',jsonb_build_object('id_usuario',e.id_usuario,'nome',au.nome,'email',au.email)) item
+    from public.eventos_auditoria e left join public.usuarios au on au.id_usuario=e.id_usuario
+    where e.id_organizacao=p_id_organizacao and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos') and e.metadados->>'id_usuario'=p_id_usuario::text
+      and (e.entidade<>'vinculos_usuario_contratos' or privado.uuid_seguro(e.metadados->>'id_contrato') is null or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato')))
+    order by e.criado_em desc,e.id desc limit v_limite
+  ) q;
+  return jsonb_build_object('schema_versao','adm01-v1','id_usuario',p_id_usuario,'eventos',v_eventos);
+end;
+$$;
+revoke all on function privado.listar_auditoria_usuario_adm(uuid,uuid,integer) from public, anon;
+grant execute on function privado.listar_auditoria_usuario_adm(uuid,uuid,integer) to authenticated;
+create or replace function public.listar_auditoria_usuario_adm(p_id_organizacao uuid,p_id_usuario uuid,p_limite integer default 50)
+returns jsonb language sql stable security invoker set search_path='' as $$ select privado.listar_auditoria_usuario_adm($1,$2,$3) $$;
+revoke all on function public.listar_auditoria_usuario_adm(uuid,uuid,integer) from public, anon;
+grant execute on function public.listar_auditoria_usuario_adm(uuid,uuid,integer) to authenticated;
+
+create or replace function privado.definir_vinculo_usuario_v2(p_id_organizacao uuid,p_id_usuario uuid,p_perfil text,p_escopo_todos_contratos boolean default false,p_ativo boolean default true,p_versao_esperada bigint default null,p_chave_idempotencia text default null)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare
+ v_chave text:=nullif(btrim(coalesce(p_chave_idempotencia,'')),''); v_payload jsonb; v_hash text; v_comando_id uuid; v_comando_hash text; v_comando_status text; v_comando_resposta jsonb; v_atual public.vinculos_usuarios%rowtype; v_depois public.vinculos_usuarios%rowtype; v_antes jsonb:=null; v_resposta jsonb; v_existia boolean:=false; v_alterou boolean:=false;
+begin
+ perform privado.validar_administrador_organizacao(p_id_organizacao);
+ if p_id_usuario is null then raise sqlstate 'PT422' using message='Usuário inválido.',hint='Selecione um usuário válido.'; end if;
+ if v_chave is null or length(v_chave)>200 then raise sqlstate 'PT422' using message='Chave de idempotência inválida.',detail='Informe uma chave não vazia com até 200 caracteres.',hint='Gere uma nova identificação para esta operação.'; end if;
+ if not exists(select 1 from public.usuarios u where u.id_usuario=p_id_usuario) then raise sqlstate 'PT422' using message='Usuário não encontrado.',detail='O usuário precisa existir no Supabase Auth antes de receber vínculo.',hint='Use o fluxo de convite/vínculo e tente novamente.'; end if;
+ if not exists(select 1 from public.perfis_usuarios p where p.codigo=p_perfil) then raise sqlstate 'PT422' using message='Perfil inválido.',detail='O perfil informado não existe no catálogo oficial.',hint='Selecione um dos perfis retornados pelo backend.'; end if;
+ v_payload:=jsonb_build_object('id_usuario',p_id_usuario,'perfil',p_perfil,'escopo_todos_contratos',coalesce(p_escopo_todos_contratos,false),'ativo',coalesce(p_ativo,true),'versao_esperada',p_versao_esperada); v_hash:=md5(v_payload::text);
+ insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,expira_em) values(p_id_organizacao,'adm01_definir_vinculo',v_chave,v_hash,'iniciado',now()+interval '24 hours') on conflict(id_organizacao,comando,chave) do nothing returning id into v_comando_id;
+ if v_comando_id is null then
+  select c.id,c.hash_payload,c.status,c.resposta into v_comando_id,v_comando_hash,v_comando_status,v_comando_resposta from public.comandos_idempotentes c where c.id_organizacao=p_id_organizacao and c.comando='adm01_definir_vinculo' and c.chave=v_chave for update;
+  if v_comando_hash is distinct from v_hash then raise sqlstate 'PT409' using message='Esta ação já foi enviada com dados diferentes.',detail='A mesma chave de idempotência não pode representar duas alterações distintas.',hint='Atualize a tela e envie a nova alteração com outra chave.'; end if;
+  if v_comando_status='concluido' and v_comando_resposta is not null then return v_comando_resposta; end if;
+ end if;
+ select v.* into v_atual from public.vinculos_usuarios v where v.id_organizacao=p_id_organizacao and v.id_usuario=p_id_usuario for update; v_existia:=found;
+ if v_existia then
+  if p_versao_esperada is null or p_versao_esperada<>v_atual.versao_registro then raise sqlstate 'PT409' using message='Este vínculo foi atualizado por outra pessoa.',detail=format('Versão esperada: %s. Versão atual: %s.',coalesce(p_versao_esperada::text,'não informada'),v_atual.versao_registro),hint='Recarregue os dados, revise a versão mais recente e tente novamente.'; end if;
+  v_antes:=to_jsonb(v_atual); v_alterou:=v_atual.perfil is distinct from p_perfil or v_atual.escopo_todos_contratos is distinct from coalesce(p_escopo_todos_contratos,false) or v_atual.ativo is distinct from coalesce(p_ativo,true);
+  if v_alterou then update public.vinculos_usuarios set perfil=p_perfil,escopo_todos_contratos=coalesce(p_escopo_todos_contratos,false),ativo=coalesce(p_ativo,true),fim_em=case when coalesce(p_ativo,true) then null else coalesce(v_atual.fim_em,now()) end where id=v_atual.id; end if;
+ else
+  if p_versao_esperada is not null and p_versao_esperada<>0 then raise sqlstate 'PT409' using message='A lista de usuários está desatualizada.',detail='O vínculo ainda não existe, mas foi informada uma versão diferente de zero.',hint='Recarregue os dados antes de criar o vínculo.'; end if;
+  insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_todos_contratos,ativo,fim_em) values(p_id_organizacao,p_id_usuario,p_perfil,coalesce(p_escopo_todos_contratos,false),coalesce(p_ativo,true),case when coalesce(p_ativo,true) then null else now() end); v_alterou:=true;
+ end if;
+ select v.* into v_depois from public.vinculos_usuarios v where v.id_organizacao=p_id_organizacao and v.id_usuario=p_id_usuario;
+ if v_alterou then perform privado.registrar_evento_auditoria(p_id_organizacao,case when v_existia then 'VinculoUsuarioAtualizado' else 'VinculoUsuarioCriado' end,'vinculos_usuarios',v_depois.id,v_antes,to_jsonb(v_depois),jsonb_build_object('id_usuario',p_id_usuario,'chave_idempotencia',v_chave)); end if;
+ v_resposta:=jsonb_build_object('schema_versao','adm01-v1','alterado',v_alterou,'vinculo',jsonb_build_object('id',v_depois.id,'id_usuario',v_depois.id_usuario,'id_organizacao',v_depois.id_organizacao,'perfil',v_depois.perfil,'escopo_todos_contratos',v_depois.escopo_todos_contratos,'ativo',v_depois.ativo,'inicio_em',v_depois.inicio_em,'fim_em',v_depois.fim_em,'versao_registro',v_depois.versao_registro,'atualizado_em',v_depois.atualizado_em));
+ update public.comandos_idempotentes set status='concluido',resposta=v_resposta where id=v_comando_id; return v_resposta;
+end;
+$$;
+revoke all on function privado.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text) from public, anon;
+grant execute on function privado.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text) to authenticated;
+create or replace function public.definir_vinculo_usuario_v2(p_id_organizacao uuid,p_id_usuario uuid,p_perfil text,p_escopo_todos_contratos boolean default false,p_ativo boolean default true,p_versao_esperada bigint default null,p_chave_idempotencia text default null)
+returns jsonb language sql security invoker set search_path='' as $$ select privado.definir_vinculo_usuario_v2($1,$2,$3,$4,$5,$6,$7) $$;
+revoke all on function public.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text) from public, anon;
+grant execute on function public.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text) to authenticated;
+
+create or replace function privado.definir_acesso_contrato_usuario_v2(p_id_organizacao uuid,p_id_usuario uuid,p_id_contrato uuid,p_conceder boolean default true,p_versao_vinculo_esperada bigint default null,p_chave_idempotencia text default null)
+returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare
+ v_chave text:=nullif(btrim(coalesce(p_chave_idempotencia,'')),''); v_payload jsonb; v_hash text; v_comando_id uuid; v_comando_hash text; v_comando_status text; v_comando_resposta jsonb; v_vinculo public.vinculos_usuarios%rowtype; v_vinculo_depois public.vinculos_usuarios%rowtype; v_acesso_id uuid; v_acesso_ativo boolean; v_acesso_revogado_em timestamptz; v_acesso_existia boolean:=false; v_alterou boolean:=false; v_antes jsonb:=null; v_depois jsonb:=null; v_resposta jsonb;
+begin
+ perform privado.validar_administrador_organizacao(p_id_organizacao);
+ if v_chave is null or length(v_chave)>200 then raise sqlstate 'PT422' using message='Chave de idempotência inválida.',detail='Informe uma chave não vazia com até 200 caracteres.',hint='Gere uma nova identificação para esta operação.'; end if;
+ if not exists(select 1 from public.contratos c where c.id=p_id_contrato and c.id_organizacao=p_id_organizacao) then raise sqlstate 'PT422' using message='Contrato inválido.',detail='O contrato informado não pertence à organização selecionada.',hint='Selecione um contrato retornado pelo backend.'; end if;
+ if not privado.usuario_tem_acesso_contrato(p_id_contrato) then raise sqlstate '42501' using message='Você não tem permissão para administrar este contrato.',detail='O contrato está fora do seu escopo autorizado.',hint='Selecione um contrato ao qual seu usuário tenha acesso.'; end if;
+ v_payload:=jsonb_build_object('id_usuario',p_id_usuario,'id_contrato',p_id_contrato,'conceder',coalesce(p_conceder,true),'versao_vinculo_esperada',p_versao_vinculo_esperada); v_hash:=md5(v_payload::text);
+ insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,expira_em) values(p_id_organizacao,'adm01_definir_acesso_contrato',v_chave,v_hash,'iniciado',now()+interval '24 hours') on conflict(id_organizacao,comando,chave) do nothing returning id into v_comando_id;
+ if v_comando_id is null then
+  select c.id,c.hash_payload,c.status,c.resposta into v_comando_id,v_comando_hash,v_comando_status,v_comando_resposta from public.comandos_idempotentes c where c.id_organizacao=p_id_organizacao and c.comando='adm01_definir_acesso_contrato' and c.chave=v_chave for update;
+  if v_comando_hash is distinct from v_hash then raise sqlstate 'PT409' using message='Esta ação já foi enviada com dados diferentes.',detail='A mesma chave de idempotência não pode representar duas alterações distintas.',hint='Atualize a tela e envie a nova alteração com outra chave.'; end if;
+  if v_comando_status='concluido' and v_comando_resposta is not null then return v_comando_resposta; end if;
+ end if;
+ select v.* into v_vinculo from public.vinculos_usuarios v where v.id_organizacao=p_id_organizacao and v.id_usuario=p_id_usuario for update;
+ if not found then raise sqlstate 'PT422' using message='Usuário sem vínculo com a organização.',detail='Crie o vínculo antes de definir contratos específicos.',hint='Salve primeiro o perfil e o vínculo do usuário.'; end if;
+ if p_versao_vinculo_esperada is null or p_versao_vinculo_esperada<>v_vinculo.versao_registro then raise sqlstate 'PT409' using message='O escopo deste usuário foi atualizado por outra pessoa.',detail=format('Versão esperada: %s. Versão atual: %s.',coalesce(p_versao_vinculo_esperada::text,'não informada'),v_vinculo.versao_registro),hint='Recarregue os dados, revise os contratos atuais e tente novamente.'; end if;
+ select vc.id,vc.ativo,vc.revogado_em into v_acesso_id,v_acesso_ativo,v_acesso_revogado_em from public.vinculos_usuario_contratos vc where vc.id_vinculo_usuario=v_vinculo.id and vc.id_contrato=p_id_contrato for update; v_acesso_existia:=found;
+ if v_acesso_existia then v_antes:=jsonb_build_object('id',v_acesso_id,'id_contrato',p_id_contrato,'ativo',v_acesso_ativo,'revogado_em',v_acesso_revogado_em); end if;
+ v_alterou:=(not v_acesso_existia) or v_acesso_ativo is distinct from coalesce(p_conceder,true);
+ if v_alterou then
+  insert into public.vinculos_usuario_contratos(id_organizacao,id_vinculo_usuario,id_contrato,ativo,revogado_em) values(p_id_organizacao,v_vinculo.id,p_id_contrato,coalesce(p_conceder,true),case when coalesce(p_conceder,true) then null else now() end)
+  on conflict(id_vinculo_usuario,id_contrato) do update set ativo=excluded.ativo,revogado_em=excluded.revogado_em returning id,ativo,revogado_em into v_acesso_id,v_acesso_ativo,v_acesso_revogado_em;
+  update public.vinculos_usuarios set atualizado_em=now() where id=v_vinculo.id;
+ end if;
+ select v.* into v_vinculo_depois from public.vinculos_usuarios v where v.id=v_vinculo.id;
+ v_depois:=jsonb_build_object('id',v_acesso_id,'id_contrato',p_id_contrato,'ativo',coalesce(v_acesso_ativo,coalesce(p_conceder,true)),'revogado_em',v_acesso_revogado_em);
+ if v_alterou then perform privado.registrar_evento_auditoria(p_id_organizacao,case when coalesce(p_conceder,true) then 'AcessoContratoConcedido' else 'AcessoContratoRevogado' end,'vinculos_usuario_contratos',v_acesso_id,v_antes,v_depois,jsonb_build_object('id_usuario',p_id_usuario,'id_contrato',p_id_contrato,'chave_idempotencia',v_chave)); end if;
+ v_resposta:=jsonb_build_object('schema_versao','adm01-v1','alterado',v_alterou,'versao_vinculo',v_vinculo_depois.versao_registro,'acesso',v_depois);
+ update public.comandos_idempotentes set status='concluido',resposta=v_resposta where id=v_comando_id; return v_resposta;
+end;
+$$;
+revoke all on function privado.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text) from public, anon;
+grant execute on function privado.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text) to authenticated;
+create or replace function public.definir_acesso_contrato_usuario_v2(p_id_organizacao uuid,p_id_usuario uuid,p_id_contrato uuid,p_conceder boolean default true,p_versao_vinculo_esperada bigint default null,p_chave_idempotencia text default null)
+returns jsonb language sql security invoker set search_path='' as $$ select privado.definir_acesso_contrato_usuario_v2($1,$2,$3,$4,$5,$6) $$;
+revoke all on function public.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text) from public, anon;
+grant execute on function public.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text) to authenticated;
+
+comment on function public.listar_usuarios_adm(uuid,integer,integer,text,text) is 'ADM-01: lista paginada de vínculos de usuários para administradores; contrato adm01-v1.';
+comment on function public.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text) is 'ADM-01: cria/edita perfil, situação do vínculo e escopo global com concorrência e idempotência.';
+comment on function public.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text) is 'ADM-01: concede/revoga contrato específico com concorrência do vínculo e idempotência.';
+comment on function public.listar_auditoria_usuario_adm(uuid,uuid,integer) is 'ADM-01: histórico auditável de alterações de vínculo e contratos de um usuário.';
+
+-- ============================================================
+
+-- MIGRATION 20261102125612_adm01_consolidar_contrato_publico
+-- ContaOS HML 4.1 — ADM-01 consolidação do contrato público
+-- Mantém o histórico interno integral, mas o AuditDrawer respeita o escopo
+-- contratual do administrador chamador. Remove endpoints redundantes da
+-- migration posterior, preservando uma superfície canônica única.
+
+create or replace function privado.listar_auditoria_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 20
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 20), 1), 50);
+  v_offset integer;
+  v_total bigint;
+  v_itens jsonb;
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+
+  if not exists (
+    select 1
+    from public.vinculos_usuarios vu
+    where vu.id_organizacao = p_id_organizacao
+      and vu.id_usuario = p_id_usuario
+  ) then
+    raise sqlstate 'PT404' using
+      message = 'Vínculo de usuário não encontrado nesta organização.',
+      hint = 'Atualize a lista e tente novamente.';
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+  from public.eventos_auditoria e
+  where e.id_organizacao = p_id_organizacao
+    and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+    and e.metadados->>'id_usuario' = p_id_usuario::text
+    and (
+      e.entidade <> 'vinculos_usuario_contratos'
+      or privado.uuid_seguro(e.metadados->>'id_contrato') is null
+      or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+    );
+
+  select coalesce(jsonb_agg(x.item order by x.criado_em desc, x.id desc), '[]'::jsonb)
+    into v_itens
+  from (
+    select e.criado_em, e.id,
+      jsonb_build_object(
+        'id', e.id,
+        'correlation_id', e.correlation_id,
+        'evento', e.evento,
+        'entidade', e.entidade,
+        'id_entidade', e.id_entidade,
+        'id_usuario_ator', e.id_usuario,
+        'ator_nome', ua.nome,
+        'ator_email', ua.email,
+        'antes',
+          case
+            when jsonb_typeof(e.antes->'escopo_contratos') = 'array' then
+              jsonb_set(
+                e.antes,
+                '{escopo_contratos}',
+                coalesce((
+                  select jsonb_agg(j.elem order by j.elem->>'id_contrato')
+                  from jsonb_array_elements(e.antes->'escopo_contratos') as j(elem)
+                  where privado.uuid_seguro(j.elem->>'id_contrato') is not null
+                    and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(j.elem->>'id_contrato'))
+                ), '[]'::jsonb),
+                true
+              )
+            else e.antes
+          end,
+        'depois',
+          case
+            when jsonb_typeof(e.depois->'escopo_contratos') = 'array' then
+              jsonb_set(
+                e.depois,
+                '{escopo_contratos}',
+                coalesce((
+                  select jsonb_agg(j.elem order by j.elem->>'id_contrato')
+                  from jsonb_array_elements(e.depois->'escopo_contratos') as j(elem)
+                  where privado.uuid_seguro(j.elem->>'id_contrato') is not null
+                    and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(j.elem->>'id_contrato'))
+                ), '[]'::jsonb),
+                true
+              )
+            else e.depois
+          end,
+        'metadados',
+          case
+            when privado.uuid_seguro(e.metadados->>'id_contrato') is not null
+             and not privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+              then e.metadados - 'id_contrato'
+            else e.metadados
+          end,
+        'criado_em', e.criado_em
+      ) as item
+    from public.eventos_auditoria e
+    left join public.usuarios ua on ua.id_usuario = e.id_usuario
+    where e.id_organizacao = p_id_organizacao
+      and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+      and e.metadados->>'id_usuario' = p_id_usuario::text
+      and (
+        e.entidade <> 'vinculos_usuario_contratos'
+        or privado.uuid_seguro(e.metadados->>'id_contrato') is null
+        or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+      )
+    order by e.criado_em desc, e.id desc
+    limit v_tamanho offset v_offset
+  ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v1',
+    'id_usuario', p_id_usuario,
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens
+  );
+end;
+$$;
+
+revoke all on function privado.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) from public, anon;
+grant execute on function privado.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) to authenticated;
+
+-- Superfície pública canônica do ADM-01:
+-- validar_administrador_organizacao
+-- listar_usuarios_vinculos_adm
+-- listar_escopo_contratos_usuario_adm
+-- listar_auditoria_vinculo_usuario_adm
+-- salvar_vinculo_usuario_adm
+
+-- Remover apenas as RPCs redundantes criadas na migration seguinte.
+drop function if exists public.listar_usuarios_adm(uuid,integer,integer,text,text);
+drop function if exists privado.listar_usuarios_adm(uuid,integer,integer,text,text);
+drop function if exists public.listar_auditoria_usuario_adm(uuid,uuid,integer);
+drop function if exists privado.listar_auditoria_usuario_adm(uuid,uuid,integer);
+drop function if exists public.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text);
+drop function if exists privado.definir_vinculo_usuario_v2(uuid,uuid,text,boolean,boolean,bigint,text);
+drop function if exists public.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text);
+drop function if exists privado.definir_acesso_contrato_usuario_v2(uuid,uuid,uuid,boolean,bigint,text);
+
+comment on function public.validar_administrador_organizacao(uuid) is
+  'ADM-01: valida sessão ativa e perfil administrador na organização.';
+comment on function public.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean) is
+  'ADM-01: lista paginada canônica de usuários e vínculos; contrato adm01-v1.';
+comment on function public.listar_escopo_contratos_usuario_adm(uuid,uuid,integer,integer,text) is
+  'ADM-01: lista paginada do escopo contratual visível ao administrador; contrato adm01-v1.';
+comment on function public.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) is
+  'ADM-01: AuditDrawer paginado com redação de contratos fora do escopo do administrador; contrato adm01-v1.';
+comment on function public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text) is
+  'ADM-01: mutação administrativa atômica de perfil, ativo e escopo, com versão, idempotência e auditoria; contrato adm01-v1.';
+
+-- ============================================================
+
+-- MIGRATION 20261102130001_adm01_scope_pagination_integrity
+-- ContaOS 4.1 — ADM-01 correção de integridade do escopo paginado
+-- Mantém paginação real sem exigir que o frontend carregue todo o escopo.
+
+create or replace function privado.listar_escopo_contratos_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 25), 1), 100);
+  v_offset integer;
+  v_busca text := nullif(pg_catalog.btrim(coalesce(p_busca, '')), '');
+  v_total bigint;
+  v_vinculo uuid;
+  v_todos boolean := false;
+  v_itens jsonb;
+begin
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para administrar o escopo contratual.';
+  end if;
+
+  if p_id_usuario is not null then
+    select vu.id, vu.escopo_todos_contratos
+      into v_vinculo, v_todos
+      from public.vinculos_usuarios vu
+     where vu.id_organizacao = p_id_organizacao
+       and vu.id_usuario = p_id_usuario;
+
+    if v_vinculo is null then
+      raise exception using errcode = 'PT404', message = 'Vínculo de usuário não encontrado nesta organização.';
+    end if;
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+    from public.contratos c
+   where c.id_organizacao = p_id_organizacao
+     and privado.usuario_tem_acesso_contrato(c.id)
+     and (
+       v_busca is null
+       or c.numero ilike '%' || v_busca || '%'
+       or c.objeto ilike '%' || v_busca || '%'
+     );
+
+  select coalesce(jsonb_agg(x.item order by x.numero, x.id), '[]'::jsonb)
+    into v_itens
+    from (
+      select c.numero, c.id,
+             jsonb_build_object(
+               'id', c.id,
+               'numero', c.numero,
+               'objeto', c.objeto,
+               'situacao', c.situacao,
+               'criticidade', c.criticidade,
+               'selecionado', coalesce(vc.ativo, false),
+               'acesso_efetivo', coalesce(v_todos, false) or coalesce(vc.ativo, false)
+             ) as item
+        from public.contratos c
+        left join public.vinculos_usuario_contratos vc
+          on v_vinculo is not null
+         and vc.id_vinculo_usuario = v_vinculo
+         and vc.id_contrato = c.id
+       where c.id_organizacao = p_id_organizacao
+         and privado.usuario_tem_acesso_contrato(c.id)
+         and (
+           v_busca is null
+           or c.numero ilike '%' || v_busca || '%'
+           or c.objeto ilike '%' || v_busca || '%'
+         )
+       order by c.numero, c.id
+       limit v_tamanho offset v_offset
+    ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v2',
+    'id_usuario', p_id_usuario,
+    'escopo_todos_contratos', coalesce(v_todos, false),
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens
+  );
+end;
+$$;
+
+-- Remove a assinatura v1 do salvamento para não manter caminho paralelo com semântica de substituição total.
+drop function if exists public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text);
+drop function if exists privado.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],bigint,text);
+
+create or replace function privado.salvar_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_email text,
+  p_perfil text,
+  p_escopo_todos_contratos boolean,
+  p_ativo boolean,
+  p_ids_contratos_ativar uuid[],
+  p_ids_contratos_revogar uuid[],
+  p_versao_esperada bigint,
+  p_chave_idempotencia text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_id_usuario uuid := p_id_usuario;
+  v_email text := nullif(lower(pg_catalog.btrim(coalesce(p_email, ''))), '');
+  v_perfil text := nullif(pg_catalog.btrim(coalesce(p_perfil, '')), '');
+  v_todos boolean := coalesce(p_escopo_todos_contratos, false);
+  v_ativo boolean := coalesce(p_ativo, true);
+  v_ids_ativar uuid[];
+  v_ids_revogar uuid[];
+  v_ids_validar uuid[];
+  v_chave text := nullif(pg_catalog.btrim(coalesce(p_chave_idempotencia, '')), '');
+  v_hash text;
+  v_comando_id uuid;
+  v_comando_status text;
+  v_comando_hash text;
+  v_comando_resposta jsonb;
+  v_vinculo_id uuid;
+  v_versao_atual bigint;
+  v_antes jsonb;
+  v_depois jsonb;
+  v_escopo_antes jsonb;
+  v_escopo_depois jsonb;
+  v_evento_id uuid;
+  v_correlation_id uuid;
+  v_resposta jsonb;
+  v_qtd_contratos integer;
+begin
+  if not privado.usuario_possui_perfil(p_id_organizacao, array['administrador']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para administrar usuários desta organização.';
+  end if;
+
+  if v_id_usuario is null then
+    if v_email is null then
+      raise exception using errcode = 'PT400', message = 'Informe um usuário ou e-mail válido.';
+    end if;
+    select u.id_usuario
+      into v_id_usuario
+      from public.usuarios u
+     where lower(u.email) = v_email
+     order by u.id_usuario
+     limit 1;
+  else
+    if not exists (select 1 from public.usuarios u where u.id_usuario = v_id_usuario) then
+      v_id_usuario := null;
+    elsif v_email is not null and not exists (
+      select 1 from public.usuarios u where u.id_usuario = v_id_usuario and lower(u.email) = v_email
+    ) then
+      raise exception using errcode = 'PT400', message = 'O e-mail informado não corresponde ao usuário selecionado.';
+    end if;
+  end if;
+
+  if v_id_usuario is null then
+    raise exception using
+      errcode = 'PT404',
+      message = 'Usuário ContaOS não encontrado.',
+      hint = 'Vincule uma conta já existente no ContaOS.';
+  end if;
+
+  if v_perfil is null or not exists (select 1 from public.perfis_usuarios p where p.codigo = v_perfil) then
+    raise exception using errcode = 'PT400', message = 'Perfil de acesso inválido.';
+  end if;
+
+  if v_chave is null or pg_catalog.length(v_chave) > 200 then
+    raise exception using errcode = 'PT400', message = 'Chave de idempotência inválida.';
+  end if;
+
+  select coalesce(array_agg(x order by x), array[]::uuid[])
+    into v_ids_ativar
+    from (select distinct unnest(coalesce(p_ids_contratos_ativar, array[]::uuid[])) x) d;
+
+  select coalesce(array_agg(x order by x), array[]::uuid[])
+    into v_ids_revogar
+    from (select distinct unnest(coalesce(p_ids_contratos_revogar, array[]::uuid[])) x) d;
+
+  if exists (
+    select 1
+      from unnest(v_ids_ativar) a(id)
+      join unnest(v_ids_revogar) r(id) using(id)
+  ) then
+    raise exception using errcode = 'PT400', message = 'O mesmo contrato não pode ser ativado e revogado na mesma operação.';
+  end if;
+
+  if v_todos or not v_ativo then
+    v_ids_ativar := array[]::uuid[];
+    v_ids_revogar := array[]::uuid[];
+  end if;
+
+  select coalesce(array_agg(x order by x), array[]::uuid[])
+    into v_ids_validar
+    from (
+      select unnest(v_ids_ativar) x
+      union
+      select unnest(v_ids_revogar) x
+    ) u;
+
+  select count(*) into v_qtd_contratos
+    from public.contratos c
+   where c.id_organizacao = p_id_organizacao
+     and c.id = any(v_ids_validar)
+     and privado.usuario_tem_acesso_contrato(c.id);
+
+  if v_qtd_contratos <> cardinality(v_ids_validar) then
+    raise exception using errcode = 'PT400', message = 'Um ou mais contratos informados não pertencem ao seu escopo nesta organização.';
+  end if;
+
+  v_hash := pg_catalog.md5(jsonb_build_object(
+    'id_usuario', v_id_usuario,
+    'perfil', v_perfil,
+    'escopo_todos_contratos', v_todos,
+    'ativo', v_ativo,
+    'ids_contratos_ativar', to_jsonb(v_ids_ativar),
+    'ids_contratos_revogar', to_jsonb(v_ids_revogar),
+    'versao_esperada', p_versao_esperada
+  )::text);
+
+  insert into public.comandos_idempotentes(id_organizacao, comando, chave, hash_payload, status, expira_em)
+  values(p_id_organizacao, 'adm01.salvar_vinculo_usuario.v2', v_chave, v_hash, 'iniciado', now() + interval '24 hours')
+  on conflict(id_organizacao, comando, chave) do nothing
+  returning id into v_comando_id;
+
+  if v_comando_id is null then
+    select c.id, c.status, c.hash_payload, c.resposta
+      into v_comando_id, v_comando_status, v_comando_hash, v_comando_resposta
+      from public.comandos_idempotentes c
+     where c.id_organizacao = p_id_organizacao
+       and c.comando = 'adm01.salvar_vinculo_usuario.v2'
+       and c.chave = v_chave
+     for update;
+
+    if v_comando_hash is distinct from v_hash then
+      raise exception using errcode = 'PT409', message = 'Esta chave de operação já foi usada com dados diferentes.';
+    end if;
+
+    if v_comando_status = 'concluido' and v_comando_resposta is not null then
+      return v_comando_resposta;
+    end if;
+
+    if v_comando_status = 'iniciado' then
+      raise exception using errcode = 'PT409', message = 'Esta operação já está em processamento. Atualize a tela antes de tentar novamente.';
+    end if;
+
+    update public.comandos_idempotentes
+       set status = 'iniciado', resposta = null
+     where id = v_comando_id;
+  end if;
+
+  perform pg_catalog.pg_advisory_xact_lock(
+    pg_catalog.hashtextextended(p_id_organizacao::text || ':' || v_id_usuario::text, 0)
+  );
+
+  select vu.id, vu.versao_registro, to_jsonb(vu)
+    into v_vinculo_id, v_versao_atual, v_antes
+    from public.vinculos_usuarios vu
+   where vu.id_organizacao = p_id_organizacao
+     and vu.id_usuario = v_id_usuario
+   for update;
+
+  if v_vinculo_id is null then
+    if p_versao_esperada is not null then
+      raise exception using errcode = 'PT409', message = 'O vínculo mudou desde a última leitura. Atualize a tela e tente novamente.';
+    end if;
+  else
+    if p_versao_esperada is null or p_versao_esperada <> v_versao_atual then
+      raise exception using errcode = 'PT409', message = 'Este vínculo foi atualizado por outra pessoa. Atualize a tela, confira a versão mais recente e tente novamente.';
+    end if;
+  end if;
+
+  select coalesce(jsonb_agg(jsonb_build_object('id_contrato', vc.id_contrato, 'ativo', vc.ativo) order by vc.id_contrato), '[]'::jsonb)
+    into v_escopo_antes
+    from public.vinculos_usuario_contratos vc
+   where vc.id_vinculo_usuario = v_vinculo_id;
+
+  if v_vinculo_id is null then
+    insert into public.vinculos_usuarios(
+      id_organizacao, id_usuario, perfil, escopo_todos_contratos, ativo, fim_em
+    )
+    values(
+      p_id_organizacao, v_id_usuario, v_perfil, v_todos, v_ativo,
+      case when v_ativo then null else pg_catalog.clock_timestamp() end
+    )
+    returning id into v_vinculo_id;
+  else
+    update public.vinculos_usuarios
+       set perfil = v_perfil,
+           escopo_todos_contratos = v_todos,
+           ativo = v_ativo,
+           fim_em = case
+             when v_ativo then null
+             else coalesce(fim_em, pg_catalog.clock_timestamp())
+           end
+     where id = v_vinculo_id;
+  end if;
+
+  if v_todos or not v_ativo then
+    update public.vinculos_usuario_contratos
+       set ativo = false,
+           revogado_em = coalesce(revogado_em, pg_catalog.clock_timestamp())
+     where id_vinculo_usuario = v_vinculo_id
+       and ativo = true;
+  else
+    insert into public.vinculos_usuario_contratos(
+      id_organizacao, id_vinculo_usuario, id_contrato, ativo, revogado_em
+    )
+    select p_id_organizacao, v_vinculo_id, x, true, null
+      from unnest(v_ids_ativar) x
+    on conflict(id_vinculo_usuario, id_contrato)
+    do update set ativo = true, revogado_em = null;
+
+    update public.vinculos_usuario_contratos
+       set ativo = false,
+           revogado_em = coalesce(revogado_em, pg_catalog.clock_timestamp())
+     where id_vinculo_usuario = v_vinculo_id
+       and id_contrato = any(v_ids_revogar)
+       and ativo = true;
+  end if;
+
+  select to_jsonb(vu)
+    into v_depois
+    from public.vinculos_usuarios vu
+   where vu.id = v_vinculo_id;
+
+  select coalesce(jsonb_agg(jsonb_build_object('id_contrato', vc.id_contrato, 'ativo', vc.ativo) order by vc.id_contrato), '[]'::jsonb)
+    into v_escopo_depois
+    from public.vinculos_usuario_contratos vc
+   where vc.id_vinculo_usuario = v_vinculo_id;
+
+  v_evento_id := privado.registrar_evento_auditoria(
+    p_id_organizacao,
+    'VinculoUsuarioAdministrativoSalvo',
+    'vinculos_usuarios',
+    v_vinculo_id,
+    jsonb_build_object('vinculo', v_antes, 'escopo_contratos', v_escopo_antes),
+    jsonb_build_object('vinculo', v_depois, 'escopo_contratos', v_escopo_depois),
+    jsonb_build_object(
+      'id_usuario', v_id_usuario,
+      'chave_idempotencia', v_chave,
+      'ids_contratos_ativar', to_jsonb(v_ids_ativar),
+      'ids_contratos_revogar', to_jsonb(v_ids_revogar)
+    )
+  );
+
+  select e.correlation_id into v_correlation_id
+    from public.eventos_auditoria e
+   where e.id = v_evento_id;
+
+  v_resposta := jsonb_build_object(
+    'schema_versao', 'adm01-v2',
+    'correlation_id', v_correlation_id,
+    'id_usuario', v_id_usuario,
+    'vinculo', v_depois
+  );
+
+  update public.comandos_idempotentes
+     set status = 'concluido', resposta = v_resposta
+   where id = v_comando_id;
+
+  return v_resposta;
+end;
+$$;
+
+create or replace function public.salvar_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_email text,
+  p_perfil text,
+  p_escopo_todos_contratos boolean,
+  p_ativo boolean,
+  p_ids_contratos_ativar uuid[],
+  p_ids_contratos_revogar uuid[],
+  p_versao_esperada bigint,
+  p_chave_idempotencia text
+)
+returns jsonb
+language sql
+security invoker
+set search_path = ''
+as $$
+  select privado.salvar_vinculo_usuario_adm($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+$$;
+
+revoke execute on function privado.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],uuid[],bigint,text) from public, anon;
+revoke execute on function public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],uuid[],bigint,text) from public, anon;
+grant execute on function privado.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],uuid[],bigint,text) to authenticated, service_role;
+grant execute on function public.salvar_vinculo_usuario_adm(uuid,uuid,text,text,boolean,boolean,uuid[],uuid[],bigint,text) to authenticated, service_role;
+
+-- ============================================================
+
+-- MIGRATION 20261102131014_adm01_uniformizar_schema_v2
+-- ContaOS HML 4.1 — ADM-01
+-- Uniformiza o contrato de resposta das RPCs canônicas em adm01-v2.
+
+create or replace function privado.listar_usuarios_vinculos_adm(
+  p_id_organizacao uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 25,
+  p_busca text default null,
+  p_ativo boolean default null
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 25), 1), 100);
+  v_offset integer;
+  v_busca text := nullif(lower(pg_catalog.btrim(coalesce(p_busca, ''))), '');
+  v_total bigint;
+  v_itens jsonb;
+  v_perfis jsonb;
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+  from public.vinculos_usuarios vu
+  join public.usuarios u on u.id_usuario = vu.id_usuario
+  where vu.id_organizacao = p_id_organizacao
+    and (p_ativo is null or vu.ativo = p_ativo)
+    and (
+      v_busca is null
+      or lower(coalesce(u.nome, '') || ' ' || coalesce(u.email, '') || ' ' || coalesce(vu.perfil, '')) like '%' || v_busca || '%'
+    );
+
+  select coalesce(jsonb_agg(x.item order by x.ordem_nome, x.ordem_email, x.id_usuario), '[]'::jsonb)
+    into v_itens
+  from (
+    select
+      lower(coalesce(u.nome, u.email, '')) as ordem_nome,
+      lower(coalesce(u.email, '')) as ordem_email,
+      u.id_usuario,
+      jsonb_build_object(
+        'id_usuario', u.id_usuario,
+        'nome', u.nome,
+        'email', u.email,
+        'telefone', u.telefone,
+        'situacao_usuario', u.situacao,
+        'vinculo', jsonb_build_object(
+          'id', vu.id,
+          'perfil', vu.perfil,
+          'escopo_todos_contratos', vu.escopo_todos_contratos,
+          'ativo', vu.ativo,
+          'inicio_em', vu.inicio_em,
+          'fim_em', vu.fim_em,
+          'versao_registro', vu.versao_registro,
+          'atualizado_em', vu.atualizado_em
+        )
+      ) as item
+    from public.vinculos_usuarios vu
+    join public.usuarios u on u.id_usuario = vu.id_usuario
+    where vu.id_organizacao = p_id_organizacao
+      and (p_ativo is null or vu.ativo = p_ativo)
+      and (
+        v_busca is null
+        or lower(coalesce(u.nome, '') || ' ' || coalesce(u.email, '') || ' ' || coalesce(vu.perfil, '')) like '%' || v_busca || '%'
+      )
+    order by lower(coalesce(u.nome, u.email, '')), lower(coalesce(u.email, '')), u.id_usuario
+    limit v_tamanho offset v_offset
+  ) x;
+
+  select coalesce(jsonb_agg(jsonb_build_object('codigo', p.codigo, 'nome', p.nome, 'descricao', p.descricao) order by p.nome, p.codigo), '[]'::jsonb)
+    into v_perfis
+  from public.perfis_usuarios p;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v2',
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens,
+    'perfis_disponiveis', v_perfis
+  );
+end;
+$$;
+
+create or replace function privado.listar_auditoria_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 20
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 20), 1), 50);
+  v_offset integer;
+  v_total bigint;
+  v_itens jsonb;
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+
+  if not exists (
+    select 1
+    from public.vinculos_usuarios vu
+    where vu.id_organizacao = p_id_organizacao
+      and vu.id_usuario = p_id_usuario
+  ) then
+    raise sqlstate 'PT404' using
+      message = 'Vínculo de usuário não encontrado nesta organização.',
+      hint = 'Atualize a lista e tente novamente.';
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+  from public.eventos_auditoria e
+  where e.id_organizacao = p_id_organizacao
+    and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+    and e.metadados->>'id_usuario' = p_id_usuario::text
+    and (
+      e.entidade <> 'vinculos_usuario_contratos'
+      or privado.uuid_seguro(e.metadados->>'id_contrato') is null
+      or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+    );
+
+  select coalesce(jsonb_agg(x.item order by x.criado_em desc, x.id desc), '[]'::jsonb)
+    into v_itens
+  from (
+    select e.criado_em, e.id,
+      jsonb_build_object(
+        'id', e.id,
+        'correlation_id', e.correlation_id,
+        'evento', e.evento,
+        'entidade', e.entidade,
+        'id_entidade', e.id_entidade,
+        'id_usuario_ator', e.id_usuario,
+        'ator_nome', ua.nome,
+        'ator_email', ua.email,
+        'antes',
+          case
+            when jsonb_typeof(e.antes->'escopo_contratos') = 'array' then
+              jsonb_set(
+                e.antes,
+                '{escopo_contratos}',
+                coalesce((
+                  select jsonb_agg(j.elem order by j.elem->>'id_contrato')
+                  from jsonb_array_elements(e.antes->'escopo_contratos') as j(elem)
+                  where privado.uuid_seguro(j.elem->>'id_contrato') is not null
+                    and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(j.elem->>'id_contrato'))
+                ), '[]'::jsonb),
+                true
+              )
+            else e.antes
+          end,
+        'depois',
+          case
+            when jsonb_typeof(e.depois->'escopo_contratos') = 'array' then
+              jsonb_set(
+                e.depois,
+                '{escopo_contratos}',
+                coalesce((
+                  select jsonb_agg(j.elem order by j.elem->>'id_contrato')
+                  from jsonb_array_elements(e.depois->'escopo_contratos') as j(elem)
+                  where privado.uuid_seguro(j.elem->>'id_contrato') is not null
+                    and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(j.elem->>'id_contrato'))
+                ), '[]'::jsonb),
+                true
+              )
+            else e.depois
+          end,
+        'metadados',
+          case
+            when privado.uuid_seguro(e.metadados->>'id_contrato') is not null
+             and not privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+              then e.metadados - 'id_contrato'
+            else e.metadados
+          end,
+        'criado_em', e.criado_em
+      ) as item
+    from public.eventos_auditoria e
+    left join public.usuarios ua on ua.id_usuario = e.id_usuario
+    where e.id_organizacao = p_id_organizacao
+      and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+      and e.metadados->>'id_usuario' = p_id_usuario::text
+      and (
+        e.entidade <> 'vinculos_usuario_contratos'
+        or privado.uuid_seguro(e.metadados->>'id_contrato') is null
+        or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+      )
+    order by e.criado_em desc, e.id desc
+    limit v_tamanho offset v_offset
+  ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v2',
+    'id_usuario', p_id_usuario,
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens
+  );
+end;
+$$;
+
+comment on function public.listar_usuarios_vinculos_adm(uuid,integer,integer,text,boolean) is
+  'ADM-01 v2: lista paginada canônica de usuários e vínculos.';
+comment on function public.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) is
+  'ADM-01 v2: AuditDrawer paginado com redação de contratos fora do escopo do administrador.';
+
+-- ============================================================
+
+-- MIGRATION 20261102131140_adm01_redigir_metadados_auditoria
+-- ContaOS HML 4.1 — ADM-01
+-- Redige referências contratuais em metadados do AuditDrawer conforme o escopo
+-- efetivo do administrador chamador. O evento bruto permanece íntegro.
+
+create or replace function privado.redigir_metadados_auditoria_adm(p_metadados jsonb)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_resultado jsonb := coalesce(p_metadados, '{}'::jsonb);
+  v_filtrado jsonb;
+  v_chave text;
+  v_id_contrato uuid;
+begin
+  v_id_contrato := privado.uuid_seguro(v_resultado->>'id_contrato');
+  if v_id_contrato is not null and not privado.usuario_tem_acesso_contrato(v_id_contrato) then
+    v_resultado := v_resultado - 'id_contrato';
+  end if;
+
+  foreach v_chave in array array['ids_contratos_ativar','ids_contratos_revogar']::text[]
+  loop
+    if jsonb_typeof(v_resultado->v_chave) = 'array' then
+      select coalesce(jsonb_agg(to_jsonb(x.valor) order by x.valor), '[]'::jsonb)
+        into v_filtrado
+      from jsonb_array_elements_text(v_resultado->v_chave) as x(valor)
+      where privado.uuid_seguro(x.valor) is not null
+        and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(x.valor));
+
+      v_resultado := jsonb_set(v_resultado, array[v_chave], v_filtrado, true);
+    end if;
+  end loop;
+
+  return v_resultado;
+end;
+$$;
+
+revoke all on function privado.redigir_metadados_auditoria_adm(jsonb) from public, anon, authenticated;
+
+create or replace function privado.listar_auditoria_vinculo_usuario_adm(
+  p_id_organizacao uuid,
+  p_id_usuario uuid,
+  p_pagina integer default 1,
+  p_tamanho_pagina integer default 20
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_pagina integer := greatest(coalesce(p_pagina, 1), 1);
+  v_tamanho integer := least(greatest(coalesce(p_tamanho_pagina, 20), 1), 50);
+  v_offset integer;
+  v_total bigint;
+  v_itens jsonb;
+begin
+  perform privado.validar_administrador_organizacao(p_id_organizacao);
+
+  if not exists (
+    select 1
+    from public.vinculos_usuarios vu
+    where vu.id_organizacao = p_id_organizacao
+      and vu.id_usuario = p_id_usuario
+  ) then
+    raise sqlstate 'PT404' using
+      message = 'Vínculo de usuário não encontrado nesta organização.',
+      hint = 'Atualize a lista e tente novamente.';
+  end if;
+
+  v_offset := (v_pagina - 1) * v_tamanho;
+
+  select count(*) into v_total
+  from public.eventos_auditoria e
+  where e.id_organizacao = p_id_organizacao
+    and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+    and e.metadados->>'id_usuario' = p_id_usuario::text
+    and (
+      e.entidade <> 'vinculos_usuario_contratos'
+      or privado.uuid_seguro(e.metadados->>'id_contrato') is null
+      or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+    );
+
+  select coalesce(jsonb_agg(x.item order by x.criado_em desc, x.id desc), '[]'::jsonb)
+    into v_itens
+  from (
+    select e.criado_em, e.id,
+      jsonb_build_object(
+        'id', e.id,
+        'correlation_id', e.correlation_id,
+        'evento', e.evento,
+        'entidade', e.entidade,
+        'id_entidade', e.id_entidade,
+        'id_usuario_ator', e.id_usuario,
+        'ator_nome', ua.nome,
+        'ator_email', ua.email,
+        'antes',
+          case
+            when jsonb_typeof(e.antes->'escopo_contratos') = 'array' then
+              jsonb_set(
+                e.antes,
+                '{escopo_contratos}',
+                coalesce((
+                  select jsonb_agg(j.elem order by j.elem->>'id_contrato')
+                  from jsonb_array_elements(e.antes->'escopo_contratos') as j(elem)
+                  where privado.uuid_seguro(j.elem->>'id_contrato') is not null
+                    and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(j.elem->>'id_contrato'))
+                ), '[]'::jsonb),
+                true
+              )
+            else e.antes
+          end,
+        'depois',
+          case
+            when jsonb_typeof(e.depois->'escopo_contratos') = 'array' then
+              jsonb_set(
+                e.depois,
+                '{escopo_contratos}',
+                coalesce((
+                  select jsonb_agg(j.elem order by j.elem->>'id_contrato')
+                  from jsonb_array_elements(e.depois->'escopo_contratos') as j(elem)
+                  where privado.uuid_seguro(j.elem->>'id_contrato') is not null
+                    and privado.usuario_tem_acesso_contrato(privado.uuid_seguro(j.elem->>'id_contrato'))
+                ), '[]'::jsonb),
+                true
+              )
+            else e.depois
+          end,
+        'metadados', privado.redigir_metadados_auditoria_adm(e.metadados),
+        'criado_em', e.criado_em
+      ) as item
+    from public.eventos_auditoria e
+    left join public.usuarios ua on ua.id_usuario = e.id_usuario
+    where e.id_organizacao = p_id_organizacao
+      and e.entidade in ('vinculos_usuarios','vinculos_usuario_contratos')
+      and e.metadados->>'id_usuario' = p_id_usuario::text
+      and (
+        e.entidade <> 'vinculos_usuario_contratos'
+        or privado.uuid_seguro(e.metadados->>'id_contrato') is null
+        or privado.usuario_tem_acesso_contrato(privado.uuid_seguro(e.metadados->>'id_contrato'))
+      )
+    order by e.criado_em desc, e.id desc
+    limit v_tamanho offset v_offset
+  ) x;
+
+  return jsonb_build_object(
+    'schema_versao', 'adm01-v2',
+    'id_usuario', p_id_usuario,
+    'pagina', v_pagina,
+    'tamanho_pagina', v_tamanho,
+    'total', v_total,
+    'total_paginas', case when v_total = 0 then 0 else pg_catalog.ceil(v_total::numeric / v_tamanho)::integer end,
+    'itens', v_itens
+  );
+end;
+$$;
+
+comment on function public.listar_auditoria_vinculo_usuario_adm(uuid,uuid,integer,integer) is
+  'ADM-01 v2: AuditDrawer paginado com redação de contratos fora do escopo, inclusive metadados de ativação/revogação.';
+
+-- ============================================================
+
+-- MIGRATION 20261102155834_v102_auditoria_criacao_contratante
+create or replace function privado.auditar_contratante_criado()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  perform privado.registrar_evento_auditoria(
+    new.id_organizacao,
+    'ContratanteCriado',
+    'contratantes',
+    new.id,
+    null,
+    jsonb_build_object(
+      'tipo_pessoa', new.tipo_pessoa,
+      'razao_social', new.razao_social,
+      'nome_fantasia', new.nome_fantasia,
+      'situacao', new.situacao
+    ),
+    jsonb_build_object('versao_registro', new.versao_registro)
+  );
+  return new;
+end;
+$$;
+
+revoke all on function privado.auditar_contratante_criado() from public, anon, authenticated;
+
+create trigger contratantes_auditoria_insert
+after insert on public.contratantes
+for each row execute function privado.auditar_contratante_criado();
+
+-- ============================================================
+
+-- MIGRATION 20261102163433_v103_editar_contratante_concorrencia_auditoria
+create or replace function privado.atualizar_contratante(
+  p_id_organizacao uuid,
+  p_id_contratante uuid,
+  p_versao_esperada bigint,
+  p_tipo_pessoa text,
+  p_documento text,
+  p_razao_social text,
+  p_nome_fantasia text,
+  p_contato jsonb,
+  p_situacao text
+) returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_antes public.contratantes%rowtype;
+  v_depois public.contratantes%rowtype;
+  v_campos text[] := array[]::text[];
+begin
+  if auth.uid() is null then
+    raise exception using errcode = '42501', message = 'Sua sessão não é válida para editar este contratante.';
+  end if;
+  if not privado.usuario_possui_perfil(p_id_organizacao,array['administrador','gestor_contrato']::text[]) then
+    raise exception using errcode = '42501', message = 'Você não tem permissão para editar contratantes nesta organização.';
+  end if;
+  if p_versao_esperada is null or p_versao_esperada < 1 then
+    raise exception using errcode = 'PT422', message = 'A versão informada para edição é inválida.';
+  end if;
+  if nullif(trim(coalesce(p_razao_social,'')), '') is null then
+    raise exception using errcode = 'PT422', message = 'Informe a razão social do contratante.';
+  end if;
+  select * into v_antes from public.contratantes where id=p_id_contratante and id_organizacao=p_id_organizacao for update;
+  if not found then
+    raise exception using errcode = 'PT404', message = 'Contratante não encontrado nesta organização.';
+  end if;
+  if v_antes.versao_registro <> p_versao_esperada then
+    raise exception using errcode = 'PT409', message = 'Este contratante foi atualizado por outra pessoa. Recarregue os dados e revise suas alterações.';
+  end if;
+  update public.contratantes
+     set tipo_pessoa=p_tipo_pessoa,
+         documento=nullif(trim(coalesce(p_documento,'')), ''),
+         razao_social=trim(p_razao_social),
+         nome_fantasia=nullif(trim(coalesce(p_nome_fantasia,'')), ''),
+         contato=coalesce(p_contato,'{}'::jsonb),
+         situacao=p_situacao
+   where id=p_id_contratante and id_organizacao=p_id_organizacao
+  returning * into v_depois;
+  if v_antes.tipo_pessoa is distinct from v_depois.tipo_pessoa then v_campos:=array_append(v_campos,'tipo_pessoa'); end if;
+  if v_antes.documento is distinct from v_depois.documento then v_campos:=array_append(v_campos,'documento'); end if;
+  if v_antes.razao_social is distinct from v_depois.razao_social then v_campos:=array_append(v_campos,'razao_social'); end if;
+  if v_antes.nome_fantasia is distinct from v_depois.nome_fantasia then v_campos:=array_append(v_campos,'nome_fantasia'); end if;
+  if v_antes.contato is distinct from v_depois.contato then v_campos:=array_append(v_campos,'contato'); end if;
+  if v_antes.situacao is distinct from v_depois.situacao then v_campos:=array_append(v_campos,'situacao'); end if;
+  perform privado.registrar_evento_auditoria(
+    p_id_organizacao,'ContratanteAtualizado','contratantes',p_id_contratante,
+    jsonb_build_object('tipo_pessoa',v_antes.tipo_pessoa,'razao_social',v_antes.razao_social,'nome_fantasia',v_antes.nome_fantasia,'situacao',v_antes.situacao,'versao_registro',v_antes.versao_registro),
+    jsonb_build_object('tipo_pessoa',v_depois.tipo_pessoa,'razao_social',v_depois.razao_social,'nome_fantasia',v_depois.nome_fantasia,'situacao',v_depois.situacao,'versao_registro',v_depois.versao_registro),
+    jsonb_build_object('versao_anterior',v_antes.versao_registro,'versao_nova',v_depois.versao_registro,'campos_alterados',to_jsonb(v_campos))
+  );
+  return jsonb_build_object('schema_versao','v103-v1','contratante',jsonb_build_object(
+    'id',v_depois.id,'id_organizacao',v_depois.id_organizacao,'tipo_pessoa',v_depois.tipo_pessoa,'documento',v_depois.documento,
+    'razao_social',v_depois.razao_social,'nome_fantasia',v_depois.nome_fantasia,'contato',v_depois.contato,'situacao',v_depois.situacao,
+    'versao_registro',v_depois.versao_registro,'atualizado_em',v_depois.atualizado_em));
+end;
+$$;
+revoke all on function privado.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text) from public, anon, authenticated;
+grant execute on function privado.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text) to authenticated;
+create or replace function public.atualizar_contratante(
+  p_id_organizacao uuid,p_id_contratante uuid,p_versao_esperada bigint,p_tipo_pessoa text,p_documento text,p_razao_social text,p_nome_fantasia text,p_contato jsonb,p_situacao text
+) returns jsonb language sql security invoker set search_path='' as $$ select privado.atualizar_contratante($1,$2,$3,$4,$5,$6,$7,$8,$9) $$;
+revoke all on function public.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text) from public, anon;
+grant execute on function public.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text) to authenticated;
+comment on function public.atualizar_contratante(uuid,uuid,bigint,text,text,text,text,jsonb,text) is 'V1-03: edita contratante com versão esperada, conflito PT409, incremento server-side e auditoria reduzida.';
+
+-- ============================================================
+
+-- MIGRATION 20261102163602_v103_corrigir_incremento_duplo_contratante
+create or replace function privado.tocar_atualizado_em_contratante()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.atualizado_em = now();
+  return new;
+end;
+$$;
+drop trigger if exists contratantes_touch on public.contratantes;
+create trigger contratantes_touch before update on public.contratantes for each row execute function privado.tocar_atualizado_em_contratante();
+comment on function privado.tocar_atualizado_em_contratante() is 'V1-03: touch exclusivo de contratantes; versao_registro é controlada somente por contaos_versao_contratantes.';
+
+-- ============================================================
+
+-- MIGRATION 20261102174004_v105_contrato_criado_escopo_auditoria
+create or replace function privado.pos_processar_contrato_criado_v105()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_vinculo_id uuid;
+  v_escopo_todos boolean;
+begin
+  if auth.uid() is not null then
+    select vu.id, vu.escopo_todos_contratos
+      into v_vinculo_id, v_escopo_todos
+      from public.vinculos_usuarios vu
+     where vu.id_organizacao = new.id_organizacao
+       and vu.id_usuario = auth.uid()
+       and vu.ativo = true
+       and vu.inicio_em <= now()
+       and (vu.fim_em is null or vu.fim_em > now())
+     limit 1;
+
+    if v_vinculo_id is not null and not coalesce(v_escopo_todos, false) then
+      insert into public.vinculos_usuario_contratos(
+        id_organizacao,
+        id_vinculo_usuario,
+        id_contrato,
+        ativo,
+        revogado_em
+      )
+      values(
+        new.id_organizacao,
+        v_vinculo_id,
+        new.id,
+        true,
+        null
+      )
+      on conflict (id_vinculo_usuario, id_contrato)
+      do update set
+        ativo = true,
+        revogado_em = null;
+    end if;
+  end if;
+
+  perform privado.registrar_evento_auditoria(
+    new.id_organizacao,
+    'ContratoCriado',
+    'contratos',
+    new.id,
+    null,
+    jsonb_build_object(
+      'id_contratante', new.id_contratante,
+      'numero', new.numero,
+      'objeto', new.objeto,
+      'tipo_contrato', new.tipo_contrato,
+      'inicio', new.inicio,
+      'fim', new.fim,
+      'valor_global', new.valor_global,
+      'periodicidade', new.periodicidade,
+      'prazo_prestacao_dias', new.prazo_prestacao_dias,
+      'situacao', new.situacao,
+      'criticidade', new.criticidade,
+      'versao_registro', new.versao_registro
+    ),
+    jsonb_build_object(
+      'origem_operacao', 'v105.data_api_insert'
+    )
+  );
+
+  return new;
+end;
+$$;
+
+revoke all on function privado.pos_processar_contrato_criado_v105() from public, anon, authenticated;
+
+drop trigger if exists contaos_contrato_pos_insert_v105 on public.contratos;
+create trigger contaos_contrato_pos_insert_v105
+after insert on public.contratos
+for each row execute function privado.pos_processar_contrato_criado_v105();
+
+-- ============================================================
+
+-- MIGRATION 20261102174252_v105_confiar_mutacao_interna_escopo
+create or replace function privado.bloquear_mutacao_fora_escopo_contrato()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_contrato_antigo uuid;
+  v_contrato_novo uuid;
+begin
+  if current_user in ('postgres','service_role')
+     or auth.uid() is null
+     or coalesce(auth.role(),'') = 'service_role' then
+    if tg_op='DELETE' then return old; else return new; end if;
+  end if;
+
+  if tg_op <> 'INSERT' then
+    v_contrato_antigo := nullif(to_jsonb(old)->>'id_contrato','')::uuid;
+    if v_contrato_antigo is not null
+       and not privado.usuario_tem_acesso_contrato(v_contrato_antigo) then
+      raise exception using
+        errcode='42501',
+        message='Você não possui acesso ao contrato deste registro.',
+        detail='A operação foi bloqueada para preservar o isolamento entre contratos.',
+        hint='Selecione um contrato ao qual seu usuário tenha acesso.';
+    end if;
+  end if;
+
+  if tg_op <> 'DELETE' then
+    v_contrato_novo := nullif(to_jsonb(new)->>'id_contrato','')::uuid;
+    if v_contrato_novo is not null
+       and v_contrato_novo is distinct from v_contrato_antigo
+       and not privado.usuario_tem_acesso_contrato(v_contrato_novo) then
+      raise exception using
+        errcode='42501',
+        message='Você não possui acesso ao contrato informado para este registro.',
+        detail='A operação foi bloqueada para preservar o isolamento entre contratos.',
+        hint='Selecione um contrato ao qual seu usuário tenha acesso.';
+    end if;
+  end if;
+
+  if tg_op='DELETE' then return old; else return new; end if;
+end;
+$$;
+
+-- ============================================================
+
+-- MIGRATION 20261102175208_v105_alinhar_campos_prd_contrato
+alter table public.contratos
+  add column if not exists unidade_vinculada text,
+  add column if not exists fonte_recurso text,
+  add column if not exists valor_mensal_referencia numeric(18,2),
+  add column if not exists dia_limite_apresentacao smallint,
+  add column if not exists conta_bancaria_vinculada text;
+
+update public.contratos
+   set periodicidade = 'mensal'
+ where periodicidade is null or btrim(periodicidade) = '';
+
+alter table public.contratos
+  alter column periodicidade set default 'mensal',
+  alter column periodicidade set not null,
+  alter column inicio set not null;
+
+alter table public.contratos
+  drop constraint if exists contratos_periodicidade_ck,
+  add constraint contratos_periodicidade_ck check (btrim(periodicidade) <> ''),
+  drop constraint if exists contratos_valor_global_ck,
+  add constraint contratos_valor_global_ck check (valor_global is null or valor_global >= 0),
+  drop constraint if exists contratos_valor_mensal_referencia_ck,
+  add constraint contratos_valor_mensal_referencia_ck check (valor_mensal_referencia is null or valor_mensal_referencia >= 0),
+  drop constraint if exists contratos_prazo_prestacao_dias_ck,
+  add constraint contratos_prazo_prestacao_dias_ck check (prazo_prestacao_dias is null or prazo_prestacao_dias > 0),
+  drop constraint if exists contratos_dia_limite_apresentacao_ck,
+  add constraint contratos_dia_limite_apresentacao_ck check (dia_limite_apresentacao is null or dia_limite_apresentacao between 1 and 31);
+
+create or replace function privado.pos_processar_contrato_criado_v105()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_vinculo_id uuid;
+  v_escopo_todos boolean;
+begin
+  if auth.uid() is not null then
+    select vu.id, vu.escopo_todos_contratos
+      into v_vinculo_id, v_escopo_todos
+      from public.vinculos_usuarios vu
+     where vu.id_organizacao = new.id_organizacao
+       and vu.id_usuario = auth.uid()
+       and vu.ativo = true
+       and vu.inicio_em <= now()
+       and (vu.fim_em is null or vu.fim_em > now())
+     limit 1;
+
+    if v_vinculo_id is not null and not coalesce(v_escopo_todos, false) then
+      insert into public.vinculos_usuario_contratos(
+        id_organizacao, id_vinculo_usuario, id_contrato, ativo, revogado_em
+      )
+      values(new.id_organizacao, v_vinculo_id, new.id, true, null)
+      on conflict (id_vinculo_usuario, id_contrato)
+      do update set ativo=true, revogado_em=null;
+    end if;
+  end if;
+
+  perform privado.registrar_evento_auditoria(
+    new.id_organizacao,
+    'ContratoCriado',
+    'contratos',
+    new.id,
+    null,
+    jsonb_build_object(
+      'id_contratante', new.id_contratante,
+      'numero', new.numero,
+      'objeto', new.objeto,
+      'tipo_contrato', new.tipo_contrato,
+      'unidade_vinculada', new.unidade_vinculada,
+      'fonte_recurso', new.fonte_recurso,
+      'inicio', new.inicio,
+      'fim', new.fim,
+      'valor_global', new.valor_global,
+      'valor_mensal_referencia', new.valor_mensal_referencia,
+      'periodicidade', new.periodicidade,
+      'prazo_prestacao_dias', new.prazo_prestacao_dias,
+      'dia_limite_apresentacao', new.dia_limite_apresentacao,
+      'conta_bancaria_vinculada', new.conta_bancaria_vinculada,
+      'situacao', new.situacao,
+      'criticidade', new.criticidade,
+      'versao_registro', new.versao_registro
+    ),
+    jsonb_build_object('origem_operacao','v105.data_api_insert')
+  );
+
+  return new;
+end;
+$$;
+
+revoke all on function privado.pos_processar_contrato_criado_v105() from public, anon, authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261102182856_admin_master_global
+begin;
+
+create table privado.administradores_master (
+  id_usuario uuid primary key references auth.users(id) on delete cascade,
+  ativo boolean not null default true,
+  inicio_em timestamptz not null default now(),
+  fim_em timestamptz,
+  criado_por uuid references auth.users(id) on delete set null,
+  motivo text,
+  versao_registro bigint not null default 1,
+  criado_em timestamptz not null default now(),
+  atualizado_em timestamptz not null default now(),
+  constraint administradores_master_periodo_ck check (fim_em is null or fim_em > inicio_em)
+);
+
+revoke all on table privado.administradores_master from public, anon, authenticated;
+
+create trigger administradores_master_touch
+before update on privado.administradores_master
+for each row execute function privado.tocar_atualizado_em();
+
+create or replace function privado.auditar_administrador_master()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $$
+declare
+  v_id uuid := coalesce(new.id_usuario, old.id_usuario);
+  v_evento text;
+begin
+  v_evento := case tg_op
+    when 'INSERT' then 'AdministradorMasterConcedido'
+    when 'UPDATE' then 'AdministradorMasterAtualizado'
+    when 'DELETE' then 'AdministradorMasterRevogado'
+  end;
+
+  perform privado.registrar_evento_auditoria(
+    null,
+    v_evento,
+    'administradores_master',
+    v_id,
+    case when tg_op in ('UPDATE','DELETE') then to_jsonb(old) else null end,
+    case when tg_op in ('INSERT','UPDATE') then to_jsonb(new) else null end,
+    jsonb_build_object('escopo','global','origem_operacao','backend_privilegiado')
+  );
+  return coalesce(new, old);
+end;
+$$;
+revoke all on function privado.auditar_administrador_master() from public, anon, authenticated;
+
+create trigger administradores_master_audit
+before insert or update or delete on privado.administradores_master
+for each row execute function privado.auditar_administrador_master();
+
+create or replace function privado.usuario_e_administrador_master()
+returns boolean
+language sql
+stable
+security definer
+set search_path=''
+as $$
+  select privado.sessao_usuario_ativa()
+     and exists (
+       select 1
+       from privado.administradores_master m
+       where m.id_usuario = auth.uid()
+         and m.ativo = true
+         and m.inicio_em <= now()
+         and (m.fim_em is null or m.fim_em > now())
+     );
+$$;
+revoke all on function privado.usuario_e_administrador_master() from public, anon;
+grant execute on function privado.usuario_e_administrador_master() to authenticated;
+
+create or replace function privado.usuario_tem_acesso_organizacao(p_id_organizacao uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path=''
+as $$
+  select privado.sessao_usuario_ativa()
+     and (
+       privado.usuario_e_administrador_master()
+       or exists (
+         select 1
+         from public.vinculos_usuarios v
+         where v.id_organizacao = p_id_organizacao
+           and v.id_usuario = auth.uid()
+           and v.ativo = true
+           and v.inicio_em <= now()
+           and (v.fim_em is null or v.fim_em > now())
+       )
+     );
+$$;
+
+create or replace function privado.usuario_tem_acesso_contrato(p_id_contrato uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path=''
+as $$
+  select privado.sessao_usuario_ativa()
+     and (
+       privado.usuario_e_administrador_master()
+       or exists (
+         select 1
+         from public.contratos c
+         join public.vinculos_usuarios v on v.id_organizacao = c.id_organizacao
+         where c.id = p_id_contrato
+           and v.id_usuario = auth.uid()
+           and v.ativo = true
+           and v.inicio_em <= now()
+           and (v.fim_em is null or v.fim_em > now())
+           and (
+             v.escopo_todos_contratos = true
+             or exists (
+               select 1
+               from public.vinculos_usuario_contratos vc
+               where vc.id_vinculo_usuario = v.id
+                 and vc.id_contrato = c.id
+                 and vc.ativo = true
+             )
+           )
+       )
+     );
+$$;
+
+create or replace function privado.usuario_possui_perfil(p_id_organizacao uuid, p_perfis text[])
+returns boolean
+language sql
+stable
+security definer
+set search_path=''
+as $$
+  select privado.sessao_usuario_ativa()
+     and (
+       (privado.usuario_e_administrador_master() and 'administrador' = any(coalesce(p_perfis, array[]::text[])))
+       or exists (
+         select 1
+         from public.vinculos_usuarios v
+         where v.id_organizacao = p_id_organizacao
+           and v.id_usuario = auth.uid()
+           and v.ativo = true
+           and v.inicio_em <= now()
+           and (v.fim_em is null or v.fim_em > now())
+           and v.perfil = any(coalesce(p_perfis, array[]::text[]))
+       )
+     );
+$$;
+
+create or replace function privado.usuario_possui_vinculo_ativo()
+returns boolean
+language sql
+stable
+security definer
+set search_path=''
+as $$
+  select privado.sessao_usuario_ativa()
+     and (
+       privado.usuario_e_administrador_master()
+       or exists (
+         select 1
+         from public.vinculos_usuarios v
+         where v.id_usuario = auth.uid()
+           and v.ativo = true
+           and v.inicio_em <= now()
+           and (v.fim_em is null or v.fim_em > now())
+       )
+     );
+$$;
+
+create or replace function public.listar_organizacoes_disponiveis()
+returns table(
+  id uuid,
+  razao_social text,
+  nome_fantasia text,
+  cnpj varchar,
+  situacao text,
+  perfil text
+)
+language plpgsql
+stable
+security definer
+set search_path=''
+as $$
+declare
+  v_master boolean;
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() then
+    raise exception using errcode='42501', message='Sua sessão não está ativa.';
+  end if;
+
+  v_master := privado.usuario_e_administrador_master();
+
+  return query
+  select
+    o.id,
+    o.razao_social,
+    o.nome_fantasia,
+    o.cnpj,
+    o.situacao,
+    case when v_master then 'administrador_master'::text else v.perfil end as perfil
+  from public.organizacoes o
+  left join public.vinculos_usuarios v
+    on not v_master
+   and v.id_organizacao = o.id
+   and v.id_usuario = auth.uid()
+   and v.ativo = true
+   and v.inicio_em <= now()
+   and (v.fim_em is null or v.fim_em > now())
+  where v_master or v.id is not null
+  order by lower(coalesce(o.nome_fantasia,o.razao_social)), o.id;
+end;
+$$;
+revoke all on function public.listar_organizacoes_disponiveis() from public, anon;
+grant execute on function public.listar_organizacoes_disponiveis() to authenticated;
+
+comment on table privado.administradores_master is 'Identidades globais Administrador Master. Não exposta à Data API pública.';
+comment on function privado.usuario_e_administrador_master() is 'Retorna true somente para sessão ativa com concessão Master global ativa e vigente.';
+comment on function public.listar_organizacoes_disponiveis() is 'SYS-01/SYS-04: lista organizações acessíveis. Master global recebe todas; demais usuários somente vínculos ativos/vigentes.';
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102183243_admin_master_rpc_security_invoker
+begin;
+
+create or replace function public.listar_organizacoes_disponiveis()
+returns table(
+  id uuid,
+  razao_social text,
+  nome_fantasia text,
+  cnpj varchar,
+  situacao text,
+  perfil text
+)
+language plpgsql
+stable
+security invoker
+set search_path=''
+as $$
+declare
+  v_master boolean;
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() then
+    raise exception using errcode='42501', message='Sua sessão não está ativa.';
+  end if;
+
+  v_master := privado.usuario_e_administrador_master();
+
+  return query
+  select
+    o.id,
+    o.razao_social,
+    o.nome_fantasia,
+    o.cnpj,
+    o.situacao,
+    case when v_master then 'administrador_master'::text else v.perfil end as perfil
+  from public.organizacoes o
+  left join public.vinculos_usuarios v
+    on not v_master
+   and v.id_organizacao = o.id
+   and v.id_usuario = auth.uid()
+   and v.ativo = true
+   and v.inicio_em <= now()
+   and (v.fim_em is null or v.fim_em > now())
+  where v_master or v.id is not null
+  order by lower(coalesce(o.nome_fantasia,o.razao_social)), o.id;
+end;
+$$;
+
+revoke all on function public.listar_organizacoes_disponiveis() from public, anon;
+grant execute on function public.listar_organizacoes_disponiveis() to authenticated;
+
+comment on function public.listar_organizacoes_disponiveis() is
+'SYS-01/SYS-04: lista organizações acessíveis sob RLS. Master global recebe todas; demais usuários somente vínculos ativos/vigentes.';
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261102192127_v106_classificar_acesso_contrato_detalhe
+create or replace function privado.classificar_acesso_contrato_v106(p_id_contrato uuid)
+returns text
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_id_organizacao uuid;
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() then
+    raise sqlstate 'PT401' using
+      message = 'Sua sessão não está ativa.',
+      detail = 'É necessário autenticar novamente para consultar este contrato.',
+      hint = 'Entre novamente no ContaOS e repita a consulta.';
+  end if;
+
+  if p_id_contrato is null then
+    return 'nao_encontrado';
+  end if;
+
+  if privado.usuario_tem_acesso_contrato(p_id_contrato) then
+    return 'permitido';
+  end if;
+
+  select c.id_organizacao
+    into v_id_organizacao
+  from public.contratos c
+  where c.id = p_id_contrato;
+
+  if not found then
+    return 'nao_encontrado';
+  end if;
+
+  if privado.usuario_tem_acesso_organizacao(v_id_organizacao) then
+    return 'negado';
+  end if;
+
+  return 'nao_encontrado';
+end;
+$$;
+
+revoke all on function privado.classificar_acesso_contrato_v106(uuid) from public;
+revoke all on function privado.classificar_acesso_contrato_v106(uuid) from anon;
+grant execute on function privado.classificar_acesso_contrato_v106(uuid) to authenticated;
+
+create or replace function public.classificar_acesso_contrato_v106(p_id_contrato uuid)
+returns text
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select privado.classificar_acesso_contrato_v106(p_id_contrato);
+$$;
+
+revoke all on function public.classificar_acesso_contrato_v106(uuid) from public;
+revoke all on function public.classificar_acesso_contrato_v106(uuid) from anon;
+grant execute on function public.classificar_acesso_contrato_v106(uuid) to authenticated;
+
+comment on function public.classificar_acesso_contrato_v106(uuid) is
+'V1-06: classifica zero-linha do detalhe do contrato como permitido, negado no mesmo tenant ou nao_encontrado, mascarando existência cross-tenant.';
+
+-- ============================================================
+
+-- MIGRATION 20261102192345_v106_corrigir_bola_aprovar_parecer_interno
+create or replace function privado.aprovar_parecer_interno(
+  p_id_parecer uuid,
+  p_aprovar boolean,
+  p_fundamento text default null::text
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v public.pareceres_internos%rowtype;
+begin
+  select * into v
+  from public.pareceres_internos
+  where id = p_id_parecer
+  for update;
+
+  if v.id is null then
+    raise exception 'Não encontramos o parecer informado.';
+  end if;
+
+  if auth.uid() is null
+     or not privado.usuario_tem_acesso_contrato(v.id_contrato)
+     or not privado.usuario_possui_perfil(
+       v.id_organizacao,
+       array['administrador','direcao_aprovador','gestor_contrato','juridico_conformidade']::text[]
+     ) then
+    raise sqlstate '42501' using
+      message = 'Você não tem permissão para aprovar este parecer.',
+      detail = 'A operação exige acesso ao contrato e perfil autorizado na organização.',
+      hint = 'Selecione um contrato ao qual seu usuário tenha acesso ou procure um administrador autorizado.';
+  end if;
+
+  if v.autor = auth.uid() then
+    raise exception 'O parecer deve ser aprovado por uma pessoa diferente de quem o elaborou.';
+  end if;
+
+  update public.pareceres_internos
+     set status = case when p_aprovar then 'aprovado' else 'rejeitado' end,
+         aprovado_por = auth.uid(),
+         aprovado_em = now()
+   where id = v.id;
+
+  perform privado.registrar_evento_auditoria(
+    v.id_organizacao,
+    'ParecerInternoRevisado',
+    'pareceres_internos',
+    v.id,
+    null,
+    jsonb_build_object('aprovado',p_aprovar,'fundamento',p_fundamento)
+  );
+end;
+$$;
+
+-- ============================================================
+
+-- MIGRATION 20261102215515_v107_base_normativa_autorizada
+-- ContaOS 4.1 V1-07. HML autorizado, issue25. Sem SQL dinâmico ou novas tabelas.
+-- Funções auxiliares não são endpoints; apenas as quatro operações são concedidas.
+create or replace function privado.v107_autorizar(p_org uuid,p_contrato uuid,p_aprovacao boolean)
+returns void language plpgsql security definer set search_path='' as $$
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() or not privado.usuario_possui_perfil(p_org,
+    case when p_aprovacao then array['administrador','direcao_aprovador'] else array['administrador','gestor_contrato','juridico_conformidade'] end) then
+    raise exception using errcode='42501',message='Você não tem permissão para esta operação normativa.';
+  end if;
+  if not exists(select 1 from public.organizacoes where id=p_org) or
+     (p_contrato is not null and not exists(select 1 from public.contratos c where c.id=p_contrato and c.id_organizacao=p_org and privado.usuario_tem_acesso_contrato(c.id))) then
+    raise exception using errcode='42501',message='O contrato não pertence ao seu escopo nesta organização.';
+  end if;
+end $$;
+revoke all on function privado.v107_autorizar(uuid,uuid,boolean) from public,anon,authenticated;
+
+create or replace function privado.v107_iniciar(p_org uuid,p_comando text,p_chave text,p_payload jsonb)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.comandos_idempotentes%rowtype; v_nome text:=p_comando||':'||auth.uid()::text;
+v_hash text:=encode(extensions.digest(p_payload::text,'sha256'),'hex');
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() then raise exception using errcode='42501',message='Sua sessão não está ativa.'; end if;
+  if p_chave is null or length(btrim(p_chave)) not between 1 and 200 then raise exception using errcode='PT400',message='Informe uma chave de operação válida.'; end if;
+  insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,expira_em)
+  values(p_org,v_nome,p_chave,v_hash,'iniciado',now()+interval '24 hours')
+  on conflict(id_organizacao,comando,chave) do nothing returning * into v;
+  if v.id is null then
+    select * into v from public.comandos_idempotentes where id_organizacao=p_org and comando=v_nome and chave=p_chave for update;
+    if v.hash_payload is distinct from v_hash then raise exception using errcode='PT409',message='Esta chave de operação já foi usada com dados diferentes.'; end if;
+    if v.status='concluido' and v.resposta is not null then return jsonb_build_object('id',v.id,'resposta',v.resposta); end if;
+    raise exception using errcode='PT409',message='Esta operação já está em processamento. Atualize a tela.';
+  end if;
+  return jsonb_build_object('id',v.id);
+end $$;
+revoke all on function privado.v107_iniciar(uuid,text,text,jsonb) from public,anon,authenticated;
+
+create or replace function privado.v107_concluir(p_comando uuid,p_org uuid,p_evento text,p_entidade text,p_id uuid,p_antes jsonb,p_depois jsonb,p_resultado jsonb,p_fundamento text default null)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_evento uuid; v_correlacao uuid; v_resposta jsonb;
+begin
+  v_evento:=privado.registrar_evento_auditoria(p_org,p_evento,p_entidade,p_id,p_antes,p_depois,jsonb_build_object('comando_id',p_comando,'fundamento',p_fundamento));
+  select correlation_id into v_correlacao from public.eventos_auditoria where id=v_evento;
+  v_resposta:=p_resultado||jsonb_build_object('schema_versao','v107-v1','correlation_id',v_correlacao);
+  update public.comandos_idempotentes set status='concluido',resposta=v_resposta,atualizado_em=clock_timestamp() where id=p_comando;
+  return v_resposta;
+end $$;
+revoke all on function privado.v107_concluir(uuid,uuid,text,text,uuid,jsonb,jsonb,jsonb,text) from public,anon,authenticated;
+
+create or replace function privado.v107_capturar(p_org uuid,p_contrato uuid)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare r record; v jsonb:='{}';
+begin
+  -- Trava também as ainda em análise, coordenando com a liberação concorrente.
+  for r in select id from public.competencias where id_organizacao=p_org and (p_contrato is null or id_contrato=p_contrato)
+    order by id for update loop
+    v:=v||jsonb_build_object(r.id::text,privado.snapshot_normativo_v107(r.id));
+  end loop;
+  return v;
+end $$;
+revoke all on function privado.v107_capturar(uuid,uuid) from public,anon,authenticated;
+
+create or replace function privado.v107_invalidar(p_antes jsonb,p_id uuid)
+returns void language plpgsql security definer set search_path='' as $$
+declare r record;
+begin
+  for r in select key,value from jsonb_each(p_antes) order by key loop
+    if r.value is distinct from privado.snapshot_normativo_v107(r.key::uuid) then
+      perform privado.invalidar_portao_competencia(r.key::uuid,'Alteração material na base normativa.','fontes_normativas',p_id);
+    end if;
+  end loop;
+end $$;
+revoke all on function privado.v107_invalidar(jsonb,uuid) from public,anon,authenticated;
+
+create or replace function privado.v107_tocar_fonte() returns trigger language plpgsql set search_path='' as $$
+begin new.atualizado_em:=clock_timestamp(); return new; end $$;
+revoke all on function privado.v107_tocar_fonte() from public,anon,authenticated;
+drop trigger if exists fontes_normativas_touch on public.fontes_normativas;
+create trigger fontes_normativas_touch before update on public.fontes_normativas for each row execute function privado.v107_tocar_fonte();
+
+create or replace function privado.salvar_fonte_normativa_v107(p_id_organizacao uuid,p_id_contrato uuid,p_id_fonte uuid,p_tipo text,p_titulo text,p_referencia text,p_descricao text,p_situacao text,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.fontes_normativas%rowtype; v_antes jsonb; v_cmd jsonb; v_contexto jsonb;
+begin
+  perform privado.v107_autorizar(p_id_organizacao,p_id_contrato,false);
+  if nullif(btrim(p_tipo),'') is null or nullif(btrim(p_titulo),'') is null or p_situacao is null or p_situacao not in('rascunho','ativa','inativa','revogada') then
+    raise exception using errcode='PT400',message='Informe tipo, título e situação válidos.';
+  end if;
+  -- Autorização do registro antes de cache, inclusive em replays.
+  if p_id_fonte is not null then
+    select * into v from public.fontes_normativas where id=p_id_fonte and id_organizacao=p_id_organizacao and id_contrato is not distinct from p_id_contrato;
+    if v.id is null then raise exception using errcode='PT404',message='Fonte normativa não encontrada neste escopo.'; end if;
+    if p_situacao is distinct from v.situacao then perform privado.v107_autorizar(p_id_organizacao,p_id_contrato,true); end if;
+  elsif p_situacao<>'rascunho' or p_versao_esperada is not null then
+    raise exception using errcode='PT400',message='Uma nova fonte deve iniciar como rascunho.';
+  end if;
+  v_cmd:=privado.v107_iniciar(p_id_organizacao,'v107.salvar_fonte',p_chave_idempotencia,jsonb_build_array(p_id_contrato,p_id_fonte,p_tipo,p_titulo,p_referencia,p_descricao,p_situacao,p_versao_esperada));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  if p_id_fonte is null then
+    insert into public.fontes_normativas(id_organizacao,id_contrato,tipo,titulo,referencia,descricao,situacao)
+      values(p_id_organizacao,p_id_contrato,btrim(p_tipo),btrim(p_titulo),p_referencia,p_descricao,'rascunho') returning * into v;
+  else
+    select * into v from public.fontes_normativas where id=p_id_fonte for update;
+    if p_versao_esperada is null or v.versao_registro<>p_versao_esperada then raise exception using errcode='PT409',message='Esta fonte foi atualizada. Atualize a tela antes de salvar.'; end if;
+    if p_situacao is distinct from v.situacao then perform privado.v107_autorizar(p_id_organizacao,p_id_contrato,true); end if;
+    if p_situacao='ativa' and not exists(select 1 from public.versoes_fontes_normativas where id_fonte=v.id and aprovado_em is not null) then
+      raise exception using errcode='PT400',message='A fonte precisa de uma versão aprovada para ser ativada.';
+    end if;
+    v_antes:=to_jsonb(v);
+    v_contexto:=privado.v107_capturar(p_id_organizacao,p_id_contrato);
+    update public.fontes_normativas set tipo=btrim(p_tipo),titulo=btrim(p_titulo),referencia=p_referencia,descricao=p_descricao,situacao=p_situacao where id=v.id returning * into v;
+    perform privado.v107_invalidar(v_contexto,v.id);
+  end if;
+  return privado.v107_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V107FonteSalva','fontes_normativas',v.id,v_antes,to_jsonb(v),jsonb_build_object('fonte',to_jsonb(v)));
+end $$;
+
+create or replace function privado.registrar_versao_fonte_v107(p_id_organizacao uuid,p_id_fonte uuid,p_inicio_vigencia date,p_fim_vigencia date,p_id_arquivo uuid,p_conteudo_texto text,p_metadados jsonb,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare f public.fontes_normativas%rowtype; v public.versoes_fontes_normativas%rowtype; a public.arquivos%rowtype; v_cmd jsonb; v_hash text; v_num integer;
+begin
+  perform privado.v107_autorizar(p_id_organizacao,null,false);
+  select * into f from public.fontes_normativas where id=p_id_fonte and id_organizacao=p_id_organizacao;
+  if f.id is null then raise exception using errcode='PT404',message='Fonte normativa não encontrada neste escopo.'; end if;
+  perform privado.v107_autorizar(p_id_organizacao,f.id_contrato,false);
+  if p_inicio_vigencia is null or p_fim_vigencia<p_inicio_vigencia or (p_id_arquivo is null and nullif(btrim(p_conteudo_texto),'') is null) or jsonb_typeof(p_metadados) is distinct from 'object' then
+    raise exception using errcode='PT400',message='Informe vigência válida, metadados e um arquivo ou texto de origem.';
+  end if;
+  if p_id_arquivo is not null then
+    select * into a from public.arquivos where id=p_id_arquivo and id_organizacao=p_id_organizacao and id_contrato is not distinct from f.id_contrato;
+    if a.id is null or a.status_seguranca<>'aprovado' then raise exception using errcode='PT400',message='O arquivo não está disponível e aprovado neste escopo.'; end if;
+  end if;
+  v_cmd:=privado.v107_iniciar(p_id_organizacao,'v107.registrar_versao',p_chave_idempotencia,jsonb_build_array(p_id_fonte,p_inicio_vigencia,p_fim_vigencia,p_id_arquivo,p_conteudo_texto,p_metadados));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  perform 1 from public.fontes_normativas where id=f.id for update;
+  select coalesce(max(versao),0)+1 into v_num from public.versoes_fontes_normativas where id_fonte=f.id;
+  v_hash:=encode(extensions.digest(jsonb_build_array(p_inicio_vigencia,p_fim_vigencia,p_id_arquivo,a.sha256,p_conteudo_texto,p_metadados)::text,'sha256'),'hex');
+  insert into public.versoes_fontes_normativas(id_organizacao,id_contrato,id_fonte,versao,inicio_vigencia,fim_vigencia,id_arquivo,conteudo_texto,metadados,hash)
+    values(p_id_organizacao,f.id_contrato,f.id,v_num,p_inicio_vigencia,p_fim_vigencia,p_id_arquivo,p_conteudo_texto,p_metadados,v_hash) returning * into v;
+  return privado.v107_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V107VersaoRegistrada','versoes_fontes_normativas',v.id,null,jsonb_build_object('id',v.id,'hash',v.hash,'versao',v.versao),jsonb_build_object('versao',to_jsonb(v)));
+end $$;
+
+create or replace function privado.aprovar_versao_fonte_v107(p_id_organizacao uuid,p_id_versao uuid,p_hash_esperado text,p_fundamento text,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.versoes_fontes_normativas%rowtype; f public.fontes_normativas%rowtype; v_cmd jsonb; v_antes jsonb; v_contexto jsonb;
+begin
+  perform privado.v107_autorizar(p_id_organizacao,null,true);
+  select * into v from public.versoes_fontes_normativas where id=p_id_versao and id_organizacao=p_id_organizacao;
+  select * into f from public.fontes_normativas where id=v.id_fonte and id_organizacao=p_id_organizacao and id_contrato is not distinct from v.id_contrato;
+  if v.id is null or f.id is null then raise exception using errcode='PT404',message='Versão normativa não encontrada neste escopo.'; end if;
+  perform privado.v107_autorizar(p_id_organizacao,f.id_contrato,true);
+  if nullif(btrim(p_fundamento),'') is null then raise exception using errcode='PT400',message='Informe o fundamento da aprovação humana.'; end if;
+  v_cmd:=privado.v107_iniciar(p_id_organizacao,'v107.aprovar_versao',p_chave_idempotencia,jsonb_build_array(p_id_versao,p_hash_esperado,p_fundamento));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  perform 1 from public.fontes_normativas where id=f.id for update;
+  select * into v from public.versoes_fontes_normativas where id=p_id_versao for update;
+  if v.hash is distinct from p_hash_esperado then raise exception using errcode='PT409',message='O conteúdo normativo mudou. Atualize e revise a versão.'; end if;
+  if v.aprovado_em is not null then raise exception using errcode='PT409',message='Esta versão já foi aprovada. Atualize a tela.'; end if;
+  if v.inicio_vigencia is null or v.fim_vigencia<v.inicio_vigencia or (v.id_arquivo is null and nullif(btrim(v.conteudo_texto),'') is null) then
+    raise exception using errcode='PT400',message='A versão não tem vigência e origem válidas para aprovação.';
+  end if;
+  if v.id_arquivo is not null and not exists(select 1 from public.arquivos where id=v.id_arquivo and id_organizacao=p_id_organizacao and id_contrato is not distinct from f.id_contrato and status_seguranca='aprovado') then
+    raise exception using errcode='PT400',message='O arquivo de origem não está aprovado neste escopo.';
+  end if;
+  v_antes:=jsonb_build_object('id',v.id,'hash',v.hash,'aprovado_em',v.aprovado_em);
+  v_contexto:=privado.v107_capturar(p_id_organizacao,f.id_contrato);
+  update public.versoes_fontes_normativas set aprovado_por=auth.uid(),aprovado_em=clock_timestamp() where id=v.id returning * into v;
+  perform privado.v107_invalidar(v_contexto,f.id);
+  return privado.v107_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V107VersaoAprovada','versoes_fontes_normativas',v.id,v_antes,jsonb_build_object('id',v.id,'hash',v.hash,'aprovado_por',v.aprovado_por,'aprovado_em',v.aprovado_em),jsonb_build_object('versao',to_jsonb(v)),p_fundamento);
+end $$;
+
+create or replace function privado.definir_aplicabilidade_fonte_v107(p_id_organizacao uuid,p_id_contrato uuid,p_id_versao uuid,p_aplicavel boolean,p_fundamento text,p_atualizado_em_esperado timestamptz,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.versoes_fontes_normativas%rowtype; f public.fontes_normativas%rowtype; a public.aplicabilidades_fonte%rowtype; v_cmd jsonb; v_antes jsonb; v_contexto jsonb;
+begin
+  perform privado.v107_autorizar(p_id_organizacao,p_id_contrato,true);
+  if p_id_contrato is null or p_aplicavel is null or nullif(btrim(p_fundamento),'') is null then raise exception using errcode='PT400',message='Informe contrato, aplicabilidade e fundamento.'; end if;
+  select * into v from public.versoes_fontes_normativas where id=p_id_versao and id_organizacao=p_id_organizacao and (id_contrato is null or id_contrato=p_id_contrato);
+  select * into f from public.fontes_normativas where id=v.id_fonte and id_organizacao=p_id_organizacao and id_contrato is not distinct from v.id_contrato;
+  if v.id is null or f.id is null then raise exception using errcode='PT404',message='Versão normativa não encontrada neste escopo.'; end if;
+  if v.aprovado_em is null then raise exception using errcode='PT400',message='A versão precisa de aprovação humana antes da aplicabilidade.'; end if;
+  v_cmd:=privado.v107_iniciar(p_id_organizacao,'v107.definir_aplicabilidade',p_chave_idempotencia,jsonb_build_array(p_id_contrato,p_id_versao,p_aplicavel,p_fundamento,p_atualizado_em_esperado));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  perform 1 from public.fontes_normativas where id=f.id for update;
+  select * into a from public.aplicabilidades_fonte where id_fonte_versao=p_id_versao and id_contrato=p_id_contrato for update;
+  if (a.id is null and p_atualizado_em_esperado is not null) or (a.id is not null and a.atualizado_em is distinct from p_atualizado_em_esperado) then
+    raise exception using errcode='PT409',message='A aplicabilidade foi atualizada. Atualize a tela e revise os dados.';
+  end if;
+  v_antes:=case when a.id is null then null else to_jsonb(a) end;
+  v_contexto:=privado.v107_capturar(p_id_organizacao,p_id_contrato);
+  if a.id is null then
+    insert into public.aplicabilidades_fonte(id_organizacao,id_contrato,id_fonte_versao,aplicavel,fundamento,aprovado_por,aprovado_em)
+      values(p_id_organizacao,p_id_contrato,p_id_versao,p_aplicavel,p_fundamento,auth.uid(),clock_timestamp()) returning * into a;
+  else
+    update public.aplicabilidades_fonte set aplicavel=p_aplicavel,fundamento=p_fundamento,aprovado_por=auth.uid(),aprovado_em=clock_timestamp(),atualizado_em=clock_timestamp() where id=a.id returning * into a;
+  end if;
+  perform privado.v107_invalidar(v_contexto,f.id);
+  return privado.v107_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V107AplicabilidadeDefinida','aplicabilidades_fonte',a.id,v_antes,to_jsonb(a),jsonb_build_object('aplicabilidade',to_jsonb(a)),p_fundamento);
+end $$;
+
+revoke insert,update,delete on public.fontes_normativas,public.versoes_fontes_normativas,public.aplicabilidades_fonte from authenticated;
+
+create or replace function public.salvar_fonte_normativa_v107(p_id_organizacao uuid,p_id_contrato uuid,p_id_fonte uuid,p_tipo text,p_titulo text,p_referencia text,p_descricao text,p_situacao text,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.salvar_fonte_normativa_v107(p_id_organizacao,p_id_contrato,p_id_fonte,p_tipo,p_titulo,p_referencia,p_descricao,p_situacao,p_versao_esperada,p_chave_idempotencia);$$;
+create or replace function public.registrar_versao_fonte_v107(p_id_organizacao uuid,p_id_fonte uuid,p_inicio_vigencia date,p_fim_vigencia date,p_id_arquivo uuid,p_conteudo_texto text,p_metadados jsonb,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.registrar_versao_fonte_v107(p_id_organizacao,p_id_fonte,p_inicio_vigencia,p_fim_vigencia,p_id_arquivo,p_conteudo_texto,p_metadados,p_chave_idempotencia);$$;
+create or replace function public.aprovar_versao_fonte_v107(p_id_organizacao uuid,p_id_versao uuid,p_hash_esperado text,p_fundamento text,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.aprovar_versao_fonte_v107(p_id_organizacao,p_id_versao,p_hash_esperado,p_fundamento,p_chave_idempotencia);$$;
+create or replace function public.definir_aplicabilidade_fonte_v107(p_id_organizacao uuid,p_id_contrato uuid,p_id_versao uuid,p_aplicavel boolean,p_fundamento text,p_atualizado_em_esperado timestamptz,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.definir_aplicabilidade_fonte_v107(p_id_organizacao,p_id_contrato,p_id_versao,p_aplicavel,p_fundamento,p_atualizado_em_esperado,p_chave_idempotencia);$$;
+
+revoke all on function privado.salvar_fonte_normativa_v107(uuid,uuid,uuid,text,text,text,text,text,bigint,text),public.salvar_fonte_normativa_v107(uuid,uuid,uuid,text,text,text,text,text,bigint,text) from public,anon,authenticated;
+revoke all on function privado.registrar_versao_fonte_v107(uuid,uuid,date,date,uuid,text,jsonb,text),public.registrar_versao_fonte_v107(uuid,uuid,date,date,uuid,text,jsonb,text) from public,anon,authenticated;
+revoke all on function privado.aprovar_versao_fonte_v107(uuid,uuid,text,text,text),public.aprovar_versao_fonte_v107(uuid,uuid,text,text,text) from public,anon,authenticated;
+revoke all on function privado.definir_aplicabilidade_fonte_v107(uuid,uuid,uuid,boolean,text,timestamptz,text),public.definir_aplicabilidade_fonte_v107(uuid,uuid,uuid,boolean,text,timestamptz,text) from public,anon,authenticated;
+grant execute on function privado.salvar_fonte_normativa_v107(uuid,uuid,uuid,text,text,text,text,text,bigint,text),public.salvar_fonte_normativa_v107(uuid,uuid,uuid,text,text,text,text,text,bigint,text) to authenticated;
+grant execute on function privado.registrar_versao_fonte_v107(uuid,uuid,date,date,uuid,text,jsonb,text),public.registrar_versao_fonte_v107(uuid,uuid,date,date,uuid,text,jsonb,text) to authenticated;
+grant execute on function privado.aprovar_versao_fonte_v107(uuid,uuid,text,text,text),public.aprovar_versao_fonte_v107(uuid,uuid,text,text,text) to authenticated;
+grant execute on function privado.definir_aplicabilidade_fonte_v107(uuid,uuid,uuid,boolean,text,timestamptz,text),public.definir_aplicabilidade_fonte_v107(uuid,uuid,uuid,boolean,text,timestamptz,text) to authenticated;
+
+create or replace function privado.snapshot_normativo_v107(p_id_competencia uuid)
+returns jsonb language sql stable security definer set search_path='' as $$
+ select coalesce(jsonb_agg(jsonb_build_object('fonte',jsonb_build_object('id',f.id,'tipo',f.tipo,'titulo',f.titulo,'referencia',f.referencia,'descricao',f.descricao,'situacao',f.situacao,'versao_registro',f.versao_registro),
+ 'versao',jsonb_build_object('id',v.id,'versao',v.versao,'hash',v.hash,'inicio_vigencia',v.inicio_vigencia,'fim_vigencia',v.fim_vigencia),
+ 'aplicabilidade',case when a.id is null then null else jsonb_build_object('id',a.id,'aplicavel',a.aplicavel,'fundamento',a.fundamento) end) order by f.id,v.versao,v.id),'[]'::jsonb)
+ from public.competencias c join public.fontes_normativas f on f.id_organizacao=c.id_organizacao and (f.id_contrato=c.id_contrato or f.id_contrato is null)
+ join public.versoes_fontes_normativas v on v.id_fonte=f.id and v.id_organizacao=f.id_organizacao and v.id_contrato is not distinct from f.id_contrato
+ left join public.aplicabilidades_fonte a on a.id_fonte_versao=v.id and a.id_contrato=c.id_contrato and a.id_organizacao=c.id_organizacao
+ where c.id=p_id_competencia and f.situacao='ativa' and v.aprovado_em is not null
+ and v.inicio_vigencia<=c.periodo_fim and (v.fim_vigencia is null or v.fim_vigencia>=c.periodo_inicio)
+ and ((f.id_contrato=c.id_contrato and (a.id is null or (a.aplicavel and a.aprovado_em is not null)))
+   or (f.id_contrato is null and a.aplicavel and a.aprovado_em is not null));
+$$;
+revoke all on function privado.snapshot_normativo_v107(uuid) from public,anon,authenticated;
+CREATE OR REPLACE FUNCTION privado.snapshot_contexto_competencia(p_id_competencia uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  v public.competencias%rowtype;
+  v_contrato jsonb;
+begin
+  select * into v from public.competencias where id=p_id_competencia;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+
+  select to_jsonb(c)-'criado_em'-'atualizado_em' into v_contrato from public.contratos c where c.id=v.id_contrato;
+
+  return jsonb_build_object(
+    'competencia',jsonb_build_object('id',v.id,'referencia',v.competencia_referencia,'periodo_inicio',v.periodo_inicio,'periodo_fim',v.periodo_fim,'data_limite',v.data_limite),
+    'contrato',coalesce(v_contrato,'{}'::jsonb),
+    'requisitos',coalesce((
+      select jsonb_agg((to_jsonb(r)-'criado_em') order by r.ordem,r.id)
+      from public.requisitos_competencia r where r.id_competencia=v.id
+    ),'[]'::jsonb),
+    'documentos',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'documento',to_jsonb(d)-'criado_em'-'atualizado_em',
+        'versao',to_jsonb(vd)-'criado_em'-'enviado_por'
+      ) order by d.id)
+      from public.documentos_competencia d
+      join lateral (select x.* from public.versoes_documento x where x.id_documento_competencia=d.id order by x.numero_versao desc limit 1) vd on true
+      where d.id_competencia=v.id and d.situacao='ativo'
+    ),'[]'::jsonb),
+    'propostas',coalesce((
+      select jsonb_agg((to_jsonb(vp)-'criado_em'-'aprovado_em'-'aprovado_por') order by vp.vigencia_inicio,vp.numero_versao,vp.id)
+      from public.versoes_proposta vp
+      where vp.id_contrato=v.id_contrato and vp.vigencia_inicio<=v.periodo_fim and (vp.vigencia_fim is null or vp.vigencia_fim>=v.periodo_inicio)
+    ),'[]'::jsonb),
+    'linhas_orcamentarias',coalesce((
+      select jsonb_agg((to_jsonb(l)-'criado_em') order by l.codigo,l.id)
+      from public.linhas_orcamentarias l join public.versoes_proposta vp on vp.id=l.id_versao_proposta
+      where l.id_contrato=v.id_contrato and vp.vigencia_inicio<=v.periodo_fim and (vp.vigencia_fim is null or vp.vigencia_fim>=v.periodo_inicio)
+    ),'[]'::jsonb),
+    'transacoes',coalesce((
+      select jsonb_agg((to_jsonb(t)-'criado_em'-'pre_validada'-'pre_validada_em'-'status_fluxo') order by t.data,t.id)
+      from public.transacoes_financeiras t where t.id_contrato=v.id_contrato and t.data between v.periodo_inicio and v.periodo_fim
+    ),'[]'::jsonb),
+    'conciliacoes',coalesce((
+      select jsonb_agg((to_jsonb(c)-'criado_em'-'concluido_em'-'concluido_por') order by c.periodo,c.tipo,c.id)
+      from public.conciliacoes c where c.id_contrato=v.id_contrato and c.periodo between date_trunc('month',v.periodo_inicio)::date and date_trunc('month',v.periodo_fim)::date
+    ),'[]'::jsonb),
+    'motor','contaos','versao_snapshot','4.1','idioma','pt-BR','timezone','America/Sao_Paulo'
+  ) || case when privado.snapshot_normativo_v107(v.id)='[]'::jsonb then '{}'::jsonb
+       else jsonb_build_object('base_normativa',privado.snapshot_normativo_v107(v.id)) end;
+end;
+$function$;
+
+-- A extensão do hash só altera contextos com base normativa efetiva.
+-- Portões legados desses contextos exigem reanálise; demais hashes são preservados.
+do $$ declare r record;
+begin
+  for r in select id from public.competencias where situacao in('pode_apresentar_contratante','pode_reapresentar_contratante')
+    and privado.snapshot_normativo_v107(id)<>'[]'::jsonb order by id for update loop
+    perform privado.invalidar_portao_competencia(r.id,'Contexto normativo incorporado ao hash oficial V1-07.','base_normativa',null);
+  end loop;
+end $$;
+
+-- ============================================================
+
+-- MIGRATION 20261103001740_v108_orcamento_estruturado
+begin;
+
+alter table public.versoes_proposta
+  add column if not exists id_arquivo_origem uuid references public.arquivos(id) on delete restrict;
+create index if not exists versoes_proposta_arquivo_origem_idx on public.versoes_proposta(id_arquivo_origem) where id_arquivo_origem is not null;
+
+alter table public.linhas_orcamentarias
+  add column if not exists valor_mensal_previsto numeric(18,2),
+  add column if not exists valor_anual_previsto numeric(18,2),
+  add column if not exists permite_remanejamento boolean not null default false,
+  add column if not exists observacoes text,
+  add column if not exists versao_registro bigint not null default 1;
+
+alter table public.linhas_orcamentarias drop constraint if exists linhas_orcamentarias_valor_mensal_ck;
+alter table public.linhas_orcamentarias add constraint linhas_orcamentarias_valor_mensal_ck check(valor_mensal_previsto is null or valor_mensal_previsto>=0);
+alter table public.linhas_orcamentarias drop constraint if exists linhas_orcamentarias_valor_anual_ck;
+alter table public.linhas_orcamentarias add constraint linhas_orcamentarias_valor_anual_ck check(valor_anual_previsto is null or valor_anual_previsto>=0);
+alter table public.linhas_orcamentarias drop constraint if exists linhas_orcamentarias_limite_remanejamento_ck;
+alter table public.linhas_orcamentarias add constraint linhas_orcamentarias_limite_remanejamento_ck check(limite_remanejamento_percentual is null or (limite_remanejamento_percentual>=0 and limite_remanejamento_percentual<=100));
+alter table public.linhas_orcamentarias drop constraint if exists linhas_orcamentarias_versao_registro_ck;
+alter table public.linhas_orcamentarias add constraint linhas_orcamentarias_versao_registro_ck check(versao_registro>=1);
+
+drop trigger if exists contaos_versao_linhas_orcamentarias on public.linhas_orcamentarias;
+create trigger contaos_versao_linhas_orcamentarias before update on public.linhas_orcamentarias for each row execute function privado.controlar_versao_registro();
+
+create or replace function privado.v108_autorizar(p_org uuid,p_contrato uuid)
+returns void language plpgsql security definer set search_path='' as $$
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() or not privado.usuario_possui_perfil(p_org,array['administrador','gestor_contrato','financeiro','contabilidade']::text[]) then
+    raise exception using errcode='42501',message='Você não tem permissão para alterar o orçamento deste contrato.';
+  end if;
+  if not exists(select 1 from public.organizacoes where id=p_org) or p_contrato is null or
+     not exists(select 1 from public.contratos c where c.id=p_contrato and c.id_organizacao=p_org and privado.usuario_tem_acesso_contrato(c.id)) then
+    raise exception using errcode='42501',message='O contrato não pertence ao seu escopo nesta organização.';
+  end if;
+end $$;
+revoke all on function privado.v108_autorizar(uuid,uuid) from public,anon,authenticated;
+
+create or replace function privado.v108_iniciar(p_org uuid,p_comando text,p_chave text,p_payload jsonb)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.comandos_idempotentes%rowtype; v_nome text:=p_comando||':'||auth.uid()::text; v_hash text:=encode(extensions.digest(p_payload::text,'sha256'),'hex');
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() then raise exception using errcode='42501',message='Sua sessão não está ativa.'; end if;
+  if p_chave is null or length(btrim(p_chave)) not between 1 and 200 then raise exception using errcode='PT400',message='Informe uma chave de operação válida.'; end if;
+  insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,expira_em)
+  values(p_org,v_nome,p_chave,v_hash,'iniciado',now()+interval '24 hours')
+  on conflict(id_organizacao,comando,chave) do nothing returning * into v;
+  if v.id is null then
+    select * into v from public.comandos_idempotentes where id_organizacao=p_org and comando=v_nome and chave=p_chave for update;
+    if v.hash_payload is distinct from v_hash then raise exception using errcode='PT409',message='Esta chave de operação já foi usada com dados diferentes.'; end if;
+    if v.status='concluido' and v.resposta is not null then return jsonb_build_object('id',v.id,'resposta',v.resposta); end if;
+    raise exception using errcode='PT409',message='Esta operação já está em processamento. Atualize a tela.';
+  end if;
+  return jsonb_build_object('id',v.id);
+end $$;
+revoke all on function privado.v108_iniciar(uuid,text,text,jsonb) from public,anon,authenticated;
+
+create or replace function privado.v108_concluir(p_comando uuid,p_org uuid,p_evento text,p_entidade text,p_id uuid,p_antes jsonb,p_depois jsonb,p_resultado jsonb,p_fundamento text default null)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_evento uuid; v_correlacao uuid; v_resposta jsonb;
+begin
+  v_evento:=privado.registrar_evento_auditoria(p_org,p_evento,p_entidade,p_id,p_antes,p_depois,jsonb_build_object('comando_id',p_comando,'fundamento',p_fundamento));
+  select correlation_id into v_correlacao from public.eventos_auditoria where id=v_evento;
+  v_resposta:=p_resultado||jsonb_build_object('schema_versao','v108-v1','correlation_id',v_correlacao);
+  update public.comandos_idempotentes set status='concluido',resposta=v_resposta,atualizado_em=clock_timestamp() where id=p_comando;
+  return v_resposta;
+end $$;
+revoke all on function privado.v108_concluir(uuid,uuid,text,text,uuid,jsonb,jsonb,jsonb,text) from public,anon,authenticated;
+
+create or replace function privado.v108_hash_versao(p_id_versao uuid)
+returns text language plpgsql stable security definer set search_path='' as $$
+declare v public.versoes_proposta%rowtype; a public.arquivos%rowtype; v_linhas jsonb; v_payload jsonb;
+begin
+  select * into v from public.versoes_proposta where id=p_id_versao;
+  if v.id is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
+  if v.id_arquivo_origem is not null then select * into a from public.arquivos where id=v.id_arquivo_origem; end if;
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'codigo',l.codigo,'grupo',l.grupo,'rubrica',l.rubrica,'subrubrica',l.subrubrica,'descricao',l.descricao,
+    'valor_mensal_previsto',l.valor_mensal_previsto,'valor_anual_previsto',l.valor_anual_previsto,
+    'permite_remanejamento',l.permite_remanejamento,'limite_remanejamento_percentual',l.limite_remanejamento_percentual,
+    'observacoes',l.observacoes
+  ) order by l.codigo,l.id),'[]'::jsonb) into v_linhas from public.linhas_orcamentarias l where l.id_versao_proposta=v.id;
+  v_payload:=jsonb_build_object('id_proposta',v.id_proposta,'numero_versao',v.numero_versao,'vigencia_inicio',v.vigencia_inicio,'vigencia_fim',v.vigencia_fim,'arquivo_sha256',a.sha256,'linhas',v_linhas);
+  return encode(extensions.digest(v_payload::text,'sha256'),'hex');
+end $$;
+revoke all on function privado.v108_hash_versao(uuid) from public,anon,authenticated;
+
+create or replace function privado.v108_recalcular_versao(p_id_versao uuid)
+returns public.versoes_proposta language plpgsql security definer set search_path='' as $$
+declare v public.versoes_proposta%rowtype; v_total numeric(18,2);
+begin
+  select * into v from public.versoes_proposta where id=p_id_versao for update;
+  if v.id is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
+  if v.situacao<>'rascunho' then raise exception using errcode='PT409',message='Uma versão publicada não pode ser alterada.'; end if;
+  select coalesce(sum(coalesce(valor_anual_previsto,valor_mensal_previsto,0)),0)::numeric(18,2) into v_total from public.linhas_orcamentarias where id_versao_proposta=v.id;
+  update public.versoes_proposta set valor_total=v_total,hash=privado.v108_hash_versao(v.id) where id=v.id returning * into v;
+  return v;
+end $$;
+revoke all on function privado.v108_recalcular_versao(uuid) from public,anon,authenticated;
+
+create or replace function privado.v108_proteger_versao_proposta()
+returns trigger language plpgsql set search_path='' as $$
+declare v_interno boolean:=coalesce(current_setting('contaos.v108_publicacao_interna',true),'')='1';
+begin
+  if tg_op='DELETE' and old.situacao<>'rascunho' then raise exception using errcode='PT409',message='Uma versão publicada não pode ser removida.'; end if;
+  if tg_op='UPDATE' then
+    if old.situacao='rascunho' and new.situacao<>'rascunho' and not v_interno then raise exception using errcode='PT409',message='Publique a proposta pela operação oficial do ContaOS.'; end if;
+    if old.situacao in('publicada','substituida') then
+      if not (v_interno and old.situacao='publicada' and new.situacao='substituida' and (to_jsonb(new)-array['situacao']::text[])=(to_jsonb(old)-array['situacao']::text[])) then
+        raise exception using errcode='PT409',message='Uma versão publicada é imutável.';
+      end if;
+    end if;
+  end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end $$;
+revoke all on function privado.v108_proteger_versao_proposta() from public,anon,authenticated;
+drop trigger if exists v108_proteger_versao_proposta on public.versoes_proposta;
+create trigger v108_proteger_versao_proposta before update or delete on public.versoes_proposta for each row execute function privado.v108_proteger_versao_proposta();
+
+create or replace function privado.v108_proteger_linha_orcamentaria()
+returns trigger language plpgsql set search_path='' as $$
+declare v_id uuid:=case when tg_op='DELETE' then old.id_versao_proposta else new.id_versao_proposta end; v_situacao text;
+begin
+  select situacao into v_situacao from public.versoes_proposta where id=v_id;
+  if v_situacao is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
+  if v_situacao<>'rascunho' then raise exception using errcode='PT409',message='Rubricas de uma versão publicada são imutáveis.'; end if;
+  if tg_op='DELETE' then return old; else return new; end if;
+end $$;
+revoke all on function privado.v108_proteger_linha_orcamentaria() from public,anon,authenticated;
+drop trigger if exists v108_proteger_linha_orcamentaria on public.linhas_orcamentarias;
+create trigger v108_proteger_linha_orcamentaria before insert or update or delete on public.linhas_orcamentarias for each row execute function privado.v108_proteger_linha_orcamentaria();
+
+create or replace function privado.tg_invalidar_portao_proposta()
+returns trigger language plpgsql security definer set search_path='' as $$
+declare r record; v_contrato uuid; v_ini date; v_fim date; v_id uuid;
+begin
+  if tg_op='INSERT' then
+    if new.situacao<>'publicada' then return new; end if;
+    v_contrato:=new.id_contrato; v_ini:=new.vigencia_inicio; v_fim:=new.vigencia_fim; v_id:=new.id;
+  elsif tg_op='UPDATE' then
+    if not(old.situacao='rascunho' and new.situacao='publicada') then return new; end if;
+    v_contrato:=new.id_contrato; v_ini:=new.vigencia_inicio; v_fim:=new.vigencia_fim; v_id:=new.id;
+  else
+    if old.situacao not in('publicada','substituida') then return old; end if;
+    v_contrato:=old.id_contrato; v_ini:=old.vigencia_inicio; v_fim:=old.vigencia_fim; v_id:=old.id;
+  end if;
+  for r in select id from public.competencias where id_contrato=v_contrato and v_ini<=periodo_fim and (v_fim is null or v_fim>=periodo_inicio) order by id loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração material de proposta orçamentária após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end $$;
+
+create or replace function privado.tg_invalidar_portao_linha_orcamentaria()
+returns trigger language plpgsql security definer set search_path='' as $$
+declare r record; v_contrato uuid:=coalesce(new.id_contrato,old.id_contrato); v_vp uuid:=coalesce(new.id_versao_proposta,old.id_versao_proposta); v_id uuid:=coalesce(new.id,old.id); v_ini date; v_fim date; v_situacao text;
+begin
+  select vigencia_inicio,vigencia_fim,situacao into v_ini,v_fim,v_situacao from public.versoes_proposta where id=v_vp;
+  if v_situacao is null or v_situacao='rascunho' then if tg_op='DELETE' then return old; else return new; end if; end if;
+  for r in select id from public.competencias where id_contrato=v_contrato and (v_ini is null or v_ini<=periodo_fim) and (v_fim is null or v_fim>=periodo_inicio) order by id loop
+    perform privado.invalidar_portao_competencia(r.id,'Alteração material de linha orçamentária após liberação exige nova análise completa.',tg_table_name,v_id);
+  end loop;
+  if tg_op='DELETE' then return old; else return new; end if;
+end $$;
+
+create or replace function privado.salvar_proposta_orcamentaria_v108(p_id_organizacao uuid,p_id_contrato uuid,p_id_proposta uuid,p_titulo text,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.propostas_orcamentarias%rowtype; v_antes jsonb; v_cmd jsonb;
+begin
+  perform privado.v108_autorizar(p_id_organizacao,p_id_contrato);
+  if nullif(btrim(p_titulo),'') is null then raise exception using errcode='PT400',message='Informe o nome da proposta orçamentária.'; end if;
+  if p_id_proposta is not null then
+    select * into v from public.propostas_orcamentarias where id=p_id_proposta and id_organizacao=p_id_organizacao and id_contrato=p_id_contrato;
+    if v.id is null then raise exception using errcode='PT404',message='Proposta orçamentária não encontrada neste contrato.'; end if;
+  elsif p_versao_esperada is not null then raise exception using errcode='PT400',message='Uma nova proposta não possui versão anterior.'; end if;
+  v_cmd:=privado.v108_iniciar(p_id_organizacao,'v108.salvar_proposta',p_chave_idempotencia,jsonb_build_array(p_id_contrato,p_id_proposta,p_titulo,p_versao_esperada));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  if p_id_proposta is null then
+    insert into public.propostas_orcamentarias(id_organizacao,id_contrato,titulo,situacao) values(p_id_organizacao,p_id_contrato,btrim(p_titulo),'rascunho') returning * into v;
+  else
+    select * into v from public.propostas_orcamentarias where id=p_id_proposta for update;
+    if p_versao_esperada is null or v.versao_registro<>p_versao_esperada then raise exception using errcode='PT409',message='A proposta foi atualizada por outra pessoa. Atualize a tela antes de salvar.'; end if;
+    v_antes:=to_jsonb(v);
+    update public.propostas_orcamentarias set titulo=btrim(p_titulo) where id=v.id returning * into v;
+  end if;
+  return privado.v108_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V108PropostaSalva','propostas_orcamentarias',v.id,v_antes,to_jsonb(v),jsonb_build_object('proposta',to_jsonb(v)));
+end $$;
+revoke all on function privado.salvar_proposta_orcamentaria_v108(uuid,uuid,uuid,text,bigint,text) from public,anon,authenticated;
+
+create or replace function privado.registrar_versao_proposta_v108(p_id_organizacao uuid,p_id_proposta uuid,p_vigencia_inicio date,p_vigencia_fim date,p_id_arquivo_origem uuid,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare p public.propostas_orcamentarias%rowtype; v public.versoes_proposta%rowtype; a public.arquivos%rowtype; v_cmd jsonb; v_num integer; v_ultima date;
+begin
+  select * into p from public.propostas_orcamentarias where id=p_id_proposta and id_organizacao=p_id_organizacao;
+  if p.id is null then raise exception using errcode='PT404',message='Proposta orçamentária não encontrada.'; end if;
+  perform privado.v108_autorizar(p_id_organizacao,p.id_contrato);
+  if p_vigencia_inicio is null or (p_vigencia_fim is not null and p_vigencia_fim<p_vigencia_inicio) then raise exception using errcode='PT400',message='Informe uma vigência válida para a proposta.'; end if;
+  if p_id_arquivo_origem is null then raise exception using errcode='PT400',message='Anexe o documento-base da proposta orçamentária.'; end if;
+  select * into a from public.arquivos where id=p_id_arquivo_origem and id_organizacao=p_id_organizacao and id_contrato=p.id_contrato;
+  if a.id is null then raise exception using errcode='PT400',message='O documento-base não pertence a este contrato.'; end if;
+  if a.status_seguranca not in('pendente','aprovado') then raise exception using errcode='PT400',message='O documento-base não está disponível para uso.'; end if;
+  v_cmd:=privado.v108_iniciar(p_id_organizacao,'v108.registrar_versao',p_chave_idempotencia,jsonb_build_array(p_id_proposta,p_vigencia_inicio,p_vigencia_fim,p_id_arquivo_origem));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  perform 1 from public.propostas_orcamentarias where id=p.id for update;
+  if exists(select 1 from public.versoes_proposta where id_proposta=p.id and situacao='rascunho') then raise exception using errcode='PT409',message='Já existe uma versão em rascunho. Conclua ou publique essa versão antes de iniciar outra.'; end if;
+  select max(vigencia_inicio) into v_ultima from public.versoes_proposta where id_proposta=p.id and situacao in('publicada','substituida');
+  if v_ultima is not null and p_vigencia_inicio<=v_ultima then raise exception using errcode='PT400',message='A nova versão deve iniciar após a versão publicada anterior.'; end if;
+  select coalesce(max(numero_versao),0)+1 into v_num from public.versoes_proposta where id_proposta=p.id;
+  insert into public.versoes_proposta(id_organizacao,id_contrato,id_proposta,numero_versao,vigencia_inicio,vigencia_fim,id_arquivo_origem,valor_total,hash,situacao)
+    values(p_id_organizacao,p.id_contrato,p.id,v_num,p_vigencia_inicio,p_vigencia_fim,p_id_arquivo_origem,0,repeat('0',64),'rascunho') returning * into v;
+  update public.versoes_proposta set hash=privado.v108_hash_versao(v.id) where id=v.id returning * into v;
+  return privado.v108_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V108VersaoRegistrada','versoes_proposta',v.id,null,to_jsonb(v),jsonb_build_object('versao',to_jsonb(v)));
+end $$;
+revoke all on function privado.registrar_versao_proposta_v108(uuid,uuid,date,date,uuid,text) from public,anon,authenticated;
+
+create or replace function privado.salvar_linha_orcamentaria_v108(p_id_organizacao uuid,p_id_versao_proposta uuid,p_id_linha uuid,p_codigo text,p_grupo text,p_rubrica text,p_subrubrica text,p_descricao text,p_valor_mensal numeric,p_valor_anual numeric,p_permite_remanejamento boolean,p_limite_remanejamento_percentual numeric,p_observacoes text,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.versoes_proposta%rowtype; l public.linhas_orcamentarias%rowtype; v_antes jsonb; v_cmd jsonb; v_codigo text; v_descricao text; v_limite numeric; v_total numeric;
+begin
+  select * into v from public.versoes_proposta where id=p_id_versao_proposta and id_organizacao=p_id_organizacao;
+  if v.id is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
+  perform privado.v108_autorizar(p_id_organizacao,v.id_contrato);
+  if nullif(btrim(p_rubrica),'') is null then raise exception using errcode='PT400',message='Informe a rubrica orçamentária.'; end if;
+  if p_valor_mensal is null and p_valor_anual is null then raise exception using errcode='PT400',message='Informe ao menos o valor mensal ou o valor anual previsto.'; end if;
+  if coalesce(p_valor_mensal,0)<0 or coalesce(p_valor_anual,0)<0 then raise exception using errcode='PT400',message='Os valores previstos não podem ser negativos.'; end if;
+  if p_limite_remanejamento_percentual is not null and (p_limite_remanejamento_percentual<0 or p_limite_remanejamento_percentual>100) then raise exception using errcode='PT400',message='O limite de remanejamento deve estar entre 0% e 100%.'; end if;
+  v_limite:=case when coalesce(p_permite_remanejamento,false) then p_limite_remanejamento_percentual else null end;
+  v_cmd:=privado.v108_iniciar(p_id_organizacao,'v108.salvar_linha',p_chave_idempotencia,jsonb_build_array(p_id_versao_proposta,p_id_linha,p_codigo,p_grupo,p_rubrica,p_subrubrica,p_descricao,p_valor_mensal,p_valor_anual,p_permite_remanejamento,v_limite,p_observacoes,p_versao_esperada));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  select * into v from public.versoes_proposta where id=p_id_versao_proposta for update;
+  if v.situacao<>'rascunho' then raise exception using errcode='PT409',message='Uma versão publicada não pode ser alterada.'; end if;
+  if p_id_linha is null then
+    v_codigo:=coalesce(nullif(btrim(p_codigo),''),'RUB-'||upper(substr(replace(gen_random_uuid()::text,'-',''),1,12)));
+    if exists(select 1 from public.linhas_orcamentarias where id_versao_proposta=v.id and codigo=v_codigo) then raise exception using errcode='PT409',message='Já existe uma rubrica com este código nesta versão.'; end if;
+    v_descricao:=coalesce(nullif(btrim(p_descricao),''),concat_ws(' / ',nullif(btrim(p_grupo),''),btrim(p_rubrica),nullif(btrim(p_subrubrica),'')));
+    v_total:=coalesce(p_valor_anual,p_valor_mensal,0);
+    insert into public.linhas_orcamentarias(id_organizacao,id_contrato,id_versao_proposta,codigo,grupo,rubrica,subrubrica,descricao,quantidade,valor_unitario,valor_total,valor_mensal_previsto,valor_anual_previsto,permite_remanejamento,limite_remanejamento_percentual,observacoes)
+      values(p_id_organizacao,v.id_contrato,v.id,v_codigo,nullif(btrim(p_grupo),''),btrim(p_rubrica),nullif(btrim(p_subrubrica),''),v_descricao,1,v_total,v_total,p_valor_mensal,p_valor_anual,coalesce(p_permite_remanejamento,false),v_limite,nullif(btrim(p_observacoes),'')) returning * into l;
+  else
+    select * into l from public.linhas_orcamentarias where id=p_id_linha and id_versao_proposta=v.id and id_organizacao=p_id_organizacao for update;
+    if l.id is null then raise exception using errcode='PT404',message='Rubrica orçamentária não encontrada nesta versão.'; end if;
+    if p_versao_esperada is null or l.versao_registro<>p_versao_esperada then raise exception using errcode='PT409',message='A rubrica foi atualizada por outra pessoa. Atualize a tela antes de salvar.'; end if;
+    v_codigo:=coalesce(nullif(btrim(p_codigo),''),l.codigo);
+    if exists(select 1 from public.linhas_orcamentarias where id_versao_proposta=v.id and codigo=v_codigo and id<>l.id) then raise exception using errcode='PT409',message='Já existe uma rubrica com este código nesta versão.'; end if;
+    v_descricao:=coalesce(nullif(btrim(p_descricao),''),concat_ws(' / ',nullif(btrim(p_grupo),''),btrim(p_rubrica),nullif(btrim(p_subrubrica),'')));
+    v_total:=coalesce(p_valor_anual,p_valor_mensal,0); v_antes:=to_jsonb(l);
+    update public.linhas_orcamentarias set codigo=v_codigo,grupo=nullif(btrim(p_grupo),''),rubrica=btrim(p_rubrica),subrubrica=nullif(btrim(p_subrubrica),''),descricao=v_descricao,quantidade=1,valor_unitario=v_total,valor_total=v_total,valor_mensal_previsto=p_valor_mensal,valor_anual_previsto=p_valor_anual,permite_remanejamento=coalesce(p_permite_remanejamento,false),limite_remanejamento_percentual=v_limite,observacoes=nullif(btrim(p_observacoes),'') where id=l.id returning * into l;
+  end if;
+  v:=privado.v108_recalcular_versao(v.id);
+  return privado.v108_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V108LinhaSalva','linhas_orcamentarias',l.id,v_antes,to_jsonb(l),jsonb_build_object('linha',to_jsonb(l),'versao',to_jsonb(v)));
+end $$;
+revoke all on function privado.salvar_linha_orcamentaria_v108(uuid,uuid,uuid,text,text,text,text,text,numeric,numeric,boolean,numeric,text,bigint,text) from public,anon,authenticated;
+
+create or replace function privado.remover_linha_orcamentaria_v108(p_id_organizacao uuid,p_id_linha uuid,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare l public.linhas_orcamentarias%rowtype; v public.versoes_proposta%rowtype; v_cmd jsonb; v_antes jsonb;
+begin
+  select * into l from public.linhas_orcamentarias where id=p_id_linha and id_organizacao=p_id_organizacao;
+  if l.id is null then raise exception using errcode='PT404',message='Rubrica orçamentária não encontrada.'; end if;
+  perform privado.v108_autorizar(p_id_organizacao,l.id_contrato);
+  v_cmd:=privado.v108_iniciar(p_id_organizacao,'v108.remover_linha',p_chave_idempotencia,jsonb_build_array(p_id_linha,p_versao_esperada));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  select * into v from public.versoes_proposta where id=l.id_versao_proposta for update;
+  if v.situacao<>'rascunho' then raise exception using errcode='PT409',message='Rubricas de uma versão publicada são imutáveis.'; end if;
+  select * into l from public.linhas_orcamentarias where id=p_id_linha for update;
+  if p_versao_esperada is null or l.versao_registro<>p_versao_esperada then raise exception using errcode='PT409',message='A rubrica foi atualizada por outra pessoa. Atualize a tela antes de remover.'; end if;
+  v_antes:=to_jsonb(l); delete from public.linhas_orcamentarias where id=l.id;
+  v:=privado.v108_recalcular_versao(v.id);
+  return privado.v108_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V108LinhaRemovida','linhas_orcamentarias',l.id,v_antes,null,jsonb_build_object('id_linha',l.id,'removida',true,'versao',to_jsonb(v)));
+end $$;
+revoke all on function privado.remover_linha_orcamentaria_v108(uuid,uuid,bigint,text) from public,anon,authenticated;
+
+create or replace function privado.publicar_versao_proposta_v108(p_id_organizacao uuid,p_id_versao uuid,p_hash_esperado text,p_fundamento text,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.versoes_proposta%rowtype; p public.propostas_orcamentarias%rowtype; a public.arquivos%rowtype; v_cmd jsonb; v_hash text; v_antes jsonb; r record;
+begin
+  select * into v from public.versoes_proposta where id=p_id_versao and id_organizacao=p_id_organizacao;
+  if v.id is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
+  select * into p from public.propostas_orcamentarias where id=v.id_proposta and id_organizacao=p_id_organizacao and id_contrato=v.id_contrato;
+  if p.id is null then raise exception using errcode='PT404',message='Proposta orçamentária não encontrada.'; end if;
+  perform privado.v108_autorizar(p_id_organizacao,v.id_contrato);
+  if nullif(btrim(p_fundamento),'') is null then raise exception using errcode='PT400',message='Informe o fundamento da publicação da proposta.'; end if;
+  v_cmd:=privado.v108_iniciar(p_id_organizacao,'v108.publicar_versao',p_chave_idempotencia,jsonb_build_array(p_id_versao,p_hash_esperado,p_fundamento));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  perform 1 from public.propostas_orcamentarias where id=p.id for update;
+  select * into v from public.versoes_proposta where id=p_id_versao for update;
+  perform 1 from public.linhas_orcamentarias where id_versao_proposta=v.id order by id for update;
+  if v.situacao<>'rascunho' then raise exception using errcode='PT409',message='Esta versão já foi publicada ou substituída.'; end if;
+  if v.vigencia_inicio is null or (v.vigencia_fim is not null and v.vigencia_fim<v.vigencia_inicio) then raise exception using errcode='PT400',message='A versão não possui vigência válida.'; end if;
+  if not exists(select 1 from public.linhas_orcamentarias where id_versao_proposta=v.id) then raise exception using errcode='PT400',message='Inclua ao menos uma rubrica antes de publicar a proposta.'; end if;
+  select * into a from public.arquivos where id=v.id_arquivo_origem and id_organizacao=p_id_organizacao and id_contrato=v.id_contrato;
+  if a.id is null or a.status_seguranca<>'aprovado' then raise exception using errcode='PT400',message='O documento-base precisa estar aprovado antes da publicação.'; end if;
+  v_hash:=privado.v108_hash_versao(v.id);
+  if p_hash_esperado is null or v_hash is distinct from p_hash_esperado or v.hash is distinct from p_hash_esperado then raise exception using errcode='PT409',message='A proposta mudou. Atualize a tela e revise a versão antes de publicar.'; end if;
+  for r in select id from public.competencias where id_contrato=v.id_contrato and v.vigencia_inicio<=periodo_fim and (v.vigencia_fim is null or v.vigencia_fim>=periodo_inicio) order by id for update loop null; end loop;
+  v_antes:=jsonb_build_object('proposta',to_jsonb(p),'versao',to_jsonb(v));
+  perform set_config('contaos.v108_publicacao_interna','1',true);
+  update public.versoes_proposta set situacao='substituida' where id_proposta=p.id and id<>v.id and situacao='publicada';
+  update public.versoes_proposta set situacao='publicada',aprovado_por=auth.uid(),aprovado_em=clock_timestamp(),hash=v_hash where id=v.id returning * into v;
+  update public.propostas_orcamentarias set situacao='ativa',versao_atual=v.numero_versao where id=p.id returning * into p;
+  return privado.v108_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V108VersaoPublicada','versoes_proposta',v.id,v_antes,jsonb_build_object('proposta',to_jsonb(p),'versao',to_jsonb(v)),jsonb_build_object('proposta',to_jsonb(p),'versao',to_jsonb(v)),p_fundamento);
+end $$;
+revoke all on function privado.publicar_versao_proposta_v108(uuid,uuid,text,text,text) from public,anon,authenticated;
+
+create or replace function privado.snapshot_contexto_competencia(p_id_competencia uuid)
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare v public.competencias%rowtype; v_contrato jsonb;
+begin
+  select * into v from public.competencias where id=p_id_competencia;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+  select to_jsonb(c)-'criado_em'-'atualizado_em' into v_contrato from public.contratos c where c.id=v.id_contrato;
+  return jsonb_build_object(
+    'competencia',jsonb_build_object('id',v.id,'referencia',v.competencia_referencia,'periodo_inicio',v.periodo_inicio,'periodo_fim',v.periodo_fim,'data_limite',v.data_limite),
+    'contrato',coalesce(v_contrato,'{}'::jsonb),
+    'requisitos',coalesce((select jsonb_agg((to_jsonb(r)-'criado_em') order by r.ordem,r.id) from public.requisitos_competencia r where r.id_competencia=v.id),'[]'::jsonb),
+    'documentos',coalesce((select jsonb_agg(jsonb_build_object('documento',to_jsonb(d)-'criado_em'-'atualizado_em','versao',to_jsonb(vd)-'criado_em'-'enviado_por') order by d.id) from public.documentos_competencia d join lateral(select x.* from public.versoes_documento x where x.id_documento_competencia=d.id order by x.numero_versao desc limit 1) vd on true where d.id_competencia=v.id and d.situacao='ativo'),'[]'::jsonb),
+    'propostas',coalesce((select jsonb_agg((to_jsonb(x)-'criado_em'-'aprovado_em'-'aprovado_por') order by x.vigencia_inicio,x.numero_versao,x.id) from (
+      select vp.*,lead(vp.vigencia_inicio) over(partition by vp.id_proposta order by vp.vigencia_inicio,vp.numero_versao,vp.id) proxima_inicio
+      from public.versoes_proposta vp where vp.id_contrato=v.id_contrato and vp.situacao in('publicada','substituida') and vp.aprovado_em is not null
+    ) x where x.vigencia_inicio<=v.periodo_fim and (x.vigencia_fim is null or x.vigencia_fim>=v.periodo_inicio) and (x.proxima_inicio is null or x.proxima_inicio-1>=v.periodo_inicio)),'[]'::jsonb),
+    'linhas_orcamentarias',coalesce((select jsonb_agg((to_jsonb(l)-'criado_em') order by l.codigo,l.id) from public.linhas_orcamentarias l join (
+      select vp.id,vp.vigencia_inicio,vp.vigencia_fim,lead(vp.vigencia_inicio) over(partition by vp.id_proposta order by vp.vigencia_inicio,vp.numero_versao,vp.id) proxima_inicio
+      from public.versoes_proposta vp where vp.id_contrato=v.id_contrato and vp.situacao in('publicada','substituida') and vp.aprovado_em is not null
+    ) x on x.id=l.id_versao_proposta where x.vigencia_inicio<=v.periodo_fim and (x.vigencia_fim is null or x.vigencia_fim>=v.periodo_inicio) and (x.proxima_inicio is null or x.proxima_inicio-1>=v.periodo_inicio)),'[]'::jsonb),
+    'transacoes',coalesce((select jsonb_agg((to_jsonb(t)-'criado_em'-'pre_validada'-'pre_validada_em'-'status_fluxo') order by t.data,t.id) from public.transacoes_financeiras t where t.id_contrato=v.id_contrato and t.data between v.periodo_inicio and v.periodo_fim),'[]'::jsonb),
+    'conciliacoes',coalesce((select jsonb_agg((to_jsonb(c)-'criado_em'-'concluido_em'-'concluido_por') order by c.periodo,c.tipo,c.id) from public.conciliacoes c where c.id_contrato=v.id_contrato and c.periodo between date_trunc('month',v.periodo_inicio)::date and date_trunc('month',v.periodo_fim)::date),'[]'::jsonb),
+    'motor','contaos','versao_snapshot','4.1','idioma','pt-BR','timezone','America/Sao_Paulo'
+  ) || case when privado.snapshot_normativo_v107(v.id)='[]'::jsonb then '{}'::jsonb else jsonb_build_object('base_normativa',privado.snapshot_normativo_v107(v.id)) end;
+end $$;
+
+create or replace function public.salvar_proposta_orcamentaria_v108(p_id_organizacao uuid,p_id_contrato uuid,p_id_proposta uuid,p_titulo text,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.salvar_proposta_orcamentaria_v108(p_id_organizacao,p_id_contrato,p_id_proposta,p_titulo,p_versao_esperada,p_chave_idempotencia);$$;
+create or replace function public.registrar_versao_proposta_v108(p_id_organizacao uuid,p_id_proposta uuid,p_vigencia_inicio date,p_vigencia_fim date,p_id_arquivo_origem uuid,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.registrar_versao_proposta_v108(p_id_organizacao,p_id_proposta,p_vigencia_inicio,p_vigencia_fim,p_id_arquivo_origem,p_chave_idempotencia);$$;
+create or replace function public.salvar_linha_orcamentaria_v108(p_id_organizacao uuid,p_id_versao_proposta uuid,p_id_linha uuid,p_codigo text,p_grupo text,p_rubrica text,p_subrubrica text,p_descricao text,p_valor_mensal numeric,p_valor_anual numeric,p_permite_remanejamento boolean,p_limite_remanejamento_percentual numeric,p_observacoes text,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.salvar_linha_orcamentaria_v108(p_id_organizacao,p_id_versao_proposta,p_id_linha,p_codigo,p_grupo,p_rubrica,p_subrubrica,p_descricao,p_valor_mensal,p_valor_anual,p_permite_remanejamento,p_limite_remanejamento_percentual,p_observacoes,p_versao_esperada,p_chave_idempotencia);$$;
+create or replace function public.remover_linha_orcamentaria_v108(p_id_organizacao uuid,p_id_linha uuid,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.remover_linha_orcamentaria_v108(p_id_organizacao,p_id_linha,p_versao_esperada,p_chave_idempotencia);$$;
+create or replace function public.publicar_versao_proposta_v108(p_id_organizacao uuid,p_id_versao uuid,p_hash_esperado text,p_fundamento text,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.publicar_versao_proposta_v108(p_id_organizacao,p_id_versao,p_hash_esperado,p_fundamento,p_chave_idempotencia);$$;
+
+revoke all on function public.salvar_proposta_orcamentaria_v108(uuid,uuid,uuid,text,bigint,text) from public,anon;
+revoke all on function public.registrar_versao_proposta_v108(uuid,uuid,date,date,uuid,text) from public,anon;
+revoke all on function public.salvar_linha_orcamentaria_v108(uuid,uuid,uuid,text,text,text,text,text,numeric,numeric,boolean,numeric,text,bigint,text) from public,anon;
+revoke all on function public.remover_linha_orcamentaria_v108(uuid,uuid,bigint,text) from public,anon;
+revoke all on function public.publicar_versao_proposta_v108(uuid,uuid,text,text,text) from public,anon;
+grant execute on function public.salvar_proposta_orcamentaria_v108(uuid,uuid,uuid,text,bigint,text) to authenticated;
+grant execute on function public.registrar_versao_proposta_v108(uuid,uuid,date,date,uuid,text) to authenticated;
+grant execute on function public.salvar_linha_orcamentaria_v108(uuid,uuid,uuid,text,text,text,text,text,numeric,numeric,boolean,numeric,text,bigint,text) to authenticated;
+grant execute on function public.remover_linha_orcamentaria_v108(uuid,uuid,bigint,text) to authenticated;
+grant execute on function public.publicar_versao_proposta_v108(uuid,uuid,text,text,text) to authenticated;
+
+revoke insert,update,delete on public.propostas_orcamentarias from authenticated;
+revoke insert,update,delete on public.versoes_proposta from authenticated;
+revoke insert,update,delete on public.linhas_orcamentarias from authenticated;
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103001838_v108_orcamento_rpc_grants_idempotencia
+begin;
+grant execute on function privado.salvar_proposta_orcamentaria_v108(uuid,uuid,uuid,text,bigint,text) to authenticated;
+grant execute on function privado.registrar_versao_proposta_v108(uuid,uuid,date,date,uuid,text) to authenticated;
+grant execute on function privado.salvar_linha_orcamentaria_v108(uuid,uuid,uuid,text,text,text,text,text,numeric,numeric,boolean,numeric,text,bigint,text) to authenticated;
+grant execute on function privado.publicar_versao_proposta_v108(uuid,uuid,text,text,text) to authenticated;
+drop function if exists public.remover_linha_orcamentaria_v108(uuid,uuid,bigint,text);
+drop function if exists privado.remover_linha_orcamentaria_v108(uuid,uuid,bigint,text);
+create function privado.remover_linha_orcamentaria_v108(p_id_organizacao uuid,p_id_versao_proposta uuid,p_id_linha uuid,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare l public.linhas_orcamentarias%rowtype; v public.versoes_proposta%rowtype; v_cmd jsonb; v_antes jsonb;
+begin
+  select * into v from public.versoes_proposta where id=p_id_versao_proposta and id_organizacao=p_id_organizacao;
+  if v.id is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
+  perform privado.v108_autorizar(p_id_organizacao,v.id_contrato);
+  v_cmd:=privado.v108_iniciar(p_id_organizacao,'v108.remover_linha',p_chave_idempotencia,jsonb_build_array(p_id_versao_proposta,p_id_linha,p_versao_esperada));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  select * into v from public.versoes_proposta where id=p_id_versao_proposta for update;
+  if v.situacao<>'rascunho' then raise exception using errcode='PT409',message='Rubricas de uma versão publicada são imutáveis.'; end if;
+  select * into l from public.linhas_orcamentarias where id=p_id_linha and id_versao_proposta=v.id and id_organizacao=p_id_organizacao for update;
+  if l.id is null then raise exception using errcode='PT404',message='Rubrica orçamentária não encontrada nesta versão.'; end if;
+  if p_versao_esperada is null or l.versao_registro<>p_versao_esperada then raise exception using errcode='PT409',message='A rubrica foi atualizada por outra pessoa. Atualize a tela antes de remover.'; end if;
+  v_antes:=to_jsonb(l);
+  delete from public.linhas_orcamentarias where id=l.id;
+  v:=privado.v108_recalcular_versao(v.id);
+  return privado.v108_concluir((v_cmd->>'id')::uuid,p_id_organizacao,'V108LinhaRemovida','linhas_orcamentarias',l.id,v_antes,null,jsonb_build_object('id_linha',l.id,'removida',true,'versao',to_jsonb(v)));
+end $$;
+revoke all on function privado.remover_linha_orcamentaria_v108(uuid,uuid,uuid,bigint,text) from public,anon,authenticated;
+grant execute on function privado.remover_linha_orcamentaria_v108(uuid,uuid,uuid,bigint,text) to authenticated;
+create function public.remover_linha_orcamentaria_v108(p_id_organizacao uuid,p_id_versao_proposta uuid,p_id_linha uuid,p_versao_esperada bigint,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.remover_linha_orcamentaria_v108(p_id_organizacao,p_id_versao_proposta,p_id_linha,p_versao_esperada,p_chave_idempotencia);$$;
+revoke all on function public.remover_linha_orcamentaria_v108(uuid,uuid,uuid,bigint,text) from public,anon;
+grant execute on function public.remover_linha_orcamentaria_v108(uuid,uuid,uuid,bigint,text) to authenticated;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103002239_v108_snapshot_sem_campo_auxiliar
+begin;
+create or replace function privado.snapshot_contexto_competencia(p_id_competencia uuid)
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare v public.competencias%rowtype; v_contrato jsonb;
+begin
+  select * into v from public.competencias where id=p_id_competencia;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+  select to_jsonb(c)-'criado_em'-'atualizado_em' into v_contrato from public.contratos c where c.id=v.id_contrato;
+  return jsonb_build_object(
+    'competencia',jsonb_build_object('id',v.id,'referencia',v.competencia_referencia,'periodo_inicio',v.periodo_inicio,'periodo_fim',v.periodo_fim,'data_limite',v.data_limite),
+    'contrato',coalesce(v_contrato,'{}'::jsonb),
+    'requisitos',coalesce((select jsonb_agg((to_jsonb(r)-'criado_em') order by r.ordem,r.id) from public.requisitos_competencia r where r.id_competencia=v.id),'[]'::jsonb),
+    'documentos',coalesce((select jsonb_agg(jsonb_build_object('documento',to_jsonb(d)-'criado_em'-'atualizado_em','versao',to_jsonb(vd)-'criado_em'-'enviado_por') order by d.id) from public.documentos_competencia d join lateral(select x.* from public.versoes_documento x where x.id_documento_competencia=d.id order by x.numero_versao desc limit 1) vd on true where d.id_competencia=v.id and d.situacao='ativo'),'[]'::jsonb),
+    'propostas',coalesce((select jsonb_agg((to_jsonb(x)-'criado_em'-'aprovado_em'-'aprovado_por'-'proxima_inicio') order by x.vigencia_inicio,x.numero_versao,x.id) from (
+      select vp.*,lead(vp.vigencia_inicio) over(partition by vp.id_proposta order by vp.vigencia_inicio,vp.numero_versao,vp.id) proxima_inicio
+      from public.versoes_proposta vp where vp.id_contrato=v.id_contrato and vp.situacao in('publicada','substituida') and vp.aprovado_em is not null
+    ) x where x.vigencia_inicio<=v.periodo_fim and (x.vigencia_fim is null or x.vigencia_fim>=v.periodo_inicio) and (x.proxima_inicio is null or x.proxima_inicio-1>=v.periodo_inicio)),'[]'::jsonb),
+    'linhas_orcamentarias',coalesce((select jsonb_agg((to_jsonb(l)-'criado_em') order by l.codigo,l.id) from public.linhas_orcamentarias l join (
+      select vp.id,vp.vigencia_inicio,vp.vigencia_fim,lead(vp.vigencia_inicio) over(partition by vp.id_proposta order by vp.vigencia_inicio,vp.numero_versao,vp.id) proxima_inicio
+      from public.versoes_proposta vp where vp.id_contrato=v.id_contrato and vp.situacao in('publicada','substituida') and vp.aprovado_em is not null
+    ) x on x.id=l.id_versao_proposta where x.vigencia_inicio<=v.periodo_fim and (x.vigencia_fim is null or x.vigencia_fim>=v.periodo_inicio) and (x.proxima_inicio is null or x.proxima_inicio-1>=v.periodo_inicio)),'[]'::jsonb),
+    'transacoes',coalesce((select jsonb_agg((to_jsonb(t)-'criado_em'-'pre_validada'-'pre_validada_em'-'status_fluxo') order by t.data,t.id) from public.transacoes_financeiras t where t.id_contrato=v.id_contrato and t.data between v.periodo_inicio and v.periodo_fim),'[]'::jsonb),
+    'conciliacoes',coalesce((select jsonb_agg((to_jsonb(c)-'criado_em'-'concluido_em'-'concluido_por') order by c.periodo,c.tipo,c.id) from public.conciliacoes c where c.id_contrato=v.id_contrato and c.periodo between date_trunc('month',v.periodo_inicio)::date and date_trunc('month',v.periodo_fim)::date),'[]'::jsonb),
+    'motor','contaos','versao_snapshot','4.1','idioma','pt-BR','timezone','America/Sao_Paulo'
+  ) || case when privado.snapshot_normativo_v107(v.id)='[]'::jsonb then '{}'::jsonb else jsonb_build_object('base_normativa',privado.snapshot_normativo_v107(v.id)) end;
+end $$;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103013814_v110_documentos_contrato_atomicos
+begin;
+
+create or replace function privado.v110_iniciar_comando(p_id_organizacao uuid,p_comando text,p_chave text,p_payload jsonb)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v public.comandos_idempotentes%rowtype; v_nome text:=p_comando||':'||auth.uid()::text; v_hash text:=encode(extensions.digest(coalesce(p_payload,'{}'::jsonb)::text,'sha256'),'hex');
+begin
+  if auth.uid() is null or not privado.sessao_usuario_ativa() then raise exception using errcode='42501',message='Sua sessão não está ativa. Faça login novamente.'; end if;
+  if p_chave is null or length(btrim(p_chave)) not between 1 and 200 then raise exception using errcode='PT400',message='Informe uma chave de operação válida.'; end if;
+  insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,expira_em)
+  values(p_id_organizacao,v_nome,btrim(p_chave),v_hash,'iniciado',now()+interval '24 hours')
+  on conflict(id_organizacao,comando,chave) do nothing returning * into v;
+  if v.id is null then
+    select * into v from public.comandos_idempotentes where id_organizacao=p_id_organizacao and comando=v_nome and chave=btrim(p_chave) for update;
+    if v.hash_payload is distinct from v_hash then raise exception using errcode='PT409',message='Esta chave de operação já foi usada com dados diferentes.'; end if;
+    if v.status='concluido' and v.resposta is not null then return jsonb_build_object('id',v.id,'resposta',v.resposta); end if;
+    raise exception using errcode='PT409',message='Esta operação já está em processamento. Atualize a tela.';
+  end if;
+  return jsonb_build_object('id',v.id);
+end;$$;
+revoke all on function privado.v110_iniciar_comando(uuid,text,text,jsonb) from public,anon,authenticated;
+
+create or replace function privado.v110_concluir_comando(p_id_comando uuid,p_id_organizacao uuid,p_evento text,p_entidade text,p_id_entidade uuid,p_depois jsonb,p_resultado jsonb)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_evento uuid; v_correlacao uuid; v_resposta jsonb;
+begin
+  v_evento:=privado.registrar_evento_auditoria(p_id_organizacao,p_evento,p_entidade,p_id_entidade,null,p_depois,jsonb_build_object('comando_id',p_id_comando,'origem','V1-10'));
+  select correlation_id into v_correlacao from public.eventos_auditoria where id=v_evento;
+  v_resposta:=p_resultado||jsonb_build_object('schema_versao','v110-v1','correlation_id',v_correlacao);
+  update public.comandos_idempotentes set status='concluido',resposta=v_resposta,atualizado_em=clock_timestamp() where id=p_id_comando;
+  return v_resposta;
+end;$$;
+revoke all on function privado.v110_concluir_comando(uuid,uuid,text,text,uuid,jsonb,jsonb) from public,anon,authenticated;
+
+create or replace function privado.v110_validar_arquivo_contrato(p_id_arquivo uuid,p_id_organizacao uuid,p_id_contrato uuid)
+returns public.arquivos language plpgsql stable security definer set search_path='' as $$
+declare v public.arquivos%rowtype;
+begin
+  select * into v from public.arquivos where id=p_id_arquivo;
+  if v.id is null then raise exception using errcode='PT404',message='Arquivo não encontrado. Envie o arquivo novamente.'; end if;
+  if v.id_organizacao<>p_id_organizacao or v.id_contrato is distinct from p_id_contrato then raise exception using errcode='42501',message='O arquivo informado não pertence a este contrato.'; end if;
+  if v.bucket<>'contaos-documentos' then raise exception using errcode='PT409',message='O arquivo não está no armazenamento documental oficial do ContaOS.'; end if;
+  if v.status_seguranca in('quarentena','bloqueado') then raise exception using errcode='PT409',message='Este arquivo foi bloqueado pela verificação de segurança e não pode ser vinculado.'; end if;
+  return v;
+end;$$;
+revoke all on function privado.v110_validar_arquivo_contrato(uuid,uuid,uuid) from public,anon,authenticated;
+
+create or replace function privado.criar_documento_contrato_v110(p_id_contrato uuid,p_tipo text,p_titulo text,p_categoria text,p_id_arquivo uuid,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_contrato public.contratos%rowtype; v_arquivo public.arquivos%rowtype; v_doc uuid; v_ver uuid; v_job uuid; v_cmd jsonb; v_resultado jsonb;
+begin
+  select * into v_contrato from public.contratos where id=p_id_contrato;
+  if v_contrato.id is null then raise exception using errcode='PT404',message='Contrato não encontrado.'; end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa() or not privado.usuario_tem_acesso_contrato(v_contrato.id) or not privado.usuario_possui_perfil(v_contrato.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','juridico_conformidade']::text[]) then raise exception using errcode='42501',message='Seu perfil atual não permite incluir documentos neste contrato.'; end if;
+  if nullif(btrim(p_tipo),'') is null then raise exception using errcode='PT400',message='Informe o tipo do documento.'; end if;
+  if nullif(btrim(p_titulo),'') is null then raise exception using errcode='PT400',message='Informe o título do documento.'; end if;
+  v_cmd:=privado.v110_iniciar_comando(v_contrato.id_organizacao,'v110.criar_documento_contrato',p_chave_idempotencia,jsonb_build_object('id_contrato',v_contrato.id,'tipo',btrim(p_tipo),'titulo',btrim(p_titulo),'categoria',nullif(btrim(coalesce(p_categoria,'')),''),'id_arquivo',p_id_arquivo));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  v_arquivo:=privado.v110_validar_arquivo_contrato(p_id_arquivo,v_contrato.id_organizacao,v_contrato.id);
+  insert into public.documentos_contrato(id_organizacao,id_contrato,tipo,titulo,categoria,situacao,versao_atual)
+  values(v_contrato.id_organizacao,v_contrato.id,btrim(p_tipo),btrim(p_titulo),nullif(btrim(coalesce(p_categoria,'')),''),'ativo',1) returning id into v_doc;
+  insert into public.versoes_documento(id_organizacao,id_contrato,id_documento_contrato,numero_versao,id_arquivo,hash,enviado_por)
+  values(v_contrato.id_organizacao,v_contrato.id,v_doc,1,v_arquivo.id,v_arquivo.sha256,auth.uid()) returning id into v_ver;
+  v_job:=privado.enfileirar_job('documents',v_contrato.id_organizacao,v_contrato.id,'versao_documento',v_ver,jsonb_build_object('id_versao_documento',v_ver),'document:'||v_ver::text);
+  insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status) values(v_contrato.id_organizacao,v_contrato.id,v_ver,'documents','pendente');
+  v_resultado:=privado.v110_concluir_comando((v_cmd->>'id')::uuid,v_contrato.id_organizacao,'DocumentoContratoCriado','documentos_contrato',v_doc,jsonb_build_object('id_documento',v_doc,'id_versao',v_ver,'numero_versao',1,'id_arquivo',v_arquivo.id,'id_job',v_job),jsonb_build_object('id_documento',v_doc,'id_versao',v_ver,'numero_versao',1,'id_arquivo',v_arquivo.id,'id_job',v_job));
+  return v_resultado;
+end;$$;
+revoke all on function privado.criar_documento_contrato_v110(uuid,text,text,text,uuid,text) from public,anon,authenticated;
+
+create or replace function privado.adicionar_versao_documento_contrato_v110(p_id_documento uuid,p_id_arquivo uuid,p_motivo text,p_chave_idempotencia text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_doc public.documentos_contrato%rowtype; v_arquivo public.arquivos%rowtype; v_num integer; v_ver uuid; v_job uuid; v_cmd jsonb; v_resultado jsonb;
+begin
+  select * into v_doc from public.documentos_contrato where id=p_id_documento;
+  if v_doc.id is null then raise exception using errcode='PT404',message='Documento não encontrado.'; end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa() or not privado.usuario_tem_acesso_contrato(v_doc.id_contrato) or not privado.usuario_possui_perfil(v_doc.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','juridico_conformidade']::text[]) then raise exception using errcode='42501',message='Seu perfil atual não permite criar uma nova versão deste documento.'; end if;
+  v_cmd:=privado.v110_iniciar_comando(v_doc.id_organizacao,'v110.adicionar_versao_documento_contrato',p_chave_idempotencia,jsonb_build_object('id_documento',v_doc.id,'id_arquivo',p_id_arquivo,'motivo',nullif(btrim(coalesce(p_motivo,'')),'')));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+  select * into v_doc from public.documentos_contrato where id=p_id_documento for update;
+  v_arquivo:=privado.v110_validar_arquivo_contrato(p_id_arquivo,v_doc.id_organizacao,v_doc.id_contrato);
+  select coalesce(max(numero_versao),0)+1 into v_num from public.versoes_documento where id_documento_contrato=v_doc.id;
+  if v_num>1 and nullif(btrim(coalesce(p_motivo,'')),'') is null then raise exception using errcode='PT400',message='Informe o motivo da nova versão para preservar a rastreabilidade documental.'; end if;
+  insert into public.versoes_documento(id_organizacao,id_contrato,id_documento_contrato,numero_versao,id_arquivo,hash,motivo_substituicao,enviado_por)
+  values(v_doc.id_organizacao,v_doc.id_contrato,v_doc.id,v_num,v_arquivo.id,v_arquivo.sha256,nullif(btrim(coalesce(p_motivo,'')),''),auth.uid()) returning id into v_ver;
+  update public.documentos_contrato set versao_atual=v_num where id=v_doc.id;
+  v_job:=privado.enfileirar_job('documents',v_doc.id_organizacao,v_doc.id_contrato,'versao_documento',v_ver,jsonb_build_object('id_versao_documento',v_ver),'document:'||v_ver::text);
+  insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status) values(v_doc.id_organizacao,v_doc.id_contrato,v_ver,'documents','pendente');
+  v_resultado:=privado.v110_concluir_comando((v_cmd->>'id')::uuid,v_doc.id_organizacao,'VersaoDocumentoContratoCriada','versoes_documento',v_ver,jsonb_build_object('id_documento',v_doc.id,'id_versao',v_ver,'numero_versao',v_num,'id_arquivo',v_arquivo.id,'id_job',v_job,'motivo',nullif(btrim(coalesce(p_motivo,'')),'')),jsonb_build_object('id_documento',v_doc.id,'id_versao',v_ver,'numero_versao',v_num,'id_arquivo',v_arquivo.id,'id_job',v_job));
+  return v_resultado;
+end;$$;
+revoke all on function privado.adicionar_versao_documento_contrato_v110(uuid,uuid,text,text) from public,anon,authenticated;
+
+create or replace function public.criar_documento_contrato(p_id_contrato uuid,p_tipo text,p_titulo text,p_categoria text,p_id_arquivo uuid,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.criar_documento_contrato_v110($1,$2,$3,$4,$5,$6)$$;
+revoke all on function public.criar_documento_contrato(uuid,text,text,text,uuid,text) from public,anon;
+grant execute on function public.criar_documento_contrato(uuid,text,text,text,uuid,text) to authenticated;
+
+create or replace function public.adicionar_versao_documento_contrato(p_id_documento uuid,p_id_arquivo uuid,p_motivo text,p_chave_idempotencia text)
+returns jsonb language sql security invoker set search_path='' as $$select privado.adicionar_versao_documento_contrato_v110($1,$2,$3,$4)$$;
+revoke all on function public.adicionar_versao_documento_contrato(uuid,uuid,text,text) from public,anon;
+grant execute on function public.adicionar_versao_documento_contrato(uuid,uuid,text,text) to authenticated;
+
+revoke insert on table public.arquivos from authenticated;
+revoke insert on table public.documentos_contrato from authenticated;
+revoke insert on table public.versoes_documento from authenticated;
+
+create or replace function privado.v110_proteger_ponteiro_documento_contrato()
+returns trigger language plpgsql set search_path='' as $$
+begin
+  if current_user='authenticated' and new.versao_atual is distinct from old.versao_atual then raise exception using errcode='42501',message='A versão atual do documento só pode ser alterada pela operação oficial do ContaOS.'; end if;
+  return new;
+end;$$;
+revoke all on function privado.v110_proteger_ponteiro_documento_contrato() from public,anon,authenticated;
+drop trigger if exists v110_proteger_ponteiro_documento_contrato on public.documentos_contrato;
+create trigger v110_proteger_ponteiro_documento_contrato before update on public.documentos_contrato for each row execute function privado.v110_proteger_ponteiro_documento_contrato();
+
+comment on function public.criar_documento_contrato(uuid,text,text,text,uuid,text) is 'V1-10: cria documento lógico + versão 1 + fila/processamento + auditoria de forma atômica e idempotente.';
+comment on function public.adicionar_versao_documento_contrato(uuid,uuid,text,text) is 'V1-10/V1-11: adiciona versão imutável + atualiza ponteiro + fila/processamento + auditoria de forma atômica e idempotente.';
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103014324_v110_storage_quarentena_bloqueio_download
+begin;
+
+alter policy contaos_storage_select
+on storage.objects
+using (
+  bucket_id = 'contaos-documentos'
+  and exists (
+    select 1
+      from public.arquivos a
+     where a.bucket = storage.objects.bucket_id
+       and a.path = storage.objects.name
+       and a.status_seguranca not in ('quarentena','bloqueado')
+       and (
+         (a.id_contrato is null and privado.usuario_tem_acesso_organizacao(a.id_organizacao))
+         or
+         (a.id_contrato is not null and privado.usuario_tem_acesso_contrato(a.id_contrato))
+       )
+  )
+);
+
+comment on policy contaos_storage_select on storage.objects is
+'ContaOS V1-10: leitura privada somente para objetos autorizados e fora de quarentena/bloqueio; metadados permanecem visíveis em public.arquivos.';
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103020039_v110_v111_vigencia_schema
+begin;
+
+alter table public.documentos_contrato
+  add column if not exists vigencia_inicio date,
+  add column if not exists vigencia_fim date,
+  add column if not exists observacoes text;
+
+alter table public.documentos_contrato drop constraint if exists documentos_contrato_vigencia_ck;
+alter table public.documentos_contrato add constraint documentos_contrato_vigencia_ck
+check ((vigencia_fim is null or vigencia_inicio is not null) and (vigencia_fim is null or vigencia_fim >= vigencia_inicio));
+create index if not exists idx_documentos_contrato_vigencia on public.documentos_contrato(id_contrato,vigencia_inicio,vigencia_fim);
+
+alter table public.sugestoes_extracao_documento
+  add column if not exists vigencia_inicio date,
+  add column if not exists vigencia_fim date;
+
+alter table public.sugestoes_extracao_documento drop constraint if exists sugestoes_extracao_documento_vigencia_ck;
+alter table public.sugestoes_extracao_documento add constraint sugestoes_extracao_documento_vigencia_ck
+check ((vigencia_fim is null or vigencia_inicio is not null) and (vigencia_fim is null or vigencia_fim >= vigencia_inicio));
+create index if not exists idx_sugestoes_extracao_documento_vigencia on public.sugestoes_extracao_documento(id_contrato,vigencia_inicio,vigencia_fim);
+
+alter table public.regras_conformidade
+  add column if not exists vigencia_inicio date,
+  add column if not exists vigencia_fim date;
+
+alter table public.regras_conformidade drop constraint if exists regras_conformidade_vigencia_ck;
+alter table public.regras_conformidade add constraint regras_conformidade_vigencia_ck
+check ((vigencia_fim is null or vigencia_inicio is not null) and (vigencia_fim is null or vigencia_fim >= vigencia_inicio));
+create index if not exists idx_regras_conformidade_vigencia on public.regras_conformidade(id_contrato,vigencia_inicio,vigencia_fim);
+
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103021333_v111_documento_completo_funcao
+-- ContaOS 4.1 — V1-CON-001
+begin;
+create or replace function privado.criar_documento_contrato_v111(
+  p_id_contrato uuid,p_tipo text,p_titulo text,p_categoria text,
+  p_vigencia_inicio date,p_vigencia_fim date,p_observacoes text,
+  p_id_arquivo uuid,p_chave_idempotencia text
+) returns jsonb
+language plpgsql security definer set search_path=''
+as $$
+declare v_contrato public.contratos%rowtype; v_cmd jsonb; v_base jsonb; v_doc uuid; v_resp jsonb;
+begin
+  select * into v_contrato from public.contratos where id=p_id_contrato;
+  if v_contrato.id is null then raise exception using errcode='PT404',message='Contrato não encontrado.'; end if;
+  if p_vigencia_fim is not null and p_vigencia_inicio is null then raise exception using errcode='PT400',message='Informe o início da vigência quando houver fim de vigência.'; end if;
+  if p_vigencia_inicio is not null and p_vigencia_fim is not null and p_vigencia_fim<p_vigencia_inicio then raise exception using errcode='PT400',message='O fim da vigência não pode ser anterior ao início.'; end if;
+
+  v_cmd:=privado.v110_iniciar_comando(v_contrato.id_organizacao,'v111.criar_documento_contrato_completo',p_chave_idempotencia,
+    jsonb_build_object('id_contrato',p_id_contrato,'tipo',p_tipo,'titulo',p_titulo,'categoria',p_categoria,
+      'vigencia_inicio',p_vigencia_inicio,'vigencia_fim',p_vigencia_fim,'observacoes',p_observacoes,'id_arquivo',p_id_arquivo));
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+
+  v_base:=privado.criar_documento_contrato_v110(p_id_contrato,p_tipo,p_titulo,p_categoria,p_id_arquivo,
+    p_chave_idempotencia||':v110');
+  v_doc:=(v_base->>'id_documento')::uuid;
+  update public.documentos_contrato set vigencia_inicio=p_vigencia_inicio,vigencia_fim=p_vigencia_fim,
+    observacoes=nullif(btrim(coalesce(p_observacoes,'')),'') where id=v_doc;
+
+  v_resp:=privado.v110_concluir_comando((v_cmd->>'id')::uuid,v_contrato.id_organizacao,
+    'DocumentoContratoMetadadosCompletos','documentos_contrato',v_doc,null,
+    v_base||jsonb_build_object('vigencia_inicio',p_vigencia_inicio,'vigencia_fim',p_vigencia_fim));
+  return v_resp;
+end;$$;
+revoke all on function privado.criar_documento_contrato_v111(uuid,text,text,text,date,date,text,uuid,text) from public,anon,authenticated;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103021338_v111_documento_completo_publica
+-- ContaOS 4.1 — V1-CON-001
+begin;
+create or replace function public.criar_documento_contrato_completo(
+  p_id_contrato uuid,p_tipo text,p_titulo text,p_categoria text,
+  p_vigencia_inicio date,p_vigencia_fim date,p_observacoes text,
+  p_id_arquivo uuid,p_chave_idempotencia text
+) returns jsonb
+language sql security invoker set search_path=''
+as $$ select privado.criar_documento_contrato_v111($1,$2,$3,$4,$5,$6,$7,$8,$9) $$;
+revoke all on function public.criar_documento_contrato_completo(uuid,text,text,text,date,date,text,uuid,text) from public,anon;
+grant execute on function public.criar_documento_contrato_completo(uuid,text,text,text,date,date,text,uuid,text) to authenticated;
+comment on function public.criar_documento_contrato_completo(uuid,text,text,text,date,date,text,uuid,text)
+  is 'V1-CON-001/V1-10: cria documento-base com categoria, vigência, observações, versão, processamento, auditoria e idempotência.';
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103021346_v111_definir_vigencia_sugestao
+-- ContaOS 4.1 — V1-CON-002
+begin;
+create or replace function privado.definir_vigencia_sugestao_extracao_v111(
+  p_id_sugestao uuid,p_vigencia_inicio date,p_vigencia_fim date
+) returns jsonb
+language plpgsql security definer set search_path=''
+as $$
+declare v public.sugestoes_extracao_documento%rowtype;
+begin
+  select * into v from public.sugestoes_extracao_documento where id=p_id_sugestao for update;
+  if v.id is null then raise exception using errcode='PT404',message='Não encontramos a sugestão informada.'; end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa() or not privado.usuario_tem_acesso_contrato(v.id_contrato) then
+    raise exception using errcode='42501',message='Você não possui acesso ao contrato desta sugestão.'; end if;
+  if not privado.usuario_possui_perfil(v.id_organizacao,array['administrador','direcao_aprovador','gestor_contrato','prestacao_contas','juridico_conformidade','auditor']::text[]) then
+    raise exception using errcode='42501',message='Seu perfil atual não permite definir a vigência desta sugestão.'; end if;
+  if v.status<>'pendente' then raise exception using errcode='PT409',message='Esta sugestão já foi revisada. Atualize a tela.'; end if;
+  if p_vigencia_inicio is null then raise exception using errcode='PT400',message='Informe o início da vigência da regra extraída.'; end if;
+  if p_vigencia_fim is not null and p_vigencia_fim<p_vigencia_inicio then raise exception using errcode='PT400',message='O fim da vigência não pode ser anterior ao início.'; end if;
+  if v.vigencia_inicio is not distinct from p_vigencia_inicio and v.vigencia_fim is not distinct from p_vigencia_fim then
+    return jsonb_build_object('status','sem_alteracao','vigencia_inicio',v.vigencia_inicio,'vigencia_fim',v.vigencia_fim);
+  end if;
+  update public.sugestoes_extracao_documento set vigencia_inicio=p_vigencia_inicio,vigencia_fim=p_vigencia_fim where id=v.id;
+  perform privado.registrar_evento_auditoria(v.id_organizacao,'VigenciaSugestaoExtracaoDefinida','sugestoes_extracao_documento',v.id,
+    jsonb_build_object('vigencia_inicio',v.vigencia_inicio,'vigencia_fim',v.vigencia_fim),
+    jsonb_build_object('vigencia_inicio',p_vigencia_inicio,'vigencia_fim',p_vigencia_fim));
+  return jsonb_build_object('status','atualizada','vigencia_inicio',p_vigencia_inicio,'vigencia_fim',p_vigencia_fim);
+end;$$;
+revoke all on function privado.definir_vigencia_sugestao_extracao_v111(uuid,date,date) from public,anon,authenticated;
+
+create or replace function public.definir_vigencia_sugestao_extracao(
+  p_id_sugestao uuid,p_vigencia_inicio date,p_vigencia_fim date
+) returns jsonb
+language sql security invoker set search_path=''
+as $$ select privado.definir_vigencia_sugestao_extracao_v111($1,$2,$3) $$;
+revoke all on function public.definir_vigencia_sugestao_extracao(uuid,date,date) from public,anon;
+grant execute on function public.definir_vigencia_sugestao_extracao(uuid,date,date) to authenticated;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103021353_v111_validar_regra_assistida_funcao
+-- ContaOS 4.1 — V1-CON-002/V1-CON-005
+begin;
+create or replace function privado.v111_validar_fonte_vigencia_regra_assistida()
+returns trigger
+language plpgsql security definer set search_path=''
+as $$
+declare v_sug public.sugestoes_extracao_documento%rowtype; v_id_sug uuid;
+begin
+  if coalesce(new.configuracao->>'origem','')<>'sugestao_extracao' then return new; end if;
+  v_id_sug:=nullif(new.configuracao->>'id_sugestao','')::uuid;
+  select * into v_sug from public.sugestoes_extracao_documento where id=v_id_sug;
+  if v_sug.id is null then raise exception using errcode='PT400',message='Regra assistida sem sugestão de origem válida.'; end if;
+  if v_sug.pagina is null or nullif(btrim(coalesce(v_sug.trecho_fonte,'')),'') is null then raise exception using errcode='PT400',message='A regra assistida exige página e trecho da fonte.'; end if;
+  if v_sug.vigencia_inicio is null then raise exception using errcode='PT400',message='A regra assistida exige início de vigência antes da aprovação.'; end if;
+  new.vigencia_inicio:=v_sug.vigencia_inicio;
+  new.vigencia_fim:=v_sug.vigencia_fim;
+  new.configuracao:=coalesce(new.configuracao,'{}'::jsonb)||jsonb_build_object('pagina',v_sug.pagina,'trecho_fonte',v_sug.trecho_fonte,'vigencia_inicio',v_sug.vigencia_inicio,'vigencia_fim',v_sug.vigencia_fim);
+  return new;
+end;$$;
+revoke all on function privado.v111_validar_fonte_vigencia_regra_assistida() from public,anon,authenticated;
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103021357_v111_validar_regra_assistida_trigger
+-- ContaOS 4.1 — V1-CON-002/V1-CON-005
+begin;
+drop trigger if exists v111_validar_fonte_vigencia_regra_assistida on public.regras_conformidade;
+create trigger v111_validar_fonte_vigencia_regra_assistida
+before insert or update on public.regras_conformidade
+for each row execute function privado.v111_validar_fonte_vigencia_regra_assistida();
+comment on function public.definir_vigencia_sugestao_extracao(uuid,date,date)
+  is 'V1-CON-002: define e audita a vigência temporal da sugestão antes da revisão humana.';
+commit;
+
+-- ============================================================
+
+-- MIGRATION 20261103092055_v114_visao_geral_competencia
+create or replace function privado.obter_visao_geral_competencia(p_id_competencia uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v public.competencias%rowtype;
+  v_portao jsonb;
+  v_hash_atual text;
+  v_hash_exec text;
+  v_hash_aprovado text;
+  v_parecer_aprovado boolean := false;
+  v_analise_atual boolean := false;
+  v_aprovacao_atual boolean := false;
+  v_perfil_analise boolean := false;
+  v_perfil_aprovar boolean := false;
+  v_perfil_registrar boolean := false;
+  v_pode_analisar boolean := false;
+  v_pode_apresentar boolean := false;
+begin
+  select * into v from public.competencias where id = p_id_competencia;
+  if v.id is null then raise exception 'Não encontramos a competência informada.'; end if;
+  if auth.uid() is null or not privado.usuario_tem_acesso_contrato(v.id_contrato) then
+    raise sqlstate '42501' using message = 'Você não tem permissão para acessar esta competência.';
+  end if;
+  v_portao := privado.avaliar_portao_conformidade(v.id);
+  v_hash_atual := privado.hash_contexto_competencia(v.id);
+  select exists(select 1 from public.pareceres_internos p where p.id_competencia = v.id and p.status = 'aprovado') into v_parecer_aprovado;
+  select e.hash_entrada into v_hash_exec from public.execucoes_analise e where e.id_competencia = v.id and e.status = 'concluida' and e.tipo in ('completa','reanálise') order by e.concluida_em desc nulls last, e.criado_em desc, e.id desc limit 1;
+  v_analise_atual := v_hash_exec is not null and v_hash_exec = v_hash_atual;
+  select a.hash_contexto into v_hash_aprovado from public.aprovacoes a where a.id_competencia = v.id and a.tipo = 'apresentacao' and a.status = 'aprovada' order by a.criado_em desc, a.id desc limit 1;
+  v_aprovacao_atual := v_hash_aprovado is not null and v_hash_aprovado = v_hash_atual;
+  v_perfil_analise := privado.usuario_possui_perfil(v.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade','auditor']::text[]);
+  v_perfil_aprovar := privado.usuario_possui_perfil(v.id_organizacao,array['administrador','direcao_aprovador','gestor_contrato']::text[]);
+  v_perfil_registrar := privado.usuario_possui_perfil(v.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','direcao_aprovador']::text[]);
+  v_pode_analisar := v_perfil_analise and v.situacao not in ('apresentado','aguardando_contratante','validada','encerrada','cancelada');
+  v_pode_apresentar := (v.situacao = 'pode_apresentar_contratante' and v_perfil_registrar and v_aprovacao_atual and v_analise_atual) or (v.situacao in ('em_analise','em_reanalise','pendente_correcao','rascunho') and v_perfil_aprovar and coalesce((v_portao->>'liberado')::boolean,false) and v_parecer_aprovado and v_analise_atual);
+  return jsonb_build_object(
+    'competencia', jsonb_build_object('id',v.id,'id_contrato',v.id_contrato,'id_organizacao',v.id_organizacao,'competencia_referencia',v.competencia_referencia,'periodo_inicio',v.periodo_inicio,'periodo_fim',v.periodo_fim,'data_limite',v.data_limite,'situacao',v.situacao,'percentual_conformidade',v.percentual_conformidade,'versao_pacote_atual',v.versao_pacote_atual,'versao_registro',v.versao_registro,'atualizado_em',v.atualizado_em),
+    'portao', v_portao,
+    'blocking_summary', jsonb_build_object('pendentes',coalesce((v_portao->>'pendentes')::integer,0),'nao_conformes',coalesce((v_portao->>'nao_conformes')::integer,0),'inconclusivos',coalesce((v_portao->>'inconclusivos')::integer,0),'em_analise',coalesce((v_portao->>'em_analise')::integer,0),'nao_conformidades_bloqueantes',coalesce((v_portao->>'nao_conformidades_bloqueantes')::integer,0),'parecer_aprovado',v_parecer_aprovado,'analise_concluida_atual',v_analise_atual,'aprovacao_apresentacao_atual',v_aprovacao_atual),
+    'allowed_actions', jsonb_build_object('abrir_documentos',true,'analisar',v_pode_analisar,'abrir_parecer',true,'apresentar',v_pode_apresentar)
+  );
+end;
+$$;
+create or replace function public.obter_visao_geral_competencia(p_id_competencia uuid)
+returns jsonb language sql stable set search_path = '' as $$ select privado.obter_visao_geral_competencia($1) $$;
+revoke all on function privado.obter_visao_geral_competencia(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.obter_visao_geral_competencia(uuid) from public, anon, authenticated, service_role;
+grant execute on function public.obter_visao_geral_competencia(uuid) to authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261103092202_v114_visao_geral_wrapper_security_definer
+create or replace function public.obter_visao_geral_competencia(p_id_competencia uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$ select privado.obter_visao_geral_competencia($1) $$;
+revoke all on function privado.obter_visao_geral_competencia(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.obter_visao_geral_competencia(uuid) from public, anon, authenticated, service_role;
+grant execute on function public.obter_visao_geral_competencia(uuid) to authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261103101542_v115_documentos_competencia_autoridade
+-- V1-15 — Competência: documentos
+-- Contrato explícito de requisito documental:
+-- regra_validacao.documento = {"obrigatorio": true, "tipos": ["..."]}
+-- Somente o backend interpreta esse marcador. Ausência/malformação = não declarar requisito documental.
+
+create or replace function privado.v115_requisito_exige_documento(p_regra jsonb)
+returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  select coalesce(p_regra #> '{documento,obrigatorio}','false'::jsonb) = 'true'::jsonb;
+$$;
+
+create or replace function privado.v115_concluir_comando(
+  p_id_comando uuid,
+  p_id_organizacao uuid,
+  p_evento text,
+  p_entidade text,
+  p_id_entidade uuid,
+  p_depois jsonb,
+  p_resultado jsonb
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_evento uuid;
+  v_correlacao uuid;
+  v_resposta jsonb;
+begin
+  v_evento := privado.registrar_evento_auditoria(
+    p_id_organizacao,p_evento,p_entidade,p_id_entidade,null,p_depois,
+    jsonb_build_object('comando_id',p_id_comando,'origem','V1-15')
+  );
+  select correlation_id into v_correlacao from public.eventos_auditoria where id=v_evento;
+  v_resposta := p_resultado || jsonb_build_object('schema_versao','v115-v1','correlation_id',v_correlacao);
+  update public.comandos_idempotentes
+     set status='concluido',resposta=v_resposta,atualizado_em=clock_timestamp()
+   where id=p_id_comando;
+  return v_resposta;
+end;
+$$;
+
+create or replace function privado.obter_documentos_competencia_v115(
+  p_id_competencia uuid,
+  p_documentos_offset integer default 0,
+  p_documentos_limite integer default 25,
+  p_requisitos_offset integer default 0,
+  p_requisitos_limite integer default 25
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_comp public.competencias%rowtype;
+  v_docs jsonb := '[]'::jsonb;
+  v_reqs jsonb := '[]'::jsonb;
+  v_docs_total integer := 0;
+  v_req_total integer := 0;
+  v_req_aplicaveis integer := 0;
+  v_req_pendentes integer := 0;
+  v_tem_erro boolean := false;
+  v_processando boolean := false;
+  v_estado text;
+  v_pode_escrever boolean := false;
+  v_motivo_obrigatorio boolean := false;
+begin
+  if p_documentos_offset < 0 or p_requisitos_offset < 0
+     or p_documentos_limite not between 1 and 100
+     or p_requisitos_limite not between 1 and 100 then
+    raise exception using errcode='PT400',message='Informe uma paginação válida.';
+  end if;
+
+  select * into v_comp from public.competencias where id=p_id_competencia;
+  if v_comp.id is null then
+    raise exception using errcode='PT404',message='Competência não encontrada.';
+  end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa()
+     or not privado.usuario_tem_acesso_contrato(v_comp.id_contrato) then
+    raise exception using errcode='42501',message='Você não tem permissão para acessar esta competência.';
+  end if;
+
+  v_pode_escrever := privado.usuario_possui_perfil(
+    v_comp.id_organizacao,
+    array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade']::text[]
+  );
+  select exists(select 1 from public.execucoes_analise e where e.id_competencia=v_comp.id)
+    into v_motivo_obrigatorio;
+
+  select count(*) into v_docs_total
+    from public.documentos_competencia d
+   where d.id_competencia=v_comp.id;
+
+  select
+    count(*),
+    count(*) filter(where r.aplicavel),
+    count(*) filter(
+      where r.aplicavel and not exists(
+        select 1 from public.documentos_competencia d
+         where d.id_competencia=v_comp.id
+           and d.id_requisito_competencia=r.id
+           and d.situacao='ativo'
+      )
+    )
+  into v_req_total,v_req_aplicaveis,v_req_pendentes
+  from public.requisitos_competencia r
+  where r.id_competencia=v_comp.id
+    and privado.v115_requisito_exige_documento(r.regra_validacao);
+
+  select coalesce(jsonb_agg(x.obj order by x.atualizado_em desc,x.id desc),'[]'::jsonb)
+    into v_docs
+  from (
+    select d.id,d.atualizado_em,
+      jsonb_build_object(
+        'id',d.id,
+        'tipo',d.tipo,
+        'titulo',d.titulo,
+        'categoria',d.categoria,
+        'situacao',d.situacao,
+        'versao_atual',d.versao_atual,
+        'versao_registro',d.versao_registro,
+        'criado_em',d.criado_em,
+        'atualizado_em',d.atualizado_em,
+        'id_requisito_competencia',d.id_requisito_competencia,
+        'requisito',case when r.id is null then null else jsonb_build_object(
+          'id',r.id,'codigo',r.codigo,'descricao',r.descricao,'categoria',r.categoria,
+          'obrigatorio',r.obrigatorio,'aplicavel',r.aplicavel,'impeditivo',r.impeditivo,'criticidade',r.criticidade
+        ) end,
+        'versao',case when vd.id is null then null else jsonb_build_object(
+          'id',vd.id,'numero_versao',vd.numero_versao,'hash',vd.hash,
+          'motivo_substituicao',vd.motivo_substituicao,'metadados_extraidos',vd.metadados_extraidos,
+          'criado_em',vd.criado_em,'id_arquivo',vd.id_arquivo
+        ) end,
+        'arquivo',case when a.id is null then null else jsonb_build_object(
+          'id',a.id,'nome_original',a.nome_original,'mime',a.mime,'tamanho',a.tamanho,
+          'sha256',a.sha256,'status_seguranca',a.status_seguranca,'origem',a.origem,'criado_em',a.criado_em
+        ) end,
+        'processamento',case when pr.id is null then null else jsonb_build_object(
+          'id',pr.id,'etapa',pr.etapa,'status',pr.status,'tentativas',pr.tentativas,
+          'erro_codigo',pr.erro_codigo,'resultado',pr.resultado,
+          'iniciado_em',pr.iniciado_em,'concluido_em',pr.concluido_em,'atualizado_em',pr.atualizado_em
+        ) end
+      ) as obj
+    from public.documentos_competencia d
+    left join public.requisitos_competencia r on r.id=d.id_requisito_competencia and r.id_competencia=d.id_competencia
+    left join lateral (
+      select v.* from public.versoes_documento v
+       where v.id_documento_competencia=d.id
+       order by v.numero_versao desc,v.id desc limit 1
+    ) vd on true
+    left join public.arquivos a on a.id=vd.id_arquivo
+    left join lateral (
+      select p.* from public.processamentos_documento p
+       where p.id_versao_documento=vd.id
+       order by p.criado_em desc,p.id desc limit 1
+    ) pr on true
+    where d.id_competencia=v_comp.id
+    order by d.atualizado_em desc,d.id desc
+    offset p_documentos_offset limit p_documentos_limite
+  ) x;
+
+  select coalesce(jsonb_agg(x.obj order by x.ordem,x.id),'[]'::jsonb)
+    into v_reqs
+  from (
+    select r.id,r.ordem,
+      jsonb_build_object(
+        'id',r.id,'codigo',r.codigo,'descricao',r.descricao,'categoria',r.categoria,
+        'obrigatorio',r.obrigatorio,'aplicavel',r.aplicavel,'impeditivo',r.impeditivo,
+        'criticidade',r.criticidade,'ordem',r.ordem,
+        'tipos_esperados',case
+          when jsonb_typeof(r.regra_validacao #> '{documento,tipos}')='array'
+            then r.regra_validacao #> '{documento,tipos}'
+          else '[]'::jsonb end,
+        'atendido',exists(
+          select 1 from public.documentos_competencia d
+           where d.id_competencia=v_comp.id
+             and d.id_requisito_competencia=r.id
+             and d.situacao='ativo'
+        )
+      ) as obj
+    from public.requisitos_competencia r
+    where r.id_competencia=v_comp.id
+      and privado.v115_requisito_exige_documento(r.regra_validacao)
+    order by r.ordem,r.id
+    offset p_requisitos_offset limit p_requisitos_limite
+  ) x;
+
+  select exists(
+    select 1
+    from public.documentos_competencia d
+    join lateral (
+      select v.* from public.versoes_documento v
+       where v.id_documento_competencia=d.id
+       order by v.numero_versao desc,v.id desc limit 1
+    ) vd on true
+    join public.arquivos a on a.id=vd.id_arquivo
+    left join lateral (
+      select p.* from public.processamentos_documento p
+       where p.id_versao_documento=vd.id
+       order by p.criado_em desc,p.id desc limit 1
+    ) pr on true
+    where d.id_competencia=v_comp.id and d.situacao='ativo'
+      and (a.status_seguranca in ('quarentena','bloqueado') or pr.status in ('falhou','cancelado'))
+  ) into v_tem_erro;
+
+  select exists(
+    select 1
+    from public.documentos_competencia d
+    join lateral (
+      select v.* from public.versoes_documento v
+       where v.id_documento_competencia=d.id
+       order by v.numero_versao desc,v.id desc limit 1
+    ) vd on true
+    join public.arquivos a on a.id=vd.id_arquivo
+    left join lateral (
+      select p.* from public.processamentos_documento p
+       where p.id_versao_documento=vd.id
+       order by p.criado_em desc,p.id desc limit 1
+    ) pr on true
+    where d.id_competencia=v_comp.id and d.situacao='ativo'
+      and (a.status_seguranca='pendente' or pr.status in ('pendente','processando'))
+  ) into v_processando;
+
+  v_estado := case
+    when v_tem_erro then 'error'
+    when v_processando then 'processing'
+    when v_req_pendentes>0 then 'missing_docs'
+    else 'complete'
+  end;
+
+  return jsonb_build_object(
+    'schema_versao','v115-v1',
+    'competencia',jsonb_build_object(
+      'id',v_comp.id,'id_contrato',v_comp.id_contrato,'id_organizacao',v_comp.id_organizacao,
+      'competencia_referencia',v_comp.competencia_referencia,'situacao',v_comp.situacao,
+      'versao_registro',v_comp.versao_registro,'atualizado_em',v_comp.atualizado_em
+    ),
+    'estado_documental',v_estado,
+    'resumo',jsonb_build_object(
+      'documentos_total',v_docs_total,
+      'requisitos_documentais_total',v_req_total,
+      'requisitos_documentais_aplicaveis',v_req_aplicaveis,
+      'requisitos_documentais_pendentes',v_req_pendentes
+    ),
+    'documentos',v_docs,
+    'documentos_paginacao',jsonb_build_object('offset',p_documentos_offset,'limite',p_documentos_limite,'total',v_docs_total),
+    'requisitos_documentais',v_reqs,
+    'requisitos_paginacao',jsonb_build_object('offset',p_requisitos_offset,'limite',p_requisitos_limite,'total',v_req_total),
+    'capacidades',jsonb_build_object(
+      'pode_enviar',v_pode_escrever,
+      'pode_nova_versao',v_pode_escrever,
+      'motivo_nova_versao_obrigatorio',v_motivo_obrigatorio
+    )
+  );
+end;
+$$;
+
+create or replace function privado.criar_documento_competencia_v115(
+  p_id_competencia uuid,
+  p_tipo text,
+  p_titulo text,
+  p_categoria text,
+  p_id_requisito uuid,
+  p_id_arquivo uuid,
+  p_chave_idempotencia text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_comp public.competencias%rowtype;
+  v_arquivo public.arquivos%rowtype;
+  v_doc uuid;
+  v_ver uuid;
+  v_job uuid;
+  v_cmd jsonb;
+  v_resultado jsonb;
+begin
+  select * into v_comp from public.competencias where id=p_id_competencia;
+  if v_comp.id is null then raise exception using errcode='PT404',message='Competência não encontrada.'; end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa()
+     or not privado.usuario_tem_acesso_contrato(v_comp.id_contrato)
+     or not privado.usuario_possui_perfil(v_comp.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade']::text[]) then
+    raise exception using errcode='42501',message='Seu perfil atual não permite incluir documentos nesta competência.';
+  end if;
+  if nullif(btrim(p_tipo),'') is null then raise exception using errcode='PT400',message='Informe o tipo do documento.'; end if;
+  if nullif(btrim(p_titulo),'') is null then raise exception using errcode='PT400',message='Informe o título do documento.'; end if;
+  if p_id_requisito is not null and not exists(
+    select 1 from public.requisitos_competencia r where r.id=p_id_requisito and r.id_competencia=v_comp.id
+  ) then raise exception using errcode='PT400',message='O requisito informado não pertence a esta competência.'; end if;
+
+  v_cmd:=privado.v110_iniciar_comando(
+    v_comp.id_organizacao,'v115.criar_documento_competencia',p_chave_idempotencia,
+    jsonb_build_object('id_competencia',v_comp.id,'tipo',btrim(p_tipo),'titulo',btrim(p_titulo),
+      'categoria',nullif(btrim(coalesce(p_categoria,'')),''),'id_requisito',p_id_requisito,'id_arquivo',p_id_arquivo)
+  );
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+
+  v_arquivo:=privado.v110_validar_arquivo_contrato(p_id_arquivo,v_comp.id_organizacao,v_comp.id_contrato);
+  insert into public.documentos_competencia(
+    id_organizacao,id_contrato,id_competencia,tipo,titulo,categoria,id_requisito_competencia,situacao,versao_atual
+  ) values(
+    v_comp.id_organizacao,v_comp.id_contrato,v_comp.id,btrim(p_tipo),btrim(p_titulo),
+    nullif(btrim(coalesce(p_categoria,'')),''),p_id_requisito,'ativo',1
+  ) returning id into v_doc;
+  insert into public.versoes_documento(
+    id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash,enviado_por
+  ) values(
+    v_comp.id_organizacao,v_comp.id_contrato,v_doc,1,v_arquivo.id,v_arquivo.sha256,auth.uid()
+  ) returning id into v_ver;
+  v_job:=privado.enfileirar_job(
+    'documents',v_comp.id_organizacao,v_comp.id_contrato,'versao_documento',v_ver,
+    jsonb_build_object('id_versao_documento',v_ver),'document:'||v_ver::text
+  );
+  insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status)
+  values(v_comp.id_organizacao,v_comp.id_contrato,v_ver,'documents','pendente');
+
+  v_resultado:=privado.v115_concluir_comando(
+    (v_cmd->>'id')::uuid,v_comp.id_organizacao,'DocumentoCompetenciaCriado','documentos_competencia',v_doc,
+    jsonb_build_object('id_competencia',v_comp.id,'id_documento',v_doc,'id_versao',v_ver,'numero_versao',1,
+      'id_arquivo',v_arquivo.id,'id_requisito',p_id_requisito,'id_job',v_job),
+    jsonb_build_object('id_competencia',v_comp.id,'id_documento',v_doc,'id_versao',v_ver,'numero_versao',1,
+      'id_arquivo',v_arquivo.id,'id_job',v_job)
+  );
+  return v_resultado;
+end;
+$$;
+
+create or replace function privado.adicionar_versao_documento_competencia_v115(
+  p_id_documento uuid,
+  p_id_arquivo uuid,
+  p_motivo text,
+  p_chave_idempotencia text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_doc public.documentos_competencia%rowtype;
+  v_arquivo public.arquivos%rowtype;
+  v_num integer;
+  v_ver uuid;
+  v_job uuid;
+  v_cmd jsonb;
+  v_resultado jsonb;
+  v_motivo_obrigatorio boolean;
+begin
+  select * into v_doc from public.documentos_competencia where id=p_id_documento;
+  if v_doc.id is null then raise exception using errcode='PT404',message='Documento não encontrado.'; end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa()
+     or not privado.usuario_tem_acesso_contrato(v_doc.id_contrato)
+     or not privado.usuario_possui_perfil(v_doc.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade']::text[]) then
+    raise exception using errcode='42501',message='Seu perfil atual não permite criar uma nova versão deste documento.';
+  end if;
+
+  v_cmd:=privado.v110_iniciar_comando(
+    v_doc.id_organizacao,'v115.adicionar_versao_documento_competencia',p_chave_idempotencia,
+    jsonb_build_object('id_documento',v_doc.id,'id_arquivo',p_id_arquivo,'motivo',nullif(btrim(coalesce(p_motivo,'')),''))
+  );
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+
+  select * into v_doc from public.documentos_competencia where id=p_id_documento for update;
+  v_arquivo:=privado.v110_validar_arquivo_contrato(p_id_arquivo,v_doc.id_organizacao,v_doc.id_contrato);
+  select exists(select 1 from public.execucoes_analise e where e.id_competencia=v_doc.id_competencia)
+    into v_motivo_obrigatorio;
+  if v_motivo_obrigatorio and nullif(btrim(coalesce(p_motivo,'')),'') is null then
+    raise exception using errcode='PT400',message='Informe o motivo da nova versão porque esta competência já possui análise registrada.';
+  end if;
+
+  select coalesce(max(numero_versao),0)+1 into v_num
+    from public.versoes_documento where id_documento_competencia=v_doc.id;
+  insert into public.versoes_documento(
+    id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash,motivo_substituicao,enviado_por
+  ) values(
+    v_doc.id_organizacao,v_doc.id_contrato,v_doc.id,v_num,v_arquivo.id,v_arquivo.sha256,
+    nullif(btrim(coalesce(p_motivo,'')),''),auth.uid()
+  ) returning id into v_ver;
+  update public.documentos_competencia set versao_atual=v_num where id=v_doc.id;
+  v_job:=privado.enfileirar_job(
+    'documents',v_doc.id_organizacao,v_doc.id_contrato,'versao_documento',v_ver,
+    jsonb_build_object('id_versao_documento',v_ver),'document:'||v_ver::text
+  );
+  insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status)
+  values(v_doc.id_organizacao,v_doc.id_contrato,v_ver,'documents','pendente');
+
+  v_resultado:=privado.v115_concluir_comando(
+    (v_cmd->>'id')::uuid,v_doc.id_organizacao,'VersaoDocumentoCompetenciaCriada','versoes_documento',v_ver,
+    jsonb_build_object('id_competencia',v_doc.id_competencia,'id_documento',v_doc.id,'id_versao',v_ver,
+      'numero_versao',v_num,'id_arquivo',v_arquivo.id,'id_job',v_job,'motivo',nullif(btrim(coalesce(p_motivo,'')),'')),
+    jsonb_build_object('id_competencia',v_doc.id_competencia,'id_documento',v_doc.id,'id_versao',v_ver,
+      'numero_versao',v_num,'id_arquivo',v_arquivo.id,'id_job',v_job)
+  );
+  return v_resultado;
+end;
+$$;
+
+create or replace function public.obter_documentos_competencia_v115(
+  p_id_competencia uuid,
+  p_documentos_offset integer default 0,
+  p_documentos_limite integer default 25,
+  p_requisitos_offset integer default 0,
+  p_requisitos_limite integer default 25
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select privado.obter_documentos_competencia_v115($1,$2,$3,$4,$5);
+$$;
+
+create or replace function public.criar_documento_competencia_v115(
+  p_id_competencia uuid,
+  p_tipo text,
+  p_titulo text,
+  p_categoria text,
+  p_id_requisito uuid,
+  p_id_arquivo uuid,
+  p_chave_idempotencia text
+)
+returns jsonb
+language sql
+security definer
+set search_path = ''
+as $$
+  select privado.criar_documento_competencia_v115($1,$2,$3,$4,$5,$6,$7);
+$$;
+
+create or replace function public.adicionar_versao_documento_competencia_v115(
+  p_id_documento uuid,
+  p_id_arquivo uuid,
+  p_motivo text,
+  p_chave_idempotencia text
+)
+returns jsonb
+language sql
+security definer
+set search_path = ''
+as $$
+  select privado.adicionar_versao_documento_competencia_v115($1,$2,$3,$4);
+$$;
+
+revoke all on function privado.v115_requisito_exige_documento(jsonb) from public,anon,authenticated,service_role;
+revoke all on function privado.v115_concluir_comando(uuid,uuid,text,text,uuid,jsonb,jsonb) from public,anon,authenticated,service_role;
+revoke all on function privado.obter_documentos_competencia_v115(uuid,integer,integer,integer,integer) from public,anon,authenticated,service_role;
+revoke all on function privado.criar_documento_competencia_v115(uuid,text,text,text,uuid,uuid,text) from public,anon,authenticated,service_role;
+revoke all on function privado.adicionar_versao_documento_competencia_v115(uuid,uuid,text,text) from public,anon,authenticated,service_role;
+
+revoke all on function public.obter_documentos_competencia_v115(uuid,integer,integer,integer,integer) from public,anon;
+revoke all on function public.criar_documento_competencia_v115(uuid,text,text,text,uuid,uuid,text) from public,anon;
+revoke all on function public.adicionar_versao_documento_competencia_v115(uuid,uuid,text,text) from public,anon;
+grant execute on function public.obter_documentos_competencia_v115(uuid,integer,integer,integer,integer) to authenticated,service_role;
+grant execute on function public.criar_documento_competencia_v115(uuid,text,text,text,uuid,uuid,text) to authenticated,service_role;
+grant execute on function public.adicionar_versao_documento_competencia_v115(uuid,uuid,text,text) to authenticated,service_role;
+
+comment on function public.obter_documentos_competencia_v115(uuid,integer,integer,integer,integer) is
+'V1-15: leitura autoritativa/paginada de documentos, requisitos documentais explícitos e estado documental da competência.';
+comment on function public.criar_documento_competencia_v115(uuid,text,text,text,uuid,uuid,text) is
+'V1-15: cria documento da competência com idempotência, versão 1, fila de processamento e auditoria.';
+comment on function public.adicionar_versao_documento_competencia_v115(uuid,uuid,text,text) is
+'V1-15: cria nova versão idempotente; motivo é obrigatório após existir qualquer execução de análise da competência.';
+
+-- ============================================================
+
+-- MIGRATION 20261103110821_v115_validar_requisito_tipo_documental
+create or replace function privado.criar_documento_competencia_v115(
+  p_id_competencia uuid,
+  p_tipo text,
+  p_titulo text,
+  p_categoria text,
+  p_id_requisito uuid,
+  p_id_arquivo uuid,
+  p_chave_idempotencia text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_comp public.competencias%rowtype;
+  v_arquivo public.arquivos%rowtype;
+  v_req public.requisitos_competencia%rowtype;
+  v_tipos jsonb := '[]'::jsonb;
+  v_doc uuid;
+  v_ver uuid;
+  v_job uuid;
+  v_cmd jsonb;
+  v_resultado jsonb;
+begin
+  select * into v_comp from public.competencias where id=p_id_competencia;
+  if v_comp.id is null then raise exception using errcode='PT404',message='Competência não encontrada.'; end if;
+  if auth.uid() is null or not privado.sessao_usuario_ativa()
+     or not privado.usuario_tem_acesso_contrato(v_comp.id_contrato)
+     or not privado.usuario_possui_perfil(v_comp.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade']::text[]) then
+    raise exception using errcode='42501',message='Seu perfil atual não permite incluir documentos nesta competência.';
+  end if;
+  if nullif(btrim(p_tipo),'') is null then raise exception using errcode='PT400',message='Informe o tipo do documento.'; end if;
+  if nullif(btrim(p_titulo),'') is null then raise exception using errcode='PT400',message='Informe o título do documento.'; end if;
+
+  if p_id_requisito is not null then
+    select * into v_req
+      from public.requisitos_competencia r
+     where r.id=p_id_requisito and r.id_competencia=v_comp.id;
+
+    if v_req.id is null then
+      raise exception using errcode='PT400',message='O requisito informado não pertence a esta competência.';
+    end if;
+
+    if not privado.v115_requisito_exige_documento(v_req.regra_validacao) then
+      raise exception using errcode='PT400',message='O requisito informado não é um requisito documental desta competência.';
+    end if;
+
+    v_tipos := case
+      when jsonb_typeof(v_req.regra_validacao #> '{documento,tipos}')='array'
+        then v_req.regra_validacao #> '{documento,tipos}'
+      else '[]'::jsonb
+    end;
+
+    if jsonb_array_length(v_tipos)>0 and not (v_tipos ? btrim(p_tipo)) then
+      raise exception using errcode='PT400',message='O tipo informado não é aceito para o requisito documental selecionado.';
+    end if;
+  end if;
+
+  v_cmd:=privado.v110_iniciar_comando(
+    v_comp.id_organizacao,'v115.criar_documento_competencia',p_chave_idempotencia,
+    jsonb_build_object('id_competencia',v_comp.id,'tipo',btrim(p_tipo),'titulo',btrim(p_titulo),
+      'categoria',nullif(btrim(coalesce(p_categoria,'')),''),'id_requisito',p_id_requisito,'id_arquivo',p_id_arquivo)
+  );
+  if v_cmd ? 'resposta' then return v_cmd->'resposta'; end if;
+
+  v_arquivo:=privado.v110_validar_arquivo_contrato(p_id_arquivo,v_comp.id_organizacao,v_comp.id_contrato);
+  insert into public.documentos_competencia(
+    id_organizacao,id_contrato,id_competencia,tipo,titulo,categoria,id_requisito_competencia,situacao,versao_atual
+  ) values(
+    v_comp.id_organizacao,v_comp.id_contrato,v_comp.id,btrim(p_tipo),btrim(p_titulo),
+    nullif(btrim(coalesce(p_categoria,'')),''),p_id_requisito,'ativo',1
+  ) returning id into v_doc;
+  insert into public.versoes_documento(
+    id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash,enviado_por
+  ) values(
+    v_comp.id_organizacao,v_comp.id_contrato,v_doc,1,v_arquivo.id,v_arquivo.sha256,auth.uid()
+  ) returning id into v_ver;
+  v_job:=privado.enfileirar_job(
+    'documents',v_comp.id_organizacao,v_comp.id_contrato,'versao_documento',v_ver,
+    jsonb_build_object('id_versao_documento',v_ver),'document:'||v_ver::text
+  );
+  insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status)
+  values(v_comp.id_organizacao,v_comp.id_contrato,v_ver,'documents','pendente');
+
+  v_resultado:=privado.v115_concluir_comando(
+    (v_cmd->>'id')::uuid,v_comp.id_organizacao,'DocumentoCompetenciaCriado','documentos_competencia',v_doc,
+    jsonb_build_object('id_competencia',v_comp.id,'id_documento',v_doc,'id_versao',v_ver,'numero_versao',1,
+      'id_arquivo',v_arquivo.id,'id_requisito',p_id_requisito,'id_job',v_job),
+    jsonb_build_object('id_competencia',v_comp.id,'id_documento',v_doc,'id_versao',v_ver,'numero_versao',1,
+      'id_arquivo',v_arquivo.id,'id_job',v_job)
+  );
+  return v_resultado;
+end;
+$$;
+
+-- ============================================================
+
+-- MIGRATION 20261103135545_v116_obter_analise_competencia
+create or replace function public.obter_analise_competencia_v116(
+  p_id_competencia uuid,
+  p_resultados_offset integer default 0,
+  p_resultados_limite integer default 25,
+  p_execucoes_offset integer default 0,
+  p_execucoes_limite integer default 10,
+  p_apontamentos_offset integer default 0,
+  p_apontamentos_limite integer default 25,
+  p_filtro_resultado text default null,
+  p_filtro_criticidade text default null,
+  p_filtro_mecanismo text default null,
+  p_filtro_apontamento_status text default null,
+  p_busca text default null
+) returns jsonb
+language plpgsql stable security definer set search_path=''
+as $function$
+declare
+  v_comp public.competencias%rowtype;
+  v_exec public.execucoes_analise%rowtype;
+  v_hash_atual text; v_portao jsonb; v_estado text; v_stale boolean:=false;
+  v_perfil_analise boolean:=false; v_situacao_permite boolean:=false; v_busy boolean:=false;
+  v_resultados jsonb:='[]'::jsonb; v_resultados_total integer:=0;
+  v_execucoes jsonb:='[]'::jsonb; v_execucoes_total integer:=0;
+  v_apontamentos jsonb:='[]'::jsonb; v_apontamentos_total integer:=0;
+  v_mecanismos jsonb:='{}'::jsonb; v_busca text:=nullif(trim(coalesce(p_busca,'')),'');
+begin
+  if p_id_competencia is null then raise exception using errcode='PT400',message='Informe a competência para consultar a análise.'; end if;
+  if p_resultados_offset<0 or p_execucoes_offset<0 or p_apontamentos_offset<0 or p_resultados_limite<1 or p_resultados_limite>100 or p_execucoes_limite<1 or p_execucoes_limite>50 or p_apontamentos_limite<1 or p_apontamentos_limite>100 then raise exception using errcode='PT400',message='Os parâmetros de paginação informados não são válidos.'; end if;
+  if p_filtro_mecanismo is not null and p_filtro_mecanismo not in ('deterministico','semantico','humano','nao_identificado') then raise exception using errcode='PT400',message='O filtro de mecanismo não é válido.'; end if;
+  if p_filtro_criticidade is not null and p_filtro_criticidade not in ('critica','alta','media','baixa','informativo') then raise exception using errcode='PT400',message='O filtro de criticidade não é válido.'; end if;
+  if p_filtro_resultado is not null and p_filtro_resultado not in ('nao_enviado','recebido','pendente','em_analise','conforme','nao_conforme','inconclusivo','requer_revisao','nao_aplicavel') then raise exception using errcode='PT400',message='O filtro de resultado não é válido.'; end if;
+  if p_filtro_apontamento_status is not null and p_filtro_apontamento_status not in ('aberto','em_tratamento','resolvido','descartado') then raise exception using errcode='PT400',message='O filtro de apontamento não é válido.'; end if;
+
+  select * into v_comp from public.competencias where id=p_id_competencia;
+  if v_comp.id is null then raise exception using errcode='PT404',message='Não encontramos a competência informada.'; end if;
+  if auth.uid() is null or not privado.usuario_tem_acesso_contrato(v_comp.id_contrato) then raise exception using errcode='42501',message='Você não possui acesso à competência informada.'; end if;
+  v_perfil_analise:=privado.usuario_possui_perfil(v_comp.id_organizacao,array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade','auditor']::text[]);
+  if not v_perfil_analise then raise exception using errcode='42501',message='Seu perfil atual não permite consultar a análise desta competência.'; end if;
+
+  select * into v_exec from public.execucoes_analise where id_competencia=v_comp.id order by criado_em desc,id desc limit 1;
+  v_hash_atual:=privado.hash_contexto_competencia(v_comp.id);
+  v_portao:=privado.avaliar_portao_conformidade(v_comp.id);
+  v_situacao_permite:=v_comp.situacao not in ('apresentado','aguardando_contratante','validada','encerrada','cancelada');
+  v_busy:=v_exec.id is not null and v_exec.status in ('pendente','processando');
+  if v_exec.id is null then v_estado:='not_analyzed';
+  elsif v_exec.status='pendente' then v_estado:='queued';
+  elsif v_exec.status='processando' then v_estado:='processing';
+  elsif v_exec.status in ('falhou','cancelada') then v_estado:='failed';
+  elsif v_exec.status='concluida' then v_stale:=v_exec.hash_entrada is null or v_exec.hash_entrada<>v_hash_atual; v_estado:=case when v_stale then 'stale' else 'complete' end;
+  else v_estado:='failed'; end if;
+
+  select count(*)::integer into v_execucoes_total from public.execucoes_analise e where e.id_competencia=v_comp.id;
+  select coalesce(jsonb_agg(x.obj order by x.criado_em desc,x.id desc),'[]'::jsonb) into v_execucoes from (
+    select e.id,e.criado_em,jsonb_build_object('id',e.id,'tipo',e.tipo,'status',e.status,'hash_entrada',e.hash_entrada,'contexto_atual',coalesce(e.hash_entrada=v_hash_atual,false),'motor',e.motor,'versao_motor',e.versao_motor,'provedor',e.provedor,'modelo',e.modelo,'prompt_versao',e.prompt_versao,'iniciada_por',e.iniciada_por,'iniciada_em',e.iniciada_em,'concluida_em',e.concluida_em,'erro_codigo',e.erro_codigo,'requisitos_afetados',coalesce(to_jsonb(e.requisitos_afetados),'[]'::jsonb),'metadados',coalesce(e.metadados,'{}'::jsonb),'criado_em',e.criado_em) obj
+    from public.execucoes_analise e where e.id_competencia=v_comp.id order by e.criado_em desc,e.id desc offset p_execucoes_offset limit p_execucoes_limite
+  ) x;
+
+  if v_exec.id is not null then
+    with base as (
+      select rr.*,r.codigo,r.descricao,r.categoria,r.criticidade,r.obrigatorio,r.aplicavel,r.impeditivo,r.efeito_portao,r.fonte_tipo,r.fonte_referencia,r.fonte_detalhe,
+      case when rr.metadados->>'origem'='revisao_humana' then 'humano' when rr.metadados->>'mecanismo' in ('deterministico','semantico','humano') then rr.metadados->>'mecanismo' when nullif(rr.metadados->>'provedor','') is not null then 'semantico' when nullif(v_exec.provedor,'') is not null and rr.metadados->>'origem' is null then 'semantico' else 'nao_identificado' end mecanismo
+      from public.resultados_requisitos rr join public.requisitos_competencia r on r.id=rr.id_requisito where rr.id_execucao=v_exec.id
+    ), filtrado as (
+      select * from base b where (p_filtro_resultado is null or b.resultado=p_filtro_resultado) and (p_filtro_criticidade is null or b.criticidade=p_filtro_criticidade) and (p_filtro_mecanismo is null or b.mecanismo=p_filtro_mecanismo) and (v_busca is null or coalesce(b.codigo,'') ilike '%'||v_busca||'%' or b.descricao ilike '%'||v_busca||'%')
+    ), pagina as (
+      select * from filtrado order by codigo nulls last,id_requisito,criado_em desc,id desc offset p_resultados_offset limit p_resultados_limite
+    ), ev as (
+      select e.id_resultado,jsonb_agg(jsonb_build_object('id',e.id,'id_versao_documento',e.id_versao_documento,'pagina',e.pagina,'trecho',e.trecho,'tipo_evidencia',e.tipo_evidencia,'referencia_externa',e.referencia_externa,'hash',e.hash,'criado_em',e.criado_em) order by e.criado_em,e.id) evidencias
+      from public.evidencias_resultado e join pagina p on p.id=e.id_resultado group by e.id_resultado
+    )
+    select (select count(*)::integer from filtrado),coalesce((select jsonb_agg(jsonb_build_object('id_resultado',p.id,'id_requisito',p.id_requisito,'requisito',jsonb_build_object('codigo',p.codigo,'descricao',p.descricao,'categoria',p.categoria,'criticidade',p.criticidade,'obrigatorio',p.obrigatorio,'aplicavel',p.aplicavel,'impeditivo',p.impeditivo,'efeito_portao',p.efeito_portao,'fonte_tipo',p.fonte_tipo,'fonte_referencia',p.fonte_referencia,'fonte_detalhe',p.fonte_detalhe),'resultado',p.resultado,'mecanismo',p.mecanismo,'confianca',p.confianca,'justificativa',p.justificativa,'fundamento',p.fundamento,'hash_evidencias',p.hash_evidencias,'metadados',coalesce(p.metadados,'{}'::jsonb),'evidencias',coalesce(ev.evidencias,'[]'::jsonb),'criado_em',p.criado_em) order by p.codigo nulls last,p.id_requisito,p.criado_em desc,p.id desc) from pagina p left join ev on ev.id_resultado=p.id),'[]'::jsonb)
+    into v_resultados_total,v_resultados;
+
+    with b as (select case when rr.metadados->>'origem'='revisao_humana' then 'humano' when rr.metadados->>'mecanismo' in ('deterministico','semantico','humano') then rr.metadados->>'mecanismo' when nullif(rr.metadados->>'provedor','') is not null then 'semantico' when nullif(v_exec.provedor,'') is not null and rr.metadados->>'origem' is null then 'semantico' else 'nao_identificado' end mecanismo from public.resultados_requisitos rr where rr.id_execucao=v_exec.id)
+    select jsonb_build_object('deterministico',count(*) filter(where mecanismo='deterministico'),'semantico',count(*) filter(where mecanismo='semantico'),'humano',count(*) filter(where mecanismo='humano'),'nao_identificado',count(*) filter(where mecanismo='nao_identificado')) into v_mecanismos from b;
+  end if;
+
+  select count(*)::integer into v_apontamentos_total from public.apontamentos_internos a left join public.requisitos_competencia r on r.id=a.id_requisito where a.id_competencia=v_comp.id and (p_filtro_apontamento_status is null or a.status=p_filtro_apontamento_status) and (p_filtro_criticidade is null or a.severidade=p_filtro_criticidade) and (v_busca is null or a.descricao ilike '%'||v_busca||'%' or coalesce(r.codigo,'') ilike '%'||v_busca||'%' or coalesce(r.descricao,'') ilike '%'||v_busca||'%');
+  select coalesce(jsonb_agg(x.obj order by x.criado_em desc,x.id desc),'[]'::jsonb) into v_apontamentos from (
+    select a.id,a.criado_em,jsonb_build_object('id',a.id,'id_requisito',a.id_requisito,'requisito',case when r.id is null then null else jsonb_build_object('codigo',r.codigo,'descricao',r.descricao,'categoria',r.categoria,'criticidade',r.criticidade) end,'descricao',a.descricao,'severidade',a.severidade,'status',a.status,'origem',a.origem,'regra_violada',a.regra_violada,'acao_sugerida',a.acao_sugerida,'fonte',coalesce(a.fonte,'{}'::jsonb),'criado_em',a.criado_em,'atualizado_em',a.atualizado_em) obj
+    from public.apontamentos_internos a left join public.requisitos_competencia r on r.id=a.id_requisito where a.id_competencia=v_comp.id and (p_filtro_apontamento_status is null or a.status=p_filtro_apontamento_status) and (p_filtro_criticidade is null or a.severidade=p_filtro_criticidade) and (v_busca is null or a.descricao ilike '%'||v_busca||'%' or coalesce(r.codigo,'') ilike '%'||v_busca||'%' or coalesce(r.descricao,'') ilike '%'||v_busca||'%') order by a.criado_em desc,a.id desc offset p_apontamentos_offset limit p_apontamentos_limite
+  ) x;
+
+  return jsonb_build_object('schema_versao','v116-v1','competencia',jsonb_build_object('id',v_comp.id,'id_organizacao',v_comp.id_organizacao,'id_contrato',v_comp.id_contrato,'competencia_referencia',v_comp.competencia_referencia,'periodo_inicio',v_comp.periodo_inicio,'periodo_fim',v_comp.periodo_fim,'situacao',v_comp.situacao),'estado_analise',v_estado,'stale',v_stale,'hash_contexto_atual',v_hash_atual,'execucao_atual',case when v_exec.id is null then null else jsonb_build_object('id',v_exec.id,'tipo',v_exec.tipo,'status',v_exec.status,'hash_entrada',v_exec.hash_entrada,'motor',v_exec.motor,'versao_motor',v_exec.versao_motor,'provedor',v_exec.provedor,'modelo',v_exec.modelo,'prompt_versao',v_exec.prompt_versao,'iniciada_por',v_exec.iniciada_por,'iniciada_em',v_exec.iniciada_em,'concluida_em',v_exec.concluida_em,'erro_codigo',v_exec.erro_codigo,'requisitos_afetados',coalesce(to_jsonb(v_exec.requisitos_afetados),'[]'::jsonb),'metadados',coalesce(v_exec.metadados,'{}'::jsonb),'criado_em',v_exec.criado_em) end,'percentual',coalesce((v_portao->>'percentual')::numeric,0),'blocking_summary',v_portao,'allowed_actions',jsonb_build_object('executar_analise',v_perfil_analise and v_situacao_permite and not v_busy and (v_exec.id is null or v_exec.status in ('falhou','cancelada')),'reanalisar',v_perfil_analise and v_situacao_permite and not v_busy and v_exec.id is not null and v_exec.status='concluida','abrir_requisito',v_exec.id is not null),'mecanismos',coalesce(v_mecanismos,'{}'::jsonb),'resultados',v_resultados,'resultados_paginacao',jsonb_build_object('offset',p_resultados_offset,'limite',p_resultados_limite,'total',v_resultados_total),'execucoes',v_execucoes,'execucoes_paginacao',jsonb_build_object('offset',p_execucoes_offset,'limite',p_execucoes_limite,'total',v_execucoes_total),'apontamentos',v_apontamentos,'apontamentos_paginacao',jsonb_build_object('offset',p_apontamentos_offset,'limite',p_apontamentos_limite,'total',v_apontamentos_total));
+end;$function$;
+revoke all on function public.obter_analise_competencia_v116(uuid,integer,integer,integer,integer,integer,integer,text,text,text,text,text) from public;
+revoke all on function public.obter_analise_competencia_v116(uuid,integer,integer,integer,integer,integer,integer,text,text,text,text,text) from anon;
+grant execute on function public.obter_analise_competencia_v116(uuid,integer,integer,integer,integer,integer,integer,text,text,text,text,text) to authenticated;
+comment on function public.obter_analise_competencia_v116(uuid,integer,integer,integer,integer,integer,integer,text,text,text,text,text) is 'V1-16: leitura agregada read-only da análise da competência. Stale, bloqueios, paginação e allowed_actions são autoritativos do backend; não cria nem classifica resultados.';
+
+-- ============================================================
+
+-- MIGRATION 20261103172929_v117_obter_detalhe_requisito
+-- ContaOS 4.1 V1-17 B1. Contrato de leitura do detalhe de requisito.
+-- Acesso: usuario autenticado + contrato + perfil, sem escrita e sem URL de storage.
+create function public.obter_detalhe_requisito_v117(
+  p_id_competencia uuid,
+  p_id_requisito uuid,
+  p_evidencias_offset integer default 0,
+  p_evidencias_limite integer default 25,
+  p_historico_offset integer default 0,
+  p_historico_limite integer default 25,
+  p_apontamentos_offset integer default 0,
+  p_apontamentos_limite integer default 25
+)
+returns jsonb language plpgsql stable security definer set search_path = ''
+as $v117$
+declare
+  v_comp public.competencias%rowtype;
+  v_req public.requisitos_competencia%rowtype;
+  v_exec public.execucoes_analise%rowtype;
+  v_atual public.resultados_requisitos%rowtype;
+  v_ultimo public.resultados_requisitos%rowtype;
+  v_na_valido boolean;
+  v_evidencias jsonb := '[]'::jsonb;
+  v_historico jsonb := '[]'::jsonb;
+  v_apontamentos jsonb := '[]'::jsonb;
+  v_evidencias_total integer := 0;
+  v_historico_total integer := 0;
+  v_apontamentos_total integer := 0;
+  v_capacidades jsonb;
+  v_mecanismo text;
+begin
+  if p_id_competencia is null or p_id_requisito is null then
+    raise exception using errcode='PT400', message='Informe a competência e o requisito.';
+  end if;
+  if p_evidencias_offset is null or p_historico_offset is null or p_apontamentos_offset is null
+    or p_evidencias_limite is null or p_historico_limite is null or p_apontamentos_limite is null
+    or p_evidencias_offset < 0 or p_historico_offset < 0 or p_apontamentos_offset < 0
+    or p_evidencias_limite not between 1 and 100 or p_historico_limite not between 1 and 100
+    or p_apontamentos_limite not between 1 and 100 then
+    raise exception using errcode='PT400', message='Paginação inválida para o detalhe do requisito.';
+  end if;
+  if auth.uid() is null then
+    raise exception using errcode='42501',message='Você não possui acesso a este requisito.';
+  end if;
+  select * into v_comp from public.competencias where id=p_id_competencia;
+  if v_comp.id is null then
+    raise exception using errcode='PT404',message='Requisito não encontrado.';
+  end if;
+  if not privado.usuario_tem_acesso_contrato(v_comp.id_contrato)
+    or not privado.usuario_possui_perfil(
+      v_comp.id_organizacao,
+      array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade','auditor']::text[]
+    ) then
+    raise exception using errcode='42501',message='Você não possui acesso a este requisito.';
+  end if;
+  select * into v_req from public.requisitos_competencia
+  where id=p_id_requisito and id_competencia=v_comp.id
+    and id_contrato=v_comp.id_contrato and id_organizacao=v_comp.id_organizacao;
+  if v_req.id is null then
+    raise exception using errcode='PT404',message='Requisito não encontrado.';
+  end if;
+  -- Fonte única para capacidades; não duplicar regras de análise do V1-16.
+  v_capacidades := (public.obter_analise_competencia_v116(
+    v_comp.id,0,1,0,1,0,1,null,null,null,null,null
+  ))->'allowed_actions';
+  select * into v_exec from public.execucoes_analise e
+    where e.id_competencia=v_comp.id and e.id_contrato=v_comp.id_contrato
+      and e.id_organizacao=v_comp.id_organizacao
+    order by e.criado_em desc,e.id desc limit 1;
+  if v_exec.id is not null then
+    select * into v_atual from public.resultados_requisitos rr
+      where rr.id_execucao=v_exec.id and rr.id_requisito=v_req.id
+        and rr.id_competencia=v_comp.id and rr.id_contrato=v_comp.id_contrato
+        and rr.id_organizacao=v_comp.id_organizacao
+      order by rr.criado_em desc,rr.id desc limit 1;
+  end if;
+  -- Referencia do portão = último resultado daquele requisito em qualquer execução.
+  select * into v_ultimo from public.resultados_requisitos rr
+    where rr.id_requisito=v_req.id and rr.id_competencia=v_comp.id
+      and rr.id_contrato=v_comp.id_contrato and rr.id_organizacao=v_comp.id_organizacao
+    order by rr.criado_em desc,rr.id desc limit 1;
+  v_na_valido := v_ultimo.id is not null and v_ultimo.resultado='nao_aplicavel'
+    and nullif(trim(coalesce(v_ultimo.fundamento,'')),'') is not null
+    and exists (select 1 from public.evidencias_resultado ev
+      where ev.id_resultado=v_ultimo.id and ev.id_competencia=v_comp.id
+        and ev.id_contrato=v_comp.id_contrato and ev.id_organizacao=v_comp.id_organizacao);
+  if v_ultimo.id is not null then
+    v_mecanismo := case
+      when v_ultimo.metadados->>'origem'='revisao_humana' then 'humano'
+      when v_ultimo.metadados->>'mecanismo' in ('deterministico','semantico','humano')
+        then v_ultimo.metadados->>'mecanismo'
+      when nullif(v_ultimo.metadados->>'provedor','') is not null then 'semantico'
+      when exists (select 1 from public.execucoes_analise ee where ee.id=v_ultimo.id_execucao
+        and nullif(ee.provedor,'') is not null and v_ultimo.metadados->>'origem' is null)
+        then 'semantico'
+      else 'nao_identificado'
+    end;
+    select count(*)::integer into v_evidencias_total
+      from public.evidencias_resultado ev where ev.id_resultado=v_ultimo.id
+        and ev.id_competencia=v_comp.id and ev.id_contrato=v_comp.id_contrato
+        and ev.id_organizacao=v_comp.id_organizacao;
+    select coalesce(jsonb_agg(q.obj order by q.criado_em,q.id),'[]'::jsonb)
+    into v_evidencias from (
+      select ev.id,ev.criado_em,
+        jsonb_build_object(
+          'id',ev.id,'id_resultado',ev.id_resultado,
+          'id_versao_documento',ev.id_versao_documento,
+          'pagina',ev.pagina,'trecho',ev.trecho,'tipo_evidencia',ev.tipo_evidencia,
+          'referencia_externa',ev.referencia_externa,'hash',ev.hash,'criado_em',ev.criado_em,
+          'documento',case when vd.id is null then null else jsonb_build_object(
+            'id_versao_documento',vd.id,'numero_versao',vd.numero_versao,
+            'hash_versao',vd.hash,'id_arquivo',a.id,
+            'nome_original',a.nome_original,'mime',a.mime,'status_seguranca',a.status_seguranca
+          ) end
+        ) obj
+      from public.evidencias_resultado ev
+      left join public.versoes_documento vd on vd.id=ev.id_versao_documento
+        and vd.id_contrato=v_comp.id_contrato and vd.id_organizacao=v_comp.id_organizacao
+      left join public.arquivos a on a.id=vd.id_arquivo
+        and a.id_organizacao=v_comp.id_organizacao and a.id_contrato=v_comp.id_contrato
+      where ev.id_resultado=v_ultimo.id and ev.id_competencia=v_comp.id
+        and ev.id_contrato=v_comp.id_contrato and ev.id_organizacao=v_comp.id_organizacao
+      order by ev.criado_em,ev.id offset p_evidencias_offset limit p_evidencias_limite
+    ) q;
+  end if;
+  select count(*)::integer into v_historico_total
+    from public.resultados_requisitos rr join public.execucoes_analise ee on ee.id=rr.id_execucao
+      and ee.id_competencia=v_comp.id and ee.id_contrato=v_comp.id_contrato
+      and ee.id_organizacao=v_comp.id_organizacao
+    where rr.id_requisito=v_req.id and rr.id_competencia=v_comp.id
+      and rr.id_contrato=v_comp.id_contrato and rr.id_organizacao=v_comp.id_organizacao;
+  select coalesce(jsonb_agg(q.obj order by q.exec_criado desc,q.exec_id desc,q.res_criado desc,q.res_id desc),'[]'::jsonb)
+  into v_historico from (
+    select rr.id res_id,rr.criado_em res_criado,ee.id exec_id,ee.criado_em exec_criado,
+      jsonb_build_object(
+        'id_resultado',rr.id,'id_execucao',ee.id,'resultado',rr.resultado,
+        'confianca',rr.confianca,'fundamento',rr.fundamento,'justificativa',rr.justificativa,
+        'hash_evidencias',rr.hash_evidencias,'criado_em',rr.criado_em,
+        'tipo_execucao',ee.tipo,'status_execucao',ee.status,
+        'motor',ee.motor,'versao_motor',ee.versao_motor,'provedor',ee.provedor,
+        'modelo',ee.modelo,'prompt_versao',ee.prompt_versao,'hash_entrada',ee.hash_entrada,
+        'iniciada_em',ee.iniciada_em,'concluida_em',ee.concluida_em,
+        'mecanismo',case
+          when rr.metadados->>'origem'='revisao_humana' then 'humano'
+          when rr.metadados->>'mecanismo' in ('deterministico','semantico','humano') then rr.metadados->>'mecanismo'
+          when nullif(rr.metadados->>'provedor','') is not null then 'semantico'
+          when nullif(ee.provedor,'') is not null and rr.metadados->>'origem' is null then 'semantico'
+          else 'nao_identificado' end
+      ) obj
+    from public.resultados_requisitos rr join public.execucoes_analise ee
+      on ee.id=rr.id_execucao and ee.id_competencia=v_comp.id
+      and ee.id_contrato=v_comp.id_contrato and ee.id_organizacao=v_comp.id_organizacao
+    where rr.id_requisito=v_req.id and rr.id_competencia=v_comp.id
+      and rr.id_contrato=v_comp.id_contrato and rr.id_organizacao=v_comp.id_organizacao
+    order by ee.criado_em desc,ee.id desc,rr.criado_em desc,rr.id desc
+    offset p_historico_offset limit p_historico_limite
+  ) q;
+  select count(*)::integer into v_apontamentos_total
+    from public.apontamentos_internos ap
+    where ap.id_requisito=v_req.id and ap.id_competencia=v_comp.id
+      and ap.id_contrato=v_comp.id_contrato and ap.id_organizacao=v_comp.id_organizacao;
+  select coalesce(jsonb_agg(q.obj order by q.criado_em desc,q.id desc),'[]'::jsonb)
+  into v_apontamentos from (
+    select ap.id,ap.criado_em,jsonb_build_object(
+      'id',ap.id,'descricao',ap.descricao,'severidade',ap.severidade,
+      'status',ap.status,'origem',ap.origem,'regra_violada',ap.regra_violada,
+      'acao_sugerida',ap.acao_sugerida,'fonte',ap.fonte,
+      'criado_em',ap.criado_em,'atualizado_em',ap.atualizado_em
+    ) obj from public.apontamentos_internos ap
+    where ap.id_requisito=v_req.id and ap.id_competencia=v_comp.id
+      and ap.id_contrato=v_comp.id_contrato and ap.id_organizacao=v_comp.id_organizacao
+    order by ap.criado_em desc,ap.id desc
+    offset p_apontamentos_offset limit p_apontamentos_limite
+  ) q;
+  return jsonb_build_object(
+    'schema_versao','v117-v1',
+    'competencia',jsonb_build_object(
+      'id',v_comp.id,'id_organizacao',v_comp.id_organizacao,
+      'id_contrato',v_comp.id_contrato,'competencia_referencia',v_comp.competencia_referencia,
+      'situacao',v_comp.situacao
+    ),
+    'requisito',jsonb_build_object(
+      'id',v_req.id,'codigo',v_req.codigo,'descricao',v_req.descricao,
+      'categoria',v_req.categoria,'origem_tipo',v_req.origem_tipo,
+      'origem_id',v_req.origem_id,'origem_versao',v_req.origem_versao,
+      'obrigatorio',v_req.obrigatorio,'aplicavel',v_req.aplicavel,
+      'impeditivo',v_req.impeditivo,'criticidade',v_req.criticidade,
+      'fonte_tipo',v_req.fonte_tipo,'fonte_referencia',v_req.fonte_referencia,
+      'fonte_detalhe',v_req.fonte_detalhe,'efeito_portao',v_req.efeito_portao,
+      'hash_snapshot',v_req.hash_snapshot,'regra_validacao',v_req.regra_validacao,
+      'condicao_aplicabilidade',v_req.condicao_aplicabilidade
+    ),
+    'execucao_atual',case when v_exec.id is null then null else jsonb_build_object(
+      'id',v_exec.id,'tipo',v_exec.tipo,'status',v_exec.status,
+      'hash_entrada',v_exec.hash_entrada,'motor',v_exec.motor,
+      'versao_motor',v_exec.versao_motor,'provedor',v_exec.provedor,
+      'modelo',v_exec.modelo,'prompt_versao',v_exec.prompt_versao,
+      'iniciada_em',v_exec.iniciada_em,'concluida_em',v_exec.concluida_em,
+      'criado_em',v_exec.criado_em
+    ) end,
+    'resultado_atual',case when v_atual.id is null then null else jsonb_build_object(
+      'id',v_atual.id,'id_execucao',v_atual.id_execucao,
+      'resultado',v_atual.resultado,'confianca',v_atual.confianca,
+      'justificativa',v_atual.justificativa,'fundamento',v_atual.fundamento,
+      'hash_evidencias',v_atual.hash_evidencias,'criado_em',v_atual.criado_em
+    ) end,
+    'resultado_referencia',case when v_ultimo.id is null then null else jsonb_build_object(
+      'id',v_ultimo.id,'id_execucao',v_ultimo.id_execucao,
+      'resultado',v_ultimo.resultado,'mecanismo',v_mecanismo,
+      'confianca',v_ultimo.confianca,'justificativa',v_ultimo.justificativa,
+      'fundamento',v_ultimo.fundamento,'hash_evidencias',v_ultimo.hash_evidencias,
+      'criado_em',v_ultimo.criado_em
+    ) end,
+    'na_validade',case when v_ultimo.resultado='nao_aplicavel' then jsonb_build_object(
+      'valido',v_na_valido,'id_resultado_referencia',v_ultimo.id,
+      'possui_fundamento',nullif(trim(coalesce(v_ultimo.fundamento,'')),'') is not null,
+      'possui_evidencia',exists (select 1 from public.evidencias_resultado ev
+          where ev.id_resultado=v_ultimo.id and ev.id_competencia=v_comp.id
+          and ev.id_contrato=v_comp.id_contrato and ev.id_organizacao=v_comp.id_organizacao)
+    ) else null end,
+    'allowed_actions',coalesce(v_capacidades,'{}'::jsonb),
+    'evidencias',v_evidencias,
+    'evidencias_paginacao',jsonb_build_object('offset',p_evidencias_offset,'limite',p_evidencias_limite,'total',v_evidencias_total),
+    'historico',v_historico,
+    'historico_paginacao',jsonb_build_object('offset',p_historico_offset,'limite',p_historico_limite,'total',v_historico_total),
+    'apontamentos',v_apontamentos,
+    'apontamentos_paginacao',jsonb_build_object('offset',p_apontamentos_offset,'limite',p_apontamentos_limite,'total',v_apontamentos_total)
+  );
+end;
+$v117$;
+revoke all on function public.obter_detalhe_requisito_v117(uuid,uuid,integer,integer,integer,integer,integer,integer) from public,anon;
+grant execute on function public.obter_detalhe_requisito_v117(uuid,uuid,integer,integer,integer,integer,integer,integer) to authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261103172945_v117_reanalise_requisitos_concorrencia
+-- ContaOS 4.1 V1-17 B2 — protege selecao incremental contra sobrescrita do job ativo.
+-- Reutiliza bloqueio da competencia e a fila existente, sem mudar contrato publico.
+create or replace function privado.solicitar_reanalise_requisitos(
+  p_id_competencia uuid,
+  p_requisitos uuid[]
+) returns uuid
+language plpgsql security definer set search_path = ''
+as $v117$
+declare
+  v_comp public.competencias%rowtype;
+  v_busy public.execucoes_analise%rowtype;
+  v_ids uuid[];
+  v_busy_ids uuid[];
+  v_exec uuid;
+  v_written uuid;
+begin
+  if auth.uid() is null then
+    raise exception using errcode='42501',message='Você não possui autorização para solicitar reanálise.';
+  end if;
+  if p_id_competencia is null or p_requisitos is null or cardinality(p_requisitos)=0
+    or exists(select 1 from unnest(p_requisitos) as q(id) where q.id is null) then
+    raise exception using errcode='PT400',message='Selecione ao menos um requisito válido para reanálise.';
+  end if;
+  select * into v_comp from public.competencias where id=p_id_competencia;
+  if v_comp.id is null
+    or not privado.usuario_tem_acesso_contrato(v_comp.id_contrato)
+    or not privado.usuario_possui_perfil(
+      v_comp.id_organizacao,
+      array['administrador','gestor_contrato','prestacao_contas','financeiro','contabilidade','rh_dp','juridico_conformidade','auditor']::text[]
+    ) then
+    raise exception using errcode='42501',message='Você não possui autorização para solicitar reanálise.';
+  end if;
+  -- Mesma trava que privado.solicitar_analise_competencia, serializa selecoes.
+  select * into v_comp from public.competencias
+    where id=p_id_competencia and id_contrato=v_comp.id_contrato
+      and id_organizacao=v_comp.id_organizacao for update;
+  if v_comp.id is null then
+    raise exception using errcode='42501',message='Você não possui autorização para solicitar reanálise.';
+  end if;
+  if v_comp.situacao in ('apresentado','aguardando_contratante','validada','encerrada','cancelada') then
+    raise exception using errcode='PT409',message='A situação da competência não permite reanálise.';
+  end if;
+  select array_agg(q.id order by q.id) into v_ids
+    from (select distinct id from unnest(p_requisitos) as z(id)) q;
+  if exists(
+    select 1 from unnest(v_ids) as q(id)
+    where not exists (
+      select 1 from public.requisitos_competencia r
+      where r.id=q.id and r.id_competencia=v_comp.id
+        and r.id_contrato=v_comp.id_contrato
+        and r.id_organizacao=v_comp.id_organizacao
+    )
+  ) then
+    raise exception using errcode='PT400',message='A seleção contém requisito inválido para esta competência.';
+  end if;
+  select * into v_busy from public.execucoes_analise e
+    where e.id_competencia=v_comp.id and e.id_contrato=v_comp.id_contrato
+      and e.id_organizacao=v_comp.id_organizacao
+      and e.status in ('pendente','processando')
+    order by e.criado_em desc,e.id desc limit 1;
+  if v_busy.id is not null then
+    select coalesce(array_agg(q.id order by q.id),array[]::uuid[]) into v_busy_ids
+    from (select distinct id from unnest(v_busy.requisitos_afetados) as z(id)) q;
+    if v_busy.tipo='parcial' and v_busy_ids=v_ids then
+      -- Repeticao idempotente, zero UPDATE na execucao existente.
+      return v_busy.id;
+    end if;
+    raise exception using errcode='PT409',
+      message='Já existe uma análise em andamento. Consulte o andamento antes de solicitar outra.';
+  end if;
+  -- O INSERT da execucao e sua fila só ficam visíveis ao worker após COMMIT.
+  v_exec := privado.solicitar_analise_competencia(v_comp.id,'parcial');
+  update public.execucoes_analise e
+  set requisitos_afetados=v_ids,
+      metadados=e.metadados || jsonb_build_object('reanálise_incremental',true)
+  where e.id=v_exec and e.id_competencia=v_comp.id and e.id_contrato=v_comp.id_contrato
+    and e.id_organizacao=v_comp.id_organizacao
+    and e.tipo='parcial' and e.status='pendente'
+    and cardinality(e.requisitos_afetados)=0
+  returning e.id into v_written;
+  if v_written is null then
+    raise exception using errcode='PT409',
+      message='Não foi possível garantir o escopo desta reanálise. Atualize a competência e tente novamente.';
+  end if;
+  perform privado.registrar_evento_auditoria(
+    v_comp.id_organizacao,'ReanaliseIncrementalSolicitada',
+    'execucoes_analise',v_exec,null,
+    jsonb_build_object('id_competencia',v_comp.id,'requisitos_afetados',to_jsonb(v_ids))
+  );
+  return v_exec;
+end;
+$v117$;
+-- Não alterar a wrapper publica, grants, RLS, Edge ou worker.;
+
+-- ============================================================
+
+-- MIGRATION 20261104230951_v1_22_registro_historico_gestao_hml
+CREATE OR REPLACE FUNCTION public.registrar_relatorio_historico_hml(p_id_arquivo uuid,p_competencia date,p_tipo text DEFAULT 'relatorio_contratante') RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
+DECLARE v_arquivo public.arquivos%ROWTYPE; v_id uuid;
+BEGIN
+ IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Sessão necessária.'; END IF;
+ SELECT * INTO v_arquivo FROM public.arquivos WHERE id=p_id_arquivo;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Arquivo não encontrado.'; END IF;
+ IF NOT privado.usuario_tem_acesso_contrato(v_arquivo.id_contrato) OR NOT privado.usuario_possui_perfil(v_arquivo.id_organizacao,ARRAY['administrador','gestor_contrato']::text[]) THEN RAISE EXCEPTION 'Perfil de gestão sem permissão para importar histórico.'; END IF;
+ IF v_arquivo.status_seguranca <> 'aprovado' THEN RAISE EXCEPTION 'Arquivo ainda não aprovado pela validação de segurança.'; END IF;
+ IF p_competencia IS NULL OR extract(day FROM p_competencia) <> 1 THEN RAISE EXCEPTION 'Informe o primeiro dia da competência.'; END IF;
+ IF p_tipo NOT IN ('relatorio_contratante','parecer_contratante','resposta_contratante','outro') THEN RAISE EXCEPTION 'Tipo de relatório inválido.'; END IF;
+ PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(p_id_arquivo::text,0));
+ SELECT id INTO v_id FROM public.relatorios_historicos_contratante WHERE id_arquivo=p_id_arquivo AND id_contrato=v_arquivo.id_contrato ORDER BY criado_em LIMIT 1;
+ IF v_id IS NOT NULL THEN RETURN v_id; END IF;
+ INSERT INTO public.relatorios_historicos_contratante(id_organizacao,id_contrato,id_arquivo,competencia_referencia,tipo,origem_temporal,status_processamento,criado_por)
+ VALUES(v_arquivo.id_organizacao,v_arquivo.id_contrato,v_arquivo.id,p_competencia,p_tipo,'pre_implantacao','pendente',auth.uid()) RETURNING id INTO v_id;
+ PERFORM privado.registrar_evento_auditoria(v_arquivo.id_organizacao,'HistoricoImportacaoRegistrada','relatorios_historicos_contratante',v_id,NULL,pg_catalog.jsonb_build_object('id_arquivo',p_id_arquivo,'competencia',p_competencia));
+ RETURN v_id;
+END;$fn$;
+REVOKE ALL ON FUNCTION public.registrar_relatorio_historico_hml(uuid,date,text) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.registrar_relatorio_historico_hml(uuid,date,text) TO authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261104231142_v1_22_fila_dedicada_ingestao_historica_hml
+SELECT pgmq.create('historico');
+CREATE OR REPLACE FUNCTION public.enfileirar_ingestao_historica_hml(p_id_relatorio uuid,p_id_versao_documento uuid) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
+DECLARE r public.relatorios_historicos_contratante%ROWTYPE; v public.versoes_documento%ROWTYPE; e uuid; m bigint;
+BEGIN
+ IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Sessão necessária.'; END IF;
+ SELECT * INTO r FROM public.relatorios_historicos_contratante WHERE id=p_id_relatorio FOR UPDATE;
+ SELECT * INTO v FROM public.versoes_documento WHERE id=p_id_versao_documento;
+ IF r.id IS NULL OR v.id IS NULL THEN RAISE EXCEPTION 'Relatório ou versão documental não encontrado.'; END IF;
+ IF NOT privado.usuario_tem_acesso_contrato(r.id_contrato) OR NOT privado.usuario_possui_perfil(r.id_organizacao,ARRAY['administrador','gestor_contrato']::text[]) THEN RAISE EXCEPTION 'Perfil de gestão sem permissão.'; END IF;
+ IF r.id_arquivo<>v.id_arquivo OR r.id_organizacao<>v.id_organizacao OR r.id_contrato<>v.id_contrato THEN RAISE EXCEPTION 'Versão não pertence ao relatório deste contrato.'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.processamentos_documento WHERE id_versao_documento=v.id AND status='concluido') THEN RAISE EXCEPTION 'Aguarde a conclusão da leitura documental.'; END IF;
+ SELECT id INTO e FROM public.execucoes_assincronas WHERE fila='historico' AND id_organizacao=r.id_organizacao AND chave_idempotencia='historico:'||r.id::text;
+ IF e IS NOT NULL THEN RETURN e; END IF;
+ SELECT pgmq.send('historico',pg_catalog.jsonb_build_object('id_relatorio',r.id,'id_versao_documento',v.id,'id_organizacao',r.id_organizacao,'id_contrato',r.id_contrato)) INTO m;
+ INSERT INTO public.execucoes_assincronas(id_organizacao,id_contrato,fila,entidade_tipo,entidade_id,chave_idempotencia,message_id) VALUES(r.id_organizacao,r.id_contrato,'historico','relatorio_historico',r.id,'historico:'||r.id::text,m) RETURNING id INTO e;
+ PERFORM privado.registrar_evento_auditoria(r.id_organizacao,'IngestaoHistoricaEnfileirada','relatorios_historicos_contratante',r.id,NULL,pg_catalog.jsonb_build_object('id_execucao',e,'id_versao_documento',v.id));
+ RETURN e;
+END;$fn$;
+REVOKE ALL ON FUNCTION public.enfileirar_ingestao_historica_hml(uuid,uuid) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.enfileirar_ingestao_historica_hml(uuid,uuid) TO authenticated;
+CREATE OR REPLACE FUNCTION public.worker_pull_historico_hml() RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
+DECLARE m record; e uuid;
+BEGIN
+ IF current_user NOT IN ('postgres','service_role') THEN RAISE EXCEPTION 'Acesso negado ao worker.'; END IF;
+ SELECT * INTO m FROM pgmq.read('historico',120,1) LIMIT 1;
+ IF NOT FOUND THEN RETURN NULL; END IF;
+ SELECT id INTO e FROM public.execucoes_assincronas WHERE fila='historico' AND message_id=m.msg_id;
+ UPDATE public.execucoes_assincronas SET status='processando',tentativas=m.read_ct,iniciado_em=coalesce(iniciado_em,now()) WHERE id=e;
+ RETURN pg_catalog.jsonb_build_object('msg_id',m.msg_id,'read_ct',m.read_ct,'payload',m.message,'id_execucao',e);
+END;$fn$;
+REVOKE ALL ON FUNCTION public.worker_pull_historico_hml() FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.worker_pull_historico_hml() TO service_role;
+CREATE OR REPLACE FUNCTION public.worker_finalizar_historico_hml(p_msg_id bigint,p_sucesso boolean,p_erro text DEFAULT NULL) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
+DECLARE e public.execucoes_assincronas%ROWTYPE; v_removed boolean;
+BEGIN
+ IF current_user NOT IN ('postgres','service_role') THEN RAISE EXCEPTION 'Acesso negado ao worker.'; END IF;
+ SELECT * INTO e FROM public.execucoes_assincronas WHERE fila='historico' AND message_id=p_msg_id FOR UPDATE;
+ IF e.id IS NULL THEN RAISE EXCEPTION 'Execução não encontrada.'; END IF;
+ IF p_sucesso OR e.tentativas>=5 THEN SELECT pgmq.delete('historico',p_msg_id) INTO v_removed; END IF;
+ UPDATE public.execucoes_assincronas SET status=CASE WHEN p_sucesso THEN 'concluido' WHEN e.tentativas>=5 THEN 'cancelado' ELSE 'falhou' END,erro_codigo=CASE WHEN p_sucesso THEN NULL ELSE 'HISTORICO_PROCESSAMENTO_FALHOU' END,erro_detalhe=left(p_erro,4000),concluido_em=CASE WHEN p_sucesso OR e.tentativas>=5 THEN now() ELSE NULL END WHERE id=e.id;
+END;$fn$;
+REVOKE ALL ON FUNCTION public.worker_finalizar_historico_hml(bigint,boolean,text) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.worker_finalizar_historico_hml(bigint,boolean,text) TO service_role;
+
+-- ============================================================
+
+-- MIGRATION 20261104231222_v1_22_agendamento_worker_historico_hml
+CREATE OR REPLACE FUNCTION privado.invocar_worker_historico_hml() RETURNS bigint LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
+DECLARE req bigint;
+BEGIN
+ SELECT net.http_post(
+ url:=(SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name='contaos_project_url')||'/functions/v1/queue-worker-historico',
+ headers:=pg_catalog.jsonb_build_object('Content-Type','application/json','x-contaos-internal-token',(SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name='contaos_internal_worker_token')),
+ body:='{}'::jsonb,timeout_milliseconds:=10000) INTO req;
+ RETURN req;
+END;$fn$;
+REVOKE ALL ON FUNCTION privado.invocar_worker_historico_hml() FROM PUBLIC,anon,authenticated;
+SELECT cron.schedule('contaos-worker-historico-v1-22','* * * * *','SELECT privado.invocar_worker_historico_hml();');
+
+-- ============================================================
+
+-- MIGRATION 20261104231237_v1_22_vinculo_resposta_desfecho_gestao_hml
+CREATE OR REPLACE FUNCTION public.vincular_tratamento_historico_hml(p_id_apontamento uuid,p_resposta text DEFAULT NULL,p_desfecho text DEFAULT NULL,p_fundamento text DEFAULT NULL) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $fn$
+DECLARE a public.apontamentos_historicos%ROWTYPE; vr uuid; vd uuid;
+BEGIN
+ IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Sessão necessária.'; END IF;
+ SELECT * INTO a FROM public.apontamentos_historicos WHERE id=p_id_apontamento;
+ IF a.id IS NULL THEN RAISE EXCEPTION 'Apontamento não encontrado.'; END IF;
+ IF NOT privado.usuario_tem_acesso_contrato(a.id_contrato) OR NOT privado.usuario_possui_perfil(a.id_organizacao,ARRAY['administrador','gestor_contrato']::text[]) THEN RAISE EXCEPTION 'Perfil de gestão sem permissão.'; END IF;
+ IF nullif(pg_catalog.btrim(coalesce(p_resposta,'')),'') IS NULL AND nullif(pg_catalog.btrim(coalesce(p_desfecho,'')),'') IS NULL THEN RAISE EXCEPTION 'Informe resposta ou desfecho.'; END IF;
+ IF nullif(pg_catalog.btrim(coalesce(p_resposta,'')),'') IS NOT NULL THEN
+ INSERT INTO public.respostas_historicas(id_organizacao,id_contrato,id_apontamento,texto) VALUES(a.id_organizacao,a.id_contrato,a.id,left(pg_catalog.btrim(p_resposta),12000)) RETURNING id INTO vr;
+ END IF;
+ IF nullif(pg_catalog.btrim(coalesce(p_desfecho,'')),'') IS NOT NULL THEN
+ INSERT INTO public.desfechos_historicos(id_organizacao,id_contrato,id_apontamento,resultado,fundamento,data) VALUES(a.id_organizacao,a.id_contrato,a.id,left(pg_catalog.btrim(p_desfecho),5000),nullif(left(pg_catalog.btrim(coalesce(p_fundamento,'')),5000),''),CURRENT_DATE) RETURNING id INTO vd;
+ END IF;
+ PERFORM privado.registrar_evento_auditoria(a.id_organizacao,'TratamentoHistoricoVinculado','apontamentos_historicos',a.id,NULL,pg_catalog.jsonb_build_object('id_resposta',vr,'id_desfecho',vd));
+ RETURN pg_catalog.jsonb_build_object('id_resposta',vr,'id_desfecho',vd);
+END;$fn$;
+REVOKE ALL ON FUNCTION public.vincular_tratamento_historico_hml(uuid,text,text,text) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.vincular_tratamento_historico_hml(uuid,text,text,text) TO authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261105102019_v123_auditoria_capacidade
+-- V1-23: capacidade de consulta da Auditoria; somente leitura e escopo HML.
+-- A RLS de public.eventos_auditoria permanece autoridade para acesso aos registros.
+create function public.pode_consultar_auditoria_organizacao(p_id_organizacao uuid)
+returns boolean
+language sql
+stable
+security invoker
+set search_path = ''
+as $function$
+  select case
+    when p_id_organizacao is null then false
+    else coalesce(
+      privado.usuario_possui_perfil(
+        p_id_organizacao,
+        array['administrador','auditor','juridico_conformidade']::text[]
+      ), false
+    )
+  end;
+$function$;
+
+revoke all on function public.pode_consultar_auditoria_organizacao(uuid) from public;
+revoke all on function public.pode_consultar_auditoria_organizacao(uuid) from anon;
+grant execute on function public.pode_consultar_auditoria_organizacao(uuid) to authenticated;
+
+-- ============================================================
+
+-- MIGRATION 20261105221559_p0_v1_master_rls_defense
+-- P0 V1 MASTER | migration criada via Supabase CLI v2.81.3, run 42119980043.
+-- HML only. Defesa em profundidade na tabela privada, sem expor grants.
+-- Não usar FORCE ROW LEVEL SECURITY: SECURITY DEFINER owner postgres depende de acesso.
+DO $guard$
+BEGIN
+  IF to_regclass('privado.administradores_master') IS NULL THEN
+    RAISE EXCEPTION 'Tabela MASTER ausente; impedir aplicação';
+  END IF;
+  IF (SELECT relrowsecurity FROM pg_class WHERE oid = 'privado.administradores_master'::regclass) THEN
+    RAISE EXCEPTION 'RLS MASTER já ativo; investigar drift antes da migration';
+  END IF;
+  IF (SELECT pg_get_userbyid(relowner) FROM pg_class WHERE oid = 'privado.administradores_master'::regclass) <> 'postgres' THEN
+    RAISE EXCEPTION 'Owner inesperado da tabela MASTER; interromper';
+  END IF;
+  IF has_table_privilege('anon', 'privado.administradores_master', 'SELECT')
+     OR has_table_privilege('authenticated', 'privado.administradores_master', 'SELECT') THEN
+    RAISE EXCEPTION 'Grants MASTER inesperados; interromper';
+  END IF;
+END
+$guard$;
+
+ALTER TABLE privado.administradores_master ENABLE ROW LEVEL SECURITY;
+
+-- Sem policies: leitura direta de cliente continua DENY.
+-- Proprietário postgres, executor das funções SECURITY DEFINER existentes,
+-- não está sujeito a RLS ordinário enquanto FORCE RLS permanecer desabilitado.
+DO $verify$
+BEGIN
+  IF NOT (SELECT relrowsecurity AND NOT relforcerowsecurity FROM pg_class WHERE oid = 'privado.administradores_master'::regclass) THEN
+    RAISE EXCEPTION 'Verificação RLS MASTER falhou';
+  END IF;
+  IF has_table_privilege('anon','privado.administradores_master','SELECT')
+     OR has_table_privilege('authenticated','privado.administradores_master','SELECT') THEN
+    RAISE EXCEPTION 'Cliente recebeu SELECT na tabela MASTER';
+  END IF;
+END $verify$;
+
+-- ============================================================
+
+-- MIGRATION 20261105232056_p0_v1_historico_fila_check
+-- Supabase CLI 2.81.3 migration new p0_v1_historico_fila_check
+-- Generated filename confirmed by Actions run 42128916139, artifact 13462327441.
+-- HML only. No RLS, grants, Auth, or function changes.
+DO $guard$
+DECLARE
+  existing_definition text;
+BEGIN
+  SELECT pg_get_constraintdef(c.oid) INTO existing_definition
+  FROM pg_constraint c
+  WHERE c.conrelid = 'public.execucoes_assincronas'::regclass
+    AND c.conname = 'execucoes_assincronas_fila_check'
+    AND c.contype = 'c';
+  IF existing_definition IS DISTINCT FROM
+    'CHECK ((fila = ANY (ARRAY[''documents''::text, ''ocr''::text, ''ai''::text, ''embeddings''::text, ''finance_imports''::text, ''reports''::text, ''integrations''::text, ''webhooks''::text])))'
+  THEN
+    RAISE EXCEPTION 'PRECONDITION FAILED: fila CHECK drift or missing';
+  END IF;
+END
+$guard$;
+
+ALTER TABLE public.execucoes_assincronas
+  DROP CONSTRAINT execucoes_assincronas_fila_check;
+
+ALTER TABLE public.execucoes_assincronas
+  ADD CONSTRAINT execucoes_assincronas_fila_check
+  CHECK (fila = ANY (ARRAY[
+    'documents'::text, 'ocr'::text, 'ai'::text, 'embeddings'::text,
+    'finance_imports'::text, 'reports'::text, 'integrations'::text,
+    'webhooks'::text, 'historico'::text
+  ]));
+-- Rollback only if no rows with fila='historico'; otherwise retain constraint.
