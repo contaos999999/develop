@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "rbac_build_restore_isolado",
+  "phase": "rbac_green_deploy_one_gate",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -73,7 +73,8 @@
     "docs/backend/P0_V1_RBAC_BUILD_COBERTURA_2026-11-06.json",
     "docs/backend/P0_V1_RBAC_BUILD_EXECUCAO_2026-11-06.md",
     ".github/workflows/restore-isolado.yml",
-    "supabase/tests/rbac_concurrency.py"
+    "supabase/tests/rbac_concurrency.py",
+    "docs/backend/P0_V1_RBAC_DEPLOY_GATE_2026-11-06.md"
   ],
   "forbidden_paths": [
     "supabase/functions/**",
@@ -142,7 +143,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Concluir restore isolado e revisão do BUILD RBAC; só depois deploy_one HML, JWT real e frontend. Não certificar V1.",
+  "next_step": "Aplicar somente a migration RBAC 20261106014102 pelo workflow canônico, verificar SQL/grants/policies/advisors e executar JWT real. Storage upload Edge e frontend ainda pendentes.",
   "database_change_scope": "BUILD RBAC V1 exato: supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql. Aplicação HML somente pelo deploy_one canônico após CI e restore isolado. Sem DDL por execute_sql/apply_migration. Auth fixtures só em testes isolados nesta etapa. PROD proibida.",
   "evidence": {
     "test_pr": 52,
@@ -258,7 +259,12 @@
       "resources": 17,
       "tables": 40,
       "guarded_functions": 43,
-      "deployed": false
+      "deployed": false,
+      "approved_head": "9aa4bd837453d9e74e36adc66db9c75a09e25955",
+      "merge": "3c118ed4385a5828af58e3134f2fd785f5140950",
+      "restore_run": 42147037054,
+      "restore_result": "SUCCESS; RBAC_ISOLATED_PASS; RBAC_CONCURRENCY_PASS; eleven existing suites preserved",
+      "sql_sha256": "99f51e2d9d57d5d340144d14305714307be642bec83245d73b427d2b17c2b36d"
     },
     "rbac_review": {
       "findings_fixed": [

@@ -16,6 +16,7 @@ on:
         type: string
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: contaos-hml-migration-version-parity
   cancel-in-progress: false
@@ -27,13 +28,38 @@ jobs:
     env:
       DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
       PROJECT_REF: gklhhhyosgasnyoxlrui
-      OPERATION: ${{ github.event_name == 'push' && 'repair_68' || inputs.operation }}
-      TARGET_VERSION: ${{ inputs.migration_version }}
+      OPERATION: ${{ github.event_name == 'push' && 'deploy_one' || inputs.operation }}
+      TARGET_VERSION: ${{ github.event_name == 'push' && '20261106014102' || inputs.migration_version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify pinned RBAC source and completed review gates for automatic deploy
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,sys,urllib.request
+          p=pathlib.Path('supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql')
+          if hashlib.sha256(p.read_bytes()).hexdigest() != '99f51e2d9d57d5d340144d14305714307be642bec83245d73b427d2b17c2b36d':
+              sys.exit('::error::RBAC SQL differs from the tested and reviewed source')
+          task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
+          if task.get('database_changes_allowed') is not True or str(p) not in task.get('allowed_paths',[]):
+              sys.exit('::error::Migration not authorized by active task')
+          approved='9aa4bd837453d9e74e36adc66db9c75a09e25955'
+          url='https://api.github.com/repos/contaos999999/develop/actions/runs?head_sha='+approved
+          req=urllib.request.Request(url,headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json'})
+          with urllib.request.urlopen(req,timeout=20) as r:
+              runs=json.load(r)['workflow_runs']
+          for name in ['ContaOS Zero-Drift','ContaOS Restore Isolado','Verificar histórico HML']:
+              if not any(x['name']==name and x['head_sha']==approved and x['status']=='completed' and x['conclusion']=='success' for x in runs):
+                  sys.exit('::error::Missing successful reviewed-head gate: '+name)
+          print('PASS: pinned reviewed SQL; all three approved-head gates succeeded')
+          PY
       - name: Verify target and CLI contract
         shell: bash
         run: |
@@ -108,7 +134,8 @@ jobs:
         run: |
           set -euo pipefail
           npx --yes supabase@2.81.3 db push --db-url "$DATABASE_URL" --yes
-          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "SELECT CASE WHEN count(*)=1 THEN 'PASS' ELSE (1/0)::text END FROM supabase_migrations.schema_migrations WHERE version='$TARGET_VERSION'"
+          test "$(psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='$TARGET_VERSION'")" = 1
+          echo 'PASS: exactly one target migration history row'
       - name: Verify global local/remote history parity
         shell: bash
         run: |
