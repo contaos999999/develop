@@ -1,3 +1,4 @@
+# Source recovery gate: a fresh push checks out all 125 recovered historical versions.
 name: ContaOS HML migration version parity
 on:
   push:

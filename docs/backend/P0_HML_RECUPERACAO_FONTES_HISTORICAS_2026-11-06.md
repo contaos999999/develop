@@ -20,7 +20,7 @@ Gate de integridade verifica125 versões e49 originais arquivados. Quatro testes
 Restore do zero e13 suítes devem passar antes do merge. Comparação adicional com baseline real HML:120 tabelas,1520 colunas,284 contratos/ACLs de funções,186 políticas originais. Exclui somente os novos objetos/políticas RBAC explícitos.
 Este comparador é estrutural, não prova igualdade integral dos corpos nem substitui JWT real.
 ## Próxima ação
-Somente após CI/restore/comparação de catálogo verdes e merge, reexecutar o job de deploy canônico falho. Ele deve encontrar APENAS20261106014102 pendente. Qualquer divergência mantém bloqueio.
+Somente após CI/restore/comparação de catálogo verdes e merge, disparar uma NOVA execução push do workflow canônico pelo ajuste deste mesmo PR, com checkout do novo SHA integrado. Não rerodar o job antigo, cujo checkout permanece no SHA anterior à recuperação. Ele deve encontrar APENAS20261106014102 pendente. Qualquer divergência mantém bloqueio.
 Não executar migration repair, INSERT no histórico, apply_migration ou reaplicar DDL legado.
 Depois: pós-verificação/advisors, JWT real RBAC, Edge upload, frontend e demais etapas do plano único. V1 NÃO certificada.
 ## ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE

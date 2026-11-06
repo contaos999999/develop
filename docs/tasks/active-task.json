@@ -303,7 +303,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Concluir CI/restore e comparação de catálogo da recuperação histórica. Só depois reexecutar deploy_one canônico para a única migration RBAC. Sem HML DDL legado, repair ou PROD.",
+  "next_step": "Concluir CI/restore/comparação do PR de recuperação e integrar; a alteração documental do workflow canônico dispara nova execução push com os125 históricos recuperados e somenteRBACpendente. Não rerodar o checkout antigo.",
   "database_change_scope": "Recuperação documental de125 migrations reais e arquivo de49 aliases com hashes, somente caminhos exatos. Sem mutation de histórico/DDL HML neste PR. RBAC única migration nova autorizada após gates e paridade.",
   "evidence": {
     "test_pr": 52,
