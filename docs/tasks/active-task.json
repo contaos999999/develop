@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "rbac_nine_jwt_regression_gate",
+  "phase": "rbac_nine_jwt_pass_frontend_build",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -310,7 +310,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Regressão JWT das nove RPCs após RBAC, integração frontend da matriz/navegação, SYS03, WCAG/Teste C, RNFs e critérios originais. Não reutilizar fixtures bloqueadas.",
+  "next_step": "Concluir frontend matriz MASTER e navegação contextual sob PLAN180; SYS03 real, Teste C/WCAG privado, RNFs e486critérios literais. Não reutilizar contas bloqueadas. V1 não certificada.",
   "database_change_scope": "Sem DDL/RLS/history/configuração. Nova rodada P0-RBAC-NINE:14 contas Auth sintéticas novas,2 organizações,3 contratos,3 competências/requisitos/arquivos/documentos/versões/relatórios/apontamentos próprios,processamento documental sintético concluído,84 comandos documentais de replay. JWT sobre nove APIs;enqueue histórico pode criar3 mensagens/execuções próprias, arquivar/cancelar peloescopo exato ao final. Zero upload físico e zero worker certificado. Nenhuma mutação da matriz nesta rodada. Revogar um vínculo,logout,quarentena14UUIDs+scope e verificar0sessões/privilégios;preservarauditoria.",
   "evidence": {
     "test_pr": 52,
@@ -488,6 +488,43 @@
         "inactive_organizations": 2
       },
       "nine_rpc_regression": "PENDENTE",
+      "v1_certified": false
+    },
+    "rbac_nine_jwt": {
+      "probe_head": "1aaedb477a35c1f7a7a60e5d7d978bc4bc93c5de",
+      "code_ci": 42154235932,
+      "assertions": 377,
+      "passed": 377,
+      "failed": 0,
+      "allowed_rpc": 94,
+      "denied_rpc": 212,
+      "auth_org_rls_logout": 71,
+      "real_auth_identities": 14,
+      "organizations": 2,
+      "contracts": 3,
+      "documents": 3,
+      "versions": 3,
+      "reports": 3,
+      "responses": 6,
+      "outcomes": 6,
+      "queue_executions": 3,
+      "exact_queue_payloads": 3,
+      "archived_messages": 3,
+      "pending_messages": 0,
+      "cancelled_executions": 3,
+      "report_sha256": "cd5ed639120a8e201cf5b858fd3ec1cafd9a216904d0d4a425fc847c3229e3ec",
+      "cleanup": {
+        "banned_accounts": 14,
+        "sessions": 0,
+        "active_master": 0,
+        "active_memberships": 0,
+        "active_contract_scopes": 0,
+        "inactive_organizations": 2
+      },
+      "limitations": [
+        "Document creation/new version positive calls use actor-specific seeded replay, not first creation.",
+        "Historical report registration returns existing own fixture; physical upload/worker not certified."
+      ],
       "v1_certified": false
     }
   }
