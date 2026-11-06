@@ -28,6 +28,8 @@ cleanup() {
       result=1
     fi
   fi
+  # Artefatos publicados ficam somente com hashes e contagens, inclusive no FAIL.
+  rm -f -- "$PROOF_DIR/row-source.txt" "$PROOF_DIR/row-destination.txt" "$PROOF_DIR/archive-toc.txt"
   if (( result == 0 && complete == 1 && started == 0 )); then
     printf 'status=PASS_LOCAL_SYNTHETIC_RESTORE\n' >> "$PROOF_DIR/result.txt"
     rm -rf -- "$TEMP_DIR"
@@ -96,9 +98,10 @@ started=0
 start_epoch="$(date +%s)"
 supabase db start
 started=1
+supabase db reset --local --no-seed
+# db reset pode recriar o container: resolver o ID somente DEPOIS do reset.
 second="$(container_id)"
 [[ "$second" != "$first" ]] || { echo '::error::Container antigo reutilizado.' >&2; exit 1; }
-supabase db reset --local --no-seed
 [[ "$(verify_base destination)" == '0' ]] || { echo '::error::Destino não está vazio.' >&2; exit 1; }
 cmp -s "$PROOF_DIR/migrations-source.txt" "$PROOF_DIR/migrations-destination.txt" || { echo '::error::Migrations divergentes.' >&2; exit 1; }
 cmp -s "$PROOF_DIR/rls-source.txt" "$PROOF_DIR/rls-destination.txt" || { echo '::error::RLS divergente.' >&2; exit 1; }
