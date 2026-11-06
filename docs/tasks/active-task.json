@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "PLAN matriz RBAC e provas reais Auth HML",
   "status": "ativa",
-  "phase": "migration_historico_68_pr_review",
+  "phase": "historico_68_migration_merged_gate_repair",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -69,7 +69,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -129,8 +129,8 @@
     "RLS ativo e migração com um registro; 13 definições de funções idênticas",
     "CI do código/escopo não substitui FAIL funcional documentado"
   ],
-  "next_step": "Revisar migração CLI e passar CI; aplicar HML somente após gate de deployment autorizado",
-  "database_change_scope": "Nenhum DDL/RLS/grants/Auth config/Storage/PROD autorizado nesta fase concluída. Fixtures pós-RLS em quarentena verificada. Próxima correção da fila histórica exige PLAN/GATE e manifesto próprio.",
+  "next_step": "Corrigir gate Zero-Drift que reprovou PR #72 (integrado apesar de CI vermelho); verificar CI deste gate, depois aplicar migração apenas HML e retestar cinco JWT positivos.",
+  "database_change_scope": "EXCLUSIVAMENTE migração versionada 20261105232056_p0_v1_historico_fila_check.sql: adicionar historico ao CHECK de execucoes_assincronas, HML somente. Sem RLS/grants/Auth/PROD. Aplicação HML condicionada a CI verde.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
