@@ -2,7 +2,7 @@
   "id": "P0-CRUD-CADASTROS-20261106",
   "title": "CRUD global: operações canônicas de organizações e contratos",
   "status": "ativa",
-  "phase": "PLAN_VALIDADO_AGUARDANDO_CI_RED_BUILD",
+  "phase": "PLAN_VALIDADO_EMENDA_PIN_DEPLOY",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -46,7 +46,8 @@
     "supabase/tests/p0_crud_cadastros_catalog_expected.json",
     "supabase/tests/history_catalog_compare.py",
     ".github/workflows/restore-isolado.yml",
-    ".github/workflows/p0-crud-cadastros-hml.yml"
+    ".github/workflows/p0-crud-cadastros-hml.yml",
+    ".github/workflows/p0-hml-migration-version-parity.yml"
   ],
   "forbidden_paths": [
     "src/**",
