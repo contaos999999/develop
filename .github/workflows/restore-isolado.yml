@@ -9,6 +9,8 @@ on:
       - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/rbac_matrix.sql'
       - '.github/workflows/restore-isolado.yml'
+      - '.github/workflows/p0-crud-cadastros-hml.yml'
+      - '.github/workflows/p0-hml-migration-version-parity.yml'
   push:
     branches: [main]
     paths:
@@ -27,6 +29,8 @@ on:
       - 'supabase/tests/v107_base_normativa.sql'
       - 'supabase/tests/v107_concurrency.sh'
       - '.github/workflows/restore-isolado.yml'
+      - '.github/workflows/p0-crud-cadastros-hml.yml'
+      - '.github/workflows/p0-hml-migration-version-parity.yml'
 
 permissions:
   contents: read
