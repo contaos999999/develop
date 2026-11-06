@@ -2,6 +2,11 @@ name: ContaOS Restore Isolado
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/tests/rbac_matrix.sql'
+      - '.github/workflows/restore-isolado.yml'
   push:
     branches: [main]
     paths:
@@ -160,6 +165,29 @@ jobs:
           export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
           bash supabase/tests/v117_reanalysis_concurrency.sh | tee restore-proof/v117-concurrency.txt
 
+      - name: Compare historical HML metadata after source recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          python3 supabase/tests/history_catalog_compare.py | tee restore-proof/history-catalog.txt
+          grep -Fq 'HISTORY_CATALOG_PASS' restore-proof/history-catalog.txt
+
+      - name: Teste 12 - Matriz RBAC V1
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/rbac_matrix.sql | tee restore-proof/rbac-matrix.txt
+          grep -Fxq 'RBAC_ISOLATED_PASS' restore-proof/rbac-matrix.txt
+
+      - name: Teste 13 - Concorrência real RBAC
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          python3 supabase/tests/rbac_concurrency.py | tee restore-proof/rbac-concurrency.txt
+          grep -Fq 'RBAC_CONCURRENCY_PASS' restore-proof/rbac-concurrency.txt
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
@@ -176,5 +204,36 @@ jobs:
         with:
           name: contaos-hml-restore-proof
           path: restore-proof/
+          if-no-files-found: warn
+          retention-days: 30
+
+  synthetic-data-restore:
+    name: prova-backup-dados-sinteticos-duas-instancias
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Instalar Supabase CLI fixada
+        uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
+        with:
+          version: 2.122.0
+      - name: Verificar CLI, shell e destino local exclusivo
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          bash -n scripts/p0-v1-synthetic-data-restore.sh
+          test -f supabase/config.toml
+      - name: Executar backup e restore local com instancias sequenciais e dados ficticios
+        shell: bash
+        run: bash scripts/p0-v1-synthetic-data-restore.sh
+      - name: Arquivar apenas provas sanitizadas, jamais o arquivo dump
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: contaos-p0-v1-synthetic-data-restore
+          path: restore-proof-synthetic/
           if-no-files-found: warn
           retention-days: 30

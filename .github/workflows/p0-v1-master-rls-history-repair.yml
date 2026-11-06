@@ -1,0 +1,79 @@
+name: P0 V1 MASTER RLS history repair (HML only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    environment: hml
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+      EXPECTED_PROJECT_REF: gklhhhyosgasnyoxlrui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate HML target and versioned migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$DATABASE_URL" ]]; then
+            echo "::error::CONTAOS_HML_DATABASE_URL indisponivel no job environment hml"
+            echo "::notice::Verifique escopo do secret: repositorio contaos999999/develop ou environment hml desse repositorio"
+            echo "::notice::Secrets de outros repositorios nao sao compartilhados. Nunca imprima a credencial."
+            exit 1
+          fi
+          echo "Secret disponivel, valor oculto"
+          test -f supabase/migrations/20261105221559_p0_v1_master_rls_defense.sql
+          python3 - <<'PY'
+          import os,sys
+          from urllib.parse import urlsplit
+          u=urlsplit(os.environ['DATABASE_URL'])
+          ref=os.environ['EXPECTED_PROJECT_REF']
+          if u.scheme not in ('postgres','postgresql') or u.username != 'postgres.'+ref or not (u.hostname or '').endswith('.pooler.supabase.com'):
+              sys.exit('::error::HML connection target mismatch; refusing repair')
+          print('HML project ref validated; no URL or credentials logged')
+          PY
+      - name: Verify RLS live state and missing migration history
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+          DO \$check\$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid='privado.administradores_master'::regclass AND relrowsecurity AND NOT relforcerowsecurity) THEN
+              RAISE EXCEPTION 'MASTER RLS live state mismatch';
+            END IF;
+            IF EXISTS (SELECT 1 FROM supabase_migrations.schema_migrations WHERE version='20261105221559') THEN
+              RAISE EXCEPTION 'Migration already recorded: refuse duplicate repair';
+            END IF;
+            IF has_table_privilege('anon','privado.administradores_master','SELECT')
+              OR has_table_privilege('authenticated','privado.administradores_master','SELECT') THEN
+              RAISE EXCEPTION 'Unexpected client SELECT grant';
+            END IF;
+          END \$check\$;"
+      - name: Repair only migration history using pinned Supabase CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes supabase@2.81.3 --version
+          npx --yes supabase@2.81.3 migration repair --help | grep -q -- '--db-url'
+          npx --yes supabase@2.81.3 migration repair --status applied 20261105221559 --db-url "$DATABASE_URL"
+      - name: Independently verify history and RLS
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "
+          DO \$verify\$
+          BEGIN
+            IF (SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='20261105221559') <> 1 THEN
+              RAISE EXCEPTION 'History repair not confirmed';
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid='privado.administradores_master'::regclass AND relrowsecurity AND NOT relforcerowsecurity) THEN
+              RAISE EXCEPTION 'MASTER RLS state changed';
+            END IF;
+          END \$verify\$;"
+          echo 'HML migration history reconciled; no migration SQL replayed'

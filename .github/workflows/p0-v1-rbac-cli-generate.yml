@@ -1,0 +1,28 @@
+name: P0 V1 RBAC CLI generation
+on:
+  pull_request:
+    paths: ['.github/workflows/p0-v1-rbac-cli-generate.yml']
+permissions:
+  contents: read
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Generate empty migration with pinned CLI, no database
+        run: |
+          set -euo pipefail
+          npx --yes supabase@2.81.3 --version
+          npx --yes supabase@2.81.3 migration new --help >/dev/null
+          npx --yes supabase@2.81.3 migration new p0_v1_rbac_persistente
+          find supabase/migrations -name '*_p0_v1_rbac_persistente.sql' -print
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p0-v1-rbac-cli-generated
+          path: supabase/migrations/*_p0_v1_rbac_persistente.sql
+          if-no-files-found: error
+          retention-days: 7

@@ -1,5 +1,7 @@
 # Inventário RBAC HML | P0 V1 | 05/11/2026
 
+> Registro histórico de 05/11/2026. Reconciliado em 06/11/2026 com main@01fa7d7a803ba8507a5ca6d89eb4ce45b2893bea, preservando integralmente docs/tasks/active-task.json da main. As contagens e o impedimento CLI abaixo descrevem aquela coleta, não o estado atual. A main já registra a implantação RBAC e provas posteriores; este merge não as substitui nem certifica V1. Nenhum DDL ou mudança de permissão.
+
 Fonte: consulta read-only ao catálogo PostgreSQL do Supabase HML `gklhhhyosgasnyoxlrui`. PR #56 integrado, CI 42116057685 SUCCESS; RED real P0001 confirmado.
 
 ## Contagem de superfície de autorização
