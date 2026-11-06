@@ -245,7 +245,8 @@
     "docs/backend/P0_V1_RBAC_NOVE_JWT_RESULTADO_2026-11-06.md",
     "docs/backend/P0_V1_RESTAURACAO_SINTETICA_PLAN_2026-11-06.md",
     "scripts/p0-v1-synthetic-data-restore.sh",
-    "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md"
+    "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md",
+    "docs/backend/P0_V1_RBAC_INVENTARIO_HML_2026-11-05.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -558,5 +559,11 @@
     },
     "scope_limit": "PASS apenas restore de uma tabela sintética com migrations locais; RPO/RTO/PITR, Storage, restore integral HML e disponibilidade NÃO VERIFICADOS",
     "prior_failure": "run42168549551: second container ID stale after db reset; fixed in 5cffdd1028; failure preserved"
+  },
+  "rbac_inventory_reconciliation": {
+    "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
+    "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
+    "previous_guard_failure": "42305029003: arquivo documental fora da allowlist",
+    "current_evidence": "Contagens históricas não substituem provas posteriores de RBAC ou certificação V1"
   }
 }
