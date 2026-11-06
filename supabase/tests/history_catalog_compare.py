@@ -11,6 +11,12 @@ actual['tables']=[x for x in actual['tables'] if not (x['schema']=='privado' and
 actual['columns']=[x for x in actual['columns'] if not (x['schema']=='privado' and x['table'].startswith('rbac_'))]
 actual['functions']=[x for x in actual['functions'] if x['name'] not in new_functions]
 actual['policies']=[x for x in actual['policies'] if not x['policyname'].startswith('rbac_v1_')]
+# HML has an opt-in DDL event trigger outside application migration history.
+# It has no application/API EXECUTE grant. Every application table's actual RLS
+# flags remain compared above. Only this exact environmental record is excluded.
+hosted_rls_helper={'schema':'public','name':'rls_auto_enable','args':'','definer':True,'config':['search_path=pg_catalog'],'auth_exec':False,'anon_exec':False}
+expected['functions']=[x for x in expected['functions'] if x!=hosted_rls_helper]
+actual['functions']=[x for x in actual['functions'] if x!=hosted_rls_helper]
 differences={}
 for section in expected:
  a={json.dumps(x,sort_keys=True,ensure_ascii=False) for x in expected[section]}
@@ -19,4 +25,4 @@ for section in expected:
 if differences:
  print(json.dumps(differences,ensure_ascii=False,indent=2))
  raise SystemExit('HISTORY_CATALOG_FAIL: metadata differs from HML baseline beyond approved RBAC objects')
-print('HISTORY_CATALOG_PASS: 120 tables,1520 columns,284 function contracts/ACLs,186 original policies preserved; RBAC deltas excluded explicitly')
+print('HISTORY_CATALOG_PASS: 120 tables,1520 columns,283 application function contracts/ACLs,186 original policies; explicit RBAC deltas and one hosted DDL-only helper excluded')
