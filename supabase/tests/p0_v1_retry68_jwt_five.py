@@ -56,17 +56,24 @@ def login():
     with ThreadPoolExecutor(max_workers=3) as pool:rows=list(pool.map(one,read('fixture.json')['users']))
     write('sessions.json',{p:t for p,t,_ in rows if t});write('auth-report.json',[r for _,_,r in rows])
     print(json.dumps({'auth':[r for _,_,r in rows]}));return 0 if all(r['pass'] for _,_,r in rows) else 1
-def case(index):
+def case(index,replay=False):
     role,label=SCENARIOS[index];c=read('fixture.json')['cases'][label];token=read('sessions.json')[role]
     payload={'p_id_relatorio':c['report'],'p_id_versao_documento':c['version']}
-    first,x=request('/rest/v1/rpc/enfileirar_ingestao_historica_hml',token,payload)
-    replay,y=request('/rest/v1/rpc/enfileirar_ingestao_historica_hml',token,payload)
-    try:valid=str(uuid.UUID(x))==x
-    except (ValueError,TypeError,AttributeError):valid=False
-    result={'index':index,'profile':role,'case':label,'http_first':first,'http_replay':replay,'uuid_valid':valid,'same_execution':valid and x==y,'pass_http':first==200 and replay==200 and valid and x==y,'execution':x if valid else None}
-    if not result['pass_http']:result['pgcode']=x.get('code') if isinstance(x,dict) else None
-    data=read('results.json') if (ROOT/'results.json').exists() else [];data.append(result);write('results.json',data)
-    print(json.dumps({k:v for k,v in result.items() if k!='execution'}));return 0 if result['pass_http'] else 1
+    data=read('results.json') if (ROOT/'results.json').exists() else []
+    status,value=request('/rest/v1/rpc/enfileirar_ingestao_historica_hml',token,payload)
+    if replay:
+        result=next(x for x in data if x['index']==index)
+        result.update({'http_replay':status,'same_execution':result['uuid_valid'] and result['execution']==value})
+        result['pass_http']=result['http_first']==200 and status==200 and result['same_execution']
+        ok=result['pass_http']
+    else:
+        try:valid=str(uuid.UUID(value))==value
+        except (ValueError,TypeError,AttributeError):valid=False
+        result={'index':index,'profile':role,'case':label,'http_first':status,'uuid_valid':valid,'execution':value if valid else None,'pass_first':status==200 and valid}
+        if not result['pass_first']:result['pgcode']=value.get('code') if isinstance(value,dict) else None
+        data.append(result);ok=result['pass_first']
+    write('results.json',data)
+    print(json.dumps({k:v for k,v in result.items() if k!='execution'}));return 0 if ok else 1
 def logout():
     def one(item):
         role,token=item;status,_=request('/auth/v1/logout?scope=global',token,{})
@@ -78,5 +85,6 @@ if __name__=='__main__':
     if mode=='prepare':prepare()
     elif mode=='login':sys.exit(login())
     elif mode=='case':sys.exit(case(int(sys.argv[2])))
+    elif mode=='replay':sys.exit(case(int(sys.argv[2]),True))
     elif mode=='logout':sys.exit(logout())
     else:raise SystemExit('Unsupported phase')
