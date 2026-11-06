@@ -73,6 +73,8 @@ def prepare():
     for profile in ['master', 'administrador', 'leitor', 'sem_vinculo']:
         f['users'].append({'id': uid(), 'profile': profile, 'email': 'p0crud-' + uid() + '@example.invalid', 'password': secrets.token_urlsafe(40) + 'Aa1!'})
     save('fixture.json', f)
+    report['fixture_ids'] = {'users': [u['id'] for u in f['users']], 'organizations': [f['org_a'], f['org_b']], 'contracts': [f['contract_a'], f['contract_b']]}
+    save('report.json', report)
     statements = ['begin;']
     for u in f['users']:
         encrypted = crypt.crypt(u['password'], crypt.mksalt(crypt.METHOD_BLOWFISH))
