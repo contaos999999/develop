@@ -253,19 +253,33 @@
         "prestacao_contas",
         "rh_dp"
       ],
-      "processar": [
+      "criar": [
         "administrador",
         "gestor_contrato",
         "prestacao_contas",
         "auditor",
         "juridico_conformidade"
       ],
-      "editar": [
+      "processar": [
         "administrador",
         "gestor_contrato",
         "prestacao_contas",
+        "financeiro",
+        "contabilidade",
+        "rh_dp",
+        "juridico_conformidade",
+        "auditor"
+      ],
+      "editar": [
+        "administrador",
         "auditor",
-        "juridico_conformidade"
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "prestacao_contas",
+        "rh_dp"
       ]
     },
     "pareceres": {
@@ -283,10 +297,14 @@
       ],
       "criar": [
         "administrador",
-        "gestor_contrato",
-        "prestacao_contas",
         "auditor",
-        "juridico_conformidade"
+        "contabilidade",
+        "direcao_aprovador",
+        "financeiro",
+        "gestor_contrato",
+        "juridico_conformidade",
+        "prestacao_contas",
+        "rh_dp"
       ],
       "aprovar": [
         "administrador",
@@ -316,7 +334,8 @@
       "apresentar": [
         "administrador",
         "gestor_contrato",
-        "prestacao_contas"
+        "prestacao_contas",
+        "direcao_aprovador"
       ]
     },
     "historico": {
@@ -369,7 +388,6 @@
         "financeiro",
         "gestor_contrato",
         "juridico_conformidade",
-        "leitor",
         "prestacao_contas",
         "rh_dp"
       ],
@@ -380,7 +398,9 @@
         "financeiro",
         "contabilidade",
         "rh_dp",
-        "juridico_conformidade"
+        "juridico_conformidade",
+        "auditor",
+        "direcao_aprovador"
       ]
     },
     "dashboard": {
