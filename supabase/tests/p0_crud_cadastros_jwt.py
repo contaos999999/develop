@@ -223,5 +223,5 @@ finally:
     for name in ['tokens.json'] + (['fixture.json'] if cleaned else []):
         (ROOT / name).unlink(missing_ok=True)
 failed = sum(not x['pass'] for x in report['assertions'])
-print(json.dumps({'assertions': len(report['assertions']), 'failed': failed, 'real_auth': True, 'report_sha256': hashlib.sha256((ROOT / 'report.json').read_bytes()).hexdigest()}))
+print(json.dumps({'failures': [x for x in report['assertions'] if not x['pass']], 'quarantine': report.get('quarantine'), 'failure_class': report.get('failure_class'), 'assertions': len(report['assertions']), 'failed': failed, 'real_auth': True, 'report_sha256': hashlib.sha256((ROOT / 'report.json').read_bytes()).hexdigest()}))
 sys.exit(1 if failed else 0)
