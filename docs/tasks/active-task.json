@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "rbac_deploy_pass_edge_jwt_gate",
+  "phase": "rbac_jwt_matrix_edge_cleanup_pass_nine_rpc_pending",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -307,7 +307,7 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Aprovar CI deste código/escopo; implantar somente Edge upload comverify_jwt=true; criar14fixtures próprias e executarJWT real,concorrência,revogação,RLS,isolamentoA/B ecleanup. Depois frontend/RBACeSYS03/WCAG/RNFs/rastreabilidade,semcertificarV1.",
+  "next_step": "Regressão JWT das nove RPCs após RBAC, integração frontend da matriz/navegação, SYS03, WCAG/Teste C, RNFs e critérios originais. Não reutilizar fixtures bloqueadas.",
   "database_change_scope": "Sem nova DDL/RLS/migration/history. Auth somente14 contas sintéticas novas P0-RBAC-BUILD;2 organizações e3 contratos próprios; nenhum usuário real. Matriz: alterar temporariamente só leitor/contratos/consultar, apenas se não houver vínculo leitor ativo externo às fixtures, restaurar valor original por RPC antes de logout. Quarentena final exata e auditoria preservada. Edge permitida exclusivamente storage-sign-upload, verify_jwt=true, fonte GitHub aprovada.",
   "evidence": {
     "test_pr": 52,
@@ -327,7 +327,7 @@
       "inactive_synthetic_organizations": 2,
       "unauthorized_inserts": 0
     },
-    "rbac_matrix_implemented": false,
+    "rbac_matrix_implemented": true,
     "v1_certified": false,
     "prod_untouched": true,
     "rbac_build_gate": "docs/backend/P0_V1_RBAC_BUILD_GATE_2026-11-05.md",
@@ -466,6 +466,26 @@
       "merge": "eb3e2a54804aa6f4406337644bcbe0d8770e0d20",
       "restore_run": 42149472852,
       "global_parity": "126/126 verified by CLI workflow42149828772; no repair/no legacy DDL replay"
+    },
+    "rbac_jwt_current": {
+      "attempts": 152,
+      "passed_attempts": 149,
+      "historical_failures_fixed": 3,
+      "latest_distinct_passed": 147,
+      "edge_version": 6,
+      "edge_fix_pr": 82,
+      "edge_fix_ci": 42153421502,
+      "matrix_restored": true,
+      "cleanup": {
+        "banned_accounts": 14,
+        "sessions": 0,
+        "active_master": 0,
+        "active_memberships": 0,
+        "active_contract_scopes": 0,
+        "inactive_organizations": 2
+      },
+      "nine_rpc_regression": "PENDENTE",
+      "v1_certified": false
     }
   }
 }
