@@ -74,6 +74,8 @@ begin
  v_comando:='crud-cadastro-v1:'||p_entidade||':'||p_acao;
  hash:=encode(extensions.digest(jsonb_build_object('ator',auth.uid(),'org',p_id_organizacao,'id',p_id,'versao',p_versao_esperada,'acao',p_acao,'alteracoes',p_alteracoes,'motivo',p_motivo)::text,'sha256'),'hex');
  perform pg_advisory_xact_lock(hashtextextended(p_id_organizacao::text||v_comando||p_request_id::text,0));
+ contexto:=privado.crud_cadastro_consultar_v1(p_id_organizacao,p_entidade,p_id);
+ if not (contexto->>'pode_editar')::boolean then raise exception using errcode='42501',message='A permissão de administração foi revogada.'; end if;
  select * into existente from public.comandos_idempotentes where id_organizacao=p_id_organizacao and comandos_idempotentes.comando=v_comando and chave=p_request_id::text;
  if found then
   if existente.hash_payload is distinct from hash or existente.status<>'concluido' then raise exception using errcode='PT409',message='Identificador já utilizado para outra operação.'; end if;

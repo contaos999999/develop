@@ -10,6 +10,7 @@ import sys
 import uuid
 import urllib.error
 import urllib.request
+import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 
 URL = 'https://gklhhhyosgasnyoxlrui.supabase.co'
@@ -18,7 +19,8 @@ ROOT.mkdir(parents=True, exist_ok=True)
 os.chmod(ROOT, 0o700)
 KEY = 'sb_publishable_sHKZ-UiYCbkEFMqR1QbHMA_iCSLL8Am'
 DB = os.environ['DATABASE_URL']
-assert 'postgres.gklhhhyosgasnyoxlrui@' in DB and '.pooler.supabase.com:' in DB, 'HML only'
+db_parts = urllib.parse.urlsplit(DB)
+assert db_parts.username == 'postgres.gklhhhyosgasnyoxlrui' and db_parts.hostname.endswith('.pooler.supabase.com'), 'HML only'
 assert str(ROOT).startswith(os.environ['RUNNER_TEMP'] + '/'), 'Private runner temporary path required'
 report = {'mode': 'REAL_AUTH_CRUD_CADASTROS', 'assertions': []}
 uid = lambda: str(uuid.uuid4())
@@ -128,7 +130,7 @@ def run(f):
     for token, label in [(None, 'anon'), ('invalid.token.signature', 'invalid JWT')]:
         status, data = get(token=token)
         check(label + ': denied', status in [401, 403], status, data)
-    status, data = request('/rest/v1/contratos?id=eq.' + f['contract_a'], admin, {'objeto': 'Bypass'}, 'PATCH')
+    status, data = request('/rest/v1/contratos?id=eq.' + f['contract_a'], admin, {'objeto': 'Bypass', 'versao_registro': 2}, 'PATCH')
     check('direct UPDATE cannot bypass history', status == 403 and data.get('code') == '42501', status, data)
     for patch in [{'id_organizacao': f['org_b']}, {'versao_registro': 999}, {'valor_global': -1}, {'inicio': 'invalid'}, {'fim': '2020-01-01'}]:
         status, data = rpc('atualizar_contrato_v1', edit_payload(1, patch), admin)
@@ -191,9 +193,18 @@ def quarantine(f):
     check('quarantine verified', counts == {'sessions': 0, 'memberships': 0, 'master': 0, 'banned': 4, 'inactive_orgs': 2})
 
 f = None
+cleaned = False
 try:
-    f = prepare()
-    run(f)
+    if '--cleanup' in sys.argv:
+        if (ROOT / 'report.json').exists():
+            report = json.loads((ROOT / 'report.json').read_text())
+        if (ROOT / 'fixture.json').exists():
+            f = json.loads((ROOT / 'fixture.json').read_text())
+    else:
+        f = prepare()
+        report['fixture_ids'] = {'users': [u['id'] for u in f['users']], 'organizations': [f['org_a'], f['org_b']], 'contracts': [f['contract_a'], f['contract_b']]}
+        save('report.json', report)
+        run(f)
 except Exception as error:
     check('execution completed', False)
     report['failure_class'] = type(error).__name__
@@ -203,10 +214,11 @@ finally:
     if f:
         try:
             quarantine(f)
+            cleaned = report.get('quarantine') == {'sessions': 0, 'memberships': 0, 'master': 0, 'banned': 4, 'inactive_orgs': 2}
         except Exception:
             check('quarantine verified', False)
     save('report.json', report)
-    for name in ['tokens.json', 'fixture.json']:
+    for name in ['tokens.json'] + (['fixture.json'] if cleaned else []):
         (ROOT / name).unlink(missing_ok=True)
 failed = sum(not x['pass'] for x in report['assertions'])
 print(json.dumps({'assertions': len(report['assertions']), 'failed': failed, 'real_auth': True, 'report_sha256': hashlib.sha256((ROOT / 'report.json').read_bytes()).hexdigest()}))

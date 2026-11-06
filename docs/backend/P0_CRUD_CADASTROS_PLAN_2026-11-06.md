@@ -56,3 +56,6 @@ Rollback por migration corretiva/revogação dos novos pontos de entrada e resta
 
 ## ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
 impacto_visual N/A: tarefa backend; nenhum asset/tema/tipo/rota frontend. GitHub e Supabase diretos; sem BUILD Lovable. TDD, CI, restauração, segurança, fonte, auditoria e Teste C posteriores não dispensados. Não certificar V1/CRUD global por este plano. Economia nunca substitui evidência.
+
+## Emenda de segurança do deploy (06/11/2026)
+Revisão independente detectou corrida entre gate TESTED_HEAD e workflow_dispatch --ref main. Acrescentar exclusivamente .github/workflows/p0-hml-migration-version-parity.yml à allowlist para receber expected_source_sha e expected_migration_sha256 no deploy_one, checkout do SHA exato e validação de hash antes de qualquer db push. Orquestrador passa ambos valores. Operação repair_68 preservada. Remover gatilho push histórico RBAC para não provocar deploy antigo inadvertido pela emenda. PLAN desta extensão precede BUILD. O touch dedicado também nega UPDATE authenticated direto, mantendo as duas triggers e nove funções previstas.

@@ -44,7 +44,7 @@ select pg_temp.expect_error($q$select public.atualizar_organizacao_v1('baca0000-
 select pg_temp.expect_error($q$select public.atualizar_organizacao_v1('baca0000-aaaa-4000-8000-000000000001',1,'{"nome_fantasia":"Stale"}','Teste concorrente','baca0000-4000-4000-8000-000000000002')$q$,'PT409');
 select pg_temp.expect_error($q$select public.atualizar_organizacao_v1('baca0000-aaaa-4000-8000-000000000001',2,'{"id":"baca0000-bbbb-4000-8000-000000000001"}','Campo protegido','baca0000-4000-4000-8000-000000000003')$q$,'PT422');
 select pg_temp.expect_error($q$select public.alterar_situacao_organizacao_v1('baca0000-aaaa-4000-8000-000000000001',2,'suspensa','Admin não pode suspender','baca0000-4000-4000-8000-000000000004')$q$,'PT422');
-select pg_temp.expect_error($q$update public.contratos set objeto='Bypass' where id='baca0000-2000-4000-8000-000000000001'$q$,'42501');
+select pg_temp.expect_error($q$update public.contratos set objeto='Bypass',versao_registro=2 where id='baca0000-2000-4000-8000-000000000001'$q$,'42501');
 select pg_temp.actor(8);
 select pg_temp.assert_true(not (public.obter_cadastro_operacional_v1('baca0000-aaaa-4000-8000-000000000001','contratos','baca0000-2000-4000-8000-000000000001')->>'pode_editar')::boolean,'reader capabilities');
 select pg_temp.expect_error($q$select public.atualizar_contrato_v1('baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001',1,'{"objeto":"Denied"}','Leitor não edita','baca0000-4000-4000-8000-000000000005')$q$,'42501');

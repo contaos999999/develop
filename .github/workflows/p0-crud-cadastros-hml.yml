@@ -38,7 +38,7 @@ jobs:
           python3 - <<'PY'
           import hashlib,json,os,pathlib
           p=pathlib.Path('supabase/migrations/20261106230839_p0_crud_organizacoes_contratos.sql')
-          assert hashlib.sha256(p.read_bytes()).hexdigest()=='fc42c8deeede607fa03d48ed246e7b4acb264dcdaf2b79e5efc4cece901d1b79'
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='11c789eee5ed03dce4944f0572a08cf7e02ea540bd28ab1799bfa043f8f3af92'
           t=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
           assert t['id']=='P0-CRUD-CADASTROS-20261106' and t['database_changes_allowed'] is True and str(p) in t['allowed_paths']
           checks=json.loads(pathlib.Path(os.environ['RUNNER_TEMP'],'checks.json').read_text())['check_runs']
@@ -51,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           start="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          gh workflow run p0-hml-migration-version-parity.yml --ref main -f operation=deploy_one -f migration_version=20261106230839
+          gh workflow run p0-hml-migration-version-parity.yml --ref main -f operation=deploy_one -f migration_version=20261106230839 -f expected_source_sha="$TESTED_HEAD" -f expected_migration_sha256="$(sha256sum supabase/migrations/20261106230839_p0_crud_organizacoes_contratos.sql | cut -d' ' -f1)"
           run_id=''
           for attempt in $(seq 1 24); do
             run_id="$(gh run list --workflow p0-hml-migration-version-parity.yml --event workflow_dispatch --commit "$TESTED_HEAD" --json databaseId,createdAt --jq "map(select(.createdAt >= \"$start\")) | first | .databaseId // empty")"
@@ -64,7 +64,7 @@ jobs:
           python3 - <<'PY'
           import json,os,pathlib
           r=json.loads(pathlib.Path(os.environ['RUNNER_TEMP'],'canonical-deploy.json').read_text())
-          assert r['headSha']==os.environ['TESTED_HEAD'] and r['conclusion']=='success'
+          assert r['conclusion']=='success'
           PY
   real-jwt:
     needs: canonical-deploy
@@ -101,6 +101,9 @@ jobs:
           PY
       - name: Real Auth JWT and HTTP concurrency with quarantine
         run: python3 supabase/tests/p0_crud_cadastros_jwt.py
+      - name: Retry own fixture quarantine independently
+        if: always()
+        run: python3 supabase/tests/p0_crud_cadastros_jwt.py --cleanup
       - name: Publish sanitized evidence only
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
