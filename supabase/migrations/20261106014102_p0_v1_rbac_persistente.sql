@@ -486,28 +486,39 @@ insert into privado.rbac_permissoes_perfis values('juridico_conformidade','anali
 insert into privado.rbac_permissoes_perfis values('leitor','analises','consultar',true);
 insert into privado.rbac_permissoes_perfis values('prestacao_contas','analises','consultar',true);
 insert into privado.rbac_permissoes_perfis values('rh_dp','analises','consultar',true);
+insert into privado.rbac_catalogo_acoes values('analises','criar');
+insert into privado.rbac_permissoes_perfis values('administrador','analises','criar',true);
+insert into privado.rbac_permissoes_perfis values('auditor','analises','criar',true);
+insert into privado.rbac_permissoes_perfis values('contabilidade','analises','criar',false);
+insert into privado.rbac_permissoes_perfis values('direcao_aprovador','analises','criar',false);
+insert into privado.rbac_permissoes_perfis values('financeiro','analises','criar',false);
+insert into privado.rbac_permissoes_perfis values('gestor_contrato','analises','criar',true);
+insert into privado.rbac_permissoes_perfis values('juridico_conformidade','analises','criar',true);
+insert into privado.rbac_permissoes_perfis values('leitor','analises','criar',false);
+insert into privado.rbac_permissoes_perfis values('prestacao_contas','analises','criar',true);
+insert into privado.rbac_permissoes_perfis values('rh_dp','analises','criar',false);
 insert into privado.rbac_catalogo_acoes values('analises','processar');
 insert into privado.rbac_permissoes_perfis values('administrador','analises','processar',true);
 insert into privado.rbac_permissoes_perfis values('auditor','analises','processar',true);
-insert into privado.rbac_permissoes_perfis values('contabilidade','analises','processar',false);
+insert into privado.rbac_permissoes_perfis values('contabilidade','analises','processar',true);
 insert into privado.rbac_permissoes_perfis values('direcao_aprovador','analises','processar',false);
-insert into privado.rbac_permissoes_perfis values('financeiro','analises','processar',false);
+insert into privado.rbac_permissoes_perfis values('financeiro','analises','processar',true);
 insert into privado.rbac_permissoes_perfis values('gestor_contrato','analises','processar',true);
 insert into privado.rbac_permissoes_perfis values('juridico_conformidade','analises','processar',true);
 insert into privado.rbac_permissoes_perfis values('leitor','analises','processar',false);
 insert into privado.rbac_permissoes_perfis values('prestacao_contas','analises','processar',true);
-insert into privado.rbac_permissoes_perfis values('rh_dp','analises','processar',false);
+insert into privado.rbac_permissoes_perfis values('rh_dp','analises','processar',true);
 insert into privado.rbac_catalogo_acoes values('analises','editar');
 insert into privado.rbac_permissoes_perfis values('administrador','analises','editar',true);
 insert into privado.rbac_permissoes_perfis values('auditor','analises','editar',true);
-insert into privado.rbac_permissoes_perfis values('contabilidade','analises','editar',false);
-insert into privado.rbac_permissoes_perfis values('direcao_aprovador','analises','editar',false);
-insert into privado.rbac_permissoes_perfis values('financeiro','analises','editar',false);
+insert into privado.rbac_permissoes_perfis values('contabilidade','analises','editar',true);
+insert into privado.rbac_permissoes_perfis values('direcao_aprovador','analises','editar',true);
+insert into privado.rbac_permissoes_perfis values('financeiro','analises','editar',true);
 insert into privado.rbac_permissoes_perfis values('gestor_contrato','analises','editar',true);
 insert into privado.rbac_permissoes_perfis values('juridico_conformidade','analises','editar',true);
 insert into privado.rbac_permissoes_perfis values('leitor','analises','editar',false);
 insert into privado.rbac_permissoes_perfis values('prestacao_contas','analises','editar',true);
-insert into privado.rbac_permissoes_perfis values('rh_dp','analises','editar',false);
+insert into privado.rbac_permissoes_perfis values('rh_dp','analises','editar',true);
 insert into privado.rbac_catalogo_acoes values('pareceres','consultar');
 insert into privado.rbac_permissoes_perfis values('administrador','pareceres','consultar',true);
 insert into privado.rbac_permissoes_perfis values('auditor','pareceres','consultar',true);
@@ -522,14 +533,14 @@ insert into privado.rbac_permissoes_perfis values('rh_dp','pareceres','consultar
 insert into privado.rbac_catalogo_acoes values('pareceres','criar');
 insert into privado.rbac_permissoes_perfis values('administrador','pareceres','criar',true);
 insert into privado.rbac_permissoes_perfis values('auditor','pareceres','criar',true);
-insert into privado.rbac_permissoes_perfis values('contabilidade','pareceres','criar',false);
-insert into privado.rbac_permissoes_perfis values('direcao_aprovador','pareceres','criar',false);
-insert into privado.rbac_permissoes_perfis values('financeiro','pareceres','criar',false);
+insert into privado.rbac_permissoes_perfis values('contabilidade','pareceres','criar',true);
+insert into privado.rbac_permissoes_perfis values('direcao_aprovador','pareceres','criar',true);
+insert into privado.rbac_permissoes_perfis values('financeiro','pareceres','criar',true);
 insert into privado.rbac_permissoes_perfis values('gestor_contrato','pareceres','criar',true);
 insert into privado.rbac_permissoes_perfis values('juridico_conformidade','pareceres','criar',true);
 insert into privado.rbac_permissoes_perfis values('leitor','pareceres','criar',false);
 insert into privado.rbac_permissoes_perfis values('prestacao_contas','pareceres','criar',true);
-insert into privado.rbac_permissoes_perfis values('rh_dp','pareceres','criar',false);
+insert into privado.rbac_permissoes_perfis values('rh_dp','pareceres','criar',true);
 insert into privado.rbac_catalogo_acoes values('pareceres','aprovar');
 insert into privado.rbac_permissoes_perfis values('administrador','pareceres','aprovar',true);
 insert into privado.rbac_permissoes_perfis values('auditor','pareceres','aprovar',false);
@@ -567,7 +578,7 @@ insert into privado.rbac_catalogo_acoes values('apresentacoes','apresentar');
 insert into privado.rbac_permissoes_perfis values('administrador','apresentacoes','apresentar',true);
 insert into privado.rbac_permissoes_perfis values('auditor','apresentacoes','apresentar',false);
 insert into privado.rbac_permissoes_perfis values('contabilidade','apresentacoes','apresentar',false);
-insert into privado.rbac_permissoes_perfis values('direcao_aprovador','apresentacoes','apresentar',false);
+insert into privado.rbac_permissoes_perfis values('direcao_aprovador','apresentacoes','apresentar',true);
 insert into privado.rbac_permissoes_perfis values('financeiro','apresentacoes','apresentar',false);
 insert into privado.rbac_permissoes_perfis values('gestor_contrato','apresentacoes','apresentar',true);
 insert into privado.rbac_permissoes_perfis values('juridico_conformidade','apresentacoes','apresentar',false);
@@ -637,14 +648,14 @@ insert into privado.rbac_permissoes_perfis values('direcao_aprovador','arquivos'
 insert into privado.rbac_permissoes_perfis values('financeiro','arquivos','criar',true);
 insert into privado.rbac_permissoes_perfis values('gestor_contrato','arquivos','criar',true);
 insert into privado.rbac_permissoes_perfis values('juridico_conformidade','arquivos','criar',true);
-insert into privado.rbac_permissoes_perfis values('leitor','arquivos','criar',true);
+insert into privado.rbac_permissoes_perfis values('leitor','arquivos','criar',false);
 insert into privado.rbac_permissoes_perfis values('prestacao_contas','arquivos','criar',true);
 insert into privado.rbac_permissoes_perfis values('rh_dp','arquivos','criar',true);
 insert into privado.rbac_catalogo_acoes values('arquivos','editar');
 insert into privado.rbac_permissoes_perfis values('administrador','arquivos','editar',true);
-insert into privado.rbac_permissoes_perfis values('auditor','arquivos','editar',false);
+insert into privado.rbac_permissoes_perfis values('auditor','arquivos','editar',true);
 insert into privado.rbac_permissoes_perfis values('contabilidade','arquivos','editar',true);
-insert into privado.rbac_permissoes_perfis values('direcao_aprovador','arquivos','editar',false);
+insert into privado.rbac_permissoes_perfis values('direcao_aprovador','arquivos','editar',true);
 insert into privado.rbac_permissoes_perfis values('financeiro','arquivos','editar',true);
 insert into privado.rbac_permissoes_perfis values('gestor_contrato','arquivos','editar',true);
 insert into privado.rbac_permissoes_perfis values('juridico_conformidade','arquivos','editar',true);
@@ -663,14 +674,14 @@ insert into privado.rbac_permissoes_perfis values('leitor','dashboard','consulta
 insert into privado.rbac_permissoes_perfis values('prestacao_contas','dashboard','consultar',true);
 insert into privado.rbac_permissoes_perfis values('rh_dp','dashboard','consultar',true);
 create policy rbac_v1_select on public.organizacoes as restrictive for SELECT to authenticated using (privado.rbac_permite(id,'organizacoes','consultar',null::uuid));
-create policy rbac_v1_insert on public.recursos_organizacao as restrictive for INSERT to authenticated with check (privado.rbac_permite(id_organizacao,'organizacoes','criar',null::uuid));
+create policy rbac_v1_insert on public.recursos_organizacao as restrictive for INSERT to authenticated with check (privado.rbac_permite(id_organizacao,'organizacoes','administrar',null::uuid));
 create policy rbac_v1_select on public.recursos_organizacao as restrictive for SELECT to authenticated using (privado.rbac_permite(id_organizacao,'organizacoes','consultar',null::uuid));
-create policy rbac_v1_update on public.recursos_organizacao as restrictive for UPDATE to authenticated using (privado.rbac_permite(id_organizacao,'organizacoes','editar',null::uuid)) with check (privado.rbac_permite(id_organizacao,'organizacoes','editar',null::uuid));
-create policy rbac_v1_select on public.eventos_auditoria as restrictive for SELECT to authenticated using (privado.rbac_permite(id_organizacao,'auditoria','consultar',null::uuid));
+create policy rbac_v1_update on public.recursos_organizacao as restrictive for UPDATE to authenticated using (privado.rbac_permite(id_organizacao,'organizacoes','administrar',null::uuid)) with check (privado.rbac_permite(id_organizacao,'organizacoes','administrar',null::uuid));
+create policy rbac_v1_select on public.eventos_auditoria as restrictive for SELECT to authenticated using (((id_organizacao is null and privado.usuario_e_administrador_master()) or (privado.rbac_permite(id_organizacao,'auditoria','consultar',null::uuid))));
 create policy rbac_v1_insert on public.contratantes as restrictive for INSERT to authenticated with check (privado.rbac_permite(id_organizacao,'contratantes','criar',null::uuid));
 create policy rbac_v1_select on public.contratantes as restrictive for SELECT to authenticated using (privado.rbac_permite(id_organizacao,'contratantes','consultar',null::uuid));
 create policy rbac_v1_update on public.contratantes as restrictive for UPDATE to authenticated using (privado.rbac_permite(id_organizacao,'contratantes','editar',null::uuid)) with check (privado.rbac_permite(id_organizacao,'contratantes','editar',null::uuid));
-create policy rbac_v1_insert on public.contratos as restrictive for INSERT to authenticated with check (privado.rbac_permite(id_organizacao,'contratos','criar',id));
+create policy rbac_v1_insert on public.contratos as restrictive for INSERT to authenticated with check (privado.rbac_permite(id_organizacao,'contratos','criar',null::uuid));
 create policy rbac_v1_select on public.contratos as restrictive for SELECT to authenticated using (privado.rbac_permite(id_organizacao,'contratos','consultar',id));
 create policy rbac_v1_update on public.contratos as restrictive for UPDATE to authenticated using (privado.rbac_permite(id_organizacao,'contratos','editar',id)) with check (privado.rbac_permite(id_organizacao,'contratos','editar',id));
 create policy rbac_v1_insert on public.versoes_contrato as restrictive for INSERT to authenticated with check (privado.rbac_permite(id_organizacao,'contratos','criar',id_contrato));
@@ -1518,7 +1529,7 @@ CREATE OR REPLACE FUNCTION privado.salvar_fonte_normativa_v107(p_id_organizacao 
 AS $function$
 declare v public.fontes_normativas%rowtype; v_antes jsonb; v_cmd jsonb; v_contexto jsonb;
 begin
-  perform privado.exigir_permissao_rbac(p_id_organizacao,'normativos','editar',null::uuid);
+  perform privado.exigir_permissao_rbac(p_id_organizacao,'normativos',case when p_id_fonte is null then 'criar' else 'editar' end,null::uuid);
 
   perform privado.v107_autorizar(p_id_organizacao,p_id_contrato,false);
   if nullif(btrim(p_tipo),'') is null or nullif(btrim(p_titulo),'') is null or p_situacao is null or p_situacao not in('rascunho','ativa','inativa','revogada') then
@@ -1669,7 +1680,7 @@ CREATE OR REPLACE FUNCTION privado.salvar_proposta_orcamentaria_v108(p_id_organi
 AS $function$
 declare v public.propostas_orcamentarias%rowtype; v_antes jsonb; v_cmd jsonb;
 begin
-  perform privado.exigir_permissao_rbac(p_id_organizacao,'orcamentos','editar',null::uuid);
+  perform privado.exigir_permissao_rbac(p_id_organizacao,'orcamentos',case when p_id_proposta is null then 'criar' else 'editar' end,null::uuid);
 
   perform privado.v108_autorizar(p_id_organizacao,p_id_contrato);
   if nullif(btrim(p_titulo),'') is null then raise exception using errcode='PT400',message='Informe o nome da proposta orçamentária.'; end if;
@@ -1733,7 +1744,7 @@ CREATE OR REPLACE FUNCTION privado.salvar_linha_orcamentaria_v108(p_id_organizac
 AS $function$
 declare v public.versoes_proposta%rowtype; l public.linhas_orcamentarias%rowtype; v_antes jsonb; v_cmd jsonb; v_codigo text; v_descricao text; v_limite numeric; v_total numeric;
 begin
-  perform privado.exigir_permissao_rbac(p_id_organizacao,'orcamentos','editar',null::uuid);
+  perform privado.exigir_permissao_rbac(p_id_organizacao,'orcamentos',case when p_id_linha is null then 'criar' else 'editar' end,null::uuid);
 
   select * into v from public.versoes_proposta where id=p_id_versao_proposta and id_organizacao=p_id_organizacao;
   if v.id is null then raise exception using errcode='PT404',message='Versão da proposta orçamentária não encontrada.'; end if;
@@ -2898,7 +2909,7 @@ declare
   v_exec uuid;
   v_written uuid;
 begin
-  perform privado.exigir_permissao_rbac((select id_organizacao from public.competencias where id=p_id_competencia),'analises','processar',(select id_contrato from public.competencias where id=p_id_competencia));
+  if not privado.rbac_permite((select id_organizacao from public.competencias where id=p_id_competencia),'analises','processar',(select id_contrato from public.competencias where id=p_id_competencia)) then raise sqlstate '42501' using message='Você não possui autorização para solicitar reanálise.'; end if;
 
   if auth.uid() is null then
     raise exception using errcode='42501',message='Você não possui autorização para solicitar reanálise.';
