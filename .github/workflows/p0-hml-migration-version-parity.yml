@@ -23,6 +23,7 @@ on:
 permissions:
   contents: read
   actions: read
+  checks: read
 concurrency:
   group: contaos-hml-migration-version-parity
   cancel-in-progress: false
