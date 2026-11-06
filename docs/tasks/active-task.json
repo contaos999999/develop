@@ -2,7 +2,7 @@
   "id": "P0-V1-RBAC-ORGANIZACOES-20261105",
   "title": "P0 V1: execução do plano único de fechamento",
   "status": "ativa",
-  "phase": "rbac_deploy_bloqueado_recuperacao_historico_fonte",
+  "phase": "rbac_deploy_pass_edge_jwt_gate",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -234,19 +234,23 @@
     "supabase/applied-history/contaos-hml-full-history.sql",
     "scripts/sql-security-guard.mjs",
     ".github/workflows/zero-drift.yml",
-    "docs/backend/P0_HML_RECUPERACAO_FONTES_HISTORICAS_2026-11-06.md"
+    "docs/backend/P0_HML_RECUPERACAO_FONTES_HISTORICAS_2026-11-06.md",
+    "supabase/functions/storage-sign-upload/index.ts",
+    "supabase/tests/storage_upload_rbac.test.mjs",
+    "supabase/tests/rbac_jwt_probe.py",
+    "docs/backend/P0_V1_RBAC_JWT_EDGE_GATE_2026-11-06.md",
+    "docs/backend/P0_V1_RBAC_JWT_EDGE_RESULTADO_2026-11-06.md"
   ],
   "forbidden_paths": [
-    "supabase/functions/**",
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
-  "rls_changes_allowed": true,
-  "edge_function_changes_allowed": false,
-  "auth_changes_allowed": false,
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
+  "edge_function_changes_allowed": true,
+  "auth_changes_allowed": true,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
@@ -303,8 +307,8 @@
     "Migração HML/GitHub 20261105232056; nenhum identificador divergente",
     "Quarentena/arquivamento auditável concluídos; worker/upload não certificados"
   ],
-  "next_step": "Concluir CI/restore/comparação do PR de recuperação e integrar; a alteração documental do workflow canônico dispara nova execução push com os125 históricos recuperados e somenteRBACpendente. Não rerodar o checkout antigo.",
-  "database_change_scope": "Recuperação documental de125 migrations reais e arquivo de49 aliases com hashes, somente caminhos exatos. Sem mutation de histórico/DDL HML neste PR. RBAC única migration nova autorizada após gates e paridade.",
+  "next_step": "Aprovar CI deste código/escopo; implantar somente Edge upload comverify_jwt=true; criar14fixtures próprias e executarJWT real,concorrência,revogação,RLS,isolamentoA/B ecleanup. Depois frontend/RBACeSYS03/WCAG/RNFs/rastreabilidade,semcertificarV1.",
+  "database_change_scope": "Sem nova DDL/RLS/migration/history. Auth somente14 contas sintéticas novas P0-RBAC-BUILD;2 organizações e3 contratos próprios; nenhum usuário real. Matriz: alterar temporariamente só leitor/contratos/consultar, apenas se não houver vínculo leitor ativo externo às fixtures, restaurar valor original por RPC antes de logout. Quarentena final exata e auditoria preservada. Edge permitida exclusivamente storage-sign-upload, verify_jwt=true, fonte GitHub aprovada.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -419,12 +423,23 @@
       "resources": 17,
       "tables": 40,
       "guarded_functions": 43,
-      "deployed": false,
+      "deployed": true,
       "approved_head": "9aa4bd837453d9e74e36adc66db9c75a09e25955",
       "merge": "3c118ed4385a5828af58e3134f2fd785f5140950",
       "restore_run": 42147037054,
       "restore_result": "SUCCESS; RBAC_ISOLATED_PASS; RBAC_CONCURRENCY_PASS; eleven existing suites preserved",
-      "sql_sha256": "99f51e2d9d57d5d340144d14305714307be642bec83245d73b427d2b17c2b36d"
+      "sql_sha256": "99f51e2d9d57d5d340144d14305714307be642bec83245d73b427d2b17c2b36d",
+      "deploy_run": 42149828772,
+      "postdeploy": {
+        "migration_rows": 1,
+        "total_versions": 126,
+        "private_tables": 4,
+        "private_tables_rls": true,
+        "private_client_grants": false,
+        "actions": 48,
+        "permissions": 480,
+        "new_restrictive_policies": 71
+      }
     },
     "rbac_review": {
       "findings_fixed": [
@@ -446,8 +461,11 @@
       "history_repaired": false,
       "ddl_replayed": false,
       "local_integrity_tests": "4 PASS",
-      "catalog_compare": "pending isolated CI",
-      "report": "docs/backend/P0_HML_RECUPERACAO_FONTES_HISTORICAS_2026-11-06.md"
+      "catalog_compare": "PASS:120tables,1520columns,283applicationfunctioncontracts/ACLs,186policies;exact environmental DDL helper excluded",
+      "report": "docs/backend/P0_HML_RECUPERACAO_FONTES_HISTORICAS_2026-11-06.md",
+      "merge": "eb3e2a54804aa6f4406337644bcbe0d8770e0d20",
+      "restore_run": 42149472852,
+      "global_parity": "126/126 verified by CLI workflow42149828772; no repair/no legacy DDL replay"
     }
   }
 }
