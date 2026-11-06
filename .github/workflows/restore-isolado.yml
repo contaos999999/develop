@@ -206,3 +206,34 @@ jobs:
           path: restore-proof/
           if-no-files-found: warn
           retention-days: 30
+
+  synthetic-data-restore:
+    name: prova-backup-dados-sinteticos-duas-instancias
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Instalar Supabase CLI fixada
+        uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
+        with:
+          version: 2.122.0
+      - name: Verificar CLI, shell e destino local exclusivo
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          bash -n scripts/p0-v1-synthetic-data-restore.sh
+          test -f supabase/config.toml
+      - name: Executar backup e restore local com instancias sequenciais e dados ficticios
+        shell: bash
+        run: bash scripts/p0-v1-synthetic-data-restore.sh
+      - name: Arquivar apenas provas sanitizadas, jamais o arquivo dump
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: contaos-p0-v1-synthetic-data-restore
+          path: restore-proof-synthetic/
+          if-no-files-found: warn
+          retention-days: 30
