@@ -13,6 +13,14 @@ export function publicRecord({name,pass,http}){
   assert(http===undefined||Number.isInteger(http)&&http>=100&&http<=599);
   return {name,pass,...(http===undefined?{}:{http})};
 }
+export function sanitizeUiDiagnostic(value){
+  const result={};
+  for(const key of ['manage_list','change_state','loading','denied','inconsistent','transient','pending']){
+    assert(typeof value[key]==='boolean');result[key]=value[key];
+  }
+  assert(value.read_http===null||Number.isInteger(value.read_http)&&value.read_http>=100&&value.read_http<=599);
+  result.read_http=value.read_http;return result;
+}
 export function validateReceipt(name,request,data){
   const uuid=x=>typeof x==='string'&&/^[a-f0-9-]{36}$/.test(x);
   if(name==='criar_organizacao'){assert(uuid(data));return;}
@@ -61,12 +69,13 @@ async function main(){
   function stage(s){assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
   function created(name,id){assert(['organization','contractor','contract','list'].includes(name)&&/^[a-f0-9-]{36}$/.test(id));f.created[name]=id;writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});}
-  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;
+  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;let diagnosticPage;let readHttp=null;
   try{
     stage('SERVER_READY');for(let i=0;i<120;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
     browser=await chromium.launch({headless:true,env:browserEnvironment(process.env)});
     async function open(role){
-      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light'});const page=await context.newPage();page.setDefaultTimeout(30000);
+      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light'});const page=await context.newPage();page.setDefaultTimeout(30000);diagnosticPage=page;
+      page.on('response',r=>{if(r.url().endsWith('/rpc/obter_lista_operacional_v1')&&r.request().method()==='POST')readHttp=r.status();});
       page.on('pageerror',e=>{report.runtime_errors.push({name:['Error','TypeError','SyntaxError','ReferenceError'].includes(e.name)?e.name:'Other'});save();});
       stage('LOGIN_'+role.toUpperCase());await page.goto(base+'/login');await page.waitForFunction(loginFormIsInteractive);
       if(probe){await page.getByRole('button',{name:'Mostrar senha',exact:true}).click();await expect(page.getByLabel('Senha',{exact:true})).toHaveAttribute('type','text');check('PUBLIC_INTERACTIVITY',true);return{context,page};}
@@ -106,7 +115,7 @@ async function main(){
     for(const state of ['ativo','suspenso','ativo','encerrado']){region=await manager(ap,'contract');await stateCadastro(ap,region,'contract',state,'CONTRACT_STATE_'+state.toUpperCase());}
     await admin.context.close();
     const lp=mp;stage('LIST_OPEN');await lp.goto(base+'/contratos/'+f.contract+'/regras');await lp.getByRole('button',{name:'Gerenciar listas',exact:true}).click();
-    async function listOp(page,code,button,fill=async()=>{}){await page.getByRole('button',{name:button,exact:true}).click();await fill();await page.getByLabel('Motivo',{exact:true}).fill('Own synthetic list operation');await page.getByRole('button',{name:'Revisar operação',exact:true}).click();return rpc(page,code,'executar_comando_lista_v1',()=>page.getByRole('button',{name:'Confirmar operação',exact:true}).click());}
+    async function listOp(page,code,button,fill=async()=>{}){diagnosticPage=page;stage(code+'_OPEN');await page.getByRole('button',{name:button,exact:true}).click();stage(code+'_FILL');await fill();await page.getByLabel('Motivo',{exact:true}).fill('Own synthetic list operation');stage(code+'_REVIEW');await page.getByRole('button',{name:'Revisar operação',exact:true}).click();return rpc(page,code,'executar_comando_lista_v1',()=>page.getByRole('button',{name:'Confirmar operação',exact:true}).click());}
     const list=await listOp(lp,'LIST_CREATE','Criar lista',async()=>{await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'list');await lp.getByLabel('Início da vigência',{exact:true}).fill('2026-01-01');});created('list',list.data?.lista?.id);
     await listOp(lp,'LIST_EDIT','Editar lista',()=>lp.getByLabel('Descrição',{exact:true}).fill('Own initial list description'));
     await listOp(lp,'LIST_ITEM_CREATE','Adicionar item',async()=>{await lp.getByLabel('Código',{exact:true}).fill('OWN1');await lp.getByLabel('Descrição do item',{exact:true}).fill('Own optional item');await lp.getByLabel('Obrigatório',{exact:true}).uncheck();});
@@ -139,7 +148,23 @@ async function main(){
     const reader=await open('leitor');reader.page._crudRole='leitor';await chooseOrg(reader.page,f.org);await reader.page.goto(base+'/contratos/'+f.contract+'/regras');await reader.page.getByRole('button',{name:'Gerenciar listas',exact:true}).click();await expect(reader.page.getByRole('button',{name:'Criar lista',exact:true})).toHaveCount(0);await expect(reader.page.getByRole('button',{name:'Editar lista',exact:true})).toHaveCount(0);check('READER_MUTATIONS_ABSENT',true);await reader.context.close();
     const other=await open('usuario_b');other.page._crudRole='usuario_b';await chooseOrg(other.page,f.org_b);await other.page.goto(base+'/contratos/'+f.contract+'/regras');await expect(other.page.getByRole('alert')).toContainText(/não.*acesso|não.*permissão|não encontrad|indisponível/i);await expect(other.page.getByText(f.prefix+'recovered',{exact:true})).toHaveCount(0);check('CROSS_TENANT_UI_DENIED',true);await other.context.close();
     check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';report.completed_domains=['organizacoes','contratantes','contratos','listas'];save();
-  }catch(e){report.state='FAIL';report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
+   }catch(e){
+    if(diagnosticPage&&!probe){try{
+      const flags=await diagnosticPage.evaluate(()=>{
+        const buttons=[...document.querySelectorAll('button')].map(e=>e.textContent.trim());
+        const text=[...document.querySelectorAll('[role="alert"],[role="status"]')].map(e=>e.textContent);
+        return {
+          manage_list:buttons.includes('Gerenciar listas'),change_state:buttons.includes('Alterar situação'),
+          loading:text.some(t=>t.includes('Carregando listas e permissões')),
+          denied:text.some(t=>t.includes('Você não tem permissão para esta operação.')),
+          inconsistent:text.some(t=>t.includes('O servidor retornou dados incompatíveis com o contexto.')),
+          transient:text.some(t=>t.includes('Seu rascunho foi preservado')),
+          pending:buttons.includes('Repetir exatamente o mesmo comando'),
+        };
+      });
+      report.ui_diagnostic=sanitizeUiDiagnostic({...flags,read_http:readHttp});
+    }catch{report.ui_diagnostic_unavailable=true;}}
+    report.state='FAIL';report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
   finally{save();await stop(server,browser);}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();
