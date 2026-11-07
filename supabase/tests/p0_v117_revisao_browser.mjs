@@ -5,6 +5,12 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {spawn} from 'node:child_process';
 
+export function publicProbeError(error) {
+  return {
+    name:['Error','TypeError','SyntaxError','ReferenceError','EvalError','TimeoutError'].includes(error?.name)?error.name:'Other',
+    message:String(error?.message||'').split('\n')[0].replace(/https?:\/\/\S+/g,'[url]').replace(/[\w.+-]+@[\w.-]+/g,'[email]').replace(/\/(?:home|workspace|tmp)\/[^\s]*/g,'[path]').replace(/[A-Za-z0-9_-]{32,}/g,'[redacted]').slice(0,300),
+  };
+}
 export function browserEnvironment(source) {
   const allowed=['PATH','HOME','RUNNER_TEMP','TMPDIR','LANG','TZ','CI','XDG_CACHE_HOME','CONTAOS_TEST_PRIVATE_DIR','CONTAOS_FRONTEND_DIR','CONTAOS_AXE_SOURCE_PATH','CONTAOS_PLAYWRIGHT_MODULE','TESTED_HEAD','FRONTEND_HEAD'];
   return Object.fromEntries(allowed.filter(k=>source[k]!==undefined).map(k=>[k,source[k]]));
@@ -31,6 +37,7 @@ export function publicRecord({name,pass,http}) {
   return {name,pass,...(http===undefined?{}:{http})};
 }
 if(process.argv.includes('--self-test')) {
+  assert(!JSON.stringify(publicProbeError({name:'Error',message:'https://host.invalid/token?secret='+ 's'.repeat(40)+' own@example.invalid /home/runner/private'})).includes('private'));
   assert.deepEqual(browserEnvironment({PATH:'/bin',AUTH_ADMIN_KEY:'private',UNEXPECTED_SECRET:'private'}),{PATH:'/bin'});
   assert.deepEqual(publicRecord({name:'Review persisted',pass:true,password:'private',access_token:'private'}),{name:'Review persisted',pass:true});
   assert.throws(()=>publicRecord({name:'token@example.invalid',pass:true}));
@@ -52,16 +59,17 @@ if(process.argv.includes('--self-test')) {
   const root=resolve(process.env.CONTAOS_TEST_PRIVATE_DIR||'');
   assert(root.startsWith(process.env.RUNNER_TEMP+'/'));
   const frontend=resolve(process.env.CONTAOS_FRONTEND_DIR||'');
-  const req=createRequire(join(frontend,'package.json'));
-  const {expect}=req('@playwright/test');
-  const {chromium}=await import(process.env.CONTAOS_PLAYWRIGHT_MODULE);
+  const req=createRequire(process.env.CONTAOS_PLAYWRIGHT_MODULE);
+  const engineVersion=req('playwright/package.json').version;
+  assert.equal(engineVersion,'1.64.1');
+  const {chromium,expect}=req('playwright/test');
   const probe=process.argv.includes('--public-probe');
   mkdirSync(root,{recursive:true,mode:0o700});
   const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
   const admin=f?.users.find(u=>u.profile==='administrador');
   assert(probe||admin?.creation_state==='created');
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',mode:probe?'PUBLIC_INTERACTIVITY_PROBE':'PRIVATE_ACCEPTANCE',stage:'START',runtime_errors:[],assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
+  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',browser_engine_version:engineVersion,mode:probe?'PUBLIC_INTERACTIVITY_PROBE':'PRIVATE_ACCEPTANCE',stage:'START',runtime_errors:[],assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
   function save(){writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
   const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});
@@ -146,7 +154,7 @@ if(process.argv.includes('--self-test')) {
     const receipt=await response.json();assert(receipt.schema_versao==='revisao-v117'&&receipt.id_competencia===f.competence&&receipt.id_requisito===f.requirement);
     writeFileSync(join(root,'browser-receipt.json'),JSON.stringify(receipt),{mode:0o600});
     check('Drawer refresh after protected receipt',(await refreshed).status()===200);
-    await expect(page.getByText('Synthetic UI review '+f.scope,{exact:true}).first()).toBeVisible();
+    await expect(page.getByText('Justificativa: Synthetic UI review '+f.scope,{exact:true}).first()).toBeVisible();
     check('UI displays persisted justification',true);
     await context.close();
     stage('CROSS_TENANT_DENIAL');
@@ -167,6 +175,7 @@ if(process.argv.includes('--self-test')) {
     }
   }catch(error){
     report.state='FAIL';
+    if(probe) report.public_error=publicProbeError(error);
     report.failure_flags=['Timeout','locator.fill','locator.click','waitForResponse','strict mode violation','ERR_CONNECTION','browserType.launch'].filter(x=>String(error?.message||'').includes(x));
     if(page && !page.isClosed()) {
       try {

@@ -1,3 +1,17 @@
+Conferência do seletor pós-gravação antes da execução: ResultadoCard exibe o prefixo literal `Justificativa: `. Expectativa de atualização ajustada a esse texto real, mantendo valor integral e conferência independente no banco; sem alteração do produto.
+
+## Causa concreta da sonda PR106 e correção mínima
+Run42371378909 public-probe FAIL: `toHaveAttribute can be only used with Locator object`. Artifact13573678201 SHA256750f172a23ac0b2151734cd4ca1b7cac022ec8a6eb3c704d08a1c39e1af22666. Asserções foram carregadas de @playwright/test1.58.2 do frontend, mas locators vieram do executor isolado Playwright1.64.1. O binding inicial false tornou-se verdadeiro e o toggle real executou; falha concreta é incompatibilidade do harness, não prova de erro de Auth ou produto. Os dois primeiros timeouts de login continuam históricos, sem atribuição retroativa de causa não demonstrada.
+
+Correção: carregar chromium e expect pelo mesmo export público playwright/test na instalação isolada, confirmar versão exata1.64.1 e registrá-la. Mantém dependências/lock frontend intactos. Separar grupos de concorrência PR/main conforme revisão para impedir que probe de PR substitua prova privada pending. Novo CI precisa comprovar probe PASS e guard/restore/backup, depois execução privada real.
+
+A sonda pública também roda no PR, em job sem environment HML, sem secrets e sem fixtures, com fonte frontend exata e relatório explicitamente público. Serve ao diagnóstico rápido antes do merge; não substitui guard/restore/backup, não autoriza merge com FAILURE e não é Teste C privado. Execução HML continua separada somente após merge e restore da main exata.
+
+## Probe público: falha anterior à criação de identidades
+Run42370957041/job128398786661, source730b9756, frontend508c5ff: preflight público FAIL em CLIENT_INTERACTIVITY, initial_form_bound=false, em7segundos, sem erros JS no listener e sem flags conhecidas. Não foi timeout de30s nem execução Auth; nenhuma nova fixture criada. Artifact13573767113 SHA25607c80b070a9a0b0bbe50f2211b396365d195b690de0e4c8e5fe383d3199b129f. O erro concreto do driver ainda não foi registrado pela lista fechada de flags; não corrigir produto por hipótese.
+
+Delta mínimo de diagnóstico: somente no modo PUBLIC_INTERACTIVITY_PROBE, antes de credenciais/fixture, registrar classe e primeira linha do erro com URLs, e-mails, caminhos privados e sequências longas redigidos; teste local de redator. Modo privado conserva apenas flags, sem mensagem. Probe tem env sem secrets e não é PASS privado. Sem mudança frontend/negócio/DDL/deploy/PROD.
+
 ## Segunda execução privada: estágio localizado, nenhuma autenticação UI comprovada
 Run42370269292/job128396758916, backend9a66c63, frontend508c5ff: FAIL em LOGIN_SUBMIT, timeout waitForResponse. Inputs existem; screenshot após limpeza mostra tela de login sem estado de envio. Nenhuma assertion privada ou chamada Auth UI confirmada.38HTTP anteriores e quarentena8 novamente PASS; cleanup de processo corrigido não falhou nesta execução. Artifact13572967806 SHA256933a911355b395fcb0b3f155e53304950ed8c37eee177ceb04f4a106f54a8649. Não atribuir ainda a causa à hidratação, rede ou produto.
 
