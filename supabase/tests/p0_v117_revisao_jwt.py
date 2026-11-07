@@ -66,6 +66,15 @@ def cleanup():
     if not (ROOT / 'fixture.json').exists():
         return
     f = json.loads((ROOT / 'fixture.json').read_text())
+    unresolved = False
+    for user in f['users']:
+        if not user.get('id') and user.get('creation_state') != 'rejected':
+            found = sql('select id from auth.users where lower(email)=lower(' + q(user['email']) + " ) and raw_app_meta_data->>'fixture_request_id'=" + q(user['intent_id']) + ';', True).splitlines()
+            if len(found) != 1:
+                unresolved = True
+            else:
+                user['id'] = found[0]
+                save('fixture.json', f)
     ids = [u['id'] for u in f['users'] if u.get('id')]
     if ids:
         sql('begin;update privado.administradores_master set ativo=false where id_usuario in (' + ','.join(map(q, ids)) + ');update public.vinculos_usuarios set ativo=false where id_usuario in (' + ','.join(map(q, ids)) + ');commit;')
@@ -77,9 +86,42 @@ def cleanup():
     if ids:
         # Revoke only sessions of own synthetic identities. Provisioning never uses SQL Auth writes.
         sql('delete from auth.sessions where user_id in (' + ','.join(map(q, ids)) + ');')
-    if f.get('seeded'):
-        sql('update public.organizacoes set situacao=\'inativa\' where id=' + q(f['org']) + ';')
+    sql('update public.organizacoes set situacao=\'inativa\' where id=' + q(f['org']) + ';')
+    if ids:
+        clean = sql('select not exists(select 1 from auth.sessions where user_id in (' + ','.join(map(q, ids)) + ')) and not exists(select 1 from public.vinculos_usuarios where ativo and id_usuario in (' + ','.join(map(q, ids)) + ')) and not exists(select 1 from privado.administradores_master where ativo and id_usuario in (' + ','.join(map(q, ids)) + '));', True)
+        if clean != 't':
+            raise RuntimeError('Own fixture quarantine verification failed')
+    if unresolved:
+        raise RuntimeError('Ambiguous own Auth creation remains unresolved; known fixtures quarantined, quarantine not certified')
     save('cleanup.json', {'state': 'QUARENTENA_VERIFICADA', 'own_users': len(ids)})
+
+def self_test():
+    # Recovery fault injection, no network or database calls.
+    global sql, request
+    calls = []
+    recovered = '11111111-1111-4111-8111-111111111111'
+    def fake_sql(query, fetch=False):
+        calls.append(query)
+        if query.startswith('select id from auth.users'):
+            assert 'fixture_request_id' in query and 'own-intent' in query
+            return recovered
+        return 't' if fetch else None
+    def fake_request(path, data=None, token=None, admin=False, method=None):
+        assert path == '/auth/v1/admin/users/' + recovered and admin and method == 'PUT'
+        calls.append('BAN')
+        return 200, {}
+    sql, request = fake_sql, fake_request
+    save('fixture.json', {'org': '22222222-2222-4222-8222-222222222222', 'seeded': False, 'users': [{'email': 'own@example.invalid', 'intent_id': 'own-intent', 'creation_state': 'pending'}]})
+    cleanup()
+    assert 'BAN' in calls
+    assert any('update public.organizacoes' in c for c in calls), 'cleanup cannot depend on seeded flag'
+    assert any('delete from auth.sessions' in c for c in calls)
+    assert json.loads((ROOT / 'cleanup.json').read_text())['state'] == 'QUARENTENA_VERIFICADA'
+    print('V117_AUTH_RECOVERY_SELF_TEST_PASS')
+
+if '--self-test' in sys.argv:
+    self_test()
+    sys.exit(0)
 
 if '--cleanup' in sys.argv:
     cleanup()
@@ -93,11 +135,16 @@ try:
     f = {'scope': 'P0-V117-REVISAO', 'org': uid(), 'contractor': uid(), 'contract': uid(), 'competence': uid(), 'requirement': uid(), 'requirement2': uid(), 'execution': uid(), 'users': []}
     save('fixture.json', f)
     for profile in ['administrador', 'master', 'auditor', 'leitor', 'sem_vinculo']:
-        user = {'profile': profile, 'email': 'v117-' + uid() + '@example.invalid', 'password': secrets.token_urlsafe(40) + 'Aa1!'}
-        st, data = request('/auth/v1/admin/users', {'email': user['email'], 'password': user['password'], 'email_confirm': True, 'app_metadata': {'synthetic': True, 'scope': f['scope']}}, admin=True)
+        user = {'profile': profile, 'email': 'v117-' + uid() + '@example.invalid', 'password': secrets.token_urlsafe(40) + 'Aa1!', 'intent_id': uid(), 'creation_state': 'pending'}
+        f['users'].append(user)
+        save('fixture.json', f)
+        st, data = request('/auth/v1/admin/users', {'email': user['email'], 'password': user['password'], 'email_confirm': True, 'app_metadata': {'synthetic': True, 'scope': f['scope'], 'fixture_request_id': user['intent_id']}}, admin=True)
+        if 400 <= st < 500:
+            user['creation_state'] = 'rejected'
+            save('fixture.json', f)
         check('Auth Admin creates own ' + profile, st in (200, 201) and isinstance(data, dict) and bool(data.get('id')), st)
         user['id'] = data['id']
-        f['users'].append(user)
+        user['creation_state'] = 'created'
         save('fixture.json', f)
     statements = ['begin;', f"insert into public.organizacoes(id,razao_social) values({q(f['org'])},'V117 synthetic review');", f"insert into public.contratantes(id,id_organizacao,razao_social) values({q(f['contractor'])},{q(f['org'])},'V117 synthetic');", f"insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio) values({q(f['contract'])},{q(f['org'])},{q(f['contractor'])},'V117-{uid()}','Synthetic review','2026-01-01');"]
     for user in f['users']:
@@ -155,11 +202,18 @@ try:
     check('Concurrent HTTP CAS one winner', sorted(x[0] for x in results) == [200, 409])
     check('Exactly three result/event effects', sql(f"select (select count(*) from public.resultados_requisitos where id_competencia={q(f['competence'])})=3 and (select count(*) from public.eventos_auditoria where evento='RevisaoRequisitoRegistrada' and id_organizacao={q(f['org'])})=3;", True) == 't')
     report['state'] = 'PASS'
+except Exception:
+    if report['state'] == 'RUNNING':
+        report['state'] = 'FAIL'
+    raise
 finally:
     try:
         cleanup()
         if (ROOT / 'cleanup.json').exists():
             report['cleanup'] = json.loads((ROOT / 'cleanup.json').read_text())
+    except Exception:
+        report['state'] = 'CLEANUP_FAILED'
+        raise
     finally:
         save('report.json', report)
 print('V117_REVIEW_REAL_JWT_PASS: ' + str(len(report['assertions'])) + ' assertions, own quarantine verified')

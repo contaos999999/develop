@@ -1,0 +1,27 @@
+# Revisão humana V1-17: registro de execução
+
+Estado: BUILD em validação. Nenhum deploy HML desta migration comprovado neste commit. V1 não certificada e CRUD global não concluído.
+
+## Contexto e gates
+PLAN backend #98 integrado em c1e138d7a60641e1059079e83649bc3bb7f31599, HEADf0f40b3ed338583931fab8800e8935ee65ba2138 e guard run42361197685 SUCCESS antes de BUILD. Base anterior4fec09bf. Frontend funcional permanece d8849c28877d97e5503f33c0fc9329b642ae9157, PR265/266 integrados; não repetir essa correção.
+
+Migration nova criada pela CLI Supabase2.122.0:20261107094443_p0_v117_revisao_humana.sql. Nenhuma migration aplicada alterada. Novas RPCs obter_contexto_revisao_v117 e registrar_revisao_requisito_v117. Assinatura antiga preservada, mas fecha bypass sem CAS; nenhuma chamada ativa encontrada. Resultado anterior, UNIQUE(execução,requisito), workers e portões mantidos. Revisão gera nova execução incremental humana, com base cujo hash ainda é atual, resultado, evidências, parecer substituído, auditoria e recibo atômicos.
+
+## TDD e diagnóstico
+- RED HEAD375c908d62757ae9f4f1921244041d832738eac8, run42361330041, job128370168892: suites anteriores passam; novo teste falha em registrar_revisao_requisito_v117 inexistente. Não integrou RED.
+- Primeiro BUILDab97deb, run42361619257: restore/migrations/catalog/suites anteriores passam; teste tinha expectativa incorreta para ator11, que era MASTER no setup reutilizado. Corrigido teste para ator12 sem vínculo e acrescentado positivo MASTER. Não afrouxou autorização.
+- HEADf677b3b179139b04fc75152e8e049f6197195f59, run42361821602: logs job128371624304 comprovam V117_REVISAO_ISOLATED_PASS e V117_REVISAO_CONCURRENCY_PASS, incluindo preservação, replay, CAS, evidência válida, parecer, base obsoleta com2requisitos, revogação durante espera e reanálise concorrente. Checks finais do delta posterior ainda requeridos.
+- Revisão independente encontrou ambiguidade no hash da base; explicitada igualdade base/servidor/CAS. Identificou direção excluída na leitura antiga, apesar de escrita legada autorizada: nova leitura usa o mesmo RBAC/tenant e lista da escrita legada, com prova de direção. Sem herança especializada nova ao MASTER.
+- Revisão das fixtures encontrou criação Auth com resposta perdida e janela commit/seeded. Intenção agora persistida antes da API; recuperação de ID restrita ao próprio e-mail+nonce; organização desativada pelo UUID independentemente da flag. --self-test sem rede PASS local e em revisão independente. Se limpeza não puder ser comprovada, FAIL.
+- Último delta adiciona evidência existente de outro tenant negada, tratamento de deadlock409 e recuperação de fixtures no restore. Novo CI completo obrigatório, sem presumir verde anterior.
+
+## Próximas ações na ordem
+1. Conferir guard, restore integral, backup sintético e revisão do SHA final do PR99; integrar somente com checks exigidos SUCCESS.
+2. Workflow p0-v117-revisao-hml.yml aguarda restore main exato, exige SHA/hash/manifesto, despacha CLI canônica p0-hml-migration-version-parity.yml com exatamente uma migration pendente. Sem SQL solto/histórico manual/PROD.
+3. Job real-jwt exige credencial Auth Admin HML já configurada em CONTAOS_HML_AUTH_ADMIN_KEY ou aliases existentes CONTAOS_HML_SERVICE_ROLE_KEY/SUPABASE_SERVICE_ROLE_KEY. Preflight sem chave gera CONFIG_BLOCKED_AUTH_ADMIN_KEY_MISSING e não cria fixture. Não alegar ausência antes do resultado. Nunca INSERT auth.users em HML; contas somente via API administrativa e login GoTrue real. Segredos não são publicados.
+4. Conferir HTTP/JWT, múltiplas conexões e relatório sanitizado; quarentena de contas próprias, vínculos/MASTER desativados, sessões revogadas e organização sintética inativa. Falha não vira PASS. Testes isolados não são JWT real.
+5. Só depois backend funcional/JWT comprovados: PLAN frontend, reancoragem das fontes canônicas e integração de revisão no drawer V117, preservando types8ea7750b e ações existentes. UI deve mostrar conflito/resultado incerto e permitir somente replay explícito da mesma intenção. Prova privada requer sessão autorizada, não repetir autenticação cancelada por iniciativa própria.
+6. Atualizar checkpoint oficial frontend e issue166 com HEAD/PR/CI/deploy/provas/impedimentos; continuar V1 sem certificar por presunção.
+
+## ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
+Impacto visual N/A: backend e testes apenas. Marca e frontend preservados. Delta limitado ao plano e manifesto; sem RLS/Edge/configuração Auth/PROD ou dependência de produto nova. API Auth administrativa limitada às fixtures próprias autorizadas. Ferramentas diretas e evidências reaproveitadas, sem reduzir testes/revisão/gates. Identidade visual N/A backend; Zero-Drift condicionado ao CI final; economia conforme.

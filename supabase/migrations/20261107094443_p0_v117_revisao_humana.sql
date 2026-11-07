@@ -90,7 +90,9 @@ begin
  recibo:=jsonb_build_object('schema_versao','revisao-v117','request_id',p_request_id,'id_competencia',c.id,'id_requisito',p_id_requisito,'id_execucao',exec_id,'id_resultado',res_id);
  insert into public.comandos_idempotentes(id_organizacao,comando,chave,hash_payload,status,resposta) values(c.id_organizacao,'revisao-v117',p_request_id::text,fingerprint,'concluido',recibo);
  return recibo;
-exception when invalid_text_representation or numeric_value_out_of_range then
+exception when deadlock_detected or lock_not_available then
+ raise exception using errcode='PT409',message='O contexto está sendo alterado. Confira o andamento antes de tentar novamente.';
+when invalid_text_representation or numeric_value_out_of_range then
  raise exception using errcode='PT422',message='Referência ou valor de evidência inválido.';
 end $$;
 create function public.registrar_revisao_requisito_v117(p_id_competencia uuid,p_id_requisito uuid,p_id_execucao_esperada uuid,p_id_resultado_esperado uuid,p_hash_esperado text,p_resultado text,p_justificativa text,p_fundamento text,p_evidencias jsonb,p_request_id uuid)

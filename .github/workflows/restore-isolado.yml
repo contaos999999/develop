@@ -239,6 +239,13 @@ jobs:
           python3 supabase/tests/p0_v117_revisao_concurrency.py | tee restore-proof/v117-revisao-concurrency.txt
           grep -Fq 'V117_REVISAO_CONCURRENCY_PASS' restore-proof/v117-revisao-concurrency.txt
 
+      - name: Teste 19 - Recuperação de fixtures Auth sem rede
+        shell: bash
+        env:
+          CONTAOS_TEST_PRIVATE_DIR: ${{ runner.temp }}/v117-auth-recovery-test
+          DATABASE_URL: postgresql://postgres.gklhhhyosgasnyoxlrui:placeholder@aws.pooler.supabase.com/postgres
+        run: python3 supabase/tests/p0_v117_revisao_jwt.py --self-test
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |

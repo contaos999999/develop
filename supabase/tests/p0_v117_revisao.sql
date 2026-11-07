@@ -44,6 +44,12 @@ insert into public.documentos_competencia(id,id_organizacao,id_contrato,id_compe
 ('baca0000-7600-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7000-4000-8000-000000000001','comprovante','Evidência revisão');
 insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash) values
 ('baca0000-7700-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7600-4000-8000-000000000001',1,'baca0000-7500-4000-8000-000000000001',repeat('a',64));
+insert into public.contratantes(id,id_organizacao,razao_social) values('baca0000-1000-4000-8000-000000000002','baca0000-bbbb-4000-8000-000000000001','Outro tenant');
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio) values('baca0000-2000-4000-8000-000000000003','baca0000-bbbb-4000-8000-000000000001','baca0000-1000-4000-8000-000000000002','REV-B','Outro tenant','2026-01-01');
+insert into public.competencias(id,id_organizacao,id_contrato,competencia_referencia,periodo_inicio,periodo_fim) values('baca0000-7000-4000-8000-000000000002','baca0000-bbbb-4000-8000-000000000001','baca0000-2000-4000-8000-000000000003','2026-11-01','2026-11-01','2026-11-30');
+insert into public.arquivos(id,id_organizacao,id_contrato,path,nome_original,sha256,status_seguranca) values('baca0000-7500-4000-8000-000000000002','baca0000-bbbb-4000-8000-000000000001','baca0000-2000-4000-8000-000000000003','v117/tenant-b.pdf','tenant-b.pdf',repeat('c',64),'aprovado');
+insert into public.documentos_competencia(id,id_organizacao,id_contrato,id_competencia,tipo,titulo) values('baca0000-7600-4000-8000-000000000002','baca0000-bbbb-4000-8000-000000000001','baca0000-2000-4000-8000-000000000003','baca0000-7000-4000-8000-000000000002','comprovante','Evidência de outro tenant');
+insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash) values('baca0000-7700-4000-8000-000000000002','baca0000-bbbb-4000-8000-000000000001','baca0000-2000-4000-8000-000000000003','baca0000-7600-4000-8000-000000000002',1,'baca0000-7500-4000-8000-000000000002',repeat('c',64));
 insert into public.pareceres_internos(id,id_organizacao,id_contrato,id_competencia,versao,texto,status,hash) values
 ('baca0000-7800-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7000-4000-8000-000000000001',1,'Parecer anterior preservado','aprovado',repeat('b',64));
 insert into public.execucoes_analise(id,id_organizacao,id_contrato,id_competencia,tipo,status,hash_entrada,concluida_em) values
@@ -66,6 +72,7 @@ select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado wher
 insert into rev_estado values('atual',public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001'));
 select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='atual'),gen_random_uuid(),'nao_aplicavel')$q$,'PT422');
 select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='atual'),gen_random_uuid(),'conforme','[{"id_versao_documento":"baca0000-9999-4000-8000-000000000001","pagina":1}]')$q$,'42501');
+select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='atual'),gen_random_uuid(),'conforme','[{"id_versao_documento":"baca0000-7700-4000-8000-000000000002","pagina":1}]')$q$,'42501');
 select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='atual'),gen_random_uuid(),null)$q$,'PT422');
 select pg_temp.expect_error($q$select public.registrar_resultado_requisito('baca0000-7200-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001','conforme')$q$,'PT409');
 select pg_temp.expect_error($q$update public.resultados_requisitos set resultado='nao_conforme' where id='baca0000-7300-4000-8000-000000000001'$q$,'42501');

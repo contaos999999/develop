@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "PLAN_VALIDADO_AGUARDANDO_CI",
+  "phase": "BUILD_EM_VALIDACAO",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -59,12 +59,12 @@
   "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": false,
+  "auth_changes_allowed": true,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
     "date": "2026-11-07",
-    "scope": "Autorizado: investigação somente leitura; após resultado e proposta de correção canônica no backend + integração frontend + testes reais, titular determinou Execute. HML apenas, sem PROD; fixture Auth exclusivamente API administrativa nos testes."
+    "scope": "Autorizado: investigação somente leitura; após resultado e proposta de correção canônica no backend + integração frontend + testes reais, titular determinou Execute. HML apenas, sem PROD; fixture Auth exclusivamente API administrativa nos testes. Testes reais incluem fixtures Auth próprias via API administrativa e limpeza; não alteram configuração Auth."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -348,6 +348,20 @@
         "Historical report registration returns existing own fixture; physical upload/worker not certified."
       ],
       "v1_certified": false
+    },
+    "v117_review": {
+      "plan_pr": 98,
+      "plan_merge": "c1e138d7a60641e1059079e83649bc3bb7f31599",
+      "red_head": "375c908d62757ae9f4f1921244041d832738eac8",
+      "red_ci": 42361330041,
+      "red_error": "nova RPC inexistente, antes da implementação",
+      "intermediate_green_head": "f677b3b179139b04fc75152e8e049f6197195f59",
+      "intermediate_ci": 42361821602,
+      "isolated_sql": "PASS",
+      "concurrency": "PASS, duas conexões/CAS/replay/revogação/reanálise",
+      "final_ci": "PENDENTE",
+      "hml_deploy": "PENDENTE",
+      "real_jwt": "PENDENTE"
     }
   },
   "restore_synthetic_plan": {
@@ -403,5 +417,6 @@
     "frontend_ci": 42316728042,
     "frontend_regression": "1017/1017",
     "private_ui": "NAO_VERIFICADA"
-  }
+  },
+  "auth_change_scope": "Somente identidades sintéticas próprias via Auth Admin API e quarentena/revogação das próprias sessões. Nenhuma configuração Auth/SMTP/provedores ou identidade preexistente."
 }
