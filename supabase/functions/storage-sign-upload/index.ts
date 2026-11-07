@@ -7,7 +7,11 @@ const SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const B='contaos-documentos'
 const LIMITE_JSON=8*1024
 const admin=createClient(URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}})
-const resp=(b:unknown,s=200)=>Response.json(b,{status:s,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
+const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app']
+const HEADERS_CORS=['authorization','x-client-info','apikey','content-type']
+function cabecalhosCors(origem:string|null,preflight=false){
+ return {'cache-control':'no-store','x-content-type-options':'nosniff','vary':preflight?'Origin, Access-Control-Request-Method, Access-Control-Request-Headers':'Origin',...(origem?{'access-control-allow-origin':origem}:{})}
+}
 const seguro=(n:string)=>n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').slice(-180) || 'arquivo'
 
 async function lerJsonLimitado(req:Request,limite:number){
@@ -29,7 +33,17 @@ async function lerJsonLimitado(req:Request,limite:number){
 }
 
 Deno.serve(async(req:Request)=>{
+ const origem=req.headers.get('origin')
+ const origemPermitida=ORIGENS_CORS.includes(origem??'')
+ const resp=(b:unknown,s=200)=>Response.json(b,{status:s,headers:{'content-type':'application/json; charset=utf-8',...cabecalhosCors(origemPermitida?origem:null)}})
+ if(req.method==='OPTIONS'&&origem!==null){
+  const solicitados=req.headers.get('access-control-request-headers')
+  const headersPermitidos=solicitados===null||solicitados.split(',').every(h=>HEADERS_CORS.includes(h.trim().toLowerCase()))
+  const valido=origemPermitida&&req.headers.get('access-control-request-method')==='POST'&&headersPermitidos
+  return new Response(null,{status:valido?204:403,headers:{...cabecalhosCors(valido?origem:null,true),...(valido?{'access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':HEADERS_CORS.join(', ')}:{})}})
+ }
  if(req.method!=='POST') return resp({ok:false,codigo:'METODO_INVALIDO',titulo:'Ação não permitida',mensagem:'Use esta função apenas para solicitar autorização de upload.'},405)
+ if(origem!==null&&!origemPermitida) return resp({ok:false,codigo:'AUTH_ACESSO_NEGADO',titulo:'Acesso não permitido',mensagem:'A origem da solicitação não é permitida.'},403)
  const authorization=req.headers.get('authorization')??''
  if(!authorization) return resp({ok:false,codigo:'AUTH_NAO_AUTENTICADO',titulo:'Sessão necessária',mensagem:'Para continuar, faça login novamente.'},401)
  let body:any={}
