@@ -40,6 +40,10 @@ export async function withReadTransportFailure(session,action){
     return await action();
   }finally{try{await session.send('Network.setBlockedURLs',{urls:[]});}finally{await session.detach();}}
 }
+export async function fillNextVersionDates(page,start){
+  await page.getByLabel('Início da vigência',{exact:true}).fill(start);
+  await page.getByLabel('Fim da vigência',{exact:true}).fill('');
+}
 export function loginFormIsInteractive(){const e=document.querySelector('form');return !!e&&Object.keys(e).some(k=>k.startsWith('__reactProps$')&&typeof e[k]?.onSubmit==='function');}
 async function stop(server,browser){
   let timer;
@@ -112,7 +116,7 @@ async function main(){
     await listOp(lp,'LIST_DRAFT_DATES','Editar vigência',()=>lp.getByLabel('Início da vigência',{exact:true}).fill('2026-01-01'));
     await listOp(lp,'LIST_PUBLISH','Publicar versão');
     await listOp(lp,'LIST_END_VALIDITY','Encerrar vigência',()=>lp.getByLabel('Fim da vigência',{exact:true}).fill('2026-06-30'));
-    await listOp(lp,'LIST_VERSION_CREATE','Criar versão',()=>lp.getByLabel('Início da vigência',{exact:true}).fill('2026-07-01'));
+    await listOp(lp,'LIST_VERSION_CREATE','Criar versão',()=>fillNextVersionDates(lp,'2026-07-01'));
     await listOp(lp,'LIST_DRAFT_DISCARD','Descartar rascunho');
     await listOp(lp,'LIST_STATE_INACTIVE','Alterar situação',()=>lp.getByLabel('Situação',{exact:true}).selectOption('inativa'));
     await listOp(lp,'LIST_STATE_ACTIVE','Alterar situação',()=>lp.getByLabel('Situação',{exact:true}).selectOption('ativa'));
