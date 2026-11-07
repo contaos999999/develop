@@ -1,3 +1,10 @@
+## Prova autenticada alcançou o produto e detectou incompatibilidade de leitura
+Run42372068640/job128402055698, sourceb619056a/frontend508c5ff: probe público PASS, login GoTrue UI200, análise aberta e drawer exibiu erro; detalheRPC recebeu200 (logsHML1POST/1OPTIONS). Fonte HML confirmou3JSONB default{} e efeito bool; frontend rejeitava os tipos.38HTTP PASS e quarentena8 PASS; cleanup processo PASS. Artifact13574406588 SHA256f0c604b73fd9ee8e9764ee575a5d4fc5956a5d862be3e80ba4441e4b6fd01ced. Não é aceitação privada PASS.
+
+Correção frontend PLAN275/GATE276, GATEack278 integrado6ce44b0; BUILD277 fechado apóscontextackantigo; substituto279 HEADf537dadf9fefca79eb800de10a3b68d4e3fe3a3c emCI, código local1146/1146 e118focados. Pin novo preparado, mas backend só pode integrar após frontend279 aprovado/integrado e próprios checksverdes. Sem repetir deploy ou alterar regra backend.
+
+Captura fullPage de drawer fixed compunha a posição do viewport sobre documento alto, podendo parecer deslocamentoCSS. Agora24capturas de viewport real: topo,formulário e ações nas8combinações; não chamar isso de mudançaCSS nem certificaçãoWCAG integral. Registrar statusHTTP e tipos dos4campos, sem salvar payloadprivado, para prova explícita do contrato recebido. Quarentena e isolamento de secrets mantidos.
+
 Conferência do seletor pós-gravação antes da execução: ResultadoCard exibe o prefixo literal `Justificativa: `. Expectativa de atualização ajustada a esse texto real, mantendo valor integral e conferência independente no banco; sem alteração do produto.
 
 ## Causa concreta da sonda PR106 e correção mínima

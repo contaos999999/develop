@@ -125,7 +125,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar PLAN e GATE separado; RED do protocolo privado; BUILD harness navegador real com frontend aprovado; quarentena e relatório sanitizado.",
+  "next_step": "Aguardar frontend279 CI e merge, backend presente guard/restore/backup/probe; só então merge e prova privada com novo pin e capturas viewport. PLAN103 depois com manifesto/pin reancorados.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -434,7 +434,7 @@
   "auth_change_scope": "Somente identidades sintéticas próprias via Auth Admin API e quarentena/revogação das próprias sessões. Nenhuma configuração Auth/SMTP/provedores ou identidade preexistente.",
   "browser_proof_scope": {
     "frontend_repository": "contaos999999/contaos-hml-control",
-    "frontend_head": "508c5ff471b4cb453961c71415d3ac62fbb0d245",
+    "frontend_head": "f537dadf9fefca79eb800de10a3b68d4e3fe3a3c",
     "environment": "hml",
     "no_deploy": true,
     "no_schema_changes": true,
@@ -461,6 +461,9 @@
       "gate_merge": "937bd9b0792b57b5e2677223eab95deb74154761"
     },
     "red": "node arquivo ainda inexistente, MODULE_NOT_FOUND; não é prova HML",
-    "protocol_self_test": "PASS_LOCAL"
+    "protocol_self_test": "PASS_LOCAL",
+    "frontend_dependency_pr": 279,
+    "capture_mode": "VIEWPORT_FIXED_DRAWER_TOP_REVIEW_ACTIONS",
+    "frontend_previous_head": "508c5ff471b4cb453961c71415d3ac62fbb0d245"
   }
 }
