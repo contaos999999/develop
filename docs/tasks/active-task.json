@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "GATE_DIAGNOSTICO_TIMEOUT_V117",
+  "phase": "BUILD_PROVA_PRIVADA_FRONTEND",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -484,7 +484,9 @@
     "gate": {
       "plan_pr": 112,
       "plan_merge": "4c6cff4196cdda779a436f47fd0875fab319496e",
-      "review": "PASS: subetapas constantes/booleanos/HTTP sem dados privados; negação tenant, waits 30s e cleanup preservados; diagnóstico antes de correção; sem produto/PROD"
+      "review": "PASS: subetapas constantes/booleanos/HTTP sem dados privados; negação tenant, waits 30s e cleanup preservados; diagnóstico antes de correção; sem produto/PROD",
+      "gate_pr": 113,
+      "gate_merge": "929ef4b99bb5860b7243504a1557ca1c408fa74b"
     }
   }
 }
