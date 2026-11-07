@@ -1,0 +1,79 @@
+[
+  {
+    "schema": "privado",
+    "name": "crud_lista_autorizar_v1",
+    "args": "p_org uuid, p_contrato uuid",
+    "definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": false,
+    "anon_exec": false
+  },
+  {
+    "schema": "privado",
+    "name": "crud_lista_validar_regra_v1",
+    "args": "p_regra jsonb",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": false,
+    "anon_exec": false
+  },
+  {
+    "schema": "privado",
+    "name": "crud_lista_integridade_v1",
+    "args": "",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": false,
+    "anon_exec": false
+  },
+  {
+    "schema": "privado",
+    "name": "crud_lista_consultar_v1",
+    "args": "p_id_organizacao uuid, p_id_contrato uuid, p_id_lista uuid, p_id_versao uuid, p_pagina_versoes integer, p_pagina_itens integer",
+    "definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  },
+  {
+    "schema": "privado",
+    "name": "crud_lista_mutar_v1",
+    "args": "p_id_organizacao uuid, p_id_contrato uuid, p_id_lista uuid, p_versao_esperada bigint, p_acao text, p_payload jsonb, p_motivo text, p_request_id uuid",
+    "definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  },
+  {
+    "schema": "public",
+    "name": "obter_lista_operacional_v1",
+    "args": "p_id_organizacao uuid, p_id_contrato uuid, p_id_lista uuid, p_id_versao uuid, p_pagina_versoes integer, p_pagina_itens integer",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  },
+  {
+    "schema": "public",
+    "name": "executar_comando_lista_v1",
+    "args": "p_id_organizacao uuid, p_id_contrato uuid, p_id_lista uuid, p_versao_esperada bigint, p_acao text, p_payload jsonb, p_motivo text, p_request_id uuid",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  }
+]

@@ -6,10 +6,12 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
+      - 'supabase/tests/p0_crud_listas*'
       - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/rbac_matrix.sql'
       - '.github/workflows/restore-isolado.yml'
       - '.github/workflows/p0-crud-cadastros-hml.yml'
+      - '.github/workflows/p0-crud-listas-hml.yml'
       - '.github/workflows/p0-hml-migration-version-parity.yml'
   push:
     branches: [main]
@@ -17,6 +19,7 @@ on:
       - 'supabase/config.toml'
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
+      - 'supabase/tests/p0_crud_listas*'
       - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/hml_acceptance.sql'
       - 'supabase/tests/workflow_bopla.sql'
@@ -30,6 +33,7 @@ on:
       - 'supabase/tests/v107_concurrency.sh'
       - '.github/workflows/restore-isolado.yml'
       - '.github/workflows/p0-crud-cadastros-hml.yml'
+      - '.github/workflows/p0-crud-listas-hml.yml'
       - '.github/workflows/p0-hml-migration-version-parity.yml'
 
 permissions:
@@ -202,6 +206,21 @@ jobs:
           set -euo pipefail
           psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/p0_crud_cadastros.sql | tee restore-proof/crud-cadastros.txt
           grep -Fxq 'CRUD_CADASTROS_ISOLATED_PASS' restore-proof/crud-cadastros.txt
+
+      - name: Teste 15 - CRUD listas isolado
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/p0_crud_listas.sql | tee restore-proof/crud-listas.txt
+          grep -Fxq 'CRUD_LISTAS_ISOLATED_PASS' restore-proof/crud-listas.txt
+
+      - name: Teste 16 - Concorrência de lista e snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          python3 supabase/tests/p0_crud_listas_concurrency.py | tee restore-proof/crud-listas-concurrency.txt
+          grep -Fxq 'CRUD_LISTAS_CONCURRENCY_PASS' restore-proof/crud-listas-concurrency.txt
 
       - name: Registrar histórico reconstruído
         shell: bash

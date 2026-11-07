@@ -1,0 +1,119 @@
+name: ContaOS CRUD Listas HML
+on:
+  workflow_run:
+    workflows: ['ContaOS Restore Isolado']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: contaos-crud-listas-hml
+  cancel-in-progress: false
+jobs:
+  canonical-deploy:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      actions: write
+      checks: read
+    outputs:
+      tested_head: ${{ steps.gate.outputs.tested_head }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TESTED_HEAD: ${{ github.event.workflow_run.head_sha }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Gate exact tested source and live main
+        id: gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/$GH_REPO/commits/main --jq .sha)" = "$TESTED_HEAD"
+          gh api "repos/$GH_REPO/commits/$TESTED_HEAD/check-runs" > "$RUNNER_TEMP/checks.json"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib
+          p=pathlib.Path('supabase/migrations/20261107001620_p0_crud_listas_verificacao.sql')
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='20bfbe1eea1c152c970cf0b1ae10103a1b16576586f1eb966d9738ec0e48b6c8'
+          t=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
+          assert t['id']=='P0-CRUD-LISTAS-20261107' and t['database_changes_allowed'] is True and str(p) in t['allowed_paths']
+          checks=json.loads(pathlib.Path(os.environ['RUNNER_TEMP'],'checks.json').read_text())['check_runs']
+          for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
+              assert any(x['name']==name and x['head_sha']==os.environ['TESTED_HEAD'] and x['conclusion']=='success' for x in checks),name
+          PY
+          echo "tested_head=$TESTED_HEAD" >> "$GITHUB_OUTPUT"
+      - name: Dispatch unchanged canonical CLI parity deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          start="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          gh workflow run p0-hml-migration-version-parity.yml --ref main -f operation=deploy_one -f migration_version=20261107001620 -f expected_source_sha="$TESTED_HEAD" -f expected_migration_sha256="$(sha256sum supabase/migrations/20261107001620_p0_crud_listas_verificacao.sql | cut -d' ' -f1)"
+          run_id=''
+          for attempt in $(seq 1 24); do
+            run_id="$(gh run list --workflow p0-hml-migration-version-parity.yml --event workflow_dispatch --commit "$TESTED_HEAD" --json databaseId,createdAt --jq "map(select(.createdAt >= \"$start\")) | first | .databaseId // empty")"
+            if test -n "$run_id"; then break; fi
+            sleep 5
+          done
+          test -n "$run_id"
+          gh run watch "$run_id" --exit-status
+          gh run view "$run_id" --json headSha,conclusion --jq '.' > "$RUNNER_TEMP/canonical-deploy.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          r=json.loads(pathlib.Path(os.environ['RUNNER_TEMP'],'canonical-deploy.json').read_text())
+          assert r['conclusion']=='success'
+          PY
+  real-jwt:
+    needs: canonical-deploy
+    runs-on: ubuntu-latest
+    environment: hml
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TESTED_HEAD: ${{ needs.canonical-deploy.outputs.tested_head }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.canonical-deploy.outputs.tested_head }}
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Set private runner directory
+        run: echo "CONTAOS_TEST_PRIVATE_DIR=$RUNNER_TEMP/contaos-crud-listas-private" >> "$GITHUB_ENV"
+      - name: Verify live source and migration applied once
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/$GH_REPO/commits/main --jq .sha)" = "$TESTED_HEAD"
+          python3 - <<'PY'
+          import os,subprocess,urllib.parse
+          d=urllib.parse.urlsplit(os.environ['DATABASE_URL'])
+          assert d.username=='postgres.gklhhhyosgasnyoxlrui' and d.hostname.endswith('.pooler.supabase.com')
+          p=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c',"select count(*) from supabase_migrations.schema_migrations where version='20261107001620'"],capture_output=True,text=True)
+          assert p.returncode==0 and p.stdout.strip()=='1','Canonical migration not applied exactly once'
+          PY
+      - name: Real Auth JWT and HTTP concurrency with quarantine
+        run: python3 supabase/tests/p0_crud_listas_jwt.py
+      - name: Retry own fixture quarantine independently
+        if: always()
+        run: python3 supabase/tests/p0_crud_listas_jwt.py --cleanup
+      - name: Publish sanitized evidence only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contaos-crud-listas-real-jwt
+          path: ${{ runner.temp }}/contaos-crud-listas-private/report.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Remove private temporary material
+        if: always()
+        run: rm -rf -- "$CONTAOS_TEST_PRIVATE_DIR"
