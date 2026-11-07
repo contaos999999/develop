@@ -7,6 +7,9 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
+      - 'supabase/tests/p0_workflow_routing.test.mjs'
+      - '.github/workflows/p0-v117-revisao-hml.yml'
+      - '.github/workflows/p0-v117-browser-hml.yml'
       - 'supabase/tests/p0_v117_revisao*'
       - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/rbac_matrix.sql'
@@ -21,6 +24,9 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
+      - 'supabase/tests/p0_workflow_routing.test.mjs'
+      - '.github/workflows/p0-v117-revisao-hml.yml'
+      - '.github/workflows/p0-v117-browser-hml.yml'
       - 'supabase/tests/p0_v117_revisao*'
       - 'supabase/tests/history_catalog_compare.py'
       - 'supabase/tests/hml_acceptance.sql'
@@ -48,6 +54,9 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Workflow routing contract without HML access
+        run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |

@@ -10,8 +10,33 @@ concurrency:
   group: contaos-crud-listas-hml
   cancel-in-progress: false
 jobs:
+  scope:
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      applicable: ${{ steps.routing.outputs.applicable }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Select exact task and phase without HML access
+        id: routing
+        run: |
+          python3 - <<'PYROUTE'
+          import json,os,pathlib
+          task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
+          assert isinstance(task,dict) and isinstance(task.get('id'),str) and task['id'] and isinstance(task.get('phase'),str) and task['phase'],'Invalid task manifest'
+          applicable=(task['id'],task['phase'])==('P0-CRUD-LISTAS-20261107','BUILD_EM_VALIDACAO')
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              out.write('applicable='+str(applicable).lower()+'\n')
+          print('APPLICABLE' if applicable else 'NOT_APPLICABLE_TASK_OR_PHASE: material jobs skipped')
+          PYROUTE
   canonical-deploy:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository
+    needs: scope
+    if: needs.scope.result == 'success' && needs.scope.outputs.applicable == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
