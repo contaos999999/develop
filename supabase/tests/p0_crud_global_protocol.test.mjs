@@ -238,3 +238,156 @@ for raw in ['postgresql://postgres:postgres@db.example.invalid:54322/postgres','
 print('LOCAL_RESTORE_GUARD_PASS')`;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/LOCAL_RESTORE_GUARD_PASS/);
 });
+
+test('cleanup bans and revokes before document quarantine and keeps pending state on active work',()=>{
+ const code=`import runpy,json,tempfile
+from pathlib import Path
+R=runpy.run_path('supabase/tests/p0_crud_global_hml.py')['Runner']
+for pending in [False,True]:
+ r=object.__new__(R);r.report={};calls=[]
+ with tempfile.TemporaryDirectory() as d:
+  r.root=Path(d);f={'batch':'DOCUMENTOS','scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' ','users':[{'intent_id':'intent','creation_state':'created'}]};r.save('fixture.json',f)
+  def sql(source,fetch=False):
+   calls.append(source)
+   if source.startswith('select id from auth.users'):return '11111111-1111-4111-8111-111111111111'
+   if source.startswith('select id from public.organizacoes'):return '22222222-2222-4222-8222-222222222222'
+   return 't' if fetch else None
+  def quarantine(f):
+   calls.append('DOCUMENTS')
+   assert 'BAN' in calls and any('delete from auth.sessions' in x for x in calls)
+   assert not any("set situacao='inativa'" in x for x in calls)
+   if pending:raise RuntimeError('worker active')
+   return {'active_jobs':0,'cancelled_jobs':1}
+  r.recover_document_uploads=lambda f:{};r.sql=sql;r.request=lambda *a,**k:(calls.append('BAN') or (200,{}));r.quarantine_document_jobs=quarantine
+  try:r.cleanup()
+  except RuntimeError:assert pending
+  else:assert not pending
+  assert 'DOCUMENTS' in calls
+  result=json.loads((r.root/'cleanup.json').read_text())
+  assert result['state']==('QUARENTENA_PENDENTE' if pending else 'QUARENTENA_VERIFICADA')
+  assert not pending or r.report['state']=='CLEANUP_FAILED'
+print('DOCUMENT_CLEANUP_INTEGRATION_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_CLEANUP_INTEGRATION_PASS/);
+});
+
+test('document fixtures, receipts, integrity, worker state and denials fail closed',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof m.documentFixture,'function');assert.equal(typeof m.validateDocumentReceipt,'function');
+ for(const format of ['txt','pdf']){
+  const a=m.documentFixture('a'.repeat(32),format,1),b=m.documentFixture('a'.repeat(32),format,2);
+  assert(a.bytes.length>0&&a.bytes.length<10000);assert.notEqual(a.sha256,b.sha256);
+  assert.equal(a.size,a.bytes.length);assert.equal(format==='pdf'?a.bytes.subarray(0,5).toString():a.mime,format==='pdf'?'%PDF-':'text/plain');
+ }
+ const id='11111111-1111-4111-8111-111111111111';const expected={org:id,contract:id,file:id,document:id,version:2,sha256:'a'.repeat(64),size:42};
+ const receipt={id_documento:id,id_arquivo:id,id_versao:id,numero_versao:2};
+ m.validateDocumentReceipt(receipt,expected);assert.throws(()=>m.validateDocumentReceipt({...receipt,numero_versao:1},expected));assert.throws(()=>m.validateDocumentReceipt({...receipt,id_arquivo:'bad'},expected));
+ const progress={org:id,contract:id,file:id,sha256:expected.sha256,size:42,security:'aprovado',processing:'concluido',job:'concluido',pages:1,fragments:1};
+ m.validateDocumentProgress(progress,expected);for(const change of [{security:'pendente'},{processing:'processando'},{job:'falhou'},{pages:0},{sha256:'b'.repeat(64)},{org:'foreign'},{size:41}])assert.throws(()=>m.validateDocumentProgress({...progress,...change},expected));
+ m.validateDocumentDenial({status:403,code:'AUTH_ACESSO_NEGADO'},'upload');m.validateDocumentDenial({status:404,code:'REGISTRO_NAO_ENCONTRADO'},'download');
+ for(const status of [0,200,401,500])assert.throws(()=>m.validateDocumentDenial({status,code:'AUTH_ACESSO_NEGADO'},'upload'));
+});
+
+test('document initialization and receipt recovery use private nonce scope without granting upload during gate',()=>{
+ const code=`import runpy,json,tempfile,os
+from pathlib import Path
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py');R=m['Runner'];assert callable(getattr(R,'recover_document_uploads',None))
+with tempfile.TemporaryDirectory() as d:
+ env={'RUNNER_TEMP':d,'CONTAOS_TEST_PRIVATE_DIR':d+'/own','DATABASE_URL':'postgresql://postgres.gklhhhyosgasnyoxlrui:canary@aws-0.pooler.supabase.com/postgres','AUTH_ADMIN_KEY':'PRIVATE_CANARY','TESTED_HEAD':'a'*40,'FRONTEND_HEAD':'b'*40}
+ Path(d+'/docs/tasks').mkdir(parents=True);Path(d+'/docs/tasks/active-task.json').write_text(json.dumps({'phase':'GATE_PROVA_PRIVADA_DOCUMENTOS','crud_global_proof':{'batch':'DOCUMENTOS'}}));os.chdir(d)
+ r=R(env);assert r.batch=='DOCUMENTOS';assert not r.material_enabled
+ try:r.prepare()
+ except AssertionError:pass
+ else:raise AssertionError('GATE cannot create material fixtures')
+ calls=[]
+ f={'batch':'DOCUMENTOS','scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' ','org':'11111111-1111-4111-8111-111111111111','contract':'22222222-2222-4222-8222-222222222222','users':[]}
+ def sql(source,fetch=False):
+  calls.append(source);assert f['nonce'] in source and f['org'] in source and f['prefix'] in source and 'own_contract' in source
+  if 'DOCUMENT_RECOVER_OBJECTS' in source:
+   assert "bucket_id='contaos-documentos'" in source and '/uploads/' in source;return '[]'
+  assert 'DOCUMENT_RECOVER_FILES' in source and f['contract'] in source;return '[]'
+ r.sql=sql;r.recover_document_uploads(f);assert len(calls)==2
+ assert json.loads((r.root/'fixture.json').read_text())['recovered_uploads']==[]
+ assert 'PRIVATE_CANARY' not in (r.root/'report.json').read_text()
+print('DOCUMENT_PRIVATE_RECOVERY_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_PRIVATE_RECOVERY_PASS/);
+});
+
+test('main finally still quarantines identities when browser fails and own worker remains active',()=>{
+ const code=`import runpy,json,tempfile,sys
+from pathlib import Path
+from types import SimpleNamespace
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py');R=m['Runner'];main=m['main'];calls=[]
+with tempfile.TemporaryDirectory() as d:
+ r=object.__new__(R);r.root=Path(d);r.batch='DOCUMENTOS';r.report={'assertions':[]};r.prepare=lambda:None
+ r.save('fixture.json',{'batch':'DOCUMENTOS','scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' ','users':[{'intent_id':'intent','creation_state':'created'}]})
+ def sql(source,fetch=False):
+  calls.append(source)
+  if source.startswith('select id from auth.users'):return '11111111-1111-4111-8111-111111111111'
+  if source.startswith('select id from public.organizacoes'):return '22222222-2222-4222-8222-222222222222'
+  return 't' if fetch else None
+ r.sql=sql;r.request=lambda *a,**k:(calls.append('BAN') or (200,{}));r.recover_document_uploads=lambda f:{}
+ def quarantine(f):calls.append('QUARANTINE');raise RuntimeError('pending own worker')
+ r.quarantine_document_jobs=quarantine
+ def watcher_failure():raise RuntimeError('Own controller failed')
+ r.handle_document_control=watcher_failure
+ process=SimpleNamespace(returncode=None,poll=lambda:None,terminate=lambda:calls.append('TERMINATE_BROWSER'),wait=lambda timeout:calls.append('WAIT_BROWSER'))
+ g=main.__globals__;g['Runner']=lambda env:r;g['subprocess']=SimpleNamespace(Popen=lambda *a,**k:process,DEVNULL=-3);sys.argv=['harness']
+ assert main()==1
+ assert 'TERMINATE_BROWSER' in calls and calls.index('TERMINATE_BROWSER')<calls.index('BAN')
+ assert 'BAN' in calls and any('delete from auth.sessions' in x for x in calls) and 'QUARANTINE' in calls
+ assert r.report['state']=='CLEANUP_FAILED' and r.report['cleanup']['state']=='QUARENTENA_PENDENTE'
+ assert not any("set situacao='inativa'" in x for x in calls)
+print('DOCUMENT_FINALLY_FAIL_CLOSED_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_FINALLY_FAIL_CLOSED_PASS/);
+});
+
+test('own administrator revocation control rejects foreign nonce, user, action and replay',()=>{
+ const code=`import runpy,tempfile,json
+from pathlib import Path
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py');fn=m.get('validate_document_control');assert callable(fn),'Missing closed revocation control'
+u='11111111-1111-4111-8111-111111111111';o='22222222-2222-4222-8222-222222222222'
+f={'batch':'DOCUMENTOS','scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' ','org':o,'users':[{'profile':'administrador','id':u,'intent_id':u}]}
+r={'action':'REVOKE_OWN_ADMIN','nonce':f['nonce'],'org':o,'user':u}
+assert fn(r,f)==u
+for bad in [dict(r,nonce='b'*32),dict(r,user=o),dict(r,org=u),dict(r,action='SQL'),dict(r,sql='select 1')]:
+ try:fn(bad,f)
+ except AssertionError:pass
+ else:raise AssertionError('Unsafe control accepted')
+f['permission_control']={'state':'INTENT'}
+try:fn(r,f)
+except AssertionError:pass
+else:raise AssertionError('Control replay accepted')
+print('DOCUMENT_CLOSED_CONTROL_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_CLOSED_CONTROL_PASS/);
+});
+
+test('document completion retains whole domain as unverified and refuses expired-session revocation proof',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.documentCoverage,'function');
+ assert.deepEqual(m.documentCoverage(),{completed_scopes:['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false});
+ for(const status of [401,500]){assert.throws(()=>m.validateDocumentDenial({status,code:'42501'},'mutation'));assert.throws(()=>m.validateDocumentDenial({status,code:'REGISTRO_NAO_ENCONTRADO'},'download'));}
+});
+
+test('revocation controller persists intent before its single fixed own-binding SQL and refuses replay',()=>{
+ const code=`import runpy,tempfile,json
+from pathlib import Path
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py');R=m['Runner'];calls=[]
+u='11111111-1111-4111-8111-111111111111';o='22222222-2222-4222-8222-222222222222'
+with tempfile.TemporaryDirectory() as d:
+ r=object.__new__(R);r.root=Path(d);r.batch='DOCUMENTOS';r.report={}
+ f={'batch':'DOCUMENTOS','scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' ','org':o,'users':[{'profile':'administrador','id':u,'intent_id':u,'creation_state':'created'}]};r.save('fixture.json',f)
+ request={'action':'REVOKE_OWN_ADMIN','nonce':f['nonce'],'org':o,'user':u};p=r.root/'document-control-request.json';p.write_text(json.dumps(request))
+ def sql(source,fetch=False):
+  calls.append(source);assert json.loads((r.root/'fixture.json').read_text())['permission_control']['state']=='INTENT'
+  for marker in ['DOCUMENT_REVOKE_OWN_ADMIN',u,o,f['prefix'],'fixture_request_id','crud_nonce',"v.perfil='administrador'","set ativo=false"]:assert marker in source
+  for forbidden in ['delete from auth.sessions','update auth.users','alter table','create function']:assert forbidden not in source
+  return '1'
+ r.sql=sql;r.handle_document_control();assert len(calls)==1 and not p.exists()
+ ack=json.loads((r.root/'document-control-response.json').read_text());assert ack=={'action':'REVOKE_OWN_ADMIN','nonce':f['nonce'],'state':'REVOKED'}
+ p.write_text(json.dumps(request))
+ try:r.handle_document_control()
+ except AssertionError:pass
+ else:raise AssertionError('Replayed fixed control ran twice')
+ assert len(calls)==1
+print('DOCUMENT_CONTROL_INTENT_SQL_REPLAY_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_CONTROL_INTENT_SQL_REPLAY_PASS/);
+});
