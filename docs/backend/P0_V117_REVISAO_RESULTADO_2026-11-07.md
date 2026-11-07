@@ -1,3 +1,5 @@
+Revisão focal adicional do FIX104 encontrou que save/browser.close poderiam impedir stopServer. Reproduzido RED real com close rejeitado e grupo contendo neto que ignora TERM. Corrigido finally interno obrigatório, timeout de fechamento do browser e espera do processo após KILL. GREEN protocolo confirma processo/neto encerrados mesmo com close rejeitado. Não tratar execução antiga como evidência dessa correção; novo CI requerido.
+
 ## Primeira execução privada: FAIL preservado, quarentena PASS
 Run42369440263, HEAD27fe28a1362df5a52182c75eafcf74f046e12a5c, job128394319425:38 assertions HTTP anteriores PASS, aceitação privada FAIL antes do primeiro check de login. Relatório sanitizado não tem assertions privadas nem capturas; não inventar causa da falha de login. Artifact13572468983 SHA256da26705cec856869de5f37f3608c068c997955967587bcec73c218c317dae1c6. Quarentena própria8usuários verificada no finally e always; sem nova aprovação ou exposição de credenciais.
 

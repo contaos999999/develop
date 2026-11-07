@@ -5,11 +5,20 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {spawn} from 'node:child_process';
 
+export async function finishRunner(save,browser,server) {
+  let timer;
+  try {save();} finally {
+    try {
+      if(browser) await Promise.race([browser.close(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Browser shutdown timeout')),2000);})]);
+    } finally {clearTimeout(timer);await stopServer(server);}
+  }
+}
 export async function stopServer(server) {
   if (!server?.pid) return;
   try {process.kill(-server.pid,'SIGTERM');} catch(e) {if(e.code!=='ESRCH') throw e;}
   await Promise.race([new Promise(r=>server.once('exit',r)),new Promise(r=>setTimeout(r,1500))]);
   try {process.kill(-server.pid,'SIGKILL');} catch(e) {if(e.code!=='ESRCH') throw e;}
+  if(server.exitCode===null && server.signalCode===null) await Promise.race([new Promise(r=>server.once('exit',r)),new Promise((_,reject)=>setTimeout(()=>reject(Error('Server shutdown timeout')),1500))]);
 }
 export function publicRecord({name,pass,http}) {
   assert(/^[A-Za-z0-9 _:-]{1,100}$/.test(name));
@@ -25,6 +34,13 @@ if(process.argv.includes('--self-test')) {
   await new Promise(r=>child.once('spawn',r));
   await stopServer(child);
   assert.throws(()=>process.kill(child.pid,0),e=>e.code==='ESRCH');
+  const group=spawn(process.execPath,['-e',`const {spawn}=require('node:child_process');const grandchild=spawn(process.execPath,['-e','process.on("SIGTERM",()=>{});console.log("READY");setInterval(()=>{},1000)'],{stdio:['ignore','pipe','ignore']});grandchild.stdout.once('data',()=>console.log(grandchild.pid));process.on('SIGTERM',()=>{});setInterval(()=>{},1000);`],{detached:true,stdio:['ignore','pipe','ignore']});
+  const grandchild=Number(await new Promise(r=>group.stdout.once('data',b=>r(b.toString().trim()))));
+  try {
+    await assert.rejects(()=>finishRunner(()=>{}, {close:async()=>{throw Error('SIMULATED_CLOSE_FAILURE');}},group),/SIMULATED_CLOSE_FAILURE/);
+    assert(group.exitCode!==null || group.signalCode!==null,'close rejection cannot skip process cleanup');
+    try {assert.equal(readFileSync('/proc/'+grandchild+'/stat','utf8').split(' ')[2],'Z','grandchild must not remain alive');} catch(e) {if(e.code!=='ENOENT')throw e;}
+  } finally {await stopServer(group);}
   console.log('V117_BROWSER_PROTOCOL_SELF_TEST_PASS');
 } else {
   assert(!process.env.AUTH_ADMIN_KEY && !process.env.DATABASE_URL && !process.env.GH_TOKEN);
@@ -139,5 +155,5 @@ if(process.argv.includes('--self-test')) {
       }catch{}
     }
     throw Error('Private browser acceptance failed; sanitized report contains the completed checks');}
-  finally{save();await browser?.close();await stopServer(server);}
+  finally{await finishRunner(save,browser,server);}
 }
