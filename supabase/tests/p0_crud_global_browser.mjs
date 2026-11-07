@@ -44,6 +44,12 @@ export async function fillNextVersionDates(page,start){
   await page.getByLabel('Início da vigência',{exact:true}).fill(start);
   await page.getByLabel('Fim da vigência',{exact:true}).fill('');
 }
+export async function recordBrowserFailure(report,error,save,diagnose){
+  report.state='FAIL';
+  report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(error.name)?error.name:'Other';
+  save();
+  try{await diagnose();}catch{report.diagnostic_failed=true;}finally{save();}
+}
 export function loginFormIsInteractive(){const e=document.querySelector('form');return !!e&&Object.keys(e).some(k=>k.startsWith('__reactProps$')&&typeof e[k]?.onSubmit==='function');}
 async function stop(server,browser){
   let timer;
@@ -61,7 +67,7 @@ async function main(){
   function stage(s){assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
   function created(name,id){assert(['organization','contractor','contract','list'].includes(name)&&/^[a-f0-9-]{36}$/.test(id));f.created[name]=id;writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});}
-  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;
+  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser,businessPage;
   try{
     stage('SERVER_READY');for(let i=0;i<120;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
     browser=await chromium.launch({headless:true,env:browserEnvironment(process.env)});
@@ -105,8 +111,8 @@ async function main(){
     await ap.goto(base+'/contratos/'+f.created.contract);region=await manager(ap,'contract');await editCadastro(ap,region,'contract','Objeto','Own synthetic edited contract','CONTRACT_EDIT');
     for(const state of ['ativo','suspenso','ativo','encerrado']){region=await manager(ap,'contract');await stateCadastro(ap,region,'contract',state,'CONTRACT_STATE_'+state.toUpperCase());}
     await admin.context.close();
-    const lp=mp;stage('LIST_OPEN');await lp.goto(base+'/contratos/'+f.contract+'/regras');await lp.getByRole('button',{name:'Gerenciar listas',exact:true}).click();
-    async function listOp(page,code,button,fill=async()=>{}){await page.getByRole('button',{name:button,exact:true}).click();await fill();await page.getByLabel('Motivo',{exact:true}).fill('Own synthetic list operation');await page.getByRole('button',{name:'Revisar operação',exact:true}).click();return rpc(page,code,'executar_comando_lista_v1',()=>page.getByRole('button',{name:'Confirmar operação',exact:true}).click());}
+    const lp=mp;businessPage=lp;stage('LIST_OPEN');await lp.goto(base+'/contratos/'+f.contract+'/regras');await lp.getByRole('button',{name:'Gerenciar listas',exact:true}).click();
+    async function listOp(page,code,button,fill=async()=>{}){stage(code+'_OPEN');await page.getByRole('button',{name:button,exact:true}).click();stage(code+'_FIELDS');await fill();stage(code+'_REVIEW');await page.getByLabel('Motivo',{exact:true}).fill('Own synthetic list operation');await page.getByRole('button',{name:'Revisar operação',exact:true}).click();return rpc(page,code,'executar_comando_lista_v1',()=>page.getByRole('button',{name:'Confirmar operação',exact:true}).click());}
     const list=await listOp(lp,'LIST_CREATE','Criar lista',async()=>{await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'list');await lp.getByLabel('Início da vigência',{exact:true}).fill('2026-01-01');});created('list',list.data?.lista?.id);
     await listOp(lp,'LIST_EDIT','Editar lista',()=>lp.getByLabel('Descrição',{exact:true}).fill('Own initial list description'));
     await listOp(lp,'LIST_ITEM_CREATE','Adicionar item',async()=>{await lp.getByLabel('Código',{exact:true}).fill('OWN1');await lp.getByLabel('Descrição do item',{exact:true}).fill('Own optional item');await lp.getByLabel('Obrigatório',{exact:true}).uncheck();});
@@ -139,7 +145,25 @@ async function main(){
     const reader=await open('leitor');reader.page._crudRole='leitor';await chooseOrg(reader.page,f.org);await reader.page.goto(base+'/contratos/'+f.contract+'/regras');await reader.page.getByRole('button',{name:'Gerenciar listas',exact:true}).click();await expect(reader.page.getByRole('button',{name:'Criar lista',exact:true})).toHaveCount(0);await expect(reader.page.getByRole('button',{name:'Editar lista',exact:true})).toHaveCount(0);check('READER_MUTATIONS_ABSENT',true);await reader.context.close();
     const other=await open('usuario_b');other.page._crudRole='usuario_b';await chooseOrg(other.page,f.org_b);await other.page.goto(base+'/contratos/'+f.contract+'/regras');await expect(other.page.getByRole('alert')).toContainText(/não.*acesso|não.*permissão|não encontrad|indisponível/i);await expect(other.page.getByText(f.prefix+'recovered',{exact:true})).toHaveCount(0);check('CROSS_TENANT_UI_DENIED',true);await other.context.close();
     check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';report.completed_domains=['organizacoes','contratantes','contratos','listas'];save();
-  }catch(e){report.state='FAIL';report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
+  }catch(e){
+    process.exitCode=1;await recordBrowserFailure(report,e,save,async()=>{
+    if(businessPage&&report.stage.startsWith('LIST_')&&new URL(businessPage.url()).pathname==='/contratos/'+f.contract+'/regras'){
+      report.ui_diagnostics={};
+      for(const [name,locator] of [
+        ['STATE_ACTION',businessPage.getByRole('button',{name:'Alterar situação',exact:true})],
+        ['REVIEW_ACTION',businessPage.getByRole('button',{name:'Revisar operação',exact:true})],
+        ['CONFIRM_ACTION',businessPage.getByRole('button',{name:'Confirmar operação',exact:true})],
+        ['STATE_FIELD',businessPage.getByLabel('Situação',{exact:true})],
+        ['RETRY_ACTION',businessPage.getByRole('button',{name:'Tentar novamente',exact:true})],
+        ['INCONSISTENT_NOTICE',businessPage.getByText('O servidor retornou dados incompatíveis com o contexto. Atualize para conferir.',{exact:true})],
+        ['UNCERTAIN_NOTICE',businessPage.getByText('O resultado não foi confirmado. Confira a lista antes de repetir explicitamente o mesmo comando.',{exact:true})]
+      ]){
+        const count=await locator.count();report.ui_diagnostics[name]={count};
+        if(count===1){report.ui_diagnostics[name].visible=await locator.isVisible();report.ui_diagnostics[name].enabled=await locator.isEnabled();}
+      }
+      await businessPage.screenshot({path:join(output,'own-list-failure.png'),fullPage:false,animations:'disabled'}).catch(()=>{});
+    }
+    });}
   finally{save();await stop(server,browser);}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();

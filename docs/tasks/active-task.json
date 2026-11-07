@@ -661,7 +661,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "CORRECAO_HARNESS_AGUARDANDO_CI_E_HML",
+    "state": "DIAGNOSTICO_TIMEOUT_TRANSICAO_LISTA",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -676,13 +676,13 @@
     },
     "green": {
       "state": "PASS_LOCAL",
-      "protocol_tests": 11,
-      "full_tests": 41,
+      "protocol_tests": 12,
+      "full_tests": 42,
       "syntax": "node --check + py_compile PASS",
       "guards": "Context/ZeroDrift/Crosswalk/Architecture/SQL/download/SSRF/browser/worker/history PASS",
       "yaml": "2 parsed",
       "review": "Independent review; Important receipt/persistence gap fixed RED→GREEN; no remaining Critical/Important",
-      "hml": "NOT_RUN"
+      "hml": "FAIL_DIAGNOSTIC_REQUIRED"
     },
     "first_hml": {
       "state": "FAIL_HARNESS_RECEIPT",
@@ -719,6 +719,25 @@
       "cause": "New version July start retained previous June end; clear end for open new validity",
       "red": "10 pass 1 fail; missing new version date input helper",
       "no_product_changes": true
-    }
+    },
+    "third_hml": {
+      "run": 42399542588,
+      "job": 128484142083,
+      "backend_head": "b30d69575609ae7aaf2fc15a8e0a85c8d0ef4322",
+      "state": "FAIL_TIMEOUT_UNDETERMINED",
+      "stage": "LIST_DRAFT_DISCARD",
+      "last_command_http": 200,
+      "last_receipt_passed": true,
+      "artifact": 13585021727,
+      "sha256": "ba6ba6eed294da290f05d0f01e5ba807b9a02a34fdd4e4c707fffa7ac4c5ae85",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 4,
+        "own_organizations": 3
+      },
+      "next_action": "Collect constant substeps, locator counts/booleans and screenshot only own synthetic rules page before proposing a fix",
+      "timeout_increased": false
+    },
+    "diagnostic_review": "Safe constant diagnostics and own page capture; save FAIL before best-effort diagnostics, canary test RED→GREEN; cleanup remains independent"
   }
 }

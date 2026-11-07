@@ -23,3 +23,14 @@ Prevenção de falhadeteste adjacente, demonstrada comQueryClientreal: modooffli
 PR123 HEAD66f09ad0346360c2539689fd9b77b4989e382add integrado97ea8f2a52945510237705a8086e8c0a123fe9bb apósguard/restore/backup/probeSUCCESS. Run42398802825/job128481927942 avançouitenscriar/editar/remover, publicar eencerrarvigência comHTTP200/recibos; paroucriarversãoHTTP422. Artefato13584985531 SHA2567c715843f300a1fe0cd5a13b6ca8eac577baf5d3549f7579a88ed6244a46e0a5. Quarentena4usuários/3organizaçõesVERIFICADA.
 
 Causa no preenchimento do teste: Formulario inicia vigencia_fim pela versão anterior2026-06-30; teste preenchia só novoinício2026-07-01. FonteRPC rejeita fim<início, corretamente. Helper agora preencheinício elimpa fim para nova vigência aberta, sem alterarvalidação ouproduto. REDhelperinexistente10PASS/1FAIL; GREEN11/11protocolo. Resto dos critérios permanece obrigatório; nenhumPASSdelote enquanto não houverUI/SQL/isolamento/capturas/limpeza completos.
+
+
+## Terceira execução: diagnóstico antes de corrigir o timeout
+
+Run `42399542588`, job `128484142083`, backend `b30d69575609ae7aaf2fc15a8e0a85c8d0ef4322`: FAIL por TimeoutError após LIST_DRAFT_DISCARD, que recebeu HTTP 200 e passou na validação do recibo. A criação da próxima versão também recebeu 200. O relatório ainda não informa qual controle da operação seguinte ficou indisponível. Não atribuir a causa ao produto ou ao teste sem evidência.
+
+Artefato `13585021727`, SHA-256 `ba6ba6eed294da290f05d0f01e5ba807b9a02a34fdd4e4c707fffa7ac4c5ae85`. Quarentena verificada de quatro usuários e três organizações; nenhum erro de runtime registrado. Sem aprovação de domínio ou lote.
+
+Instrumentação autorizada pelo mesmo PLAN/GATE: estágios constantes OPEN, FIELDS e REVIEW antes de cada operação de lista; contagem e booleanos de sete controles/avisos conhecidos; captura somente da rota de regras do contrato sintético próprio em etapa LIST_. Não coletar stack, corpo de resposta, valor de campo, dados de login ou URL assinada. Nenhum timeout, autorização ou critério foi reduzido; nenhuma correção funcional foi proposta. Protocolo 11/11 e suíte 41/41 mantidos, revisão independente antes do merge. Próxima prova deve localizar a subetapa antes de qualquer novo ajuste.
+
+A revisão do diagnóstico recomendou persistir FAIL antes de consultar controles: se um locator falhar, o diagnóstico não pode manter RUNNING nem mascarar a falha original. Teste RED observado (11 PASS/1 FAIL), seguido de helper que grava FAIL/classe permitida antes e envolve o diagnóstico em try/catch. Canário demonstra que mensagens privadas não entram no relatório. Protocolo final 12/12 e suíte 42/42; nenhuma alteração no cleanup ou timeout.

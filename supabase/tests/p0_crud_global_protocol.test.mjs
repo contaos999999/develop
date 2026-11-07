@@ -104,3 +104,10 @@ test('new open version clears the prior closed version end date',async()=>{
  await fillNextVersionDates(page,'2026-07-01');
  assert.deepEqual(fields,{'Início da vigência':'2026-07-01','Fim da vigência':''});
 });
+
+test('diagnostic failure preserves FAIL and excludes the original private error message',async()=>{
+ const {recordBrowserFailure}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof recordBrowserFailure,'function');const report={state:'RUNNING'},saved=[];
+ await recordBrowserFailure(report,new TypeError('PRIVATE_CANARY'),()=>saved.push({...report}),async()=>{throw Error('PRIVATE_CANARY');});
+ assert.equal(saved[0].state,'FAIL');assert.equal(report.state,'FAIL');assert.equal(report.failure_class,'TypeError');assert.equal(report.diagnostic_failed,true);assert(!JSON.stringify(report).includes('PRIVATE_CANARY'));
+});
