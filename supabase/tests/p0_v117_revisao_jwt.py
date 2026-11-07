@@ -112,7 +112,18 @@ def cleanup():
         persisted['cleanup'] = result
         save('report.json', persisted)
 
+def browser_environment(source):
+    # Allowlist only. Future secrets added by the runner are excluded by default.
+    allowed = ('PATH', 'HOME', 'RUNNER_TEMP', 'TMPDIR', 'LANG', 'TZ', 'CI', 'XDG_CACHE_HOME',
+               'CONTAOS_TEST_PRIVATE_DIR', 'CONTAOS_FRONTEND_DIR', 'CONTAOS_AXE_SOURCE_PATH',
+               'CONTAOS_PLAYWRIGHT_MODULE', 'TESTED_HEAD', 'FRONTEND_HEAD')
+    return {key: source[key] for key in allowed if key in source}
+
+
 def self_test():
+    # Privileged environment must never be inherited by Node/Chromium.
+    safe = browser_environment({'PATH': '/usr/bin', 'HOME': '/tmp', 'AUTH_ADMIN_KEY': 'private', 'DATABASE_URL': 'private', 'GH_TOKEN': 'private', 'UNEXPECTED_SECRET': 'private'})
+    assert safe == {'PATH': '/usr/bin', 'HOME': '/tmp'}
     # Recovery fault injection, no network or database calls.
     global sql, request
     calls = []
@@ -176,6 +187,14 @@ try:
     statements.append(f"insert into public.competencias(id,id_organizacao,id_contrato,competencia_referencia,periodo_inicio,periodo_fim,situacao) values({q(f['competence'])},{q(f['org'])},{q(f['contract'])},'2026-11-01','2026-11-01','2026-11-30','em_analise');")
     for req in [f['requirement'], f['requirement2']]:
         statements.append(f"insert into public.requisitos_competencia(id,id_organizacao,id_contrato,id_competencia,origem_tipo,descricao,hash_snapshot,codigo) values({q(req)},{q(f['org'])},{q(f['contract'])},{q(f['competence'])},'manual','Synthetic requirement',{q(req)},{q(req)});")
+    if os.environ.get('CONTAOS_V117_BROWSER') == '1':
+        f.update({'file': uid(), 'document': uid(), 'version': uid()})
+        save('fixture.json', f)
+        statements += [
+            f"insert into public.arquivos(id,id_organizacao,id_contrato,path,nome_original,sha256,status_seguranca) values({q(f['file'])},{q(f['org'])},{q(f['contract'])},{q('synthetic/'+f['scope']+'/'+f['file'])},'evidence.pdf',repeat('a',64),'aprovado');",
+            f"insert into public.documentos_competencia(id,id_organizacao,id_contrato,id_competencia,tipo,titulo) values({q(f['document'])},{q(f['org'])},{q(f['contract'])},{q(f['competence'])},'comprovante','Synthetic evidence metadata');",
+            f"insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash) values({q(f['version'])},{q(f['org'])},{q(f['contract'])},{q(f['document'])},1,{q(f['file'])},repeat('a',64));"
+        ]
     statements.append(f"insert into public.execucoes_analise(id,id_organizacao,id_contrato,id_competencia,tipo,status,hash_entrada,concluida_em) values({q(f['execution'])},{q(f['org'])},{q(f['contract'])},{q(f['competence'])},'completa','concluida',privado.hash_contexto_competencia({q(f['competence'])}),now());")
     statements.append('commit;')
     sql('\n'.join(statements))
@@ -222,6 +241,13 @@ try:
         results = list(pool.map(lambda k: rpc('registrar_revisao_requisito_v117', command(ctx, k), tokens['administrador']), [uid(), uid()]))
     check('Concurrent HTTP CAS one winner', sorted(x[0] for x in results) == [200, 409])
     check('Exactly three result/event effects', sql(f"select (select count(*) from public.resultados_requisitos where id_competencia={q(f['competence'])})=3 and (select count(*) from public.eventos_auditoria where evento='RevisaoRequisitoRegistrada' and id_organizacao={q(f['org'])})=3;", True) == 't')
+    if os.environ.get('CONTAOS_V117_BROWSER') == '1':
+        # Fixed in-repository hook only; subprocess errors never print private browser state.
+        browser = subprocess.run(['node', 'supabase/tests/p0_v117_revisao_browser.mjs'], capture_output=True, text=True, timeout=600, env=browser_environment(os.environ))
+        check('Private browser acceptance', browser.returncode == 0)
+        receipt = json.loads((ROOT / 'browser-receipt.json').read_text())
+        assert receipt['id_competencia'] == f['competence'] and receipt['id_requisito'] == f['requirement']
+        check('Browser review persisted with own evidence and audit', sql(f"select exists(select 1 from public.resultados_requisitos r join public.evidencias_resultado e on e.id_resultado=r.id where r.id={q(receipt['id_resultado'])} and r.id_competencia={q(f['competence'])} and r.id_execucao={q(receipt['id_execucao'])} and e.id_versao_documento={q(f['version'])}) and (select count(*) from public.eventos_auditoria where evento='RevisaoRequisitoRegistrada' and id_organizacao={q(f['org'])})=4;", True) == 't')
     report['state'] = 'PASS'
 except Exception:
     if report['state'] == 'RUNNING':

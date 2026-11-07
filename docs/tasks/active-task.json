@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "GATE_PROVA_PRIVADA_VALIDADO",
+  "phase": "BUILD_PROVA_PRIVADA_FRONTEND",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -434,7 +434,7 @@
   "auth_change_scope": "Somente identidades sintéticas próprias via Auth Admin API e quarentena/revogação das próprias sessões. Nenhuma configuração Auth/SMTP/provedores ou identidade preexistente.",
   "browser_proof_scope": {
     "frontend_repository": "contaos999999/contaos-hml-control",
-    "frontend_head": "e4275ee62593fa6cce49d0b6a1417a37f389ae08",
+    "frontend_head": "508c5ff471b4cb453961c71415d3ac62fbb0d245",
     "environment": "hml",
     "no_deploy": true,
     "no_schema_changes": true,
@@ -456,7 +456,11 @@
       "plan_head": "7e46c6cc4060e294c49027c7b607d1da33961a3a",
       "plan_merge": "6e53e57ee80ae8506e0acb947553f4fec57acc95",
       "guard": "SUCCESS",
-      "review": "Fonte frontend exata com CI e ancestralidade antes de execução; nenhum secret no browser; própria sessão GoTrue; finally e always para quarentena; sem deploy ou alteração de backend de produto."
-    }
+      "review": "Fonte frontend exata com CI e ancestralidade antes de execução; nenhum secret no browser; própria sessão GoTrue; finally e always para quarentena; sem deploy ou alteração de backend de produto.",
+      "gate_pr": 101,
+      "gate_merge": "937bd9b0792b57b5e2677223eab95deb74154761"
+    },
+    "red": "node arquivo ainda inexistente, MODULE_NOT_FOUND; não é prova HML",
+    "protocol_self_test": "PASS_LOCAL"
   }
 }

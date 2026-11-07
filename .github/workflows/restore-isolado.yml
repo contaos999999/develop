@@ -49,6 +49,10 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      - name: Protocolo privado V117 sem rede
+        run: |
+          node supabase/tests/p0_v117_revisao_browser.mjs --self-test
+          python3 -m py_compile supabase/tests/p0_v117_revisao_jwt.py
       - name: Instalar Supabase CLI fixada
         uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
         with:
