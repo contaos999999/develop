@@ -104,3 +104,12 @@ test('new open version clears the prior closed version end date',async()=>{
  await fillNextVersionDates(page,'2026-07-01');
  assert.deepEqual(fields,{'Início da vigência':'2026-07-01','Fim da vigência':''});
 });
+
+
+test('failure diagnostics expose only known UI flags and bounded read status',async()=>{
+ const {sanitizeUiDiagnostic}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof sanitizeUiDiagnostic,'function');
+ assert.deepEqual(sanitizeUiDiagnostic({manage_list:true,change_state:false,loading:true,denied:false,inconsistent:true,transient:false,pending:false,read_http:200,secret:'PRIVATE_CANARY',text:'PRIVATE_CANARY'}),{manage_list:true,change_state:false,loading:true,denied:false,inconsistent:true,transient:false,pending:false,read_http:200});
+ assert.throws(()=>sanitizeUiDiagnostic({manage_list:'PRIVATE_CANARY'}));
+ assert.throws(()=>sanitizeUiDiagnostic({read_http:'PRIVATE_CANARY'}));
+});
