@@ -5,6 +5,12 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {spawn} from 'node:child_process';
 
+export async function stopServer(server) {
+  if (!server?.pid) return;
+  try {process.kill(-server.pid,'SIGTERM');} catch(e) {if(e.code!=='ESRCH') throw e;}
+  await Promise.race([new Promise(r=>server.once('exit',r)),new Promise(r=>setTimeout(r,1500))]);
+  try {process.kill(-server.pid,'SIGKILL');} catch(e) {if(e.code!=='ESRCH') throw e;}
+}
 export function publicRecord({name,pass,http}) {
   assert(/^[A-Za-z0-9 _:-]{1,100}$/.test(name));
   assert(typeof pass==='boolean');
@@ -15,6 +21,10 @@ if(process.argv.includes('--self-test')) {
   assert.deepEqual(publicRecord({name:'Review persisted',pass:true,password:'private',access_token:'private'}),{name:'Review persisted',pass:true});
   assert.throws(()=>publicRecord({name:'token@example.invalid',pass:true}));
   assert.throws(()=>publicRecord({name:'Review',pass:'yes'}));
+  const child=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{detached:true,stdio:'ignore'});
+  await new Promise(r=>child.once('spawn',r));
+  await stopServer(child);
+  assert.throws(()=>process.kill(child.pid,0),e=>e.code==='ESRCH');
   console.log('V117_BROWSER_PROTOCOL_SELF_TEST_PASS');
 } else {
   assert(!process.env.AUTH_ADMIN_KEY && !process.env.DATABASE_URL && !process.env.GH_TOKEN);
@@ -28,35 +38,48 @@ if(process.argv.includes('--self-test')) {
   const admin=f.users.find(u=>u.profile==='administrador');
   assert(admin?.creation_state==='created');
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
+  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',stage:'START',assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
   function save(){writeFileSync(join(output,'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
-  const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,stdio:'ignore',env:Object.fromEntries(Object.entries(process.env).filter(([k])=>!['DATABASE_URL','AUTH_ADMIN_KEY','GH_TOKEN'].includes(k)))});
-  let browser;
+  const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:Object.fromEntries(Object.entries(process.env).filter(([k])=>!['DATABASE_URL','AUTH_ADMIN_KEY','GH_TOKEN'].includes(k)))});
+  let browser,page;
+  function stage(value){report.stage=value;save();}
   try {
+    stage('SERVER_READY_WAIT');
     for(let i=0;i<120;i++){try{if((await fetch('http://127.0.0.1:4173/login')).ok)break;}catch{} if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
+    stage('CHROMIUM_LAUNCH');
     browser=await chromium.launch({headless:true,env:{...process.env}});
     const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light'});
     // Login uses the product form and GoTrue, never a forged JWT or admin token.
-    const page=await context.newPage();page.setDefaultTimeout(30000);
+    page=await context.newPage();page.setDefaultTimeout(30000);
+    stage('LOGIN_NAVIGATE');
     await page.goto('http://127.0.0.1:4173/login');
+    stage('LOGIN_EMAIL');
     await page.getByLabel('E-mail',{exact:true}).fill(admin.email);
+    stage('LOGIN_PASSWORD');
     await page.getByLabel('Senha',{exact:true}).fill(admin.password);
+    stage('LOGIN_SUBMIT');
     const login=page.waitForResponse(r=>r.url().includes('/auth/v1/token?')&&r.request().method()==='POST');
     await page.getByRole('button',{name:'Entrar',exact:true}).click();
     check('Browser GoTrue login',(await login).status()===200,200);
+    stage('LOGIN_REDIRECT');
     await page.waitForURL(u=>!u.pathname.includes('/login'));
     await page.evaluate(({user,org})=>sessionStorage.setItem('contaos.preferenciaOrganizacao',JSON.stringify({idUsuario:user,idOrganizacao:org})),{user:admin.id,org:f.org});
     const route='http://127.0.0.1:4173/competencias/'+f.competence+'/analise';
+    stage('ANALYSIS_NAVIGATE');
     await page.goto(route);
     const open=page.getByRole('button',{name:'Abrir requisito '+f.requirement,exact:true});
+    stage('OPEN_REQUIREMENT');
     await open.click();
     await expect(page.getByRole('heading',{name:'Detalhe do requisito',exact:true})).toBeVisible();
+    stage('OPEN_REVIEW');
     await page.getByRole('button',{name:'Revisar resultado',exact:true}).click();
     await expect(page.getByLabel('Justificativa da revisão')).toBeVisible();
     check('Private drawer and review editor',true);
+    stage('APPROVED_EVIDENCE');
     const choice=page.getByRole('checkbox',{name:'Selecionar evidence.pdf versão 1',exact:true});
     await expect(choice).toBeVisible();check('RLS approved evidence query',true);
+    stage('VISUAL_AUDIT');
     for(const width of [1440,1280,768,390])for(const theme of ['light','dark']){
       await page.setViewportSize({width,height:1000});
       await page.emulateMedia({colorScheme:theme});
@@ -73,6 +96,7 @@ if(process.argv.includes('--self-test')) {
       check('No horizontal overflow '+width+' '+theme,overflow<=2);
       check('Automated accessibility '+width+' '+theme,a11y.violations.length===0);
     }
+    stage('REVIEW_WRITE');
     await page.setViewportSize({width:1440,height:1000});
     await page.getByLabel('Resultado da revisão').selectOption('conforme');
     await page.getByLabel('Justificativa da revisão').fill('Synthetic UI review '+f.scope);
@@ -89,6 +113,7 @@ if(process.argv.includes('--self-test')) {
     await expect(page.getByText('Synthetic UI review '+f.scope,{exact:true}).first()).toBeVisible();
     check('UI displays persisted justification',true);
     await context.close();
+    stage('CROSS_TENANT_DENIAL');
     const denied=f.users.find(u=>u.profile==='usuario_b');
     const other=await browser.newContext({viewport:{width:1280,height:900}});
     const otherPage=await other.newPage();otherPage.setDefaultTimeout(30000);
@@ -103,6 +128,16 @@ if(process.argv.includes('--self-test')) {
     check('Cross tenant UI denies private competence',true);
     check('Denied tenant has no review button',await otherPage.getByRole('button',{name:'Revisar resultado',exact:true}).count()===0);
     await other.close();report.state='PASS';
-  }catch{report.state='FAIL';throw Error('Private browser acceptance failed; sanitized report contains the completed checks');}
-  finally{save();await browser?.close();server.kill('SIGTERM');}
+  }catch(error){
+    report.state='FAIL';
+    report.failure_flags=['Timeout','locator.fill','locator.click','waitForResponse','strict mode violation','ERR_CONNECTION','browserType.launch'].filter(x=>String(error?.message||'').includes(x));
+    if(page && !page.isClosed()) {
+      try {
+        await page.locator('input').evaluateAll(es=>es.forEach(e=>e.value=''));
+        report.failure_surface=await page.evaluate(()=>({path:location.pathname.split('/').map(x=>/^[a-z-]+$/.test(x)?x:'[id]').join('/'),headings:[...document.querySelectorAll('h1,h2')].map(e=>e.textContent).filter(x=>['Acesso ao ContaOS','Entrar no ContaOS','ContaOS','Entrar'].includes(x)),email_field:!!document.querySelector('#login-email'),password_field:!!document.querySelector('#login-senha')}));
+        await page.screenshot({path:join(output,'failure-cleared-inputs.png'),fullPage:true});
+      }catch{}
+    }
+    throw Error('Private browser acceptance failed; sanitized report contains the completed checks');}
+  finally{save();await browser?.close();await stopServer(server);}
 }

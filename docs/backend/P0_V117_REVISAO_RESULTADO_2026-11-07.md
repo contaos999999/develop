@@ -1,3 +1,8 @@
+## Primeira execução privada: FAIL preservado, quarentena PASS
+Run42369440263, HEAD27fe28a1362df5a52182c75eafcf74f046e12a5c, job128394319425:38 assertions HTTP anteriores PASS, aceitação privada FAIL antes do primeiro check de login. Relatório sanitizado não tem assertions privadas nem capturas; não inventar causa da falha de login. Artifact13572468983 SHA256da26705cec856869de5f37f3608c068c997955967587bcec73c218c317dae1c6. Quarentena própria8usuários verificada no finally e always; sem nova aprovação ou exposição de credenciais.
+
+Falha adicional comprovada: rm do frontend retornou diretório node_modules não vazio porque npm/Vite deixou processo filho ativo. Correção em validação: grupo próprio de processos, TERM/espera limitada/KILL e teste real sem rede confirma fim do filho. Diagnóstico passa a registrar apenas estágio enumerado e flags fixas de erro; screenshot de falha somente após esvaziar inputs. Nunca publicar stderr bruto, tokens ou storageState. Após CI/merge, reexecutar prova real pelo runner canônico sem deploy. Roteamento de listas fora de tarefa seguePLAN103 separado, sem integrar antes desta correção.
+
 ## BUILD do harness privado em validação
 PLAN100 integrado6e53e57; GATE101 integrado937bd9b após guard verde em4c5b6fa. Harness Playwright novo em RED por módulo inexistente e GREEN no teste local do protocolo; não equivale a execução HML. Quarentena fault-injection local PASS. Revisão independente encontrou herança de segredos pelo subprocesso Node/Chromium: reproduzido teste negativo antes da função de allowlist; corrigido por ambiente restrito no Python, guarda fail-closed no Node e env explícito Chromium. Ambiente desconhecido fica excluído por padrão.
 
