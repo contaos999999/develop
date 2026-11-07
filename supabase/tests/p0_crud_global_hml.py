@@ -227,7 +227,7 @@ def local_document_quarantine_proof():
     org,contract=scope[0];file_id,doc,version=uid(),uid(),uid();sha='0'*64
     runner.sql('begin;insert into public.arquivos(id,id_organizacao,id_contrato,path,nome_original,mime,tamanho,sha256) values('+q(file_id)+','+q(org)+','+q(contract)+','+q(org+'/'+contract+'/local.txt')+",'local-quarantine.txt','text/plain',1,"+q(sha)+');insert into public.documentos_contrato(id,id_organizacao,id_contrato,tipo,titulo) values('+q(doc)+','+q(org)+','+q(contract)+",'contrato','Local quarantine document');insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_contrato,numero_versao,id_arquivo,hash) values("+q(version)+','+q(org)+','+q(contract)+','+q(doc)+',1,'+q(file_id)+','+q(sha)+');insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status) values('+q(org)+','+q(contract)+','+q(version)+",'documents','pendente'),("+q(org)+','+q(contract)+','+q(version)+",'ocr','concluido');commit;")
     def job(tenant,contract_id,queue='documents'):
-        return runner.sql('select privado.enfileirar_job('+q(queue)+','+q(tenant)+','+q(contract_id)+",'versao_documento',"+q(version)+",'{}'::json,null);",True)
+        return runner.sql('select privado.enfileirar_job('+q(queue)+','+q(tenant)+','+q(contract_id)+",'versao_documento',"+q(version)+",'{}'::jsonb,null);",True)
     pending=job(org,contract);complete=job(org,contract,'ocr');foreign=job(*scope[2])
     runner.sql("select pgmq.delete('ocr',message_id) from public.execucoes_assincronas where id="+q(complete)+";update public.execucoes_assincronas set status='concluido' where id="+q(complete)+';')
     result=runner.quarantine_document_jobs(f,max_wait_seconds=0)

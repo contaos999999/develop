@@ -896,7 +896,14 @@
       "hml_upload": "BLOQUEADO_ATE_SQL_PROOF_GREEN_E_REVISAO",
       "scope": "Own pending jobs/messages only; running/completed work retained; unknown scope/queue or remaining work fails closed",
       "local_sql_concurrency": "PENDENTE_CI: segundo psql bloqueia mensagem/exec e muda para processando; cleanup deve esperar lock e preservar worker real; mínimo0.4s de bloqueio verificado",
-      "review": "Revisão independente final semCritical/Important, incluindo corridaSQL real;20/20protocolo reexecutados. Minor: janela1s/limiar0.4s pode falhar conservadoramente emCI congestionado. SQLrealPENDENTE;uploadsdesabilitados."
+      "review": "Revisão independente final semCritical/Important, incluindo corridaSQL real;20/20protocolo reexecutados. Minor: janela1s/limiar0.4s pode falhar conservadoramente emCI congestionado. SQLrealPENDENTE;uploadsdesabilitados.",
+      "first_sql_ci": {
+        "run": 42407348738,
+        "job": 128507798885,
+        "state": "FAIL_LOCAL_FIXTURE_JOB_ENQUEUE",
+        "cause": "Local fixture passed explicit json to privado.enfileirar_job whose payload argument is jsonb; corrected cast, new CI pending",
+        "hml_upload": false
+      }
     }
   },
   "storage_test_fixtures_allowed": true

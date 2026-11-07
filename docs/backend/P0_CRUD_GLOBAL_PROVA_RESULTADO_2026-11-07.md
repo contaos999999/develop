@@ -1,3 +1,7 @@
+## FAIL do fixture SQL isolado — correção de tipo em validação
+
+PrimeiroCI134 HEAD eaaa11a99f2faa428b6ced1d2081a25049327342, restore42407348738/job128507798885: FAIL no Teste20 ao enfileirar o primeiro job sintético, antes da rotina de quarentena. Logs lidos; assinatura versionada de privado.enfileirar_job recebejsonb, mas o fixture passoujson explícito. Corrigido cast parajsonb; nova execução necessária. Guard/backup/probe anteriores não aprovam o novoHEAD. NenhumHML/upload/worker real foi executado e nenhumPASS de quarentena SQL declarado.
+
 Revisão independente do incremento: semCritical/Important,20/20protocolo reexecutados. Acrescentado caso de corrida real por segundo psql transacional na prova local: readiness por pg_stat_activity, bloqueio observável e preservação do worker em processamento. Essa prova SQL/concor­rência continua PENDENTE CI; os testes locais não a executaram.
 
 ## Infraestrutura de quarentena documental — aguardando prova SQL isolada
