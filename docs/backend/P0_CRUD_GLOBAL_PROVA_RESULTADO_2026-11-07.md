@@ -48,3 +48,12 @@ Causa reproduzida com o código oficial da versão exata Playwright 1.64.1, `pac
 Correção: selecionar o combobox único do formulário que contém o heading `Alterar situação`. Nenhum rótulo, produto, permissão, estado de backend ou timeout foi modificado. O preflight público em Chromium real agora usa DOM sintético com um filtro externo: comprova a divergência do seletor antigo, seleciona inativa/ativa no formulário correto e exige que o filtro externo permaneça intacto. Não acessa HML ou cria fixture Auth nesse teste de seletor.
 
 RED observado: 12 PASS/1 FAIL por helper ausente. GREEN local: protocolo 13/13 e suíte 43/43. CI e nova prova HML ainda pendentes. A aprovação do preflight não substitui persistência SQL, CAS, isolamento, capturas ou limpeza do lote completo. Fontes oficiais consultadas: https://github.com/microsoft/playwright/blob/v1.64.1/packages/injected/src/selectorUtils.ts e https://github.com/microsoft/playwright/blob/v1.64.1/packages/injected/src/injectedScript.ts.
+
+
+## Reteste do seletor127: transições confirmadas, espera entre abas ainda sem causa
+
+PR127 integrado b66f4af1e555d14c03a28c08e7369616bf4820e9,HEAD8533f2acae1320f24f0753f60795b07f700ae4b5 eguard/restore/backup/probeSUCCESS. Mainrestore42401072142SUCCESS. Reteste42401271563/job128489348141 FAIL depoisLIST_STATE_INACTIVE eLIST_STATE_ACTIVE HTTP200/recibosPASS. Correçãodoseletor comprovada nessasduasoperações; nenhumPASSdelote. TimeoutError aindaestágioLIST_STATE_ACTIVE significaespera antesLIST_CONCURRENT_EDIT_OPEN, porqueaberturasegundaaba/gerência/primeiroformulário não tinhamfaseprópria. Não presumircausa dehidratação nemproduto.
+
+Artefato13585512801 SHA256f6c5ac3b691d0c0692a002cd1b5c3c6721fd4490a10d34433741f409f3209fde, ZIPbaixado/hashconferido; relatórioslidos. Quarentena4contas/3organizaçõesVERIFICADA. Próximodiagnósticominimal adicionafasesconstantes emcriar/navegar/abrirgestãosegundaaba eabrir/preencherediçãoprimeiraaba; apontapáginaemdiagnóstico corretamente econfirma regiãovisível apósclick, semretryoumudançatimeout. Usa somente mecanismo de estágios/flags játestados, semnovo formato/coleçãodeconteúdo. PLAN120/GATE121 preservados. Próxima éprovaHMLdiagnóstica, nãocorreçãoespeculativa.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impactoN/A,somenteharness;semproduto/tipos/schema/RLS/Authconfig/PROD; ferramentasdiretas,fontesválidas epublicaçãoúnica apósreconsultarfila paraevitarduplicação entreexecuções.
