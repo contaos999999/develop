@@ -23,3 +23,17 @@ GATE117 integrado8f48e37317c711c6736a33e9a34421c3967326d3 após guardSUCCESS. RE
 Decisão técnica: listas e revisão só permitem fase BUILD_EM_VALIDACAO para deploy; a fase histórica PLAN_VALIDADO_AGUARDANDO_CI_RED_BUILD não autoriza deploy. Isso impede execução material durante planejamento e exige manifesto explícito em eventual nova tarefa. Browser privado preserva BUILD_PROVA_PRIVADA_FRONTEND. Tarefa atual BUILD_ROTEAMENTO_WORKFLOW_HML não deve executar nenhum dos três jobs materiais. Sem autorização atual de DB/Auth, campos gerais do manifesto agora false; evidências e escopos históricos preservados.
 
 Revisão, CI e evidência pós-merge ainda pendentes. Falhas históricas continuam FAIL; nenhum sucesso material inferido de skip.
+
+## Encerramento comprovado — 07/11/2026
+
+**PASS no escopo de roteamento.** BUILD118 HEAD545231b2ea47198b089085c50c38eb77f93f359a integrado2ebb9e3a639ea837430f3d9f1b4e7acfdbb8bb35 após guard/restore/backup/public-probe SUCCESS no mesmoHEAD. Guard42393190669, restore42393190805, probe42393190673. Suíte local completa30/30 e protocoloV117PASS; foco13/13. Revisão independente semCritical/Important. Limitação minor: extraçãoYAML por regex e semânticaJS para expressões simples, checkoutref semassertion específica; validação Actions e prova real complementam, não substituem autoria/testes.
+
+Main guard42393429313 e restore42393429340 SUCCESS. Artefatos restore13582580695 SHA256197e1bb8a3ee72b9d67e3a4c517a51242bf1952ee9a5cfa0466bd2a641d5707b; backup13582950289 SHA256dac294b64c078276ea425791a31bfb4ec28dfe7e30994ca57a8dd9a6d41fea99 (metadadosGitHub).
+
+| Workflow / run | Scope | Material |
+| --- | --- | --- |
+| Listas42393625175 | 128466217848 SUCCESS | deploy128466249496 SKIPPED; JWT128466249648 SKIPPED |
+| Revisão42393625123 | 128466217768 SUCCESS | deploy128466247984 SKIPPED; JWT128466248525 SKIPPED |
+| Browser42393625096 | 128466217565 SUCCESS | privado128466249394 SKIPPED; probe128466218545 SKIPPED |
+
+Três logs scope lidos: NOT_APPLICABLE_TASK_OR_PHASE: material jobs skipped. Todos no HEAD2ebb9e3a639ea837430f3d9f1b4e7acfdbb8bb35, faseBUILD_ROTEAMENTO_WORKFLOW_HML. Nenhum job material executado, nenhuma repetição de deploy/fixture/JWT. Cadastros42393625068 permaneceuSKIPPED sem alteração. Runs anteriores de listas permanecemFAIL no histórico. Prova privadaV117 anterior42391662453 PASS e quarentena8 preservadas, não repetidas por conveniência. Conclusão não certifica V1/WCAG/upload/worker/CRUDglobal integral; manter pendências e fontes. Nenhuma alteração de PROD, DB, Authconfig, RLS, APIs ou frontend.
