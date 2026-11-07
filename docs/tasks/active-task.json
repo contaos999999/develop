@@ -661,7 +661,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "FIX_SELETOR_AGUARDANDO_CI_HML",
+    "state": "FIX_CONTEXTO_SEGUNDA_ABA_AGUARDANDO_CI_HML",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -741,7 +741,27 @@
         "own_organizations": 3
       },
       "product_changes": false,
-      "timeout_increased": false
+      "timeout_increased": false,
+      "hml_fix_run": 42401271563,
+      "hml_fix_state": "PASS_INACTIVE_ACTIVE_HTTP200_RECEIPTS"
+    },
+    "second_tab_context": {
+      "run": 42401271563,
+      "job": 128489348141,
+      "artifact": 13585512801,
+      "sha256": "f6c5ac3b691d0c0692a002cd1b5c3c6721fd4490a10d34433741f409f3209fde",
+      "state": "FAIL_SETUP_AFTER_STATE_ACTIVE",
+      "cause": "New tab sessionStorage has no organization preference; route requires selection before list access",
+      "fix": "Choose own org by UI in second tab before real CAS conflict",
+      "public_probe": "Separate sessionStorage verified in fresh real browser tab; pending CI",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 4,
+        "own_organizations": 3
+      },
+      "timeout_increased": false,
+      "product_changes": false,
+      "consolidated_in_pr": 129
     }
   }
 }

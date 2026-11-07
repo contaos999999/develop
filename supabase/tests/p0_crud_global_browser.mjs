@@ -109,6 +109,9 @@ async function main(){
       await selectListState(sample,'inativa');await expect(sample.locator('form').getByRole('combobox')).toHaveValue('inativa');
       await expect(sample.getByRole('combobox',{name:'Filtro externo',exact:true})).toHaveValue('ativa');check('LIST_STATE_SCOPED_INACTIVE',true);
       await selectListState(sample,'ativa');await expect(sample.locator('form').getByRole('combobox')).toHaveValue('ativa');check('LIST_STATE_SCOPED_ACTIVE',true);
+      await x.page.evaluate(()=>sessionStorage.setItem('contaos.public-probe-tab-context','synthetic-own-context'));
+      const fresh=await x.context.newPage();await fresh.goto(base+'/login');
+      check('NEW_TAB_HAS_SEPARATE_SESSION_STORAGE',await fresh.evaluate(()=>sessionStorage.getItem('contaos.public-probe-tab-context'))===null);
       await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;
     }
     const master=await open('master');master.page._crudRole='master';const mp=master.page;
@@ -143,8 +146,8 @@ async function main(){
     await listOp(lp,'LIST_STATE_INACTIVE','Alterar situação',()=>selectListState(lp,'inativa'));
     await listOp(lp,'LIST_STATE_ACTIVE','Alterar situação',()=>selectListState(lp,'ativa'));
     // Two real pages produce a real CAS conflict; offline toggles transport, never API responses.
-    const second=await master.context.newPage();second.setDefaultTimeout(30000);await second.goto(base+'/contratos/'+f.contract+'/regras');await second.getByRole('button',{name:'Gerenciar listas',exact:true}).click();
-    await lp.getByRole('button',{name:'Editar lista',exact:true}).click();await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'recovered');await lp.getByLabel('Motivo',{exact:true}).fill('Own conflict recovery draft');
+    stage('LIST_SECOND_PAGE_CREATE');const second=await master.context.newPage();diagnosticPage=second;second.setDefaultTimeout(30000);stage('LIST_SECOND_TAB_ORG');await chooseOrg(second,f.org);stage('LIST_SECOND_PAGE_NAVIGATE');await second.goto(base+'/contratos/'+f.contract+'/regras');stage('LIST_SECOND_MANAGER_OPEN');await second.getByRole('button',{name:'Gerenciar listas',exact:true}).click();stage('LIST_SECOND_MANAGER_VISIBLE');await expect(second.getByRole('region',{name:'Gestão de listas',exact:true})).toBeVisible();
+    diagnosticPage=lp;stage('LIST_FIRST_EDIT_OPEN');await lp.getByRole('button',{name:'Editar lista',exact:true}).click();stage('LIST_FIRST_EDIT_FILL');await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'recovered');await lp.getByLabel('Motivo',{exact:true}).fill('Own conflict recovery draft');
     await listOp(second,'LIST_CONCURRENT_EDIT','Editar lista',()=>second.getByLabel('Descrição',{exact:true}).fill('Own concurrent real edit'));
     await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();stage('LIST_REAL_CONFLICT');const conflict=lp.waitForResponse(r=>r.url().endsWith('/rpc/executar_comando_lista_v1')&&r.request().method()==='POST');await lp.getByRole('button',{name:'Confirmar operação',exact:true}).click();check('LIST_REAL_CONFLICT',(await conflict).status()===409,409);
     // Browser transport fails for the real read URL while navigator remains online.
