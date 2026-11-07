@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "Prova privada V1: subtarefa de transporte CORS documental HML",
   "status": "ativa",
-  "phase": "PLAN_CORS_DOCUMENTAL_HML",
+  "phase": "GATE_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -135,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar PLAN com guard/restore/backup no mesmo HEAD; GATE separado antes de editar as duas Edges. CRUD material estacionado, sem repetir upload bloqueado por OPTIONS405.",
+  "next_step": "Integrar GATE após guard/restore/backup SUCCESS no mesmo HEAD. Só depois habilitar BUILD dos dez caminhos e duas Edges; nenhum deploy antes da integração e checks do BUILD.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -988,8 +988,8 @@
   "storage_test_fixtures_allowed": false,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
-    "phase": "PLAN",
-    "state": "DOCUMENTAL_ONLY_NO_BUILD_DEPLOY",
+    "phase": "GATE",
+    "state": "GATE_DOCUMENTAL_EM_VALIDACAO",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1046,6 +1046,35 @@
       "published_frontend_head": null,
       "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
       "cleanup": "União exata de recibos e namespace próprio; sem atribuir publicado ao pin"
+    },
+    "gate": "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
+    "plan_merge": "5743453e729362d4fa841aad16b357b9926c5688",
+    "transport_contract": {
+      "methods": [
+        "POST",
+        "OPTIONS"
+      ],
+      "request_headers": [
+        "authorization",
+        "x-client-info",
+        "apikey",
+        "content-type"
+      ],
+      "preflight_success": 204,
+      "unknown_origin_allowed": false,
+      "cookies_allowed": false,
+      "verify_jwt": true
+    },
+    "published_credential_fence": "Backend efetivo deve ser inequivocamente gklhhhyosgasnyoxlrui antes de preencher credenciais; falha/ambiguidade bloqueia. Não confundir com SHA.",
+    "sdk_proof": {
+      "version": "2.118.0",
+      "runtime": "bun install --frozen-lockfile no runner canônico",
+      "source_blobs": [
+        "a92fec00afaa5d81638df2a56bec46c50839fe85",
+        "803f6948701fed3997ce7037d663c1b645cf3465",
+        "8c194c8cb6489db78ed8cd9f98c5c48639e8e69c"
+      ],
+      "local_node_modules_not_pin": "2.119.0"
     }
   },
   "auth_configuration_changes_allowed": false
