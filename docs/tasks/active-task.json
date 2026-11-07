@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "PLAN_PROVA_PRIVADA_FRONTEND",
+  "phase": "GATE_PROVA_PRIVADA_VALIDADO",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -450,6 +450,13 @@
       "dark"
     ],
     "tokens_artifact": false,
-    "separate_gate_required": true
+    "separate_gate_required": true,
+    "gate": {
+      "plan_pr": 100,
+      "plan_head": "7e46c6cc4060e294c49027c7b607d1da33961a3a",
+      "plan_merge": "6e53e57ee80ae8506e0acb947553f4fec57acc95",
+      "guard": "SUCCESS",
+      "review": "Fonte frontend exata com CI e ancestralidade antes de execução; nenhum secret no browser; própria sessão GoTrue; finally e always para quarentena; sem deploy ou alteração de backend de produto."
+    }
   }
 }
