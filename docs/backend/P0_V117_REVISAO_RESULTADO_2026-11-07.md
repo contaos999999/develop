@@ -1,3 +1,5 @@
+A sonda pública também roda no PR, em job sem environment HML, sem secrets e sem fixtures, com fonte frontend exata e relatório explicitamente público. Serve ao diagnóstico rápido antes do merge; não substitui guard/restore/backup, não autoriza merge com FAILURE e não é Teste C privado. Execução HML continua separada somente após merge e restore da main exata.
+
 ## Probe público: falha anterior à criação de identidades
 Run42370957041/job128398786661, source730b9756, frontend508c5ff: preflight público FAIL em CLIENT_INTERACTIVITY, initial_form_bound=false, em7segundos, sem erros JS no listener e sem flags conhecidas. Não foi timeout de30s nem execução Auth; nenhuma nova fixture criada. Artifact13573767113 SHA25607c80b070a9a0b0bbe50f2211b396365d195b690de0e4c8e5fe383d3199b129f. O erro concreto do driver ainda não foi registrado pela lista fechada de flags; não corrigir produto por hipótese.
 

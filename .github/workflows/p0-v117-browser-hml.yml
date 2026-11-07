@@ -1,5 +1,9 @@
 name: ContaOS V117 Navegador Privado HML
 on:
+  pull_request:
+    paths:
+      - 'supabase/tests/p0_v117_revisao_browser.mjs'
+      - '.github/workflows/p0-v117-browser-hml.yml'
   workflow_run:
     workflows: ['ContaOS Restore Isolado']
     types: [completed]
@@ -10,6 +14,52 @@ concurrency:
   group: contaos-v117-browser-hml
   cancel-in-progress: false
 jobs:
+  public-probe:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+      - name: Prepare public probe paths and exact frontend
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,re
+          t=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text());sha=t['browser_proof_scope']['frontend_head']
+          assert re.fullmatch('[0-9a-f]{40}',sha)
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+              f.write('FRONTEND_HEAD='+sha+'\nTESTED_HEAD='+os.environ['GITHUB_SHA']+'\nCONTAOS_TEST_PRIVATE_DIR='+os.environ['RUNNER_TEMP']+'/contaos-public-probe-private\nCONTAOS_FRONTEND_DIR='+os.environ['RUNNER_TEMP']+'/contaos-public-probe-frontend\n')
+          PY
+      - name: Exact public frontend and isolated dependencies
+        run: |
+          git init "$CONTAOS_FRONTEND_DIR"
+          git -C "$CONTAOS_FRONTEND_DIR" remote add origin https://github.com/contaos999999/contaos-hml-control.git
+          git -C "$CONTAOS_FRONTEND_DIR" fetch --depth=1 origin "$FRONTEND_HEAD"
+          git -C "$CONTAOS_FRONTEND_DIR" checkout --detach FETCH_HEAD
+          test "$(git -C "$CONTAOS_FRONTEND_DIR" rev-parse HEAD)" = "$FRONTEND_HEAD"
+          cd "$CONTAOS_FRONTEND_DIR"
+          bun install --frozen-lockfile
+          npm install --prefix "$RUNNER_TEMP/contaos-public-probe-deps" --no-save --no-package-lock --ignore-scripts playwright@1.64.1
+          "$RUNNER_TEMP/contaos-public-probe-deps/node_modules/.bin/playwright" install --with-deps chromium
+          echo "CONTAOS_PLAYWRIGHT_MODULE=$RUNNER_TEMP/contaos-public-probe-deps/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
+      - name: Public interaction only - no HML environment or Auth fixtures
+        run: env -u DATABASE_URL -u AUTH_ADMIN_KEY -u GH_TOKEN node supabase/tests/p0_v117_revisao_browser.mjs --public-probe
+      - name: Public diagnostic artifact only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contaos-v117-public-interactivity-only
+          path: ${{ runner.temp }}/contaos-public-probe-private/public-browser/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Erase own public probe files
+        if: always()
+        run: rm -rf -- "$CONTAOS_TEST_PRIVATE_DIR" "$CONTAOS_FRONTEND_DIR"
   private-browser:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
