@@ -5,6 +5,10 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {spawn} from 'node:child_process';
 
+export function loginFormIsInteractive() {
+  const form=document.querySelector('form');
+  return !!form && Object.keys(form).some(k=>k.startsWith('__reactProps$')&&typeof form[k]?.onSubmit==='function');
+}
 export function publicProbeError(error) {
   return {
     name:['Error','TypeError','SyntaxError','ReferenceError','EvalError','TimeoutError'].includes(error?.name)?error.name:'Other',
@@ -49,6 +53,19 @@ export function a11yNodeMetrics(node) {
   return out;
 }
 if(process.argv.includes('--self-test')) {
+  // A server-rendered form is visible before React installs onSubmit.
+  // Regression: credentials must never be entered on that inert form.
+  assert.equal(typeof loginFormIsInteractive,'function','login readiness predicate must exist');
+  const previousDocument=globalThis.document;
+  let form=null;globalThis.document={querySelector:()=>form};
+  try {
+    assert.equal(loginFormIsInteractive(),false);
+    form={};assert.equal(loginFormIsInteractive(),false);
+    form={__reactProps$fixture:{}};assert.equal(loginFormIsInteractive(),false);
+    form={__reactProps$fixture:{onSubmit:'not a handler'}};assert.equal(loginFormIsInteractive(),false);
+    form={__reactProps$fixture:{onSubmit(){}}};assert.equal(loginFormIsInteractive(),true);
+  } finally {if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;}
+
   const metricInput={tag:'DT',inside_dialog:true,data:{fgColor:'#94a3b8',bgColor:'#020617',contrastRatio:7.8,expectedContrastRatio:'4.5:1',fontSize:'10.5pt (14px)',fontWeight:'normal',message:'PRIVATE_CANARY',html:'PRIVATE_CANARY'}};
   const metric=a11yNodeMetrics(metricInput);
   assert.deepEqual(metric,{tag:'DT',inside_dialog:true,foreground:'#94a3b8',background:'#020617',contrast:7.8,required:'4.5:1',font_size:'10.5pt (14px)',font_weight:'normal'});
@@ -111,7 +128,7 @@ if(process.argv.includes('--self-test')) {
     stage('CLIENT_INTERACTIVITY');
     report.initial_form_bound=await page.locator('form').evaluate(e=>Object.keys(e).some(k=>k.startsWith('__reactProps$')));
     save();
-    await page.waitForFunction(()=>{const e=document.querySelector('form');return e&&Object.keys(e).some(k=>k.startsWith('__reactProps$'));});
+    await page.waitForFunction(loginFormIsInteractive);
     if(probe) {
       await page.getByRole('button',{name:'Mostrar senha',exact:true}).click();
       await expect(page.getByLabel('Senha',{exact:true})).toHaveAttribute('type','text');
@@ -148,6 +165,35 @@ if(process.argv.includes('--self-test')) {
     stage('APPROVED_EVIDENCE');
     const choice=page.getByRole('checkbox',{name:'Selecionar evidence.pdf versão 1',exact:true});
     await expect(choice).toBeVisible();check('RLS approved evidence query',true);
+    stage('CROSS_TENANT_DENIAL');
+    const denied=f.users.find(u=>u.profile==='usuario_b');
+    const other=await browser.newContext({viewport:{width:1280,height:900}});
+    const otherPage=await other.newPage();otherPage.setDefaultTimeout(30000);
+    stage('CROSS_TENANT_LOGIN_NAVIGATE');
+    await otherPage.goto('http://127.0.0.1:4173/login');
+    report.denied_login_form_bound=await otherPage.locator('form').evaluate(e=>Object.keys(e).some(k=>k.startsWith('__reactProps$')));save();
+    stage('CROSS_TENANT_CLIENT_INTERACTIVITY');
+    await otherPage.waitForFunction(loginFormIsInteractive);
+    check('Cross tenant login form interactive',true);
+    stage('CROSS_TENANT_LOGIN_EMAIL');
+    await otherPage.getByLabel('E-mail',{exact:true}).fill(denied.email);
+    stage('CROSS_TENANT_LOGIN_PASSWORD');
+    await otherPage.getByLabel('Senha',{exact:true}).fill(denied.password);
+    stage('CROSS_TENANT_LOGIN_SUBMIT');
+    const deniedLogin=otherPage.waitForResponse(r=>r.url().includes('/auth/v1/token?')&&r.request().method()==='POST');
+    await otherPage.getByRole('button',{name:'Entrar',exact:true}).click();
+    const deniedLoginResponse=await deniedLogin;
+    check('Cross tenant GoTrue login',deniedLoginResponse.status()===200,deniedLoginResponse.status());
+    stage('CROSS_TENANT_LOGIN_REDIRECT');
+    await otherPage.waitForURL(u=>!u.pathname.includes('/login'));
+    await otherPage.evaluate(({user,org})=>sessionStorage.setItem('contaos.preferenciaOrganizacao',JSON.stringify({idUsuario:user,idOrganizacao:org})),{user:denied.id,org:f.org_b});
+    stage('CROSS_TENANT_ANALYSIS_NAVIGATE');
+    await otherPage.goto(route);
+    stage('CROSS_TENANT_DENIAL_VISIBLE');
+    await expect(otherPage.getByText('Você não tem acesso a esta competência.',{exact:true})).toBeVisible();
+    check('Cross tenant UI denies private competence',true);
+    check('Denied tenant has no review button',await otherPage.getByRole('button',{name:'Revisar resultado',exact:true}).count()===0);
+    await other.close();
     stage('VISUAL_AUDIT');
     for(const width of [1440,1280,768,390])for(const theme of ['light','dark']){
       await page.setViewportSize({width,height:1000});
@@ -188,22 +234,7 @@ if(process.argv.includes('--self-test')) {
     check('Drawer refresh after protected receipt',(await refreshed).status()===200);
     await expect(page.getByText('Justificativa: Synthetic UI review '+f.scope,{exact:true}).first()).toBeVisible();
     check('UI displays persisted justification',true);
-    await context.close();
-    stage('CROSS_TENANT_DENIAL');
-    const denied=f.users.find(u=>u.profile==='usuario_b');
-    const other=await browser.newContext({viewport:{width:1280,height:900}});
-    const otherPage=await other.newPage();otherPage.setDefaultTimeout(30000);
-    await otherPage.goto('http://127.0.0.1:4173/login');
-    await otherPage.getByLabel('E-mail',{exact:true}).fill(denied.email);
-    await otherPage.getByLabel('Senha',{exact:true}).fill(denied.password);
-    await otherPage.getByRole('button',{name:'Entrar',exact:true}).click();
-    await otherPage.waitForURL(u=>!u.pathname.includes('/login'));
-    await otherPage.evaluate(({user,org})=>sessionStorage.setItem('contaos.preferenciaOrganizacao',JSON.stringify({idUsuario:user,idOrganizacao:org})),{user:denied.id,org:f.org_b});
-    await otherPage.goto(route);
-    await expect(otherPage.getByText('Você não tem acesso a esta competência.',{exact:true})).toBeVisible();
-    check('Cross tenant UI denies private competence',true);
-    check('Denied tenant has no review button',await otherPage.getByRole('button',{name:'Revisar resultado',exact:true}).count()===0);
-    await other.close();report.state='PASS';
+    await context.close();report.state='PASS';
     }
   }catch(error){
     report.state='FAIL';

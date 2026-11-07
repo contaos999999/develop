@@ -84,3 +84,6 @@ Reversão: reverter somente roteamento, sem refazer provas válidas nem alterar 
 
 
 Reancoragem P0 07/11: preservar integralmente main1fe79dae3de7a2395b65c2c5b07f9fe2ae826c61, diagnóstico108–110 e pin aprovado frontend266acf39 (PR284 integrado344d24ad). PR103 aguarda prova privada pós-correção e quarentena; resolver conflitos não libera merge antecipado. Nenhuma prova/manifesto/pin atual substituída pela versão antiga.
+
+
+Reancoragem pós-timeout: main 2943e8ea7e1fa53ecddb70c5614eb0c9e46a5e6e preservado integralmente. Prova privada run42391662453 PASS (40 asserts HTTP e43 browser), artefato13581497168/hash477361181d1dbc5ad0e5a19e1173cb68dec734cc6ad1770bb31b51d2b6a2d704, quarentena8verificada. Dependência da prova encerrada; PLAN103 pode integrar após guard no novo HEAD. Sem certificaçãoV1. GATE separado continua obrigatório.

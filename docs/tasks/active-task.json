@@ -50,6 +50,7 @@
     ".github/workflows/p0-v117-revisao-hml.yml",
     "supabase/tests/p0_v117_revisao_browser.mjs",
     ".github/workflows/p0-v117-browser-hml.yml",
+    "docs/backend/P0_V117_TIMEOUT_2026-11-07.md",
     ".github/workflows/p0-crud-listas-hml.yml",
     "supabase/tests/p0_workflow_routing.test.mjs"
   ],
@@ -127,7 +128,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Após prova privada do contraste corrigido e quarentena verificadas: integrar PLAN103 reancorado, GATE separado, RED/BUILD/GREEN roteamento. Preservar pinfrontend266acf39 e histórico.",
+  "next_step": "Integrar PLAN103 reancorado após guard SUCCESS; GATE separado antes de RED/BUILD do roteamento. Prova privada V117 e quarentena PASS run42391662453; V1 não certificada.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -467,6 +468,57 @@
     "frontend_dependency_pr": 284,
     "capture_mode": "VIEWPORT_FIXED_DRAWER_TOP_REVIEW_ACTIONS",
     "frontend_previous_head": "f537dadf9fefca79eb800de10a3b68d4e3fe3a3c"
+  },
+  "timeout_scope": {
+    "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
+    "no_product_changes": true,
+    "no_timeout_increase": true,
+    "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+    "steps": [
+      "PLAN guard e merge",
+      "GATE separado guard e merge",
+      "instrumentação allowlist de subetapas e HTTP numérico sem payloads",
+      "prova real para localizar falha",
+      "TDD e correção mínima após evidência",
+      "GREEN restore/probe e prova privada/quarentena",
+      "retomar PLAN103 após PASS completo"
+    ],
+    "gate": {
+      "plan_pr": 112,
+      "plan_merge": "4c6cff4196cdda779a436f47fd0875fab319496e",
+      "review": "PASS: subetapas constantes/booleanos/HTTP sem dados privados; negação tenant, waits 30s e cleanup preservados; diagnóstico antes de correção; sem produto/PROD",
+      "gate_pr": 113,
+      "gate_merge": "929ef4b99bb5860b7243504a1557ca1c408fa74b"
+    },
+    "root_cause": {
+      "run": 42390984573,
+      "backend_head": "ea7ea6bdbb9725669daf84d877435fecf6580e7b",
+      "artifact": 13582175253,
+      "artifact_sha256": "1842b6a412780b4b98eadd8f84fa5246f80320f29619e36ff3e2ba7544df3811",
+      "stage": "CROSS_TENANT_LOGIN_REDIRECT",
+      "denied_login_form_bound": false,
+      "login_http_emitted": false,
+      "conclusion": "Segundo login interage com SSR antes do binding React, sem emissão de login; primeiro aguarda binding e funciona."
+    },
+    "red": "self-test: login readiness predicate must exist, actual undefined; depois casos SSR/inexistente/handler inválido/handler real GREEN",
+    "green": "node --check, protocolo self-test e 17 testes guard locais PASS; prova HML pendente",
+    "final_proof": {
+      "state": "PASS",
+      "run": 42391662453,
+      "job": 128460335194,
+      "backend_head": "2943e8ea7e1fa53ecddb70c5614eb0c9e46a5e6e",
+      "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+      "http_assertions": 40,
+      "browser_assertions": 43,
+      "failed": 0,
+      "artifact": 13581497168,
+      "sha256": "477361181d1dbc5ad0e5a19e1173cb68dec734cc6ad1770bb31b51d2b6a2d704",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 8
+      },
+      "v1_certified": false
+    }
   },
   "workflow_routing_plan": {
     "failed_run": 42369440188,
