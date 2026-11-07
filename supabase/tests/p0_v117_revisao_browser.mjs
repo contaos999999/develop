@@ -5,6 +5,10 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {spawn} from 'node:child_process';
 
+export function browserEnvironment(source) {
+  const allowed=['PATH','HOME','RUNNER_TEMP','TMPDIR','LANG','TZ','CI','XDG_CACHE_HOME','CONTAOS_TEST_PRIVATE_DIR','CONTAOS_FRONTEND_DIR','CONTAOS_AXE_SOURCE_PATH','CONTAOS_PLAYWRIGHT_MODULE','TESTED_HEAD','FRONTEND_HEAD'];
+  return Object.fromEntries(allowed.filter(k=>source[k]!==undefined).map(k=>[k,source[k]]));
+}
 export async function finishRunner(save,browser,server) {
   let timer;
   try {save();} finally {
@@ -27,6 +31,7 @@ export function publicRecord({name,pass,http}) {
   return {name,pass,...(http===undefined?{}:{http})};
 }
 if(process.argv.includes('--self-test')) {
+  assert.deepEqual(browserEnvironment({PATH:'/bin',AUTH_ADMIN_KEY:'private',UNEXPECTED_SECRET:'private'}),{PATH:'/bin'});
   assert.deepEqual(publicRecord({name:'Review persisted',pass:true,password:'private',access_token:'private'}),{name:'Review persisted',pass:true});
   assert.throws(()=>publicRecord({name:'token@example.invalid',pass:true}));
   assert.throws(()=>publicRecord({name:'Review',pass:'yes'}));
@@ -50,26 +55,41 @@ if(process.argv.includes('--self-test')) {
   const req=createRequire(join(frontend,'package.json'));
   const {expect}=req('@playwright/test');
   const {chromium}=await import(process.env.CONTAOS_PLAYWRIGHT_MODULE);
-  const f=JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
-  const admin=f.users.find(u=>u.profile==='administrador');
-  assert(admin?.creation_state==='created');
+  const probe=process.argv.includes('--public-probe');
+  mkdirSync(root,{recursive:true,mode:0o700});
+  const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
+  const admin=f?.users.find(u=>u.profile==='administrador');
+  assert(probe||admin?.creation_state==='created');
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',stage:'START',assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
-  function save(){writeFileSync(join(output,'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});}
+  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',mode:probe?'PUBLIC_INTERACTIVITY_PROBE':'PRIVATE_ACCEPTANCE',stage:'START',runtime_errors:[],assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
+  function save(){writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
-  const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:Object.fromEntries(Object.entries(process.env).filter(([k])=>!['DATABASE_URL','AUTH_ADMIN_KEY','GH_TOKEN'].includes(k)))});
+  const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});
   let browser,page;
   function stage(value){report.stage=value;save();}
   try {
     stage('SERVER_READY_WAIT');
     for(let i=0;i<120;i++){try{if((await fetch('http://127.0.0.1:4173/login')).ok)break;}catch{} if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
     stage('CHROMIUM_LAUNCH');
-    browser=await chromium.launch({headless:true,env:{...process.env}});
+    browser=await chromium.launch({headless:true,env:browserEnvironment(process.env)});
     const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light'});
     // Login uses the product form and GoTrue, never a forged JWT or admin token.
     page=await context.newPage();page.setDefaultTimeout(30000);
+    page.on('pageerror',error=>{const msg=String(error.message);report.runtime_errors.push({name:['Error','TypeError','SyntaxError','ReferenceError'].includes(error.name)?error.name:'Other',flags:['Hydration','Failed to fetch','does not provide an export','Cannot read properties','Unexpected'].filter(x=>msg.includes(x)),export_identifier:/does not provide an export named ['"]([A-Za-z_]\w{0,60})['"]/.exec(msg)?.[1]||null});save();});
     stage('LOGIN_NAVIGATE');
     await page.goto('http://127.0.0.1:4173/login');
+    stage('CLIENT_INTERACTIVITY');
+    report.initial_form_bound=await page.locator('form').evaluate(e=>Object.keys(e).some(k=>k.startsWith('__reactProps$')));
+    save();
+    await page.waitForFunction(()=>{const e=document.querySelector('form');return e&&Object.keys(e).some(k=>k.startsWith('__reactProps$'));});
+    if(probe) {
+      await page.getByRole('button',{name:'Mostrar senha',exact:true}).click();
+      await expect(page.getByLabel('Senha',{exact:true})).toHaveAttribute('type','text');
+      await page.getByRole('button',{name:'Ocultar senha',exact:true}).click();
+      await expect(page.getByLabel('Senha',{exact:true})).toHaveAttribute('type','password');
+      check('Public login interaction without credentials',true);
+      report.state='PASS';
+    } else {
     stage('LOGIN_EMAIL');
     await page.getByLabel('E-mail',{exact:true}).fill(admin.email);
     stage('LOGIN_PASSWORD');
@@ -144,6 +164,7 @@ if(process.argv.includes('--self-test')) {
     check('Cross tenant UI denies private competence',true);
     check('Denied tenant has no review button',await otherPage.getByRole('button',{name:'Revisar resultado',exact:true}).count()===0);
     await other.close();report.state='PASS';
+    }
   }catch(error){
     report.state='FAIL';
     report.failure_flags=['Timeout','locator.fill','locator.click','waitForResponse','strict mode violation','ERR_CONNECTION','browserType.launch'].filter(x=>String(error?.message||'').includes(x));

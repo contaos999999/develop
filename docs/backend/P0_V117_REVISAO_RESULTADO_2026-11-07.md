@@ -1,3 +1,8 @@
+## Segunda execução privada: estágio localizado, nenhuma autenticação UI comprovada
+Run42370269292/job128396758916, backend9a66c63, frontend508c5ff: FAIL em LOGIN_SUBMIT, timeout waitForResponse. Inputs existem; screenshot após limpeza mostra tela de login sem estado de envio. Nenhuma assertion privada ou chamada Auth UI confirmada.38HTTP anteriores e quarentena8 novamente PASS; cleanup de processo corrigido não falhou nesta execução. Artifact13572967806 SHA256933a911355b395fcb0b3f155e53304950ed8c37eee177ceb04f4a106f54a8649. Não atribuir ainda a causa à hidratação, rede ou produto.
+
+Próximo delta de diagnóstico: preflight público sem credenciais/fixtures antes da criação Auth; esperar binding do formulário e testar alternância acessível da senha. Reportar estágio e erros JS por classificação fixa/export identifier, sem mensagem bruta. Probe em arquivo/mode próprios, jamais conta como PASS privado. Se preflight falhar, não criar novas contas. Browser/Vite por allowlist no próprio Node também. Frontend e regras não são alterados por hipótese.
+
 Revisão focal adicional do FIX104 encontrou que save/browser.close poderiam impedir stopServer. Reproduzido RED real com close rejeitado e grupo contendo neto que ignora TERM. Corrigido finally interno obrigatório, timeout de fechamento do browser e espera do processo após KILL. GREEN protocolo confirma processo/neto encerrados mesmo com close rejeitado. Não tratar execução antiga como evidência dessa correção; novo CI requerido.
 
 ## Primeira execução privada: FAIL preservado, quarentena PASS
