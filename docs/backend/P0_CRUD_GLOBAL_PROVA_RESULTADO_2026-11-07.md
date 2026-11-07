@@ -150,3 +150,20 @@ Comando exato da suíte anterior no commit 2b17c05: `node --test`, 54/54 PASS. R
 ### Ativação após correção da revisão
 
 Revisão independente de 2b17c05 identificou ausência da prova de revogação; fix 56f6e973 acrescentou controle fechado, negativos com Auth válido e cobertura por escopo. Verificação do integrador: 57/57 testes locais PASS; nenhuma escrita do fixture Node após o handshake documental, preservando a intenção e confirmação Python. Fase BUILD ativada apenas para o harness aprovado. HML, upload, worker, limpeza e certificação continuam pendentes de execução real.
+
+
+## HML BUILD135 FAIL e diagnóstico local do upload inicial
+
+Run `42419649579`, backend `95e3a3fa19034bbef39a286ed56c55d967a55c8c`, frontend pin `74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8`: FAIL/TimeoutError em `DOCUMENT_UPLOAD_TXT_V1`; login administrador HTTP200, zero erros de runtime, nenhum arquivo/objeto/job. Quarentena verificada de quatro usuários e duas organizações. ZIP conferido localmente por sha256sum: `b1364e0f3b04421b1c90de58209d4de2195faae131200bfddcd60d42841e03e2`. Base local antes do fix `784d3587c7181ac9c76bfd39d083f4e7ef5e9d7b`: comparação de árvore com o HEAD HML produziu diff vazio.
+
+O artefato antigo só contém diagnóstico genérico de listas. Não permite distinguir timeout ao abrir formulário/configuração, selecionar arquivo, preencher título/metadados/data, enviar ou aguardar assinatura/Storage/confirmação/registro. Labels lidas no componente real coincidem com os seletores existentes. As fontes versionadas de configuração admitem txt/text/plain e pdf/application/pdf e leitura authenticated; isso não comprova a configuração viva daquele run. Causa raiz permanece NÃO IDENTIFICADA. Nenhum seletor, tipo de arquivo, timeout ou contrato de produto foi alterado com base em hipótese.
+
+Instrumentadas subetapas OPEN_FORM, WAIT_DIALOG, SELECT_FILE, FILL_TITLE, FILL_CATEGORY, FILL_START_DATE/FILL_REASON, SUBMIT_FORM e recibos separados WAIT_SIGN_UPLOAD/WAIT_STORAGE_UPLOAD/WAIT_CONFIRM_UPLOAD/WAIT_REGISTER_DOCUMENT, além de validação/fechamento/worker/download. Todas as esperas de resposta continuam registradas antes do clique; recibos agora são conferidos na ordem do fluxo, impedindo que um HTTP de falha inicial fique oculto enquanto espera etapas posteriores. Nenhuma resposta é simulada.
+
+Na falha, relatório acrescenta apenas flags booleanas conhecidas do formulário/configuração e contagens/status HTTP limitados de cinco endpoints fixos. Não publica URL/path/token/nome de arquivo/HTML/texto DOM/payload/erro bruto. O resultado poderá distinguir botão desabilitado/configuração indisponível, arquivo recusado, campo ausente, falta de request ou request que falhou. Ausência da coleta também é explícita.
+
+TDD: `node --test supabase/tests/p0_crud_global_protocol.test.mjs` RED 27 PASS/3 FAIL por helpers ausentes; GREEN 30/30. Testes comprovam estágio exato quando preenchimento interrompe, identificação do recibo faltante e saneamento estrito de flags/HTTP/contagens com canário privado descartado. `node --test`: 60/60 PASS. Sintaxe Node e Python e gates locais verificados. Fase da base preservada; nenhuma publicação ou nova HML neste diagnóstico. O fix prepara evidência para a próxima prova, sem alegar resolução operacional nem aprovação documental/global.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual de implementação N/A; somente harness/manifesto/resultado. Nenhum frontend, workflow, schema, RLS, Auth/Storage config, Edge ou PROD alterado; nenhum turno Lovable. Evidências anteriores preservadas e análise limitada ao novo FAIL.
+
+Pin frontend atualizado após aprovação e integração do PR #306: HEAD 618cfe3f5cc1142553bbaf2a1d525c7c2ab95c1b; merge 5c65ae991c1fdce329d3a924d6c37cb85a759e70; run42420100914, jobs128546476727/128546477042 SUCCESS e LOCK42420100861 SUCCESS. Correção de cabeçalho e foco integrada, mas geometria privada ainda não certificada. Nova execução documental usa esse frontend exato; nenhuma evidência antiga é reatribuída ao novo pin.
