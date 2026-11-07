@@ -53,6 +53,8 @@ if(process.argv.includes('--self-test')) {
   const metric=a11yNodeMetrics(metricInput);
   assert.deepEqual(metric,{tag:'DT',inside_dialog:true,foreground:'#94a3b8',background:'#020617',contrast:7.8,required:'4.5:1',font_size:'10.5pt (14px)',font_weight:'normal'});
   assert(!JSON.stringify(metric).includes('PRIVATE_CANARY'));
+  // Preserve the failing HML ratio too: diagnostics must never discard low contrast.
+  assert.equal(a11yNodeMetrics({...metricInput,data:{...metricInput.data,contrastRatio:2.1}}).contrast,2.1);
   const hostile={};Object.defineProperty(hostile,'data',{get(){throw Error('private getter');}});
   assert.deepEqual(a11yNodeMetrics(hostile),{tag:null,inside_dialog:false});
   assert.deepEqual(a11yNodeMetrics({tag:'PRIVATE_CANARY',data:{fgColor:'PRIVATE_CANARY',contrastRatio:Infinity}}),{tag:null,inside_dialog:false});
