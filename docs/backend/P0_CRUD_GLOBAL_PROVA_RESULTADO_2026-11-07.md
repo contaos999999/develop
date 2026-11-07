@@ -71,3 +71,16 @@ O preflight público real adiciona um marcador sintético sem credenciais no ses
 
 
 Consolidação no PR #129: preservadas todas as subetapas e a confirmação de região do diagnóstico original. Acrescentados apenas seleção organizacional por UI, prova pública de isolamento de sessionStorage e registro no manifesto. Não foram publicados PRs duplicados desta correção. Todos os checks devem ser conferidos no novo HEAD.
+
+
+## PASS funcional do lote CADASTROS_LISTAS e limite visual
+
+A execução `42402246765`, job `128492370077`, terminou SUCCESS no backend `a0337932872402b12a5378040f18feb2161bc723`, frontend `74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8`. Relatório do navegador: 76/76 verificações. Relatório Python/SQL/HTTP: 37/37. Confirmados comandos e persistência de cadastros/listas, itens e versões, auditoria/idempotência, conflito real HTTP 409 entre abas, rascunho preservado sem escrita durante falha de leitura, recuperação HTTP 200, leitor sem mutações, tenant B sem dados A e zero erros de runtime. Quarentena independente confirmada: quatro usuários e três organizações próprias. Não há aprovação dos 14 domínios restantes ou certificação V1.
+
+Artefato `13584889991`, SHA-256 `00fddbbdf18d76f4bc55c4e5fea8712973b92fa1fd375e151b9c6c19e1095110`. ZIP baixado e hash verificado, relatórios lidos. O PASS é restrito às jornadas efetivamente executadas; não substitui todos os critérios V1, WCAG manual ou upload/worker.
+
+A revisão independente abriu as oito capturas e rejeitou quatro: 1440 claro/escuro e 1280 claro ainda mostram envio em andamento; 1280 escuro está estável, mas corta o início do painel. 768 e390, ambos os temas, foram aceitos somente para o painel; marca/cabeçalho mobile ficaram fora do enquadramento. Important: captura sem estabilização e rolagem normalizada. Minor: Menu flutuante cobre texto do cartão inferior no mobile; token sintético longo quebra de forma pouco elegante em768. Nenhum Critical. Gate visual não aprovado.
+
+Correção exclusiva do harness: aguardar nome atualizado, botão de edição habilitado e ausência de envio; aguardar transições finitas reais; capturar topo da página e início do painel separadamente em cada combinação (16 imagens). Verificar foco/Tab entre ações e axe4.14.0 com tags AA aplicáveis, preservando regras incompletas. Relatório retém apenas id/impacto/contagem, sem DOM, HTML ou seletores. O preflight público usa estado sintético que muda de ocupado/obsoleto para atualizado/habilitado e comprova a espera.
+
+RED local: 13 PASS/2 FAIL por predicates ausentes. GREEN: protocolo15/15, suíte45/45; revisão independente sem Critical/Important no delta. Nova execução ainda necessária para aceitar imagens. Contraste avaliado em estado estável não fecha a ocorrência transitória V117 anterior; WCAG manual continua pendente. O status HTTP do conflito agora registra o valor real também no caminho de falha, preservando a exigência 409 e evitando metadado constante incorreto.
