@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "Prova privada do CRUD global V1 por interface e persistência",
   "status": "ativa",
-  "phase": "PLAN_PROVA_PRIVADA_CRUD_GLOBAL",
+  "phase": "GATE_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -120,7 +120,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar PLAN/GATE próprios após frontendCRUD-LISTA-001 aprovado; RED segurança/protocolo, BUILD fechado deharness,CI/merge; executarHMLexato semdeploy/quarentena e atualizar matriz. Não certificarantecipado.",
+  "next_step": "IntegrarGATEcomguardSUCCESS;TDDREDprotocolo/canários/cleanup;BUILDfechadodeharness porjornadasreais eCI/restore, semproduto/PROD. Provasglobaispermanecempendentes atéexecução.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -652,8 +652,8 @@
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
-    "frontend_head": null,
-    "pin_status": "AGUARDANDO_FIX_CRUD_LISTA_001_INTEGRADO_CI",
+    "frontend_head": "74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8",
+    "pin_status": "INTEGRADO_3_CHECKS_SUCCESS_PR291",
     "mode": "REAL_BROWSER_AUTH_ADMIN_FIXTURES",
     "environment": "hml",
     "no_deploy": true,
@@ -661,6 +661,9 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "PLAN"
+    "state": "GATE_VALIDADO_AGUARDANDO_CI",
+    "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
+    "plan_pr": 120,
+    "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252"
   }
 }
