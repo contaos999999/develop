@@ -113,3 +113,9 @@ test('failure diagnostics expose only known UI flags and bounded read status',as
  assert.throws(()=>sanitizeUiDiagnostic({manage_list:'PRIVATE_CANARY'}));
  assert.throws(()=>sanitizeUiDiagnostic({read_http:'PRIVATE_CANARY'}));
 });
+
+test('list state selector rejects unsupported state before touching the page',async()=>{
+ const {selectListState}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof selectListState,'function');
+ await assert.rejects(()=>selectListState(new Proxy({}, {get(){throw Error('Unexpected DOM access');}}),'encerrada'),{name:'AssertionError'});
+});

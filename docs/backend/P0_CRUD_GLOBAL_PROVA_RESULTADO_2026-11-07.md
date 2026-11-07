@@ -35,3 +35,16 @@ Diagnóstico mínimo no escopo PLAN120/GATE121: fases OPEN/FILL/REVIEW antes das
 Impacto visual N/A: somente diagnóstico do harness. Marca e produto frontend preservados. Ferramentas diretas e fontes existentes, sem BUILD Lovable. Evidências anteriores preservadas; nenhum segredo, DDL/RLS/Edge/Authconfig ou PROD alterado.
 
 Revisão independente do diagnóstico: sem Critical/Important. Limites minor: últimoHTTP é compartilhado entre páginas, não prova correlação com ação; diagnósticoPage pode ficar na segunda aba nas etapas posteriores; teste deHTTP inválido falha antes na ausência de flags. Não usar essas informações como prova de causa, conformidade ou PASS. Alvo imediato pós-descarte ocorre antes da segunda aba. Mantidos para evitar expansão do diagnóstico além da falha observada.
+
+
+## Causa do timeout confirmada e correção restrita ao teste
+
+O PR #125 foi integrado em `01cde2e96e2fc98d601f9c9dfc865f05af4629b8` após quatro checks SUCCESS no HEAD `773bca8e53986ea730a198f0a9b35cfecec309cd`. O PR #126 foi encerrado como duplicado de uma execução concorrente, preservando o delta e a revisão para consulta; não houve merge duplo.
+
+A prova de diagnóstico `42400417695`, job `128486778827`, falhou precisamente em `LIST_STATE_INACTIVE_FILL`. A leitura retornou 200; botão de situação presente; loading, denied, inconsistent, transient e pending falsos. Artefato `13585232937`, SHA-256 `fd3e7af52d01c55dfd0201b0d057da958631328d470b7f4d176afb3fb18c5fe0`. Quarentena de quatro usuários e três organizações verificada. Não há PASS do lote.
+
+Causa reproduzida com o código oficial da versão exata Playwright 1.64.1, `packages/injected/src/selectorUtils.ts` e engine `internal:label` em `injectedScript.ts`: `getElementLabels` usa o texto de todo o label, incluindo opções do select envolvido. O rótulo normalizado é `SituaçãoAtivaInativa`; `getByLabel('Situação', {exact:true})` não corresponde. Reprodução local com `elementText` oficial e DOM sintético confirmou a divergência, correlacionada com a subetapa real e ausência de erro de leitura/autorização.
+
+Correção: selecionar o combobox único do formulário que contém o heading `Alterar situação`. Nenhum rótulo, produto, permissão, estado de backend ou timeout foi modificado. O preflight público em Chromium real agora usa DOM sintético com um filtro externo: comprova a divergência do seletor antigo, seleciona inativa/ativa no formulário correto e exige que o filtro externo permaneça intacto. Não acessa HML ou cria fixture Auth nesse teste de seletor.
+
+RED observado: 12 PASS/1 FAIL por helper ausente. GREEN local: protocolo 13/13 e suíte 43/43. CI e nova prova HML ainda pendentes. A aprovação do preflight não substitui persistência SQL, CAS, isolamento, capturas ou limpeza do lote completo. Fontes oficiais consultadas: https://github.com/microsoft/playwright/blob/v1.64.1/packages/injected/src/selectorUtils.ts e https://github.com/microsoft/playwright/blob/v1.64.1/packages/injected/src/injectedScript.ts.
