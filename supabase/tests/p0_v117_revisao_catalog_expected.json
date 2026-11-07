@@ -1,0 +1,57 @@
+[
+  {
+    "schema": "privado",
+    "name": "contexto_revisao_v117",
+    "args": "p_id_competencia uuid, p_id_requisito uuid",
+    "definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  },
+  {
+    "schema": "public",
+    "name": "obter_contexto_revisao_v117",
+    "args": "p_id_competencia uuid, p_id_requisito uuid",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  },
+  {
+    "schema": "privado",
+    "name": "proteger_revisao_v117",
+    "args": "",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": false,
+    "anon_exec": false
+  },
+  {
+    "schema": "privado",
+    "name": "registrar_revisao_v117",
+    "args": "p_id_competencia uuid, p_id_requisito uuid, p_id_execucao_esperada uuid, p_id_resultado_esperado uuid, p_hash_esperado text, p_resultado text, p_justificativa text, p_fundamento text, p_evidencias jsonb, p_request_id uuid",
+    "definer": true,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  },
+  {
+    "schema": "public",
+    "name": "registrar_revisao_requisito_v117",
+    "args": "p_id_competencia uuid, p_id_requisito uuid, p_id_execucao_esperada uuid, p_id_resultado_esperado uuid, p_hash_esperado text, p_resultado text, p_justificativa text, p_fundamento text, p_evidencias jsonb, p_request_id uuid",
+    "definer": false,
+    "config": [
+      "search_path=\"\""
+    ],
+    "auth_exec": true,
+    "anon_exec": false
+  }
+]

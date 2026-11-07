@@ -60,7 +60,7 @@ select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado wher
 select pg_temp.expect_error($q$select public.registrar_resultado_requisito('baca0000-7200-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001','conforme')$q$,'PT409');
 select pg_temp.expect_error($q$update public.resultados_requisitos set resultado='nao_conforme' where id='baca0000-7300-4000-8000-000000000001'$q$,'42501');
 select pg_temp.actor(8);
-select pg_temp.assert_true(public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')->>'pode_revisar'='false','leitor sem escrita');
+select pg_temp.expect_error($q$select public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')$q$,'42501');
 select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='base'),gen_random_uuid())$q$,'42501');
 select pg_temp.actor(11);
 select pg_temp.expect_error($q$select public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')$q$,'42501');

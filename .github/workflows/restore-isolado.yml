@@ -231,6 +231,14 @@ jobs:
           psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/p0_v117_revisao.sql | tee restore-proof/v117-revisao.txt
           grep -Fxq 'V117_REVISAO_ISOLATED_PASS' restore-proof/v117-revisao.txt
 
+      - name: Teste 18 - Concorrência de revisão V117
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DB_URL='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          python3 supabase/tests/p0_v117_revisao_concurrency.py | tee restore-proof/v117-revisao-concurrency.txt
+          grep -Fq 'V117_REVISAO_CONCURRENCY_PASS' restore-proof/v117-revisao-concurrency.txt
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
