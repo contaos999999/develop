@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "Prova privada do CRUD global V1 por interface e persistência",
   "status": "ativa",
-  "phase": "PLAN_PROVA_PRIVADA_DOCUMENTOS",
+  "phase": "GATE_PROVA_PRIVADA_DOCUMENTOS",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -139,7 +139,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI/merge deste PLAN documental; GATE separado validado com CI; RED recuperação/quarentena de jobs próprios; BUILD DOCUMENTOS só depois. Não repetir AUDITORIA/CADASTROS_LISTAS válidos.",
+  "next_step": "Integrar GATE separado somente com guard/restore/backupSUCCESS no mesmoHEAD; depois TDDRED de quarentena/recuperação e BUILD DOCUMENTOS fechado, revisão e HML. SemnovoPLAN/BUILDproduto.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -680,7 +680,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "PLAN_DOCUMENTOS_AGUARDANDO_CI_GATE_SEPARADO",
+    "state": "GATE_DOCUMENTOS_VALIDADO_AGUARDANDO_CI",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -871,7 +871,12 @@
       "no_global_worker_invocation": true,
       "no_forced_worker_or_security_status": true,
       "formats_not_globally_certified": true,
-      "storage_scope": "Only own private physical test objects through existing signed upload/download; no bucket/policy/config changes"
+      "storage_scope": "Only own private physical test objects through existing signed upload/download; no bucket/policy/config changes",
+      "plan_pr": 132,
+      "plan_head": "5862a5d86f4b95c5ad7eed41ed2eb7d5568d5cd5",
+      "plan_merge": "639e033aaf5e348404dd51a1e9d3d402cca60043",
+      "plan_restore_run": 42405513402,
+      "gate_review": "Sem Critical/Important no PLAN; recuperação/quarentena deve ser provada por RED/GREEN antes de upload. Sem consumo global, config ou status forçado. Worker ativo mantémFAIL/pendente."
     }
   },
   "storage_test_fixtures_allowed": true
