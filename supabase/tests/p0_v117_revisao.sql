@@ -38,6 +38,14 @@ insert into public.competencias(id,id_organizacao,id_contrato,competencia_refere
 ('baca0000-7000-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','2026-11-01','2026-11-01','2026-11-30','em_analise');
 insert into public.requisitos_competencia(id,id_organizacao,id_contrato,id_competencia,origem_tipo,descricao,hash_snapshot,codigo) select
 ('baca0000-7100-4000-8000-'||lpad(n::text,12,'0'))::uuid,'baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7000-4000-8000-000000000001','manual','Requisito revisão '||n,'h'||n,'REV'||n from generate_series(1,2)n;
+insert into public.arquivos(id,id_organizacao,id_contrato,path,nome_original,sha256,status_seguranca) values
+('baca0000-7500-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','v117/evidence.pdf','evidence.pdf',repeat('a',64),'aprovado');
+insert into public.documentos_competencia(id,id_organizacao,id_contrato,id_competencia,tipo,titulo) values
+('baca0000-7600-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7000-4000-8000-000000000001','comprovante','Evidência revisão');
+insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_competencia,numero_versao,id_arquivo,hash) values
+('baca0000-7700-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7600-4000-8000-000000000001',1,'baca0000-7500-4000-8000-000000000001',repeat('a',64));
+insert into public.pareceres_internos(id,id_organizacao,id_contrato,id_competencia,versao,texto,status,hash) values
+('baca0000-7800-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7000-4000-8000-000000000001',1,'Parecer anterior preservado','aprovado',repeat('b',64));
 insert into public.execucoes_analise(id,id_organizacao,id_contrato,id_competencia,tipo,status,hash_entrada,concluida_em) values
 ('baca0000-7200-4000-8000-000000000001','baca0000-aaaa-4000-8000-000000000001','baca0000-2000-4000-8000-000000000001','baca0000-7000-4000-8000-000000000001','completa','concluida',privado.hash_contexto_competencia('baca0000-7000-4000-8000-000000000001'),now());
 insert into public.resultados_requisitos(id,id_organizacao,id_contrato,id_competencia,id_execucao,id_requisito,resultado) select
@@ -45,6 +53,8 @@ insert into public.resultados_requisitos(id,id_organizacao,id_contrato,id_compet
 create function pg_temp.rev(c jsonb,k uuid,r text default 'conforme',ev jsonb default '[]') returns jsonb language sql security invoker as $$
 select public.registrar_revisao_requisito_v117((c->>'id_competencia')::uuid,(c->>'id_requisito')::uuid,(c->>'id_execucao_esperada')::uuid,(c->>'id_resultado_esperado')::uuid,c->>'hash_esperado',r,'Revisão controlada','Fundamento controlado',ev,k) $$;
 set local role authenticated;
+select pg_temp.actor(4);
+select pg_temp.assert_true(public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')->>'pode_revisar'='true','direção autorizada como no registro legado');
 select pg_temp.actor(1);
 create temp table rev_estado(k text primary key,v jsonb) on commit drop;
 insert into rev_estado values('base',public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001'));
@@ -63,18 +73,27 @@ select pg_temp.actor(8);
 select pg_temp.expect_error($q$select public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')$q$,'42501');
 select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='base'),gen_random_uuid())$q$,'42501');
 select pg_temp.actor(11);
+select pg_temp.assert_true(public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')->>'pode_revisar'='true','master sem vínculo mantém autoridade canônica');
+select pg_temp.actor(12);
 select pg_temp.expect_error($q$select public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')$q$,'42501');
 select pg_temp.actor(1);
 reset role;
 select pg_temp.assert_true((select count(*)=3 from public.resultados_requisitos where id_competencia='baca0000-7000-4000-8000-000000000001'),'histórico preservado e efeito único');
 select pg_temp.assert_true((select count(*)=1 from public.eventos_auditoria where evento='RevisaoRequisitoRegistrada' and id_organizacao='baca0000-aaaa-4000-8000-000000000001'),'um evento');
+select pg_temp.assert_true((select status='substituido' and texto='Parecer anterior preservado' from public.pareceres_internos where id='baca0000-7800-4000-8000-000000000001'),'parecer substituído com conteúdo preservado');
+set local role authenticated;
+select pg_temp.expect_error($q$select public.aprovar_apresentacao('baca0000-7000-4000-8000-000000000001','Tentativa sem parecer novo')$q$,'P0001');
+insert into rev_estado select 'na_valido',pg_temp.rev((select v from rev_estado where k='atual'),gen_random_uuid(),'nao_aplicavel','[{"id_versao_documento":"baca0000-7700-4000-8000-000000000001","pagina":1,"trecho":"Comprovante verificado"}]');
+reset role;
+select pg_temp.assert_true((select count(*)=1 from public.evidencias_resultado where id_resultado=((select v from rev_estado where k='na_valido')->>'id_resultado')::uuid and hash=repeat('a',64) and pagina=1),'evidência válida com hash canônico do arquivo');
+select pg_temp.assert_true((select resultado='conforme' from public.resultados_requisitos where id='baca0000-7300-4000-8000-000000000001'),'resultado original preservado');
 -- Dois requisitos conformes antigos não podem receber selo de hash atual por revisão de apenas um.
 update public.requisitos_competencia set descricao='Contexto material mudou' where id='baca0000-7100-4000-8000-000000000002';
 set local role authenticated;
 select pg_temp.assert_true(public.obter_contexto_revisao_v117('baca0000-7000-4000-8000-000000000001','baca0000-7100-4000-8000-000000000001')->>'pode_revisar'='false','base obsoleta não autoriza revisão parcial');
 select pg_temp.expect_error($q$select pg_temp.rev((select v from rev_estado where k='atual'),gen_random_uuid())$q$,'PT409');
 reset role;
-select pg_temp.assert_true((select count(*)=2 from public.execucoes_analise where id_competencia='baca0000-7000-4000-8000-000000000001'),'negações sem execução nova');
+select pg_temp.assert_true((select count(*)=3 from public.execucoes_analise where id_competencia='baca0000-7000-4000-8000-000000000001'),'negações sem execução nova');
 select pg_temp.assert_true(not has_function_privilege('anon','public.obter_contexto_revisao_v117(uuid,uuid)','EXECUTE'),'anon negado');
 select 'V117_REVISAO_ISOLATED_PASS';
 rollback;

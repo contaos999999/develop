@@ -4,9 +4,14 @@ create function privado.contexto_revisao_v117(p_id_competencia uuid,p_id_requisi
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare c public.competencias%rowtype; e public.execucoes_analise%rowtype; ultimo uuid; h text; pode boolean;
 begin
- -- Reuse the exact existing V117 read/session/tenant boundary, without trusting client context.
- perform public.obter_detalhe_requisito_v117(p_id_competencia,p_id_requisito,0,1,0,1,0,1);
+ -- Apply the existing RPC's effective RBAC plus its legacy write-profile boundary.
  select * into c from public.competencias where id=p_id_competencia;
+ if c.id is null then raise exception using errcode='42501',message='Contexto de revisão indisponível.'; end if;
+ perform privado.exigir_permissao_rbac(c.id_organizacao,'analises','consultar',c.id_contrato);
+ if auth.uid() is null or not privado.usuario_tem_acesso_contrato(c.id_contrato)
+  or not privado.usuario_possui_perfil(c.id_organizacao,array['administrador','direcao_aprovador','gestor_contrato','prestacao_contas','auditor','juridico_conformidade','financeiro','contabilidade','rh_dp'])
+  or not exists(select 1 from public.requisitos_competencia r where r.id=p_id_requisito and r.id_competencia=c.id and r.id_organizacao=c.id_organizacao and r.id_contrato=c.id_contrato)
+ then raise exception using errcode='42501',message='Contexto de revisão indisponível.'; end if;
  select * into e from public.execucoes_analise where id_competencia=c.id and id_organizacao=c.id_organizacao and id_contrato=c.id_contrato order by criado_em desc,id desc limit 1;
  select id into ultimo from public.resultados_requisitos where id_requisito=p_id_requisito and id_competencia=c.id and id_organizacao=c.id_organizacao and id_contrato=c.id_contrato order by criado_em desc,id desc limit 1;
  h:=privado.hash_contexto_competencia(c.id);
