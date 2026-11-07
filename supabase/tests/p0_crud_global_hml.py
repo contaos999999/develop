@@ -20,7 +20,9 @@ class Runner:
         self.db=env['DATABASE_URL'];u=urllib.parse.urlsplit(self.db)
         assert u.username=='postgres.gklhhhyosgasnyoxlrui' and u.hostname.endswith('.pooler.supabase.com')
         self.admin=env.get('AUTH_ADMIN_KEY','');assert self.admin,'Auth Admin API required'
-        self.report={'schema':'contaos.crud-global.hml.v1','backend_head':env['TESTED_HEAD'],'frontend_head':env['FRONTEND_HEAD'],'state':'RUNNING','batch':'CADASTROS_LISTAS','global_complete':False,'assertions':[]}
+        self.batch=json.loads(Path('docs/tasks/active-task.json').read_text())['crud_global_proof']['batch']
+        assert self.batch in ('CADASTROS_LISTAS','AUDITORIA')
+        self.report={'schema':'contaos.crud-global.hml.v1','backend_head':env['TESTED_HEAD'],'frontend_head':env['FRONTEND_HEAD'],'state':'RUNNING','batch':self.batch,'global_complete':False,'assertions':[]}
     def save(self,name,data):
         assert name in ('fixture.json','report.json','cleanup.json')
         p=self.root/name;p.write_text(json.dumps(data,indent=2)+'\n');os.chmod(p,0o600)
@@ -49,9 +51,9 @@ class Runner:
     def prepare(self):
         assert not (self.root/'fixture.json').exists(),'Refuse fixture reuse'
         nonce=uuid.uuid4().hex
-        f={'scope':'P0-CRUD-GLOBAL-HML','nonce':nonce,'prefix':'0000 CRUDG '+nonce+' ','org':uid(),'org_b':uid(),'contractor':uid(),'contractor_b':uid(),'contract':uid(),'contract_b':uid(),'users':[],'created':{}}
+        f={'batch':self.batch,'scope':'P0-CRUD-GLOBAL-HML','nonce':nonce,'prefix':'0000 CRUDG '+nonce+' ','org':uid(),'org_b':uid(),'contractor':uid(),'contractor_b':uid(),'contract':uid(),'contract_b':uid(),'users':[],'created':{}}
         self.save('fixture.json',f)
-        for role in ('master','administrador','leitor','usuario_b'):
+        for role in (('master','administrador','leitor','usuario_b','auditor','juridico_conformidade') if self.batch=='AUDITORIA' else ('master','administrador','leitor','usuario_b')):
             u={'profile':role,'intent_id':uid(),'email':'crudg-'+uid()+'@example.invalid','password':secrets.token_urlsafe(40)+'Aa1!','creation_state':'pending'}
             f['users'].append(u);self.save('fixture.json',f)
             st,data=self.request('/auth/v1/admin/users',{'email':u['email'],'password':u['password'],'email_confirm':True,'app_metadata':{'synthetic':True,'scope':f['scope'],'fixture_request_id':u['intent_id'],'crud_nonce':nonce}},admin=True)
@@ -70,6 +72,15 @@ class Runner:
         sql.append('commit;');self.sql('\n'.join(sql));return f
     def verify(self):
         f=json.loads((self.root/'fixture.json').read_text());created=f['created']
+        if self.batch=='AUDITORIA':
+            reads=f.get('audit_reads',[]);assert reads,'Browser audit reads missing'
+            for read in reads:
+                ids=read['ids'];assert ids,'Expected own audit events'
+                self.check('AUDIT_ROWS_PERSISTED_OWN_TENANT',self.sql('select count(*)='+str(len(ids))+' from public.eventos_auditoria where id_organizacao='+q(read['org'])+' and id in ('+','.join(map(q,ids))+');',True)=='t')
+            for command in f.get('commands',[]):
+                self.check('AUDIT_REAL_COMMAND_PERSISTED',self.sql("select exists(select 1 from public.eventos_auditoria where id_organizacao="+q(f['org'])+" and metadados->>'request_id'="+q(command['request_id'])+');',True)=='t')
+            self.check('AUDIT_REAL_EVENTS_FOR_PAGINATION',len(f.get('commands',[]))>=26)
+            return
         for name in ('organization','contractor','contract','list'):
             assert name in created,'Browser receipt missing'
         self.check('ORG_PERSISTED',self.sql('select exists(select 1 from public.organizacoes where id='+q(created['organization'])+' and razao_social like '+q(f['prefix']+'%')+' and nome_fantasia='+q(f['prefix']+'edited')+" and situacao='suspensa');",True)=='t')
@@ -145,7 +156,8 @@ def main():
         r.prepare()
         p=subprocess.run(['node','supabase/tests/p0_crud_global_browser.mjs'],env=browser_environment(os.environ),capture_output=True,text=True,timeout=1200)
         r.check('REAL_BROWSER_BATCH',p.returncode==0)
-        r.verify();r.report['state']='PASS_BATCH';r.report['unverified_domains']=['regras_preventivas','base_normativa','orcamento','documentos_contrato','documento_detalhe','competencias','documentos_competencia','analise_revisao','parecer','apresentacao','protocolo','historico','administracao','auditoria']
+        r.verify();r.report['state']='PASS_BATCH';r.report['completed_domains']=['auditoria'] if r.batch=='AUDITORIA' else ['organizacoes','contratantes','contratos','listas'];r.report['unverified_domains']=['regras_preventivas','base_normativa','orcamento','documentos_contrato','documento_detalhe','competencias','documentos_competencia','analise_revisao','parecer','apresentacao','protocolo','historico','administracao','auditoria']
+        if r.batch=='AUDITORIA':r.report['unverified_domains'].remove('auditoria');r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas']
     except Exception as e:
         failed=True;r.report['state']='FAIL';r.report['failure_class']=type(e).__name__
     finally:

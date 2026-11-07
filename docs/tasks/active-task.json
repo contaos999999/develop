@@ -69,7 +69,7 @@
     "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE"
   },
   "prompt_crosswalk": {
-    "regular_prompt_id": "38",
+    "regular_prompt_id": "75",
     "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
     "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
     "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
@@ -79,10 +79,10 @@
     "atomic_range_verified": "000-096 (97/97)",
     "direct_atomic_ids": [
       "000",
-      "014",
+      "020",
       "021",
       "022",
-      "024"
+      "023"
     ],
     "additional_transversal_atomic_ids": [
       "089",
@@ -94,7 +94,12 @@
       "095",
       "096"
     ],
-    "direct_requirement_ids": [],
+    "direct_requirement_ids": [
+      "V1-AUD-001",
+      "V1-AUD-002",
+      "V1-AUD-003",
+      "V1-AUD-004"
+    ],
     "additional_transversal_requirement_ids": [
       "NFR-005",
       "NFR-007",
@@ -102,10 +107,10 @@
       "NFR-009",
       "NFR-010"
     ],
-    "status": "PLAN_REVISAO_V117_SEM_CERTIFICACAO",
+    "status": "PROVA_PARCIAL_CONSULTA_V123_SEM_CERTIFICACAO_DOS_ATOMICOS",
     "source_evidence_missing": false,
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
-    "note": "Regular38 V1-17; V1-CHK-004 e V1-AUD-001/002/004/005 e NFR007/008. Sem alteração dos textos fontes."
+    "note": "Regular75 e atômicos020–023 lidos literalmente do ZIP conferido. Este lote prova somente SELECT seguro/filtros/paginação/isolamento da Trilha; não aprova integralmente reconstrução de análise, separação de mecanismos, criticidade ou evidência dos apontamentos. Demais jornadas preservadas na matriz."
   },
   "previous_task_id": "P0-CRUD-CADASTROS-20261106",
   "previous_task_snapshot_commit": "a6399adc39e984293c14d7adcf106b00ab76ce50",
@@ -120,7 +125,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "IntegrarGATEcomguardSUCCESS;TDDREDprotocolo/canários/cleanup;BUILDfechadodeharness porjornadasreais eCI/restore, semproduto/PROD. Provasglobaispermanecempendentes atéexecução.",
+  "next_step": "CI/revisão independente no HEAD BUILD AUDITORIA; merge permitido apenas após checks requeridos SUCCESS; prova HML automática e quarentena; conservar PASS anterior sem repetir CADASTROS_LISTAS.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -661,13 +666,13 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "FUNCIONAL_PASS_VISUAL_EM_CORRECAO",
+    "state": "BUILD_AUDITORIA_AGUARDANDO_CI_E_PROVA_REAL",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
     "gate_pr": 121,
     "gate_merge": "34d88b8a77cd3ae2abfca72ee78d441c426e767b",
-    "batch": "CADASTROS_LISTAS",
+    "batch": "AUDITORIA",
     "global_complete": false,
     "red": {
       "command": "node --test supabase/tests/p0_crud_global_protocol.test.mjs",
@@ -762,6 +767,24 @@
       "timeout_increased": false,
       "product_changes": false,
       "consolidated_in_pr": 129
+    },
+    "previous_pass_batch": {
+      "batch": "CADASTROS_LISTAS",
+      "run": 42402246765,
+      "backend_head": "a0337932872402b12a5378040f18feb2161bc723",
+      "assertions_sql": 37,
+      "assertions_browser": 76,
+      "cleanup": "QUARENTENA_VERIFICADA_4_USERS_3_ORGS",
+      "artifact": 13584889991,
+      "sha256": "00fddbbdf18d76f4bc55c4e5fea8712973b92fa1fd375e151b9c6c19e1095110"
+    },
+    "audit_scope": "27 edições contratuais reais para paginação; somente SELECT seguro da trilha por administrador, MASTER, auditor e jurídico; leitor negado e tenant B isolado. Seis contas próprias, duas organizações. Nenhum evento de auditoria fabricado.",
+    "audit_tdd": {
+      "red": "13 PASS/1 FAIL; validateAuditRead inexistente",
+      "green": "17protocolo/47suitePASS",
+      "hml": "PENDENTE",
+      "review": "Revisão independente final semCritical/Important;17/17protocolo reexecutados. Inclui200/206, negativas JWT reais leitor/tenantB contraorgA, rejeita401/500; semextraçãoJWT/admin.",
+      "rls_red": "16PASS/1FAIL por validador de negativa inexistente"
     },
     "functional_proof": {
       "run": 42402246765,
