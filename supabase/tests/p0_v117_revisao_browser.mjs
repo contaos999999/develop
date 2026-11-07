@@ -5,6 +5,12 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {spawn} from 'node:child_process';
 
+export function publicProbeError(error) {
+  return {
+    name:['Error','TypeError','SyntaxError','ReferenceError','EvalError','TimeoutError'].includes(error?.name)?error.name:'Other',
+    message:String(error?.message||'').split('\n')[0].replace(/https?:\/\/\S+/g,'[url]').replace(/[\w.+-]+@[\w.-]+/g,'[email]').replace(/\/(?:home|workspace|tmp)\/[^\s]*/g,'[path]').replace(/[A-Za-z0-9_-]{32,}/g,'[redacted]').slice(0,300),
+  };
+}
 export function browserEnvironment(source) {
   const allowed=['PATH','HOME','RUNNER_TEMP','TMPDIR','LANG','TZ','CI','XDG_CACHE_HOME','CONTAOS_TEST_PRIVATE_DIR','CONTAOS_FRONTEND_DIR','CONTAOS_AXE_SOURCE_PATH','CONTAOS_PLAYWRIGHT_MODULE','TESTED_HEAD','FRONTEND_HEAD'];
   return Object.fromEntries(allowed.filter(k=>source[k]!==undefined).map(k=>[k,source[k]]));
@@ -31,6 +37,7 @@ export function publicRecord({name,pass,http}) {
   return {name,pass,...(http===undefined?{}:{http})};
 }
 if(process.argv.includes('--self-test')) {
+  assert(!JSON.stringify(publicProbeError({name:'Error',message:'https://host.invalid/token?secret='+ 's'.repeat(40)+' own@example.invalid /home/runner/private'})).includes('private'));
   assert.deepEqual(browserEnvironment({PATH:'/bin',AUTH_ADMIN_KEY:'private',UNEXPECTED_SECRET:'private'}),{PATH:'/bin'});
   assert.deepEqual(publicRecord({name:'Review persisted',pass:true,password:'private',access_token:'private'}),{name:'Review persisted',pass:true});
   assert.throws(()=>publicRecord({name:'token@example.invalid',pass:true}));
@@ -167,6 +174,7 @@ if(process.argv.includes('--self-test')) {
     }
   }catch(error){
     report.state='FAIL';
+    if(probe) report.public_error=publicProbeError(error);
     report.failure_flags=['Timeout','locator.fill','locator.click','waitForResponse','strict mode violation','ERR_CONNECTION','browserType.launch'].filter(x=>String(error?.message||'').includes(x));
     if(page && !page.isClosed()) {
       try {
