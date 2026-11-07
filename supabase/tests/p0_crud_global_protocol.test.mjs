@@ -391,3 +391,25 @@ with tempfile.TemporaryDirectory() as d:
 print('DOCUMENT_CONTROL_INTENT_SQL_REPLAY_PASS')`;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_CONTROL_INTENT_SQL_REPLAY_PASS/);
 });
+
+test('document form failure reports the exact current action without attempting later fields',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.fillDocumentUploadForm,'function');
+ const stages=[],actions=[];const dialog={getByLabel:(name)=>({setInputFiles:async()=>actions.push('FILE'),fill:async()=>{actions.push(name);if(name.startsWith('Título de '))throw Error('synthetic label unavailable');}})};
+ await assert.rejects(()=>m.fillDocumentUploadForm(dialog,{name:'synthetic.txt',mime:'text/plain',bytes:Buffer.from('own')},1,'Own title','a'.repeat(32),s=>stages.push(s)));
+ assert.deepEqual(stages,['SELECT_FILE','FILL_TITLE']);assert.deepEqual(actions,['FILE','Título de synthetic.txt']);
+});
+
+test('document transfer wait identifies the missing receipt and validates each earlier HTTP before proceeding',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.awaitDocumentTransfer,'function');
+ const stages=[],checks=[];const missing=Promise.reject(Error('synthetic missing response'));missing.catch(()=>{});
+ await assert.rejects(()=>m.awaitDocumentTransfer([Promise.resolve({ok:()=>true,status:()=>200}),missing],s=>stages.push(s),(name,pass,http)=>checks.push({name,pass,http})));
+ assert.deepEqual(stages,['WAIT_SIGN_UPLOAD','WAIT_STORAGE_UPLOAD']);assert.deepEqual(checks,[{name:'DOCUMENT_TRANSFER_STAGE_0',pass:true,http:200}]);
+});
+
+test('document failure diagnostics allow only fixed flags and bounded endpoint counters/statuses',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.sanitizeDocumentDiagnostic,'function');
+ const flags=Object.fromEntries(['upload_button_present','upload_button_enabled','dialog_open','file_input_present','queue_present','title_input_present','form_alert','format_rejected','config_unavailable','upload_busy','upload_complete','config_loaded','txt_allowed','pdf_allowed'].map(k=>[k,false]));
+ const network=Object.fromEntries(['config','sign','storage','confirm','register'].map(k=>[k,{requests:0,http:null,failed:false,raw:'PRIVATE_CANARY'}]));
+ const value=m.sanitizeDocumentDiagnostic({...flags,network,html:'PRIVATE_CANARY',signed_url:'PRIVATE_CANARY'});assert(!JSON.stringify(value).includes('PRIVATE_CANARY'));assert.deepEqual(value.network.sign,{requests:0,http:null,failed:false});
+ assert.throws(()=>m.sanitizeDocumentDiagnostic({...flags,network:{...network,sign:{requests:0,http:'PRIVATE_CANARY',failed:false}}}));assert.throws(()=>m.sanitizeDocumentDiagnostic({...flags,dialog_open:'PRIVATE_CANARY',network}));
+});
