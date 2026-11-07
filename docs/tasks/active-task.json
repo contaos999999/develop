@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "BUILD_PROVA_PRIVADA_FRONTEND",
+  "phase": "PLAN_DIAGNOSTICO_TIMEOUT_V117",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -49,7 +49,8 @@
     ".github/workflows/restore-isolado.yml",
     ".github/workflows/p0-v117-revisao-hml.yml",
     "supabase/tests/p0_v117_revisao_browser.mjs",
-    ".github/workflows/p0-v117-browser-hml.yml"
+    ".github/workflows/p0-v117-browser-hml.yml",
+    "docs/backend/P0_V117_TIMEOUT_2026-11-07.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -465,5 +466,20 @@
     "frontend_dependency_pr": 284,
     "capture_mode": "VIEWPORT_FIXED_DRAWER_TOP_REVIEW_ACTIONS",
     "frontend_previous_head": "f537dadf9fefca79eb800de10a3b68d4e3fe3a3c"
+  },
+  "timeout_scope": {
+    "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
+    "no_product_changes": true,
+    "no_timeout_increase": true,
+    "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+    "steps": [
+      "PLAN guard e merge",
+      "GATE separado guard e merge",
+      "instrumentação allowlist de subetapas e HTTP numérico sem payloads",
+      "prova real para localizar falha",
+      "TDD e correção mínima após evidência",
+      "GREEN restore/probe e prova privada/quarentena",
+      "retomar PLAN103 após PASS completo"
+    ]
   }
 }
