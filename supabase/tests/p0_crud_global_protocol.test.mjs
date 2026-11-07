@@ -158,3 +158,11 @@ test('accessibility summary drops raw HTML, selectors and unknown data',async()=
  const data={testEngine:{version:'4.14.0'},violations:[{id:'color-contrast',impact:'serious',nodes:[{html:'PRIVATE_CANARY',target:['PRIVATE_CANARY']}]}],incomplete:[{id:'color-contrast',nodes:[{}]}],url:'PRIVATE_CANARY'};
  const out=summarizeAccessibility(data);assert.deepEqual(out,{version:'4.14.0',violations:[{id:'color-contrast',impact:'serious',nodes:1}],incomplete:[{id:'color-contrast',nodes:1}]});assert(!JSON.stringify(out).includes('PRIVATE_CANARY'));
 });
+
+test('audit RLS denial cannot pass on an expired session or backend outage',async()=>{
+ const {validateAuditDenied}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof validateAuditDenied,'function');
+ assert.doesNotThrow(()=>validateAuditDenied({status:200,count:0,code:null}));
+ assert.doesNotThrow(()=>validateAuditDenied({status:403,count:null,code:'42501'}));
+ for(const result of [{status:401,count:null,code:'PGRST301'},{status:500,count:null,code:'XX000'},{status:200,count:1,code:null}])assert.throws(()=>validateAuditDenied(result));
+});

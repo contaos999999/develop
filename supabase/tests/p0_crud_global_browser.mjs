@@ -13,6 +13,9 @@ export function publicRecord({name,pass,http}){
   assert(http===undefined||Number.isInteger(http)&&http>=100&&http<=599);
   return {name,pass,...(http===undefined?{}:{http})};
 }
+export function validateAuditDenied(result){
+  assert(([200,206].includes(result.status)&&result.count===0&&result.code===null)||(result.status===403&&result.code==='42501'&&result.count===null));
+}
 export function validateAuditRead(raw,rows,org,status=200){
   assert([200,206].includes(status));
   const url=new URL(raw);
@@ -205,12 +208,20 @@ async function main(){
         stage('AUDIT_ALLOWED_'+role.toUpperCase());const user=await open(role);await chooseOrg(user.page,f.org);
         await readAudit(user.page,f.org,()=>user.page.goto(auditPath));check('AUDIT_ALLOWED_'+role.toUpperCase(),true);await user.context.close();
       }
+      async function assertRlsDenied(page,name){
+        const result=await page.evaluate(async org=>{
+          const {supabase}=await import('/src/integrations/supabase/client.ts');
+          const {data,error,status}=await supabase.from('eventos_auditoria').select('id').eq('id_organizacao',org).limit(25);
+          return {count:data?.length??null,code:error?.code??null,status};
+        },f.org);
+        validateAuditDenied(result);check(name,true,result.status);
+      }
       const reader=await open('leitor');await chooseOrg(reader.page,f.org);let deniedReads=0;
       reader.page.on('request',r=>{if(new URL(r.url()).pathname==='/rest/v1/eventos_auditoria')deniedReads++;});
-      stage('AUDIT_READER_DENIED');await reader.page.goto(auditPath);await expect(reader.page.getByRole('alert')).toContainText('Você não tem permissão para consultar a auditoria desta organização.');check('AUDIT_READER_NO_QUERY',deniedReads===0);await reader.context.close();
+      stage('AUDIT_READER_DENIED');await reader.page.goto(auditPath);await expect(reader.page.getByRole('alert')).toContainText('Você não tem permissão para consultar a auditoria desta organização.');check('AUDIT_READER_NO_QUERY',deniedReads===0);await assertRlsDenied(reader.page,'AUDIT_READER_REAL_RLS_DENIED');await reader.context.close();
       const other=await open('usuario_b');await chooseOrg(other.page,f.org_b);stage('AUDIT_OTHER_TENANT');
       const foreign=await readAudit(other.page,f.org_b,()=>other.page.goto(auditPath),()=>true,true);
-      const ownIds=new Set(f.audit_reads.filter(r=>r.org===f.org).flatMap(r=>r.ids));assert(foreign.every(r=>!ownIds.has(r.id)));check('AUDIT_TENANT_ISOLATION',true);await other.context.close();
+      const ownIds=new Set(f.audit_reads.filter(r=>r.org===f.org).flatMap(r=>r.ids));assert(foreign.every(r=>!ownIds.has(r.id)));check('AUDIT_TENANT_ISOLATION',true);await assertRlsDenied(other.page,'AUDIT_OTHER_TENANT_REAL_RLS_DENIED');await other.context.close();
       check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';report.completed_domains=['auditoria'];save();return;
     }
     const master=await open('master');master.page._crudRole='master';const mp=master.page;

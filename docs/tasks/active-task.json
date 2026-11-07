@@ -781,9 +781,10 @@
     "audit_scope": "27 edições contratuais reais para paginação; somente SELECT seguro da trilha por administrador, MASTER, auditor e jurídico; leitor negado e tenant B isolado. Seis contas próprias, duas organizações. Nenhum evento de auditoria fabricado.",
     "audit_tdd": {
       "red": "13 PASS/1 FAIL; validateAuditRead inexistente",
-      "green": "16 protocolo e46suite após consolidar integralmente130",
+      "green": "17protocolo/47suitePASS",
       "hml": "PENDENTE",
-      "review": "Independente: sem Critical/Important após correção do status206 (documentação oficial PostgREST); protocolo14/14 reexecutado pelo revisor. Foco comprovado pelo teste, não deslocamento horizontal integral."
+      "review": "Revisão independente final semCritical/Important;17/17protocolo reexecutados. Inclui200/206, negativas JWT reais leitor/tenantB contraorgA, rejeita401/500; semextraçãoJWT/admin.",
+      "rls_red": "16PASS/1FAIL por validador de negativa inexistente"
     },
     "functional_proof": {
       "run": 42402246765,

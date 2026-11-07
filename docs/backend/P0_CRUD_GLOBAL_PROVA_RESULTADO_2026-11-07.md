@@ -1,3 +1,7 @@
+## Reforço da prova negativa RLS da Auditoria
+
+A ausência de dados A na UI selecionada emB não basta para provar a RLS contra filtro malicioso. O lote agora faz SELECT real deid/limit25 contraorgA com o cliente público existente nas sessões do leitor e usuárioB. NenhumJWT é extraído/publicado e nenhuma credencial administrativa vai ao navegador. Aceita somente200/206 vazio semerro ou403/42501;401 e500 não contam como isolamento. RED16PASS/1FAIL; GREEN17protocolo/47suite. Revisão independente semCritical/Important,17/17protocolo reexecutados. HML ainda PENDENTE; novoHEAD exige todoschecks antesdomerge.
+
 ## Consolidação do lote Auditoria após130
 
 Correção visual130 integrada em aa5f83ede6ea74d377c92dde0fdd830288450e29. Capturas antigas continuam NOT_APPROVED para o gate visual; PASS funcional anterior preservado. Lote Auditoria consolidado sem perder130, com16/16 testes de protocolo e46/46 suíte. Revisão independente final sem Critical/Important, incluindo captura topo/painel, foco e resumoaxe saneado. Integração131 condicionada à prova visual130 e checks do novo HEAD. Auditoria HML ainda PENDENTE.
