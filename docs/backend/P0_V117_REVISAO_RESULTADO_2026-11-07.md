@@ -1,3 +1,8 @@
+## Causa concreta da sonda PR106 e correção mínima
+Run42371378909 public-probe FAIL: `toHaveAttribute can be only used with Locator object`. Artifact13573678201 SHA256750f172a23ac0b2151734cd4ca1b7cac022ec8a6eb3c704d08a1c39e1af22666. Asserções foram carregadas de @playwright/test1.58.2 do frontend, mas locators vieram do executor isolado Playwright1.64.1. O binding inicial false tornou-se verdadeiro e o toggle real executou; falha concreta é incompatibilidade do harness, não prova de erro de Auth ou produto. Os dois primeiros timeouts de login continuam históricos, sem atribuição retroativa de causa não demonstrada.
+
+Correção: carregar chromium e expect pelo mesmo export público playwright/test na instalação isolada, confirmar versão exata1.64.1 e registrá-la. Mantém dependências/lock frontend intactos. Separar grupos de concorrência PR/main conforme revisão para impedir que probe de PR substitua prova privada pending. Novo CI precisa comprovar probe PASS e guard/restore/backup, depois execução privada real.
+
 A sonda pública também roda no PR, em job sem environment HML, sem secrets e sem fixtures, com fonte frontend exata e relatório explicitamente público. Serve ao diagnóstico rápido antes do merge; não substitui guard/restore/backup, não autoriza merge com FAILURE e não é Teste C privado. Execução HML continua separada somente após merge e restore da main exata.
 
 ## Probe público: falha anterior à criação de identidades

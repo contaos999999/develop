@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: contaos-v117-browser-hml
+  group: contaos-v117-browser-${{ github.event_name }}-${{ github.event.pull_request.number || 'main' }}
   cancel-in-progress: false
 jobs:
   public-probe:

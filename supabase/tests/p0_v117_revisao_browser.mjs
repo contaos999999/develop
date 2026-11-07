@@ -59,16 +59,17 @@ if(process.argv.includes('--self-test')) {
   const root=resolve(process.env.CONTAOS_TEST_PRIVATE_DIR||'');
   assert(root.startsWith(process.env.RUNNER_TEMP+'/'));
   const frontend=resolve(process.env.CONTAOS_FRONTEND_DIR||'');
-  const req=createRequire(join(frontend,'package.json'));
-  const {expect}=req('@playwright/test');
-  const {chromium}=await import(process.env.CONTAOS_PLAYWRIGHT_MODULE);
+  const req=createRequire(process.env.CONTAOS_PLAYWRIGHT_MODULE);
+  const engineVersion=req('playwright/package.json').version;
+  assert.equal(engineVersion,'1.64.1');
+  const {chromium,expect}=req('playwright/test');
   const probe=process.argv.includes('--public-probe');
   mkdirSync(root,{recursive:true,mode:0o700});
   const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
   const admin=f?.users.find(u=>u.profile==='administrador');
   assert(probe||admin?.creation_state==='created');
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',mode:probe?'PUBLIC_INTERACTIVITY_PROBE':'PRIVATE_ACCEPTANCE',stage:'START',runtime_errors:[],assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
+  const report={schema:'contaos.v117.private-browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,state:'RUNNING',browser_engine_version:engineVersion,mode:probe?'PUBLIC_INTERACTIVITY_PROBE':'PRIVATE_ACCEPTANCE',stage:'START',runtime_errors:[],assertions:[],visual:[],limits:['Synthetic document metadata, no physical upload or worker proof','Automated accessibility is not a full manual WCAG certification']};
   function save(){writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
   const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});
