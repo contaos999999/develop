@@ -1,3 +1,36 @@
+## Prova autenticada alcançou o produto e detectou incompatibilidade de leitura
+Run42372068640/job128402055698, sourceb619056a/frontend508c5ff: probe público PASS, login GoTrue UI200, análise aberta e drawer exibiu erro; detalheRPC recebeu200 (logsHML1POST/1OPTIONS). Fonte HML confirmou3JSONB default{} e efeito bool; frontend rejeitava os tipos.38HTTP PASS e quarentena8 PASS; cleanup processo PASS. Artifact13574406588 SHA256f0c604b73fd9ee8e9764ee575a5d4fc5956a5d862be3e80ba4441e4b6fd01ced. Não é aceitação privada PASS.
+
+Correção frontend PLAN275/GATE276, GATEack278 integrado6ce44b0; BUILD277 fechado apóscontextackantigo; substituto279 HEADf537dadf9fefca79eb800de10a3b68d4e3fe3a3c emCI, código local1146/1146 e118focados. Pin novo preparado, mas backend só pode integrar após frontend279 aprovado/integrado e próprios checksverdes. Sem repetir deploy ou alterar regra backend.
+
+Captura fullPage de drawer fixed compunha a posição do viewport sobre documento alto, podendo parecer deslocamentoCSS. Agora24capturas de viewport real: topo,formulário e ações nas8combinações; não chamar isso de mudançaCSS nem certificaçãoWCAG integral. Registrar statusHTTP e tipos dos4campos, sem salvar payloadprivado, para prova explícita do contrato recebido. Quarentena e isolamento de secrets mantidos.
+
+Conferência do seletor pós-gravação antes da execução: ResultadoCard exibe o prefixo literal `Justificativa: `. Expectativa de atualização ajustada a esse texto real, mantendo valor integral e conferência independente no banco; sem alteração do produto.
+
+## Causa concreta da sonda PR106 e correção mínima
+Run42371378909 public-probe FAIL: `toHaveAttribute can be only used with Locator object`. Artifact13573678201 SHA256750f172a23ac0b2151734cd4ca1b7cac022ec8a6eb3c704d08a1c39e1af22666. Asserções foram carregadas de @playwright/test1.58.2 do frontend, mas locators vieram do executor isolado Playwright1.64.1. O binding inicial false tornou-se verdadeiro e o toggle real executou; falha concreta é incompatibilidade do harness, não prova de erro de Auth ou produto. Os dois primeiros timeouts de login continuam históricos, sem atribuição retroativa de causa não demonstrada.
+
+Correção: carregar chromium e expect pelo mesmo export público playwright/test na instalação isolada, confirmar versão exata1.64.1 e registrá-la. Mantém dependências/lock frontend intactos. Separar grupos de concorrência PR/main conforme revisão para impedir que probe de PR substitua prova privada pending. Novo CI precisa comprovar probe PASS e guard/restore/backup, depois execução privada real.
+
+A sonda pública também roda no PR, em job sem environment HML, sem secrets e sem fixtures, com fonte frontend exata e relatório explicitamente público. Serve ao diagnóstico rápido antes do merge; não substitui guard/restore/backup, não autoriza merge com FAILURE e não é Teste C privado. Execução HML continua separada somente após merge e restore da main exata.
+
+## Probe público: falha anterior à criação de identidades
+Run42370957041/job128398786661, source730b9756, frontend508c5ff: preflight público FAIL em CLIENT_INTERACTIVITY, initial_form_bound=false, em7segundos, sem erros JS no listener e sem flags conhecidas. Não foi timeout de30s nem execução Auth; nenhuma nova fixture criada. Artifact13573767113 SHA25607c80b070a9a0b0bbe50f2211b396365d195b690de0e4c8e5fe383d3199b129f. O erro concreto do driver ainda não foi registrado pela lista fechada de flags; não corrigir produto por hipótese.
+
+Delta mínimo de diagnóstico: somente no modo PUBLIC_INTERACTIVITY_PROBE, antes de credenciais/fixture, registrar classe e primeira linha do erro com URLs, e-mails, caminhos privados e sequências longas redigidos; teste local de redator. Modo privado conserva apenas flags, sem mensagem. Probe tem env sem secrets e não é PASS privado. Sem mudança frontend/negócio/DDL/deploy/PROD.
+
+## Segunda execução privada: estágio localizado, nenhuma autenticação UI comprovada
+Run42370269292/job128396758916, backend9a66c63, frontend508c5ff: FAIL em LOGIN_SUBMIT, timeout waitForResponse. Inputs existem; screenshot após limpeza mostra tela de login sem estado de envio. Nenhuma assertion privada ou chamada Auth UI confirmada.38HTTP anteriores e quarentena8 novamente PASS; cleanup de processo corrigido não falhou nesta execução. Artifact13572967806 SHA256933a911355b395fcb0b3f155e53304950ed8c37eee177ceb04f4a106f54a8649. Não atribuir ainda a causa à hidratação, rede ou produto.
+
+Próximo delta de diagnóstico: preflight público sem credenciais/fixtures antes da criação Auth; esperar binding do formulário e testar alternância acessível da senha. Reportar estágio e erros JS por classificação fixa/export identifier, sem mensagem bruta. Probe em arquivo/mode próprios, jamais conta como PASS privado. Se preflight falhar, não criar novas contas. Browser/Vite por allowlist no próprio Node também. Frontend e regras não são alterados por hipótese.
+
+Revisão focal adicional do FIX104 encontrou que save/browser.close poderiam impedir stopServer. Reproduzido RED real com close rejeitado e grupo contendo neto que ignora TERM. Corrigido finally interno obrigatório, timeout de fechamento do browser e espera do processo após KILL. GREEN protocolo confirma processo/neto encerrados mesmo com close rejeitado. Não tratar execução antiga como evidência dessa correção; novo CI requerido.
+
+## Primeira execução privada: FAIL preservado, quarentena PASS
+Run42369440263, HEAD27fe28a1362df5a52182c75eafcf74f046e12a5c, job128394319425:38 assertions HTTP anteriores PASS, aceitação privada FAIL antes do primeiro check de login. Relatório sanitizado não tem assertions privadas nem capturas; não inventar causa da falha de login. Artifact13572468983 SHA256da26705cec856869de5f37f3608c068c997955967587bcec73c218c317dae1c6. Quarentena própria8usuários verificada no finally e always; sem nova aprovação ou exposição de credenciais.
+
+Falha adicional comprovada: rm do frontend retornou diretório node_modules não vazio porque npm/Vite deixou processo filho ativo. Correção em validação: grupo próprio de processos, TERM/espera limitada/KILL e teste real sem rede confirma fim do filho. Diagnóstico passa a registrar apenas estágio enumerado e flags fixas de erro; screenshot de falha somente após esvaziar inputs. Nunca publicar stderr bruto, tokens ou storageState. Após CI/merge, reexecutar prova real pelo runner canônico sem deploy. Roteamento de listas fora de tarefa seguePLAN103 separado, sem integrar antes desta correção.
+
 ## BUILD do harness privado em validação
 PLAN100 integrado6e53e57; GATE101 integrado937bd9b após guard verde em4c5b6fa. Harness Playwright novo em RED por módulo inexistente e GREEN no teste local do protocolo; não equivale a execução HML. Quarentena fault-injection local PASS. Revisão independente encontrou herança de segredos pelo subprocesso Node/Chromium: reproduzido teste negativo antes da função de allowlist; corrigido por ambiente restrito no Python, guarda fail-closed no Node e env explícito Chromium. Ambiente desconhecido fica excluído por padrão.
 
