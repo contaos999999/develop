@@ -139,7 +139,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI guard/restore/backup no HEAD final; integrar apenas após checks exigidos SUCCESS. Execução HML real DOCUMENTOS, limpeza e evidências antes de qualquer certificação. Domínio documental e CRUD global permanecem pendentes.",
+  "next_step": "Revisão do diagnóstico sanitizado do timeout DOCUMENT_UPLOAD_TXT_V1; somente após CI/integracao e nova prova governada identificar subetapa real. Causa raiz ainda não demonstrada, nenhum PASS documental/global.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -671,8 +671,8 @@
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
-    "frontend_head": "74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8",
-    "pin_status": "INTEGRADO_3_CHECKS_SUCCESS_PR291",
+    "frontend_head": "618cfe3f5cc1142553bbaf2a1d525c7c2ab95c1b",
+    "pin_status": "INTEGRADO_3_CHECKS_SUCCESS_PR306",
     "mode": "REAL_BROWSER_AUTH_ADMIN_FIXTURES",
     "environment": "hml",
     "no_deploy": true,
@@ -680,8 +680,8 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "BUILD_DOCUMENTOS_IMPLEMENTADO_LOCAL_REVISAO_CI_HML_PENDENTES",
-    "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
+    "state": "FAIL_HML_DOCUMENT_UPLOAD_SUBSTEP_UNIDENTIFIED_DIAGNOSTIC_LOCAL",
+    "frontend_merge": "5c65ae991c1fdce329d3a924d6c37cb85a759e70",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
     "gate_pr": 121,
@@ -932,6 +932,38 @@
         "hml": "NOT_EXECUTED",
         "phase": "GATE_PROVA_PRIVADA_DOCUMENTOS"
       }
+    },
+    "document_hml_first": {
+      "run": 42419649579,
+      "backend_head": "95e3a3fa19034bbef39a286ed56c55d967a55c8c",
+      "local_equivalent_base": "784d3587c7181ac9c76bfd39d083f4e7ef5e9d7b",
+      "base_tree_diff": "empty; verified locally",
+      "artifact_sha256": "b1364e0f3b04421b1c90de58209d4de2195faae131200bfddcd60d42841e03e2",
+      "state": "FAIL",
+      "stage": "DOCUMENT_UPLOAD_TXT_V1",
+      "failure_class": "TimeoutError",
+      "runtime_errors": 0,
+      "preserved_uploads": 0,
+      "preserved_objects": 0,
+      "active_jobs": 0,
+      "cleanup": "QUARENTENA_VERIFICADA; 4 users / 2 organizations",
+      "cause": "UNIDENTIFIED: old artifact lacks upload action and endpoint diagnostics",
+      "local_diagnostic_red": "27 PASS / 3 FAIL",
+      "local_diagnostic_green": "protocol 30/30; node --test 60/60; syntax/gates checked",
+      "new_hml": "NOT_EXECUTED"
+    },
+    "frontend_pin_evidence": {
+      "pr": 306,
+      "head": "618cfe3f5cc1142553bbaf2a1d525c7c2ab95c1b",
+      "merge": "5c65ae991c1fdce329d3a924d6c37cb85a759e70",
+      "ci": 42420100914,
+      "jobs": [
+        128546476727,
+        128546477042
+      ],
+      "lock": 42420100861,
+      "state": "SUCCESS",
+      "scope": "Header/source approved; private visual geometry not certified"
     }
   },
   "storage_test_fixtures_allowed": true
