@@ -1,9 +1,38 @@
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
-import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,renameSync,existsSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
+export function documentCoverage(){return {completed_scopes:['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false};}
+export function documentFixture(nonce,format,version){
+  assert(/^[a-f0-9]{32}$/.test(nonce)&&['txt','pdf'].includes(format)&&[1,2].includes(version));
+  const text='ContaOS own synthetic document '+nonce+' version '+version+'. No personal data.';
+  let bytes=Buffer.from(text+'\n');
+  if(format==='pdf'){
+    const stream='BT /F1 12 Tf 40 760 Td ('+text+') Tj ET';
+    const objects=['<< /Type /Catalog /Pages 2 0 R >>','<< /Type /Pages /Kids [3 0 R] /Count 1 >>','<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>','<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>','<< /Length '+Buffer.byteLength(stream)+' >>\nstream\n'+stream+'\nendstream'];
+    let pdf='%PDF-1.4\n',offsets=[0];for(const [i,obj] of objects.entries()){offsets.push(Buffer.byteLength(pdf));pdf+=(i+1)+' 0 obj\n'+obj+'\nendobj\n';}
+    const start=Buffer.byteLength(pdf);pdf+='xref\n0 6\n0000000000 65535 f \n'+offsets.slice(1).map(x=>String(x).padStart(10,'0')+' 00000 n \n').join('')+'trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+start+'\n%%EOF\n';bytes=Buffer.from(pdf);
+  }
+  return {bytes,name:'crudg-'+nonce+'-'+format+'-v'+version+'.'+format,mime:format==='pdf'?'application/pdf':'text/plain',size:bytes.length,sha256:createHash('sha256').update(bytes).digest('hex')};
+}
+export function validateDocumentReceipt(value,expected){
+  const uuid=x=>typeof x==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(x);
+  for(const key of ['id_documento','id_arquivo','id_versao'])assert(uuid(value?.[key]));
+  assert.equal(value.id_arquivo,expected.file);assert.equal(value.numero_versao,expected.version);
+  if(expected.document)assert.equal(value.id_documento,expected.document);
+}
+export function validateDocumentProgress(value,expected){
+  for(const key of ['org','contract','file','sha256','size'])assert.equal(value[key],expected[key]);
+  assert.equal(value.security,'aprovado');assert.equal(value.processing,'concluido');assert.equal(value.job,'concluido');
+  assert(Number.isInteger(value.pages)&&value.pages>0&&Number.isInteger(value.fragments)&&value.fragments>0);
+}
+export function validateDocumentDenial(value,kind){
+  assert(['upload','download','mutation'].includes(kind));
+  assert(kind==='download'?value.status===404&&value.code==='REGISTRO_NAO_ENCONTRADO':kind==='upload'?value.status===403&&value.code==='AUTH_ACESSO_NEGADO':value.status===403&&value.code==='42501');
+}
 export function browserEnvironment(source){
   const allowed=['PATH','HOME','RUNNER_TEMP','TMPDIR','LANG','TZ','CI','XDG_CACHE_HOME','CONTAOS_TEST_PRIVATE_DIR','CONTAOS_FRONTEND_DIR','CONTAOS_AXE_SOURCE_PATH','CONTAOS_PLAYWRIGHT_MODULE','TESTED_HEAD','FRONTEND_HEAD'];
   return Object.fromEntries(allowed.filter(k=>source[k]!==undefined).map(k=>[k,source[k]]));
@@ -101,6 +130,7 @@ async function main(){
   const root=resolve(process.env.CONTAOS_TEST_PRIVATE_DIR||'');assert(root.startsWith(resolve(process.env.RUNNER_TEMP)+'/'));
   const frontend=resolve(process.env.CONTAOS_FRONTEND_DIR||'');const req=createRequire(process.env.CONTAOS_PLAYWRIGHT_MODULE);assert.equal(req('playwright/package.json').version,'1.64.1');const {chromium,expect}=req('playwright/test');
   const probe=process.argv.includes('--public-probe');const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
+  if(f)assert(['CADASTROS_LISTAS','AUDITORIA','DOCUMENTOS'].includes(f.batch));
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
   const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:probe?'PUBLIC_PROBE':f.batch||'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Stable-state contrast does not close historical transient V117 contrast']};
   const save=()=>writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});
@@ -112,7 +142,7 @@ async function main(){
     stage('SERVER_READY');for(let i=0;i<120;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
     browser=await chromium.launch({headless:true,env:browserEnvironment(process.env)});
     async function open(role){
-      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light'});const page=await context.newPage();page.setDefaultTimeout(30000);diagnosticPage=page;
+      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light',locale:'pt-BR'});const page=await context.newPage();page.setDefaultTimeout(30000);diagnosticPage=page;
       page.on('response',r=>{if(r.url().endsWith('/rpc/obter_lista_operacional_v1')&&r.request().method()==='POST')readHttp=r.status();});
       page.on('pageerror',e=>{report.runtime_errors.push({name:['Error','TypeError','SyntaxError','ReferenceError'].includes(e.name)?e.name:'Other'});save();});
       stage('LOGIN_'+role.toUpperCase());await page.goto(base+'/login');await page.waitForFunction(loginFormIsInteractive);
@@ -151,6 +181,110 @@ async function main(){
       await sample.evaluate(()=>{setTimeout(()=>{const p=document.querySelector('section');p.innerHTML='<p>Own recovered</p><button>Editar lista</button>';},50);});
       await settled;check('VISUAL_WAITS_FOR_RECOVERED_ENABLED_PANEL',await sample.evaluate(listUiIsSettled,'Own recovered'));
       await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;
+    }
+    if(f.batch==='DOCUMENTOS'){
+      const admin=await open('administrador');const ap=admin.page;await chooseOrg(ap,f.org);
+      const docsPath=base+'/contratos/'+f.contract+'/documentos';await ap.goto(docsPath);
+      await expect(ap.getByRole('heading',{name:'Central de documentos',exact:true})).toBeVisible();
+      const persist=()=>writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});
+      const batchDeadline=Date.now()+900000;f.uploads??=[];
+      async function upload(format,version,document){
+        stage('DOCUMENT_UPLOAD_'+format.toUpperCase()+'_V'+version);
+        const file=documentFixture(f.nonce,format,version),title=f.prefix+format;
+        const intent={intent_nonce:f.nonce+'-'+format+'-'+version,org:f.org,contract:f.contract,name:file.name,mime:file.mime,sha256:file.sha256,size:file.size,version,title,state:'INTENT',...(document?{document}:{} )};
+        f.uploads.push(intent);persist(); // durable before opening the form or making any upload request
+        await ap.getByRole('button',{name:version===1?'Enviar documentos':'Nova versão de '+title,exact:true}).click();
+        const dialog=ap.getByRole('dialog');await dialog.getByLabel(version===1?'Arquivos':'Arquivo',{exact:true}).setInputFiles({name:file.name,mimeType:file.mime,buffer:file.bytes});
+        if(version===1){await dialog.getByLabel('Título de '+file.name,{exact:true}).fill(title);await dialog.getByLabel('Categoria',{exact:true}).fill('synthetic-'+f.nonce);await dialog.getByLabel('Início da vigência',{exact:true}).fill('2026-01-01');}
+        else await dialog.getByLabel('Motivo da nova versão',{exact:true}).fill('Own synthetic replacement '+f.nonce);
+        const waits=['/functions/v1/storage-sign-upload','/storage/v1/object/upload/sign/','/rpc/confirmar_upload_arquivo','/rpc/'+(version===1?'criar_documento_contrato_completo':'adicionar_versao_documento_contrato')].map(part=>ap.waitForResponse(r=>r.url().includes(part)&&['POST','PUT'].includes(r.request().method()),{timeout:60000}));
+        // Observers settle together so a failed stage never leaves an unhandled waiter.
+        const receive=Promise.all(waits);receive.catch(()=>{});
+        await dialog.getByRole('button',{name:version===1?'Enviar e registrar':'Enviar nova versão',exact:true}).click();
+        const responses=await receive;
+        for(const [i,response] of responses.entries())check('DOCUMENT_TRANSFER_STAGE_'+i,response.ok(),response.status());
+        const authorization=await responses[0].json();assert(authorization.ok&&authorization.bucket==='contaos-documentos'&&authorization.path.startsWith(f.org+'/uploads/')&&authorization.path.endsWith('/'+file.name));
+        intent.path=authorization.path;intent.state='UPLOADED';persist();
+        const request=responses[2].request().postDataJSON();assert.equal(request.p_nome_original,file.name);assert.equal(request.p_mime,file.mime);assert.equal(request.p_sha256,file.sha256);assert.equal(request.p_tamanho,file.size);assert.equal(request.p_path,intent.path);assert.equal(request.p_id_organizacao,f.org);assert.equal(request.p_id_contrato,f.contract);
+        intent.file=await responses[2].json();intent.state='CONFIRMED';persist();
+        const receipt=await responses[3].json();validateDocumentReceipt(receipt,intent);intent.document=receipt.id_documento;intent.id_version=receipt.id_versao;intent.state='REGISTERED';persist();
+        await expect(dialog.getByRole('button',{name:'Fechar',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Fechar',exact:true}).click();
+        const deadline=Math.min(batchDeadline,Date.now()+300000);let ready=false;
+        while(Date.now()<deadline){
+          const progress=await ap.evaluate(async expected=>{
+            const {supabase}=await import('/src/integrations/supabase/client.ts');
+            const ar=await supabase.from('arquivos').select('id,id_organizacao,id_contrato,sha256,tamanho,status_seguranca').eq('id',expected.file).single();
+            const pr=await supabase.from('processamentos_documento').select('status').eq('id_versao_documento',expected.id_version).eq('etapa','documents').single();
+            const jobs=await supabase.from('execucoes_assincronas').select('status').eq('entidade_id',expected.id_version).eq('fila','documents').limit(2);
+            const pages=await supabase.from('paginas_documento').select('id',{count:'exact',head:true}).eq('id_versao_documento',expected.id_version);
+            const fragments=await supabase.from('fragmentos_documento').select('id',{count:'exact',head:true}).eq('id_versao_documento',expected.id_version);
+            if([ar,pr,jobs,pages,fragments].some(r=>r.error))return {read_failed:true};
+            const a=ar.data;return {org:a.id_organizacao,contract:a.id_contrato,file:a.id,sha256:a.sha256,size:Number(a.tamanho),security:a.status_seguranca,processing:pr.data.status,job:jobs.data.length===1?jobs.data[0].status:null,pages:pages.count,fragments:fragments.count};
+          },intent);
+          if(progress.read_failed)throw Error('Document progress read failed');
+          if(['bloqueado','quarentena'].includes(progress.security)||['falhou','cancelado'].includes(progress.processing))throw Error('Document worker failed');
+          try{validateDocumentProgress(progress,intent);ready=true;break;}catch{}
+          await new Promise(r=>setTimeout(r,5000));
+        }
+        check('DOCUMENT_REAL_WORKER_'+format.toUpperCase()+'_V'+version,ready);intent.state='PROCESSED';persist();
+        await ap.getByRole('button',{name:'Atualizar lista',exact:true}).click();
+        const downloadResponse=ap.waitForResponse(r=>r.url().endsWith('/functions/v1/storage-sign-download')&&r.request().method()==='POST');
+        const popup=admin.context.waitForEvent('page',{timeout:10000}).catch(()=>null);
+        await ap.getByRole('button',{name:'Baixar '+file.name,exact:true}).click();const signed=await downloadResponse;check('DOCUMENT_OFFICIAL_DOWNLOAD',signed.ok(),signed.status());
+        assert.equal(signed.request().postDataJSON().id_arquivo,intent.file);const signedData=await signed.json();assert.equal(signedData.ok,true);const url=new URL(signedData.signed_url);assert.equal(url.origin,'https://gklhhhyosgasnyoxlrui.supabase.co');assert.equal(url.pathname,'/storage/v1/object/sign/contaos-documentos/'+intent.path);
+        const downloaded=await admin.context.request.get(url.href);const bytes=await downloaded.body();check('DOCUMENT_PHYSICAL_HASH_AND_SIZE',downloaded.ok()&&bytes.length===file.size&&createHash('sha256').update(bytes).digest('hex')===file.sha256,downloaded.status());
+        const opened=await popup;if(opened)await opened.close();intent.download_verified=true;persist();return intent.document;
+      }
+      for(const format of ['txt','pdf']){const document=await upload(format,1);await upload(format,2,document);}
+      await ap.reload();await expect(ap.getByRole('list',{name:'Documentos',exact:true}).locator(':scope > li')).toHaveCount(2);
+      await ap.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
+      for(const theme of ['light','dark'])for(const width of [1440,1280,768,390]){
+        stage('DOCUMENT_VISUAL_'+width+'_'+theme.toUpperCase());await ap.setViewportSize({width,height:1000});await ap.evaluate(t=>{document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;},theme);
+        await ap.getByRole('button',{name:'Atualizar lista',exact:true}).focus();await expect(ap.getByRole('button',{name:'Atualizar lista',exact:true})).toBeFocused();await ap.keyboard.press('Tab');
+        check('DOCUMENT_NO_PAGE_OVERFLOW_'+width+'_'+theme.toUpperCase(),await ap.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        const raw=await ap.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {testEngine:{version:r.testEngine.version},violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
+        const a11y=summarizeAccessibility(raw),name='crud-documents-'+width+'-'+theme+'.png';await ap.screenshot({path:join(output,name),animations:'disabled',fullPage:true});report.visual.push({width,theme,a11y,screenshot:name});save();check('DOCUMENT_ACCESSIBILITY_'+width+'_'+theme.toUpperCase(),a11y.violations.length===0);
+      }
+      stage('DOCUMENT_REVOKE_AUTHORIZED_SESSION');
+      const ownAdmin=f.users.find(u=>u.profile==='administrador');
+      const control={action:'REVOKE_OWN_ADMIN',nonce:f.nonce,org:f.org,user:ownAdmin.id};
+      writeFileSync(join(root,'document-control-request.tmp'),JSON.stringify(control),{mode:0o600});renameSync(join(root,'document-control-request.tmp'),join(root,'document-control-request.json'));
+      const controlDeadline=Date.now()+60000;while(!existsSync(join(root,'document-control-response.json'))){assert(Date.now()<controlDeadline,'Revocation controller timeout');await new Promise(r=>setTimeout(r,100));}
+      const ack=JSON.parse(readFileSync(join(root,'document-control-response.json'),'utf8'));assert.deepEqual(ack,{action:'REVOKE_OWN_ADMIN',nonce:f.nonce,state:'REVOKED'});
+      const revoked=await ap.evaluate(async input=>{
+        const {supabase}=await import('/src/integrations/supabase/client.ts');
+        const session=await supabase.auth.getUser();
+        const mutation=await supabase.rpc('adicionar_versao_documento_contrato',{p_id_documento:input.document,p_id_arquivo:input.file,p_motivo:'Own revoked permission probe',p_chave_idempotencia:crypto.randomUUID()});
+        const read=await supabase.from('documentos_contrato').select('id').eq('id_contrato',input.contract).limit(25);
+        const download=await supabase.functions.invoke('storage-sign-download',{body:{id_arquivo:input.file}});let code=null,status=download.error?.context?.status??(download.error?0:200);try{code=(await download.error.context.json()).codigo;}catch{}
+        return {session_valid:!session.error&&session.data.user?.id===input.user,mutation:{status:mutation.status,code:mutation.error?.code??null},read:{status:read.status,code:read.error?.code??null,count:read.data?.length??null},download:{status,code}};
+      },{document:f.uploads[0].document,file:f.uploads[0].file,contract:f.contract,user:ownAdmin.id});
+      check('DOCUMENT_REVOKED_SESSION_STILL_AUTHENTICATED',revoked.session_valid);
+      validateDocumentDenial(revoked.mutation,'mutation');validateDocumentDenial(revoked.download,'download');validateAuditDenied(revoked.read);
+      check('DOCUMENT_REVOKED_MUTATION_DENIED',true,revoked.mutation.status);check('DOCUMENT_REVOKED_DOWNLOAD_DENIED',true,revoked.download.status);check('DOCUMENT_REVOKED_READ_DENIED',true,revoked.read.status);
+      await admin.context.close();
+      for(const role of ['master','leitor','usuario_b']){
+        const user=await open(role);await chooseOrg(user.page,role==='usuario_b'?f.org_b:f.org);await user.page.goto(docsPath);
+        if(role==='master'){await expect(user.page.getByRole('list',{name:'Documentos',exact:true})).toBeVisible();check('DOCUMENT_MASTER_READ',true);}
+        else {
+          if(role==='usuario_b')await expect(user.page.getByRole('alert')).toBeVisible();
+          const result=await user.page.evaluate(async input=>{
+            const {supabase}=await import('/src/integrations/supabase/client.ts');
+            const up=await supabase.functions.invoke('storage-sign-upload',{body:{id_organizacao:input.org,id_contrato:input.contract,nome_arquivo:'negative.txt',mime:'text/plain',tamanho:1}});
+            async function edgeResult(r){if(!r.error)return {status:200,code:null};const response=r.error.context;if(!response||typeof response.status!=='number')return {status:0,code:null};let data={};try{data=await response.json();}catch{}return {status:response.status,code:data.codigo??null};}
+            const upload=await edgeResult(up);
+            const mutation=await supabase.rpc('adicionar_versao_documento_contrato',{p_id_documento:input.document,p_id_arquivo:input.file,p_motivo:'Own negative permission probe',p_chave_idempotencia:crypto.randomUUID()});
+            const read=await supabase.from('documentos_contrato').select('id').eq('id_contrato',input.contract).limit(25);
+            let download=null;if(input.other)download=await edgeResult(await supabase.functions.invoke('storage-sign-download',{body:{id_arquivo:input.file}}));
+            return {upload,mutation:{status:mutation.status,code:mutation.error?.code??null},read:{status:read.status,code:read.error?.code??null,count:read.data?.length??null},download};
+          },{org:f.org,contract:f.contract,file:f.uploads[0].file,document:f.uploads[0].document,other:role==='usuario_b'});
+          validateDocumentDenial(result.upload,'upload');validateDocumentDenial(result.mutation,'mutation');check('DOCUMENT_'+role.toUpperCase()+'_VERSION_DENIED',true,result.mutation.status);check('DOCUMENT_'+role.toUpperCase()+'_UPLOAD_DENIED',true,result.upload.status);
+          if(role==='usuario_b'){validateAuditDenied(result.read);validateDocumentDenial(result.download,'download');check('DOCUMENT_OTHER_TENANT_READ_DOWNLOAD_DENIED',true,result.download.status);}
+          else {assert([200,206].includes(result.read.status)&&result.read.count===2);check('DOCUMENT_READER_READ_ALLOWED',true,result.read.status);}
+        }
+        await user.context.close();
+      }
+      report.limits=report.limits.filter(x=>x!=='No physical upload or worker proof in this batch');report.limits.push('TXT/PDF only; other formats, multipart, AI extraction and full manual WCAG remain unverified');check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';Object.assign(report,documentCoverage());report.completed_domains=[];save();return;
     }
     if(f.batch==='AUDITORIA'){
       const admin=await open('administrador');const ap=admin.page;await chooseOrg(ap,f.org);
