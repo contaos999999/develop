@@ -1,8 +1,8 @@
 {
-  "id": "P0-V117-REVISAO-20261107",
-  "title": "Revisão humana V1-17 com CAS e idempotência",
+  "id": "P0-CRUD-GLOBAL-HML-20261107",
+  "title": "Prova privada do CRUD global V1 por interface e persistência",
   "status": "ativa",
-  "phase": "ROTEAMENTO_WORKFLOW_HML_CONCLUIDO",
+  "phase": "PLAN_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -35,25 +35,16 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Revisão humana append-only com execução de reanálise própria, CAS de execução/resultado/hash, idempotência e evidências estritamente no tenant; integrar UI após provas backend.",
+  "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
-    "docs/backend/P0_V117_REVISAO_PLAN_2026-11-07.md",
-    "docs/backend/P0_V117_REVISAO_RESULTADO_2026-11-07.md",
+    "docs/backend/P0_CRUD_GLOBAL_PROVA_PLAN_2026-11-07.md",
+    "docs/backend/P0_CRUD_GLOBAL_PROVA_RESULTADO_2026-11-07.md",
     "docs/tasks/active-task.json",
-    "supabase/migrations/20261107094443_p0_v117_revisao_humana.sql",
-    "supabase/tests/p0_v117_revisao.sql",
-    "supabase/tests/p0_v117_revisao_concurrency.py",
-    "supabase/tests/p0_v117_revisao_jwt.py",
-    "supabase/tests/p0_v117_revisao_catalog_expected.json",
-    "supabase/tests/history_catalog_compare.py",
-    ".github/workflows/restore-isolado.yml",
-    ".github/workflows/p0-v117-revisao-hml.yml",
-    "supabase/tests/p0_v117_revisao_browser.mjs",
-    ".github/workflows/p0-v117-browser-hml.yml",
-    "docs/backend/P0_V117_TIMEOUT_2026-11-07.md",
-    ".github/workflows/p0-crud-listas-hml.yml",
-    "supabase/tests/p0_workflow_routing.test.mjs",
-    "docs/backend/P0_WORKFLOW_ROUTING_GATE_2026-11-07.md"
+    "supabase/tests/p0_crud_global_browser.mjs",
+    "supabase/tests/p0_crud_global_hml.py",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    ".github/workflows/p0-crud-global-browser-hml.yml",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -65,7 +56,7 @@
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": false,
+  "auth_changes_allowed": true,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
@@ -117,7 +108,7 @@
     "note": "Regular38 V1-17; V1-CHK-004 e V1-AUD-001/002/004/005 e NFR007/008. Sem alteração dos textos fontes."
   },
   "previous_task_id": "P0-CRUD-CADASTROS-20261106",
-  "previous_task_snapshot_commit": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
+  "previous_task_snapshot_commit": "a6399adc39e984293c14d7adcf106b00ab76ce50",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -129,7 +120,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Roteamento PLAN103/GATE117/BUILD118 concluído com scopesSUCCESS e materiaisSKIPPED comprovados; retomar auditoria da matriz CRUDglobal/V1, contraste transitório e critérios ainda NÃO VERIFICADOS. V1 não certificada.",
+  "next_step": "Integrar PLAN/GATE próprios após frontendCRUD-LISTA-001 aprovado; RED segurança/protocolo, BUILD fechado deharness,CI/merge; executarHMLexato semdeploy/quarentena e atualizar matriz. Não certificarantecipado.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -656,5 +647,20 @@
       "Teste de configuração usa extração restrita de YAML por regex/expressões JS; GitHub validou configuração e skips reais",
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
+  },
+  "database_test_fixtures_allowed": true,
+  "crud_global_proof": {
+    "matrix_repository": "contaos999999/contaos-hml-control",
+    "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
+    "frontend_head": null,
+    "pin_status": "AGUARDANDO_FIX_CRUD_LISTA_001_INTEGRADO_CI",
+    "mode": "REAL_BROWSER_AUTH_ADMIN_FIXTURES",
+    "environment": "hml",
+    "no_deploy": true,
+    "no_schema_changes": true,
+    "no_prod": true,
+    "no_auth_sql_provisioning": true,
+    "no_service_role_in_browser": true,
+    "state": "PLAN"
   }
 }
