@@ -126,7 +126,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Somente após frontend284 integrado com3checksSUCCESS e guard/restore/backup desteHEAD: integrar pin e executar prova privada; auditar8combinações e quarentena. PR103 após prova final.",
+  "next_step": "Validar fix timeout com guard/restore/backup/probe e prova real completa/quarentena; manter103 sem merge atéPASS.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -487,6 +487,18 @@
       "review": "PASS: subetapas constantes/booleanos/HTTP sem dados privados; negação tenant, waits 30s e cleanup preservados; diagnóstico antes de correção; sem produto/PROD",
       "gate_pr": 113,
       "gate_merge": "929ef4b99bb5860b7243504a1557ca1c408fa74b"
-    }
+    },
+    "root_cause": {
+      "run": 42390984573,
+      "backend_head": "ea7ea6bdbb9725669daf84d877435fecf6580e7b",
+      "artifact": 13582175253,
+      "artifact_sha256": "1842b6a412780b4b98eadd8f84fa5246f80320f29619e36ff3e2ba7544df3811",
+      "stage": "CROSS_TENANT_LOGIN_REDIRECT",
+      "denied_login_form_bound": false,
+      "login_http_emitted": false,
+      "conclusion": "Segundo login interage com SSR antes do binding React, sem emissão de login; primeiro aguarda binding e funciona."
+    },
+    "red": "self-test: login readiness predicate must exist, actual undefined; depois casos SSR/inexistente/handler inválido/handler real GREEN",
+    "green": "node --check, protocolo self-test e 17 testes guard locais PASS; prova HML pendente"
   }
 }
