@@ -1,12 +1,12 @@
 {
-  "id": "P0-CRUD-LISTAS-20261107",
-  "title": "CRUD global V1: listas de verificação versionadas",
+  "id": "P0-V117-REVISAO-20261107",
+  "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "PLAN_VALIDADO_AGUARDANDO_CI_RED_BUILD",
+  "phase": "PLAN_VALIDADO_AGUARDANDO_CI",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-05",
-  "context_read_by": "Codex: leitura das fontes canônicas atuais, RBAC/MASTER e organizações HML",
+  "context_read_acknowledged_at": "2026-11-07",
+  "context_read_by": "Codex; leitura integral do contexto raiz 00–20, P0, certificado e implementação afetada",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -35,20 +35,19 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Completar configuração/versionamento de listasV1-CHK-001..004 pela interface, com Supabase autoritativo, snapshots/histórico preservados.",
+  "objective": "Revisão humana append-only com execução de reanálise própria, CAS de execução/resultado/hash, idempotência e evidências estritamente no tenant; integrar UI após provas backend.",
   "allowed_paths": [
-    "docs/backend/P0_CRUD_LISTAS_PLAN_2026-11-07.md",
-    "docs/backend/P0_CRUD_LISTAS_RESULTADO_2026-11-07.md",
+    "docs/backend/P0_V117_REVISAO_PLAN_2026-11-07.md",
+    "docs/backend/P0_V117_REVISAO_RESULTADO_2026-11-07.md",
     "docs/tasks/active-task.json",
-    "supabase/migrations/20261107001620_p0_crud_listas_verificacao.sql",
-    "supabase/tests/p0_crud_listas.sql",
-    "supabase/tests/p0_crud_listas_concurrency.py",
-    "supabase/tests/p0_crud_listas_jwt.py",
-    "supabase/tests/p0_crud_listas_catalog_expected.json",
+    "supabase/migrations/20261107094443_p0_v117_revisao_humana.sql",
+    "supabase/tests/p0_v117_revisao.sql",
+    "supabase/tests/p0_v117_revisao_concurrency.py",
+    "supabase/tests/p0_v117_revisao_jwt.py",
+    "supabase/tests/p0_v117_revisao_catalog_expected.json",
     "supabase/tests/history_catalog_compare.py",
     ".github/workflows/restore-isolado.yml",
-    ".github/workflows/p0-crud-listas-hml.yml",
-    ".github/workflows/p0-crud-cadastros-hml.yml"
+    ".github/workflows/p0-v117-revisao-hml.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -60,12 +59,12 @@
   "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
-  "auth_changes_allowed": true,
+  "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
-    "date": "2026-11-06",
-    "scope": "Execute integralmente o CRUD global não pare até concluir. HML apenas, PLAN/GATE, V1 antesV2, semPROD. Auth exclusivamentefixtures próprias, nunca configuração."
+    "date": "2026-11-07",
+    "scope": "Autorizado: investigação somente leitura; após resultado e proposta de correção canônica no backend + integração frontend + testes reais, titular determinou Execute. HML apenas, sem PROD; fixture Auth exclusivamente API administrativa nos testes."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -73,7 +72,7 @@
     "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE"
   },
   "prompt_crosswalk": {
-    "regular_prompt_id": "21",
+    "regular_prompt_id": "38",
     "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
     "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
     "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
@@ -82,7 +81,11 @@
     "regular_range_verified": "00-99 (100/100)",
     "atomic_range_verified": "000-096 (97/97)",
     "direct_atomic_ids": [
-      "000"
+      "000",
+      "014",
+      "021",
+      "022",
+      "024"
     ],
     "additional_transversal_atomic_ids": [
       "089",
@@ -102,53 +105,34 @@
       "NFR-009",
       "NFR-010"
     ],
-    "status": "PLANEJAMENTO_RBAC_ADM01_SEM_CERTIFICACAO",
+    "status": "PLAN_REVISAO_V117_SEM_CERTIFICACAO",
     "source_evidence_missing": false,
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
-    "note": "Escopo do Prompt 38 revisado contra os requisitos com indicação explícita de V1-17, mais os NFR transversais da tarefa; não significa certificação dos 100 planos funcionais. Antes de TESTE C, comparar artefato final com todos os requisitos associados."
+    "note": "Regular38 V1-17; V1-CHK-004 e V1-AUD-001/002/004/005 e NFR007/008. Sem alteração dos textos fontes."
   },
   "previous_task_id": "P0-CRUD-CADASTROS-20261106",
   "previous_task_snapshot_commit": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
   "prod_untouched": true,
   "acceptance": [
-    "guard/restore integral e concorrência no mesmoHEAD",
-    "header versão exatamente1 porcomando",
-    "publicação e fechamento temporal sem apagar snapshotsanteriores",
-    "DMLdireto e uso tenant/versão inválidos negados semefeitos",
-    "idempotência + auditoria atômicas",
-    "JWTreais, perfis/MASTERsemherançaespecializada, corrida publicacao/criarcompetencia, quarentena",
-    "paridadeGitHub/HMLCLI",
-    "UI permanece tarefa posterior, V1 não certificada"
+    "append-only e nenhuma remoção de histórico",
+    "CAS de execução, resultado e hash; 409 após concorrência",
+    "replay exato produz mesmo resultado e evento único; payload/ator diferente negado",
+    "negação RBAC, sessão e tenant; evidência cruzada negada",
+    "restore e regressão integrais",
+    "deploy CLI canônico e paridade completa",
+    "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
+    "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Após guardSUCCESS e merge PLAN, RED metadados/negativas, BUILD delimitado; restore+concorrência, revisão, canônicoSHA/hash, JWTfixtures/quarentena e depoisPLANfrontend.",
+  "next_step": "CI PLAN, RED isolado, BUILD, restore/concorrência/revisão, deploy canônico HML e JWT, PLAN frontend.",
   "database_change_scope": {
-    "migration": "20261107001620_p0_crud_listas_verificacao.sql",
+    "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
-      "obter_lista_operacional_v1",
-      "executar_comando_lista_v1"
+      "obter_contexto_revisao_v117",
+      "registrar_revisao_requisito_v117"
     ],
-    "new_private_functions": [
-      "crud_lista_autorizar_v1",
-      "crud_lista_consultar_v1",
-      "crud_lista_mutar_v1",
-      "crud_lista_integridade_v1",
-      "crud_lista_validar_regra_v1"
-    ],
-    "existing_function_changed": "privado.criar_competencia(uuid,date,date,date,date): somente lock org→contrato compartilhado para serializar snapshot com fechamento/publicação de lista, preservar regras/resto",
-    "tables_changed": [],
-    "existing_business_tables": [
-      "listas_verificacao",
-      "versoes_lista",
-      "itens_lista",
-      "competencias",
-      "requisitos_competencia",
-      "comandos_idempotentes",
-      "eventos_auditoria",
-      "fontes_normativas",
-      "versoes_fontes_normativas",
-      "aplicabilidades_fonte"
-    ],
-    "triggers": "touch específico header sem duplicar versão; guard INSERT/UPDATE/DELETE autenticado dos3cadastros; semRLS/grants novos"
+    "legacy": "privado.registrar_resultado_requisito seis argumentos passa a falhar fechado exigindo fluxo protegido; assinatura e ACL preservadas",
+    "business_tables_changed": [],
+    "triggers": "impedir DML direto authenticated em resultados/evidências; operações internas autorizadas preservadas"
   },
   "evidence": {
     "test_pr": 52,
