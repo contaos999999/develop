@@ -86,8 +86,9 @@ A allowlist proposta contém exatamente:
 7. supabase/tests/storage_document_cors.test.mjs
 8. supabase/tests/p0_crud_global_browser.mjs
 9. supabase/tests/p0_crud_global_protocol.test.mjs
+10. supabase/tests/p0_crud_global_hml.py
 
-Os dois últimos arquivos permitem o smoke publicado no runner atual. Python não precisa ser alterado: o desenho mantém as mesmas quatro identidades, dois tenants, quatro uploads e dois documentos já previstos. O guardião, o monitor do processo, a verificação SQL e o cleanup atuais permanecem aplicáveis. Se surgir necessidade real de mudar Python, declarar essa lacuna antes do GATE ou em emenda; não ampliar a lista durante a implementação.
+Os três arquivos do harness permitem o smoke publicado no runner atual. Python é indispensável para verificar separadamente o smoke adicional e as quatro provas locais, recuperar os cinco uploads e incluir todos no cleanup. Permanecem as mesmas quatro identidades e dois tenants; o smoke usa o mesmo contrato próprio, com documento e recibo separados. A inclusão de Python já fica fechada neste PLAN; não ampliar caminhos durante a implementação.
 
 O teste existente `storage_upload_rbac.test.mjs` remove imports e executa o handler em VM. Por isso, helpers locais evitam alterar o loader ou as assertions desse teste só para acomodar a tarefa. Executá-lo integralmente, assim como `security-download-filename-check.mjs`.
 
@@ -97,34 +98,54 @@ Durante PLAN/GATE, somente documentos e manifesto são alteráveis. No BUILD val
 
 ## 7. Smoke publicado no runner existente, antes da prova local
 
+### Proveniência: origem comprovada, código publicado não vinculado
+
+Foi procurada prova primária de paridade entre publicação e commit. `get_project` fornece `latest_commit_sha`, informações de sincronismo, `preview_url` e `is_published`, mas não informa o SHA efetivamente implantado na origem publicada. As capacidades de leitura disponíveis não expõem histórico de deployments; a operação `deploy_project` é mutável e não será usada para investigar. A busca no repositório não encontrou build-info, version.json ou marcador de BUILD_SHA servido que permita fazer esse vínculo. Metadado de sincronismo não será reinterpretado como prova de publicação.
+
+Portanto, o smoke publicado será rotulado **origem comprovada / código não vinculado ao pin**. Nenhum upload feito nessa origem substituirá prova local nem será atribuído ao `frontend_head` aprovado. A origem do runner local continuará carregando o código do SHA exato aprovado pelo workflow existente.
+
 ### Runner e comando concretos
 
 Reutilizar o job `private-browser` do workflow `.github/workflows/p0-crud-global-browser-hml.yml`. Ele já instala Chromium/Playwright, carrega o frontend pinado e executa:
 
 `python3 supabase/tests/p0_crud_global_hml.py`
 
-O Python já cria as fixtures por Auth Admin, mantém banco e credencial administrativa fora do Node, inicia o browser, monitora o controle fechado e executa cleanup em finally. Não criar outro executor, workflow, comando de deploy ou transferência manual de credenciais.
+O Python já cria as fixtures por Auth Admin, mantém banco e credencial administrativa fora do Node, inicia o navegador, monitora o controle fechado e executa cleanup em finally. A proposta modifica somente os três arquivos desse harness para adicionar e verificar o smoke. Não criar outro executor, workflow, comando de deploy ou transferência manual de credenciais.
 
-O smoke será o primeiro segmento do lote DOCUMENTOS nessa mesma invocação, depois de fixtures criadas e antes do segmento documental local. Não será um segundo processo com fixtures próprias nem um teste de curl.
+O smoke será o primeiro segmento do lote DOCUMENTOS nessa mesma invocação, depois das fixtures e antes das quatro provas locais. Não será um segundo processo com fixtures distintas nem um teste de curl.
 
-### Sequência de navegador e preservação das contagens
+### Sequência real de navegador
 
-1. O Node abre um contexto real em `https://scope-and-approval-keeper.lovable.app`, verifica a origem exata da página e efetua login pela UI normal com a identidade administrador da fixture existente. Seleciona a mesma organização e o mesmo contrato sintéticos.
-2. Reutiliza os helpers atuais de login, seleção de organização e upload, parametrizados apenas por duas superfícies fechadas: PUBLICADA e LOCAL. A origem não vem de URL arbitrária, comando ou payload. Não importar `/src/...` na aplicação publicada, não injetar um SDK e não ler localStorage, storageState, sessionStorage ou JWT para autenticar requests de teste.
-3. Na UI publicada, executa o TXT versão 1 que já integra os quatro uploads aprovados. Grava intenção privada antes da ação; observa a chamada de `storage-sign-upload`, o envio ao Storage, a confirmação e o registro. Usa o worker normal, sem alterar status, e aguarda a segurança real.
-4. Ainda na UI publicada, clica no download oficial do mesmo arquivo. Confere o retorno de `storage-sign-download` e a integridade/tamanho dos bytes recebidos, conforme o helper atual. A URL temporária permanece privada e não vira evidência pública. Isso comprova que o navegador recebeu as respostas CORS das duas funções, não apenas que OPTIONS respondeu.
-5. Persiste o recibo desse TXT na mesma fixture, com marca de superfície PUBLICADA. Registra no relatório somente estágios, booleanos, status e contagens. Se login, rota, assinatura, upload, worker ou download falhar, interrompe antes do segmento local e executa o cleanup existente.
-6. Somente após o smoke passar, abre um novo contexto em `http://127.0.0.1:4173`, faz novo login normal com a mesma identidade e seleciona a mesma organização/contrato. Continua a prova local com TXT versão 2, PDF versão 1 e PDF versão 2. O TXT versão 1 publicado é reutilizado pelo recibo; não é enviado de novo.
-7. Assim, permanecem quatro uploads e dois documentos, com duas versões cada. O Python atual ainda exige quatro arquivos, quatro objetos, integridade, ator, auditoria, worker e versões preservadas. Não mudar seus asserts nem aceitar contagem maior para acomodar o smoke. A janela de 900 segundos do lote começa antes do primeiro upload publicado; não reiniciar o orçamento de espera ao trocar de origem.
-8. As negativas existentes, inclusive revogação do vínculo próprio com sessão ainda válida, continuam no segmento local. Depois delas, o cleanup único bane as mesmas contas, revoga todas as sessões dessas identidades nas duas origens, preserva objetos/histórico e mantém FAIL se houver trabalho ativo.
+1. O Node abre um contexto em `https://scope-and-approval-keeper.lovable.app`, verifica a origem exata da página e efetua login pela UI normal com o administrador da fixture já criada. Seleciona a mesma organização e o mesmo contrato sintéticos que serão usados pelo runner local.
+2. Reutiliza os helpers de login, seleção de organização e upload, parametrizados apenas por duas superfícies fechadas: PUBLICADA e LOCAL. A origem não pode vir de URL arbitrária, comando ou payload. Não importar `/src/...` na publicação, injetar um SDK, ler storages de autenticação ou extrair JWT. Não usar interceptação, mock ou resposta fabricada.
+3. Pela UI publicada, envia **um TXT benigno adicional**, destinado exclusivamente ao smoke de CORS. A intenção privada tem nonce e nome próprios, diferentes dos quatro arquivos locais, e é persistida antes do request. O documento usa título de smoke distinto do prefixo dos dois documentos locais, dentro do mesmo contrato próprio.
+4. Observa assinatura de upload, transferência ao Storage, confirmação e registro. Aguarda segurança e processamento reais pelo worker normal; não força status. Clica no download oficial e confere hash/tamanho dos bytes. O retorno de `storage-sign-download` deve ter sido recebido pelo navegador naquela origem. URL temporária e bytes permanecem privados.
+5. Persiste esse recibo em coleção separada, por exemplo `published_smoke.uploads`, com superfície PUBLICADA, `frontend_head=null` e `source_parity=NAO_VERIFICADA`. Não inserir o recibo entre os quatro `uploads` locais. Um relatório próprio, `public-browser/cors-published-smoke.json`, identifica somente a prova de transporte dessa origem, com código não vinculado. Ele não herda o SHA do relatório documental local.
+6. Se login, rota, controles de UI, assinatura, upload, worker ou download publicados falharem, interrompe antes da prova local e executa o cleanup. A origem pode servir código diferente; ausência do fluxo necessário é bloqueio explícito. Não contornar usando token, chamada fabricada ou aumento de allowlist.
+7. Só após esse smoke passar, abre novo contexto em `http://127.0.0.1:4173`, faz login normal com a mesma identidade e seleciona o mesmo tenant/contrato. Executa **as quatro provas locais completas e inalteradas**: TXT v1/v2 e PDF v1/v2. Nenhum desses quatro uploads é substituído pelo smoke publicado.
+8. A UI local pode aplicar seu filtro real de título para mostrar somente os dois documentos locais. O smoke tem título próprio e recibo separado. Isso evita confundir a contagem de duas entradas da prova local com a terceira entrada do contrato; o filtro é uma consulta real da UI, não remoção ou ocultação de evidência.
+9. As negativas locais, incluindo revogação do vínculo próprio com sessão válida, continuam depois das quatro provas no pin aprovado. O cleanup único bane as mesmas identidades, revoga suas sessões nas duas origens, recupera todos os uploads por escopo/nonce e preserva histórico/objetos. Trabalho ativo mantém FAIL e cleanup pendente.
 
-O sucesso publicado deve produzir uma evidência separada de superfície, por exemplo `CORS_PUBLICADA_UPLOAD_DOWNLOAD`, sem certificar visual, versão de código publicada ou domínio documental inteiro. A correspondência do bundle publicado com o pin GitHub não será presumida pela URL; registrar a versão se houver prova primária, ou mantê-la como não comprovada. O objetivo desse segmento é a negociação CORS da origem operacional usando UI real. Se os controles de UI necessários não existirem na publicação atual, registrar o bloqueio e não contornar pelo JWT ou por chamadas fabricadas.
+### Contagens fechadas e verificação pelo Python
 
-### Testes da integração no harness
+O contrato passa a ter exatamente **cinco arquivos/objetos, três documentos e cinco versões**: um arquivo/documento/versão de smoke publicado, mais os quatro arquivos e quatro versões dos dois documentos locais. Não simplesmente aumentar um contador de quatro para cinco e tratar tudo como prova do pin.
 
-O protocolo deve provar, por callbacks/objetos de teste fechados, que a ordem é PUBLICADA TXT v1 → LOCAL TXT v2/PDF v1/PDF v2; que o primeiro recibo é reutilizado; que falha publicada impede as ações locais; que não há quinto upload; e que as origens não podem ser trocadas por string arbitrária. Isso testa a orquestração sem simular um PASS HML.
+O Python deverá verificar dois conjuntos disjuntos:
 
-Testar também que a troca de superfície não extrai tokens, não altera a fixture após o handshake de revogação e não apaga `permission_control=REVOKED`. Preservar o ambiente allowlist e o controle fechado do Python. `completed_scopes` continua parcial e `documentos_contrato` permanece entre os domínios não verificados.
+- **LOCAL_PIN_APROVADO:** exatamente os quatro recibos locais, dois documentos com duas versões cada, hashes distintos por nova versão, ator, auditoria, worker e downloads verificados. Preservar o significado dos asserts atuais de quatro uploads locais.
+- **CORS_PUBLICADA_CODE_NAO_VINCULADO:** exatamente um recibo adicional, com documento/arquivo/versão distintos dos locais, estado e download reais, hash/tamanho corretos e nenhuma atribuição de SHA frontend aprovado.
+
+A união exata dos dois conjuntos deve corresponder aos cinco arquivos e objetos recuperados no namespace próprio. Recibo ausente deve continuar recuperável pelo nonce, mesmo se o smoke falhar antes do segmento local; qualquer objeto ou job ambíguo mantém FAIL/pendência. O cleanup não depende apenas dos recibos recebidos e cobre todo o escopo próprio, inclusive o smoke adicional.
+
+Manter a espera de até 300 segundos por arquivo e a janela global atual de 900 segundos, iniciada antes do smoke. Não reiniciar a janela ao trocar de origem nem aumentar timeouts implicitamente. Se a carga adicional exceder o limite, registrar FAIL e avaliar o tempo em tarefa governada; não fabricar PASS.
+
+### Protocolo da orquestração e limites das conclusões
+
+Testar a ordem PUBLICADA smoke adicional → LOCAL TXT v1/v2 e PDF v1/v2, a separação dos recibos, a ausência de substituição de upload local, a união exata de cinco uploads e o bloqueio do segmento local quando o smoke falha. Rejeitar origem arbitrária, recibo cruzado, duplicado ou atribuição do SHA local ao smoke publicado.
+
+Testar recuperação e cleanup quando o smoke cria arquivo ou job, mas perde recibo; falha do watcher ainda deve encerrar o navegador, banir contas e revogar sessões. Preservar o ambiente allowlist, o controle fechado de revogação e `permission_control=REVOKED` sem sobrescrita pela cópia do Node.
+
+O relatório publicado prova somente transporte das duas funções em navegador real na origem documentada. O relatório local mantém o `frontend_head` exato e as quatro provas correspondentes. `completed_scopes` continua parcial, `documentos_contrato` permanece não verificado como domínio integral e o frontend publicado não recebe certificação por esse smoke. Logs de OPTIONS 204 seguidos de POST e observação da resposta pela UI corroboram CORS; curl/OPTIONS isolados não substituem essa prova.
 
 ## 8. Roteamento e impacto nos testes atuais
 
@@ -157,7 +178,7 @@ GREEN local exige o novo protocolo, testes RBAC e filename existentes, suíte No
 3. Executar RED → BUILD mínimo → GREEN local e CI → Teste C independente. Integrar a implementação e o ajuste estrito do harness.
 4. Antes do deploy, conferir checks, SHA integrado, hashes das fontes, alvo `gklhhhyosgasnyoxlrui` e `verify_jwt=true`. Usar CLI com comandos previamente conferidos por `--help`, ou ferramenta oficial com contrato verificado. Não editar workflow para improvisar deploy.
 5. Implantar somente `storage-sign-upload` e `storage-sign-download`, com as fontes do SHA aprovado e JWT true explícito. Não usar deploy-all ou `--no-verify-jwt`. Conferir novamente fonte, versão, hash e metadata de ambas; guardar a baseline para rollback.
-6. Conferir OPTIONS reais positivos e negativos. Depois restaurar a fase global em checkpoint aprovado para executar o job existente e o comando Python da seção 7. O navegador deve concluir o smoke publicado antes da prova local. Logs devem permitir correlacionar OPTIONS 204 e POST autenticado, sem valores de credenciais.
+6. Conferir OPTIONS reais positivos e negativos. Depois restaurar a fase global em checkpoint aprovado para executar o job existente e o comando Python da seção 7. O navegador deve concluir o smoke publicado adicional antes das quatro provas locais no pin aprovado. Logs devem permitir correlacionar OPTIONS 204 e POST autenticado, sem valores de credenciais.
 7. Inspecionar relatórios, hashes, recibos, worker, negativas e cleanup. HTTP 401/500 não contam como prova de negação RBAC. Um erro posterior ao CORS permanece FAIL e segue investigação própria, sem status forçado.
 8. Registrar resultado e checkpoint efetivamente integrados. Não certificar domínio documental integral, CRUD global, V1 ou PROD por esse escopo parcial.
 
@@ -193,9 +214,6 @@ Impacto visual de implementação: N/A justificado. A mudança se limita à nego
 
 Reutilizar contratos, runner, fixtures, testes e ferramentas oficiais. Nenhum turno Lovable de implementação é necessário. A consulta get_project foi somente leitura para distinguir a origem de preview. Não reduzir TDD, segurança, CI, Teste C, cleanup ou prova real por economia. A proposta local não representa BUILD, deploy ou publicação.
 
+## Reancoragem executiva após frontend #309
 
-## Revisão e reancoragem do integrador
-
-Revisão independente do PLAN sem Critical/Important. Precisão incorporada: completed_scopes exige PASS real do lote, não apenas correção CORS. Integrador reexecutou node --test em backend a672f44:60/60 PASS; Context/Zero-Drift/Crosswalk/Architecture/diff PASS. Os25blobs canônicos comparados com c993e38 permanecem sem diff; fingerprint preservado. Consulta própria get_edge_function confirmou uploadv6ACTIVE/JWTtrue/bundle1562cdc549369430bcbd53d7474619d167443a4fc6d7bfd303b88ba29caff880; query_logs na janela22:29–22:32 confirmou OPTIONS405. Nenhum valor de credencial foi lido ou publicado. Reancoragem frontend309 realizada antes da publicação: mergeb0e22f5, HEAD164b10b, trêschecksSUCCESS. Revisão visual independente abriu24GREEN e24RED públicos sem regressão;208casosprotegidos continuam sem sessão.
-
-Método canônico de deploy disponível e inspecionado: ferramenta oficial Supabase deploy_edge_function com project_id exato, name por função, entrypoint_path e files do SHA integrado, verify_jwt=true explícito. Não será usada antes de BUILD integrado e gates; não há necessidade de alterar workflow.
+Frontend #309 integrado em b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5, HEAD aprovado 164b10b44eaf5b553efcc7ab4e053b86c4d3b269. Run 42421827969, jobs 128551769980 e 128551770379 SUCCESS; LOCK 42421827973 SUCCESS. Artefato 13593374754, SHA256 44889c1d42c940cd0e394c7f4851f42e7c9d969412497efc3fd1fb2f22f4b9df verificado, 225 entradas SHA256SUMS conferidas. As 24 capturas públicas foram revisadas sem achados; pilha Inter, Arial, sans-serif computada e 120 contrastes medidos PASS. Não certifica páginas privadas ou WCAG integral. A dependência de integração do #309 está atendida; este PLAN permanece sujeito aos seus próprios checks e a GATE separado. Backend base a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0, fontes canônicas e fingerprint inalterados.
