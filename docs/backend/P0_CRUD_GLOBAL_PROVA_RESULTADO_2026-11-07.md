@@ -1,3 +1,11 @@
+## Resultado comprovado — Auditoria; próximo PLAN documental
+
+HML42404359665/job128498779742 em bf25e4bde1cc72a4457c7fd1ff91e51806f7fee1:52Auth/SQL+132browser,0FAIL/runtime,quarentena6contas/2organizações verificada. Artefato13585849628 SHA2564f8cbfb967abe0a9991f5b36f63f498590cb47457c10671d6980a8ed07cc8d07 baixado/conferido. Revisão independente dos relatórios/16PNG semCritical/Important funcional. PASS só SELECT seguro/filtros/paginação/persistência/roles/RLS reais, não atomicidade semântica integral do Prompt75. Visual parcial: contraste inconclusivo26nós em768claro/390claro/escuro, nome acessível incompleto e todas as posições da tabela/teclado/paginação não demonstradas integralmente. WCAG/V1 não certificados. Checkpoint297 integrado1a03001f60ef67d327638298b2164ac16b207432 após3checksSUCCESS.
+
+Próxima fase PLAN_PROVA_PRIVADA_DOCUMENTOS, sem execução material antes de GATE separado. Reutilizado plano documental previamente preparado, preservando todas as evidências anteriores. Quarentena de jobs próprios deve ser testada antes de upload. Nenhum novo PASS documental/worker ou formato declarado.
+
+---
+
 ## Reforço da prova negativa RLS da Auditoria
 
 A ausência de dados A na UI selecionada emB não basta para provar a RLS contra filtro malicioso. O lote agora faz SELECT real deid/limit25 contraorgA com o cliente público existente nas sessões do leitor e usuárioB. NenhumJWT é extraído/publicado e nenhuma credencial administrativa vai ao navegador. Aceita somente200/206 vazio semerro ou403/42501;401 e500 não contam como isolamento. RED16PASS/1FAIL; GREEN17protocolo/47suite. Revisão independente semCritical/Important,17/17protocolo reexecutados. HML ainda PENDENTE; novoHEAD exige todoschecks antesdomerge.

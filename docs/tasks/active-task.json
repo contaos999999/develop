@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "Prova privada do CRUD global V1 por interface e persistência",
   "status": "ativa",
-  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
+  "phase": "PLAN_PROVA_PRIVADA_DOCUMENTOS",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -69,7 +69,7 @@
     "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE"
   },
   "prompt_crosswalk": {
-    "regular_prompt_id": "75",
+    "regular_prompt_id": "31",
     "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
     "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
     "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
@@ -79,10 +79,17 @@
     "atomic_range_verified": "000-096 (97/97)",
     "direct_atomic_ids": [
       "000",
-      "020",
-      "021",
-      "022",
-      "023"
+      "001",
+      "002",
+      "004",
+      "005",
+      "015",
+      "016",
+      "017",
+      "018",
+      "019",
+      "087",
+      "088"
     ],
     "additional_transversal_atomic_ids": [
       "089",
@@ -95,10 +102,17 @@
       "096"
     ],
     "direct_requirement_ids": [
-      "V1-AUD-001",
-      "V1-AUD-002",
-      "V1-AUD-003",
-      "V1-AUD-004"
+      "V1-CON-001",
+      "V1-CON-002",
+      "V1-CON-004",
+      "V1-CON-005",
+      "V1-DOC-001",
+      "V1-DOC-002",
+      "V1-DOC-003",
+      "V1-DOC-004",
+      "V1-DOC-005",
+      "NFR-003",
+      "NFR-004"
     ],
     "additional_transversal_requirement_ids": [
       "NFR-005",
@@ -107,10 +121,10 @@
       "NFR-009",
       "NFR-010"
     ],
-    "status": "PROVA_PARCIAL_CONSULTA_V123_SEM_CERTIFICACAO_DOS_ATOMICOS",
+    "status": "PLAN_PROVA_PARCIAL_V110_SEM_CERTIFICACAO_DOS_ATOMICOS",
     "source_evidence_missing": false,
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
-    "note": "Regular75 e atômicos020–023 lidos literalmente do ZIP conferido. Este lote prova somente SELECT seguro/filtros/paginação/isolamento da Trilha; não aprova integralmente reconstrução de análise, separação de mecanismos, criticidade ou evidência dos apontamentos. Demais jornadas preservadas na matriz."
+    "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
   "previous_task_id": "P0-CRUD-CADASTROS-20261106",
   "previous_task_snapshot_commit": "a6399adc39e984293c14d7adcf106b00ab76ce50",
@@ -125,7 +139,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI/revisão independente no HEAD BUILD AUDITORIA; merge permitido apenas após checks requeridos SUCCESS; prova HML automática e quarentena; conservar PASS anterior sem repetir CADASTROS_LISTAS.",
+  "next_step": "CI/merge deste PLAN documental; GATE separado validado com CI; RED recuperação/quarentena de jobs próprios; BUILD DOCUMENTOS só depois. Não repetir AUDITORIA/CADASTROS_LISTAS válidos.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -666,13 +680,13 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "BUILD_AUDITORIA_AGUARDANDO_CI_E_PROVA_REAL",
+    "state": "PLAN_DOCUMENTOS_AGUARDANDO_CI_GATE_SEPARADO",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
     "gate_pr": 121,
     "gate_merge": "34d88b8a77cd3ae2abfca72ee78d441c426e767b",
-    "batch": "AUDITORIA",
+    "batch": "DOCUMENTOS",
     "global_complete": false,
     "red": {
       "command": "node --test supabase/tests/p0_crud_global_protocol.test.mjs",
@@ -837,6 +851,28 @@
       "review": "No Critical/Important in correction; fresh images still required",
       "manual_wcag": "NOT_CERTIFIED",
       "historical_transient_v117_contrast": "OPEN"
+    },
+    "latest_audit_proof": {
+      "run": 42404359665,
+      "job": 128498779742,
+      "backend_head": "bf25e4bde1cc72a4457c7fd1ff91e51806f7fee1",
+      "artifact": 13585849628,
+      "sha256": "4f8cbfb967abe0a9991f5b36f63f498590cb47457c10671d6980a8ed07cc8d07",
+      "sql_auth": 52,
+      "browser": 132,
+      "state": "PASS_FUNCTIONAL_SCOPE",
+      "cleanup": "QUARENTENA_VERIFICADA_6_USERS_2_ORGS",
+      "visual": "PARTIAL_WCAG_NOT_CERTIFIED"
+    },
+    "documents_plan": {
+      "scope": "Physical TXT/PDF upload + document/version + real documents worker + own queue quarantine first",
+      "worker_wait_seconds_per_file": 300,
+      "worker_wait_seconds_total": 900,
+      "no_global_worker_invocation": true,
+      "no_forced_worker_or_security_status": true,
+      "formats_not_globally_certified": true,
+      "storage_scope": "Only own private physical test objects through existing signed upload/download; no bucket/policy/config changes"
     }
-  }
+  },
+  "storage_test_fixtures_allowed": true
 }
