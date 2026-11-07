@@ -676,8 +676,8 @@
     },
     "green": {
       "state": "PASS_LOCAL",
-      "protocol_tests": 10,
-      "full_tests": 40,
+      "protocol_tests": 11,
+      "full_tests": 41,
       "syntax": "node --check + py_compile PASS",
       "guards": "Context/ZeroDrift/Crosswalk/Architecture/SQL/download/SSRF/browser/worker/history PASS",
       "yaml": "2 parsed",
@@ -700,6 +700,24 @@
       "cause": "Item descricao was incorrectly compared with list header descricao",
       "fix_red": "8 pass 1 fail, separate descriptions",
       "adjacent_red": "QueryClient real offline pauses fetch without queryFn/error; new transport helper missing RED9pass1fail",
+      "no_product_changes": true
+    },
+    "second_hml": {
+      "state": "FAIL_FIXTURE_DATES",
+      "run": 42398802825,
+      "job": 128481927942,
+      "backend_head": "97ea8f2a52945510237705a8086e8c0a123fe9bb",
+      "artifact": 13584985531,
+      "sha256": "7c715843f300a1fe0cd5a13b6ca8eac577baf5d3549f7579a88ed6244a46e0a5",
+      "stage": "LIST_VERSION_CREATE",
+      "http": 422,
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 4,
+        "own_organizations": 3
+      },
+      "cause": "New version July start retained previous June end; clear end for open new validity",
+      "red": "10 pass 1 fail; missing new version date input helper",
       "no_product_changes": true
     }
   }

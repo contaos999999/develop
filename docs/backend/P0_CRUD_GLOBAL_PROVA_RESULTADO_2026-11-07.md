@@ -16,3 +16,10 @@ PR122 HEAD2676d888130ffa32f7935a34a67e7b3671098a32 integrado c5b0a31793ead6bace7
 Causa confirmada porRED(8PASS/1FAIL): validador confundia descricao doitem comdescricao do cabeçalho. Corrigido comparando camposdocabeçalho apenasnas açõescriar/editarlista/alterarsituacao, mantendoidentidade/evento/request/CAS. Não atribuir ao produto nem abrandarpersistênciaSQLitens/versões.
 
 Prevenção de falhadeteste adjacente, demonstrada comQueryClientreal: modooffline pausaquery antes deconsulta, semerro; nãoprova falhadeleitura. REDhelperausente(9PASS/1FAIL) seguidoCDP Network.setBlockedURLs exclusivamenteURLrealobter_lista_operacional_v1, navigatoronline; não fornece/mocka resposta, nãointercepta rota, nãoalteraAPI/autorização. finally limparegras/detach. Asserçõesrascunho+nenhumaescritadurantefalha. Mesmostimeouts30s, nenhumaescritasimulada. Protocolo10/10GREEN; retesterealpendente.
+
+
+## Segunda execução real: validade da próxima versão
+
+PR123 HEAD66f09ad0346360c2539689fd9b77b4989e382add integrado97ea8f2a52945510237705a8086e8c0a123fe9bb apósguard/restore/backup/probeSUCCESS. Run42398802825/job128481927942 avançouitenscriar/editar/remover, publicar eencerrarvigência comHTTP200/recibos; paroucriarversãoHTTP422. Artefato13584985531 SHA2567c715843f300a1fe0cd5a13b6ca8eac577baf5d3549f7579a88ed6244a46e0a5. Quarentena4usuários/3organizaçõesVERIFICADA.
+
+Causa no preenchimento do teste: Formulario inicia vigencia_fim pela versão anterior2026-06-30; teste preenchia só novoinício2026-07-01. FonteRPC rejeita fim<início, corretamente. Helper agora preencheinício elimpa fim para nova vigência aberta, sem alterarvalidação ouproduto. REDhelperinexistente10PASS/1FAIL; GREEN11/11protocolo. Resto dos critérios permanece obrigatório; nenhumPASSdelote enquanto não houverUI/SQL/isolamento/capturas/limpeza completos.

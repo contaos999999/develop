@@ -95,3 +95,12 @@ test('transient read failure blocks transport only and always restores it',async
  await assert.rejects(()=>withReadTransportFailure(session,async()=>{throw Error('assertion');}));
  assert.deepEqual(calls,[['Network.enable',undefined],['Network.setBlockedURLs',{urls:['*gklhhhyosgasnyoxlrui.supabase.co/rest/v1/rpc/obter_lista_operacional_v1*']}],['Network.setBlockedURLs',{urls:[]}],['DETACH']]);
 });
+
+test('new open version clears the prior closed version end date',async()=>{
+ const {fillNextVersionDates}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof fillNextVersionDates,'function');
+ const fields={'Início da vigência':'2026-01-01','Fim da vigência':'2026-06-30'};
+ const page={getByLabel:name=>({fill:async value=>{fields[name]=value;}})};
+ await fillNextVersionDates(page,'2026-07-01');
+ assert.deepEqual(fields,{'Início da vigência':'2026-07-01','Fim da vigência':''});
+});
