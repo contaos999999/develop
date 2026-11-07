@@ -7,6 +7,8 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
+      - 'supabase/tests/p0_crud_global*'
+      - '.github/workflows/p0-crud-global-browser-hml.yml'
       - 'supabase/tests/p0_workflow_routing.test.mjs'
       - '.github/workflows/p0-v117-revisao-hml.yml'
       - '.github/workflows/p0-v117-browser-hml.yml'
@@ -24,6 +26,8 @@ on:
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
+      - 'supabase/tests/p0_crud_global*'
+      - '.github/workflows/p0-crud-global-browser-hml.yml'
       - 'supabase/tests/p0_workflow_routing.test.mjs'
       - '.github/workflows/p0-v117-revisao-hml.yml'
       - '.github/workflows/p0-v117-browser-hml.yml'
@@ -57,6 +61,9 @@ jobs:
 
       - name: Workflow routing contract without HML access
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
+
+      - name: Protocolo CRUD global sem rede ou credenciais
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |
