@@ -16,6 +16,11 @@ for record in lista_expected:
  if actual['functions'].count(record)!=1:
   raise SystemExit('LISTA_CATALOG_FAIL: expected exact metadata/ACL '+json.dumps(record,sort_keys=True))
  actual['functions'].remove(record)
+review_expected=json.loads((root/'p0_v117_revisao_catalog_expected.json').read_text())
+for record in review_expected:
+ if actual['functions'].count(record)!=1:
+  raise SystemExit('V117_REVIEW_CATALOG_FAIL: expected exact metadata/ACL '+json.dumps(record,sort_keys=True))
+ actual['functions'].remove(record)
 new_functions={'rbac_permite','exigir_permissao_rbac','consultar_permissoes_efetivas','obter_matriz_rbac_master','atualizar_matriz_rbac_master'}
 actual['tables']=[x for x in actual['tables'] if not (x['schema']=='privado' and x['name'].startswith('rbac_'))]
 actual['columns']=[x for x in actual['columns'] if not (x['schema']=='privado' and x['table'].startswith('rbac_'))]
