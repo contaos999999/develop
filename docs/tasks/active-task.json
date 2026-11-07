@@ -661,7 +661,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "FIX_CONTEXTO_SEGUNDA_ABA_AGUARDANDO_CI_HML",
+    "state": "FUNCIONAL_PASS_VISUAL_EM_CORRECAO",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -676,13 +676,13 @@
     },
     "green": {
       "state": "PASS_LOCAL",
-      "protocol_tests": 13,
-      "full_tests": 43,
+      "protocol_tests": 15,
+      "full_tests": 45,
       "syntax": "node --check + py_compile PASS",
       "guards": "Context/ZeroDrift/Crosswalk/Architecture/SQL/download/SSRF/browser/worker/history PASS",
       "yaml": "2 parsed",
       "review": "Independent review; Important receipt/persistence gap fixed RED→GREEN; no remaining Critical/Important",
-      "hml": "FAIL_CAUSE_CONFIRMED_PENDING_FIX_PROOF"
+      "hml": "PASS_FUNCTIONAL_SCOPE_VISUAL_NOT_APPROVED"
     },
     "first_hml": {
       "state": "FAIL_HARNESS_RECEIPT",
@@ -762,6 +762,58 @@
       "timeout_increased": false,
       "product_changes": false,
       "consolidated_in_pr": 129
+    },
+    "functional_proof": {
+      "run": 42402246765,
+      "job": 128492370077,
+      "backend_head": "a0337932872402b12a5378040f18feb2161bc723",
+      "frontend_head": "74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8",
+      "state": "PASS_BATCH_FUNCTIONAL_SCOPE",
+      "browser_assertions": 76,
+      "sql_http_assertions": 37,
+      "failed": 0,
+      "artifact": 13584889991,
+      "sha256": "00fddbbdf18d76f4bc55c4e5fea8712973b92fa1fd375e151b9c6c19e1095110",
+      "scope": "Executed CRUD journeys of organization/contractor/contract/list; real CAS/recovery, read-only role and tenantB denial; not all V1 criteria",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 4,
+        "own_organizations": 3
+      },
+      "global_complete": false
+    },
+    "visual_review": {
+      "state": "NOT_APPROVED",
+      "inspected": 8,
+      "rejected": [
+        "1440/light busy",
+        "1440/dark busy",
+        "1280/light busy",
+        "1280/dark clipped panel"
+      ],
+      "accepted_panel_only": [
+        "768/light",
+        "768/dark",
+        "390/light",
+        "390/dark"
+      ],
+      "important": "Capture begins before UI settles and without scroll normalization",
+      "minor": [
+        "Mobile Menu overlaps lower card text",
+        "Long synthetic token wraps awkwardly at768"
+      ],
+      "fix": "Wait expected fresh name + enabled edit + no sending; wait finite transitions; capture top and panel separately; keyboard and sanitized axe checks",
+      "local_red": {
+        "passed": 13,
+        "failed": 2
+      },
+      "local_green": {
+        "protocol": 15,
+        "suite": 45
+      },
+      "review": "No Critical/Important in correction; fresh images still required",
+      "manual_wcag": "NOT_CERTIFIED",
+      "historical_transient_v117_contrast": "OPEN"
     }
   }
 }

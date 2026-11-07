@@ -119,3 +119,22 @@ test('list state selector rejects unsupported state before touching the page',as
  assert.equal(typeof selectListState,'function');
  await assert.rejects(()=>selectListState(new Proxy({}, {get(){throw Error('Unexpected DOM access');}}),'encerrada'),{name:'AssertionError'});
 });
+
+test('visual readiness rejects busy, disabled, stale and missing list panels',async()=>{
+ const {listUiIsSettled}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof listUiIsSettled,'function');
+ const prior=globalThis.document;
+ const state={exists:true,text:'Own recovered',disabled:false};
+ globalThis.document={querySelector:()=>state.exists?{get textContent(){return state.text;},querySelectorAll:()=>[{textContent:'Editar lista',get disabled(){return state.disabled;}}]}:null};
+ try{
+  assert.equal(listUiIsSettled('Own recovered'),true);
+  state.text='Old list';assert.equal(listUiIsSettled('Own recovered'),false);
+  state.text='Own recovered Enviando operação…';assert.equal(listUiIsSettled('Own recovered'),false);
+  state.text='Own recovered';state.disabled=true;assert.equal(listUiIsSettled('Own recovered'),false);
+  state.disabled=false;state.exists=false;assert.equal(listUiIsSettled('Own recovered'),false);
+ }finally{if(prior===undefined)delete globalThis.document;else globalThis.document=prior;}
+});
+test('accessibility summary drops raw HTML, selectors and unknown data',async()=>{
+ const {summarizeAccessibility}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof summarizeAccessibility,'function');
+ const data={testEngine:{version:'4.14.0'},violations:[{id:'color-contrast',impact:'serious',nodes:[{html:'PRIVATE_CANARY',target:['PRIVATE_CANARY']}]}],incomplete:[{id:'color-contrast',nodes:[{}]}],url:'PRIVATE_CANARY'};
+ const out=summarizeAccessibility(data);assert.deepEqual(out,{version:'4.14.0',violations:[{id:'color-contrast',impact:'serious',nodes:1}],incomplete:[{id:'color-contrast',nodes:1}]});assert(!JSON.stringify(out).includes('PRIVATE_CANARY'));
+});

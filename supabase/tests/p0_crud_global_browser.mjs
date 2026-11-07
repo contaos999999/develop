@@ -57,6 +57,23 @@ export async function selectListState(page,state){
   const form=page.locator('form').filter({has:page.getByRole('heading',{name:'Alterar situação',exact:true})});
   await form.getByRole('combobox').selectOption(state);
 }
+export function listUiIsSettled(expectedName){
+  if(typeof expectedName!=='string'||!expectedName)return false;
+  const panel=document.querySelector('section[aria-label="Gestão de listas"]');
+  if(!panel)return false;
+  const edit=[...panel.querySelectorAll('button')].find(b=>b.textContent.trim()==='Editar lista');
+  return !!edit&&!edit.disabled&&!panel.textContent.includes('Enviando operação…')&&panel.textContent.includes(expectedName);
+}
+export function summarizeAccessibility(raw){
+  assert.equal(raw.testEngine?.version,'4.14.0');
+  function entry(item,impact){
+    assert(typeof item.id==='string'&&/^[a-z0-9-]{1,100}$/.test(item.id));
+    const nodes=Array.isArray(item.nodes)?item.nodes.length:item.nodes;assert(Number.isInteger(nodes)&&nodes>=0);
+    if(impact)assert(['minor','moderate','serious','critical',null].includes(item.impact));
+    return {id:item.id,...(impact?{impact:item.impact}:{}),nodes};
+  }
+  return {version:raw.testEngine.version,violations:raw.violations.map(x=>entry(x,true)),incomplete:raw.incomplete.map(x=>entry(x,false))};
+}
 export function loginFormIsInteractive(){const e=document.querySelector('form');return !!e&&Object.keys(e).some(k=>k.startsWith('__reactProps$')&&typeof e[k]?.onSubmit==='function');}
 async function stop(server,browser){
   let timer;
@@ -69,7 +86,7 @@ async function main(){
   const frontend=resolve(process.env.CONTAOS_FRONTEND_DIR||'');const req=createRequire(process.env.CONTAOS_PLAYWRIGHT_MODULE);assert.equal(req('playwright/package.json').version,'1.64.1');const {chromium,expect}=req('playwright/test');
   const probe=process.argv.includes('--public-probe');const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG']};
+  const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Stable-state contrast does not close historical transient V117 contrast']};
   const save=()=>writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});
   function stage(s){assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
@@ -112,6 +129,11 @@ async function main(){
       await x.page.evaluate(()=>sessionStorage.setItem('contaos.public-probe-tab-context','synthetic-own-context'));
       const fresh=await x.context.newPage();await fresh.goto(base+'/login');
       check('NEW_TAB_HAS_SEPARATE_SESSION_STORAGE',await fresh.evaluate(()=>sessionStorage.getItem('contaos.public-probe-tab-context'))===null);
+      await sample.setContent('<section aria-label="Gestão de listas"><p>Old list</p><p role="status">Enviando operação…</p><button disabled>Editar lista</button></section>');
+      check('VISUAL_REJECTS_BUSY_PANEL',!await sample.evaluate(listUiIsSettled,'Own recovered'));
+      const settled=sample.waitForFunction(listUiIsSettled,'Own recovered');
+      await sample.evaluate(()=>{setTimeout(()=>{const p=document.querySelector('section');p.innerHTML='<p>Own recovered</p><button>Editar lista</button>';},50);});
+      await settled;check('VISUAL_WAITS_FOR_RECOVERED_ENABLED_PANEL',await sample.evaluate(listUiIsSettled,'Own recovered'));
       await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;
     }
     const master=await open('master');master.page._crudRole='master';const mp=master.page;
@@ -149,7 +171,7 @@ async function main(){
     stage('LIST_SECOND_PAGE_CREATE');const second=await master.context.newPage();diagnosticPage=second;second.setDefaultTimeout(30000);stage('LIST_SECOND_TAB_ORG');await chooseOrg(second,f.org);stage('LIST_SECOND_PAGE_NAVIGATE');await second.goto(base+'/contratos/'+f.contract+'/regras');stage('LIST_SECOND_MANAGER_OPEN');await second.getByRole('button',{name:'Gerenciar listas',exact:true}).click();stage('LIST_SECOND_MANAGER_VISIBLE');await expect(second.getByRole('region',{name:'Gestão de listas',exact:true})).toBeVisible();
     diagnosticPage=lp;stage('LIST_FIRST_EDIT_OPEN');await lp.getByRole('button',{name:'Editar lista',exact:true}).click();stage('LIST_FIRST_EDIT_FILL');await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'recovered');await lp.getByLabel('Motivo',{exact:true}).fill('Own conflict recovery draft');
     await listOp(second,'LIST_CONCURRENT_EDIT','Editar lista',()=>second.getByLabel('Descrição',{exact:true}).fill('Own concurrent real edit'));
-    await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();stage('LIST_REAL_CONFLICT');const conflict=lp.waitForResponse(r=>r.url().endsWith('/rpc/executar_comando_lista_v1')&&r.request().method()==='POST');await lp.getByRole('button',{name:'Confirmar operação',exact:true}).click();check('LIST_REAL_CONFLICT',(await conflict).status()===409,409);
+    await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();stage('LIST_REAL_CONFLICT');const conflict=lp.waitForResponse(r=>r.url().endsWith('/rpc/executar_comando_lista_v1')&&r.request().method()==='POST');await lp.getByRole('button',{name:'Confirmar operação',exact:true}).click();const conflictResponse=await conflict;check('LIST_REAL_CONFLICT',conflictResponse.status()===409,conflictResponse.status());
     // Browser transport fails for the real read URL while navigator remains online.
     // Context offline would pause React Query before any read, so it cannot prove read failure.
     stage('LIST_TRANSIENT_READ');let writesDuringFault=0;const countWrite=r=>{if(r.url().includes('/rpc/executar_comando_lista_v1')&&r.method()==='POST')writesDuringFault++;};lp.on('request',countWrite);
@@ -159,7 +181,29 @@ async function main(){
       check('LIST_TRANSIENT_DRAFT_PRESERVED',true);check('LIST_NO_WRITE_DURING_FAILED_READ',writesDuringFault===0);
     });lp.off('request',countWrite);
     await lp.getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(lp.getByRole('button',{name:'Confirmar operação',exact:true})).toBeEnabled();await lp.getByRole('button',{name:'Revisar campos',exact:true}).click();await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();await rpc(lp,'LIST_RECOVERED_WRITE','executar_comando_lista_v1',()=>lp.getByRole('button',{name:'Confirmar operação',exact:true}).click());await second.close();
-    for(const width of [1440,1280,768,390])for(const theme of ['light','dark']){stage('VISUAL_'+width+'_'+theme.toUpperCase());await lp.setViewportSize({width,height:1000});await lp.emulateMedia({colorScheme:theme});await lp.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);const overflow=await lp.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));check('OVERFLOW_'+width+'_'+theme.toUpperCase(),overflow<=2);await lp.screenshot({path:join(output,'crud-list-'+width+'-'+theme+'.png'),fullPage:false,animations:'disabled'});}
+    stage('VISUAL_UI_SETTLED');await lp.waitForFunction(listUiIsSettled,f.prefix+'recovered');
+    const panel=lp.getByRole('region',{name:'Gestão de listas',exact:true});
+    await lp.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
+    async function waitStable(){
+      await lp.waitForFunction(()=>document.getAnimations().every(a=>a.playState!=='running'||a.effect?.getTiming().iterations===Infinity),undefined,{timeout:5000});
+      await lp.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+    }
+    for(const width of [1440,1280,768,390])for(const theme of ['light','dark']){
+      const key=width+'_'+theme.toUpperCase();stage('VISUAL_'+key);await lp.setViewportSize({width,height:1000});await lp.emulateMedia({colorScheme:theme});await lp.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);
+      await lp.waitForFunction(listUiIsSettled,f.prefix+'recovered');await waitStable();
+      await panel.getByRole('button',{name:'Editar lista',exact:true}).focus();check('FOCUS_EDIT_'+key,await panel.getByRole('button',{name:'Editar lista',exact:true}).evaluate(e=>e===document.activeElement));
+      await lp.keyboard.press('Tab');check('KEYBOARD_NEXT_ACTION_'+key,await panel.getByRole('button',{name:'Criar versão',exact:true}).evaluate(e=>e===document.activeElement));
+      await lp.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));await waitStable();
+      const top='crud-list-'+width+'-'+theme+'-top.png',body='crud-list-'+width+'-'+theme+'-panel.png';
+      await lp.screenshot({path:join(output,top),fullPage:false,animations:'disabled'});
+      await panel.evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await waitStable();
+      const raw=await lp.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {testEngine:{version:r.testEngine.version},violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
+      const a11y=summarizeAccessibility(raw),overflow=await lp.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));
+      await lp.screenshot({path:join(output,body),fullPage:false,animations:'disabled'});
+      report.visual.push({width,height:1000,theme,stable:true,overflow,a11y,screenshots:{top,panel:body},scope:'Stable page and list panel; not a full manual WCAG certification'});save();
+      check('OVERFLOW_'+key,overflow<=2);check('AUTOMATED_ACCESSIBILITY_'+key,a11y.violations.length===0);
+    }
+
     await master.context.close();
     const reader=await open('leitor');reader.page._crudRole='leitor';await chooseOrg(reader.page,f.org);await reader.page.goto(base+'/contratos/'+f.contract+'/regras');await reader.page.getByRole('button',{name:'Gerenciar listas',exact:true}).click();await expect(reader.page.getByRole('button',{name:'Criar lista',exact:true})).toHaveCount(0);await expect(reader.page.getByRole('button',{name:'Editar lista',exact:true})).toHaveCount(0);check('READER_MUTATIONS_ABSENT',true);await reader.context.close();
     const other=await open('usuario_b');other.page._crudRole='usuario_b';await chooseOrg(other.page,f.org_b);await other.page.goto(base+'/contratos/'+f.contract+'/regras');await expect(other.page.getByRole('alert')).toContainText(/não.*acesso|não.*permissão|não encontrad|indisponível/i);await expect(other.page.getByText(f.prefix+'recovered',{exact:true})).toHaveCount(0);check('CROSS_TENANT_UI_DENIED',true);await other.context.close();
