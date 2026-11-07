@@ -36,7 +36,27 @@ export function publicRecord({name,pass,http}) {
   assert(http===undefined || Number.isInteger(http) && http>=100 && http<=599);
   return {name,pass,...(http===undefined?{}:{http})};
 }
+export function a11yNodeMetrics(node) {
+  const own=(o,k)=>o && typeof o==='object'?Object.getOwnPropertyDescriptor(o,k)?.value:undefined;
+  const tag=own(node,'tag');
+  const out={tag:typeof tag==='string'&&/^(DT|DD|P|SPAN|DIV|LABEL|BUTTON|A|INPUT|TEXTAREA|SELECT|OPTION|H[1-6]|LI|TD|TH)$/.test(tag)?tag:null,inside_dialog:own(node,'inside_dialog')===true};
+  const d=own(node,'data');
+  for(const [key,source] of [['foreground','fgColor'],['background','bgColor']]) {const v=own(d,source);if(typeof v==='string'&&/^#[0-9a-f]{3,8}$/i.test(v))out[key]=v;}
+  const ratio=own(d,'contrastRatio');if(typeof ratio==='number'&&Number.isFinite(ratio)&&ratio>=0&&ratio<=21)out.contrast=ratio;
+  const required=own(d,'expectedContrastRatio');if(typeof required==='string'&&/^(3|4\.5|7):1$/.test(required))out.required=required;
+  const size=own(d,'fontSize');if(typeof size==='string'&&/^\d+(?:\.\d+)?pt \(\d+(?:\.\d+)?px\)$/.test(size))out.font_size=size;
+  const weight=own(d,'fontWeight');if(typeof weight==='string'&&/^(normal|bold|[1-9]00)$/.test(weight))out.font_weight=weight;
+  return out;
+}
 if(process.argv.includes('--self-test')) {
+  const metricInput={tag:'DT',inside_dialog:true,data:{fgColor:'#94a3b8',bgColor:'#020617',contrastRatio:7.8,expectedContrastRatio:'4.5:1',fontSize:'10.5pt (14px)',fontWeight:'normal',message:'PRIVATE_CANARY',html:'PRIVATE_CANARY'}};
+  const metric=a11yNodeMetrics(metricInput);
+  assert.deepEqual(metric,{tag:'DT',inside_dialog:true,foreground:'#94a3b8',background:'#020617',contrast:7.8,required:'4.5:1',font_size:'10.5pt (14px)',font_weight:'normal'});
+  assert(!JSON.stringify(metric).includes('PRIVATE_CANARY'));
+  const hostile={};Object.defineProperty(hostile,'data',{get(){throw Error('private getter');}});
+  assert.deepEqual(a11yNodeMetrics(hostile),{tag:null,inside_dialog:false});
+  assert.deepEqual(a11yNodeMetrics({tag:'PRIVATE_CANARY',data:{fgColor:'PRIVATE_CANARY',contrastRatio:Infinity}}),{tag:null,inside_dialog:false});
+
   assert(!JSON.stringify(publicProbeError({name:'Error',message:'https://host.invalid/token?secret='+ 's'.repeat(40)+' own@example.invalid /home/runner/private'})).includes('private'));
   assert.deepEqual(browserEnvironment({PATH:'/bin',AUTH_ADMIN_KEY:'private',UNEXPECTED_SECRET:'private'}),{PATH:'/bin'});
   assert.deepEqual(publicRecord({name:'Review persisted',pass:true,password:'private',access_token:'private'}),{name:'Review persisted',pass:true});
@@ -137,7 +157,8 @@ if(process.argv.includes('--self-test')) {
       check('Keyboard editor '+width+' '+theme,await page.getByLabel('Fundamento da revisão').evaluate(e=>e===document.activeElement));
       const overflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));
       await page.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
-      const a11y=await page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {version:r.testEngine.version,violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
+      const a11y=await page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {version:r.testEngine.version,violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length,metrics:v.id==='color-contrast'?v.nodes.map(n=>{const selector=n.target?.[0];const el=typeof selector==='string'?document.querySelector(selector):null;return {tag:el?.tagName,inside_dialog:!!el?.closest('[role=dialog]'),data:n.any.find(c=>c.id==='color-contrast')?.data};}):[]})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
+      for(const violation of a11y.violations) violation.metrics=violation.metrics.map(a11yNodeMetrics);
       const prefix='v117-'+width+'-'+theme;
       const screenshots={review:prefix+'-review.png',top:prefix+'-top.png',actions:prefix+'-actions.png'};
       await page.screenshot({path:join(output,screenshots.review),fullPage:false,animations:'disabled'});
