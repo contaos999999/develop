@@ -68,6 +68,9 @@ jobs:
           "$RUNNER_TEMP/contaos-browser-deps/node_modules/.bin/playwright" install --with-deps chromium
           echo "CONTAOS_PLAYWRIGHT_MODULE=$RUNNER_TEMP/contaos-browser-deps/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
           echo "CONTAOS_AXE_SOURCE_PATH=$RUNNER_TEMP/contaos-browser-deps/node_modules/axe-core/axe.min.js" >> "$GITHUB_ENV"
+      - name: Public interactivity preflight without Auth fixtures
+        run: |
+          env -u DATABASE_URL -u AUTH_ADMIN_KEY -u GH_TOKEN node supabase/tests/p0_v117_revisao_browser.mjs --public-probe
       - name: Real synthetic Auth browser and persisted effect
         env:
           DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
