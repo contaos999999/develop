@@ -1,3 +1,5 @@
+Conferência do seletor pós-gravação antes da execução: ResultadoCard exibe o prefixo literal `Justificativa: `. Expectativa de atualização ajustada a esse texto real, mantendo valor integral e conferência independente no banco; sem alteração do produto.
+
 ## Causa concreta da sonda PR106 e correção mínima
 Run42371378909 public-probe FAIL: `toHaveAttribute can be only used with Locator object`. Artifact13573678201 SHA256750f172a23ac0b2151734cd4ca1b7cac022ec8a6eb3c704d08a1c39e1af22666. Asserções foram carregadas de @playwright/test1.58.2 do frontend, mas locators vieram do executor isolado Playwright1.64.1. O binding inicial false tornou-se verdadeiro e o toggle real executou; falha concreta é incompatibilidade do harness, não prova de erro de Auth ou produto. Os dois primeiros timeouts de login continuam históricos, sem atribuição retroativa de causa não demonstrada.
 

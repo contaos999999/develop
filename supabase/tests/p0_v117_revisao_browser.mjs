@@ -154,7 +154,7 @@ if(process.argv.includes('--self-test')) {
     const receipt=await response.json();assert(receipt.schema_versao==='revisao-v117'&&receipt.id_competencia===f.competence&&receipt.id_requisito===f.requirement);
     writeFileSync(join(root,'browser-receipt.json'),JSON.stringify(receipt),{mode:0o600});
     check('Drawer refresh after protected receipt',(await refreshed).status()===200);
-    await expect(page.getByText('Synthetic UI review '+f.scope,{exact:true}).first()).toBeVisible();
+    await expect(page.getByText('Justificativa: Synthetic UI review '+f.scope,{exact:true}).first()).toBeVisible();
     check('UI displays persisted justification',true);
     await context.close();
     stage('CROSS_TENANT_DENIAL');
