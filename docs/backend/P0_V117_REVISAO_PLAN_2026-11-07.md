@@ -71,3 +71,19 @@ Rollback do diagnóstico: reverter apenas projeção adicional de métricas, pre
 
 ### GATE separado: diagnóstico de contraste
 PLAN108 integrado após guard128447336207 SUCCESS noHEAD33a70b88. Escopo restrito ao harness e self-test existentes, já allowlisted no manifesto; projeção só dados visuais primitivos por allowlist. Nenhum seletor/HTML/texto/UUID/valor privado deve chegar ao artifact. Confirmar canários por RED/GREEN, e manter integralmente axe document/rules/FAIL. BUILD posterior ao CI deste GATE; guard/restore/backup/public-probe do BUILD exigidos no mesmoHEAD antes de merge. A prova posterior localiza a causa, não certifica contraste ouV1 por si. Rollback sódiagnóstico. Autorização rotineira e específica de correção vigente; pinf537dadf preservado.
+
+
+## PLAN corretivo P0: roteamento dos workflows HML históricos
+Falha observada42369440188/job128394319186: após restore do V117, workflow de listas iniciou com manifesto V117; assert da tarefa esperada negou antes de qualquer dispatch/deploy. Não é falha do CRUD listas e não pode ser marcada como verde. Causa: workflow_run assina todo restore main sem selecionar aplicabilidade de tarefa/fase. Cadastros já limita origem ao SHA próprio; preservar.
+
+Correção mínima planejada: seleção documental de tarefa/fase antes de steps materiais nos workflows listas, revisão V117 e prova privada V117. Tarefa/fase diferente produz SKIPPED explícito sem token privilegiado, banco, Auth, deploy ou fixtures. Na tarefa aplicável, manter integralmente SHA main exato, hash migration, allowlist e todos checks obrigatórios; falha nesses controles continua FAILURE. JWT de listas não volta a criar auth.users por SQL ao passar fora de escopo. Não alterar migrations/DDL/APIs/RLS/Authconfig/PROD. Fontes canônicas e produto intactos.
+
+Arquivos exatos no manifesto. Teste novo supabase/tests/p0_workflow_routing.test.mjs cobre tarefa aplicável/diferente, fase errada, origem externa/PR, guard ausente e preservação das condições de dispatch/cleanup. Se usar expressão YAML ou output, testar a implementação real/contrato estático, não apenas teste que espelha lista. Executar no restore e local sem rede. PLAN→CI/merge→GATE separado→RED→BUILD→GREEN/revisão→CI→merge. Não integrar enquanto a prova privada atual não finalizar e verificar quarentena; preserva fonte exata da execução em andamento. Se necessário corrigir o teste privado por achado real, fazê-lo antes deste bloco.
+
+Reversão: reverter somente roteamento, sem refazer provas válidas nem alterar dados. Execução posterior confirma skip dos antigos e nenhuma repetição do deploy/JWT. Registrar run antigo como FAIL histórico e novo resultado escopado. BRAND-01 N/A por CI/documentação, tokens e assets intactos. Reutilizar runner e contratos sem consumo Lovable; nenhuma economia reduz checks.
+
+
+Reancoragem P0 07/11: preservar integralmente main1fe79dae3de7a2395b65c2c5b07f9fe2ae826c61, diagnóstico108–110 e pin aprovado frontend266acf39 (PR284 integrado344d24ad). PR103 aguarda prova privada pós-correção e quarentena; resolver conflitos não libera merge antecipado. Nenhuma prova/manifesto/pin atual substituída pela versão antiga.
+
+
+Reancoragem pós-timeout: main 2943e8ea7e1fa53ecddb70c5614eb0c9e46a5e6e preservado integralmente. Prova privada run42391662453 PASS (40 asserts HTTP e43 browser), artefato13581497168/hash477361181d1dbc5ad0e5a19e1173cb68dec734cc6ad1770bb31b51d2b6a2d704, quarentena8verificada. Dependência da prova encerrada; PLAN103 pode integrar após guard no novo HEAD. Sem certificaçãoV1. GATE separado continua obrigatório.

@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "BUILD_PROVA_PRIVADA_FRONTEND",
+  "phase": "PLAN_ROTEAMENTO_WORKFLOW_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -50,7 +50,9 @@
     ".github/workflows/p0-v117-revisao-hml.yml",
     "supabase/tests/p0_v117_revisao_browser.mjs",
     ".github/workflows/p0-v117-browser-hml.yml",
-    "docs/backend/P0_V117_TIMEOUT_2026-11-07.md"
+    "docs/backend/P0_V117_TIMEOUT_2026-11-07.md",
+    ".github/workflows/p0-crud-listas-hml.yml",
+    "supabase/tests/p0_workflow_routing.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -126,7 +128,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Validar fix timeout com guard/restore/backup/probe e prova real completa/quarentena; manter103 sem merge atéPASS.",
+  "next_step": "Integrar PLAN103 reancorado após guard SUCCESS; GATE separado antes de RED/BUILD do roteamento. Prova privada V117 e quarentena PASS run42391662453; V1 não certificada.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -499,6 +501,40 @@
       "conclusion": "Segundo login interage com SSR antes do binding React, sem emissão de login; primeiro aguarda binding e funciona."
     },
     "red": "self-test: login readiness predicate must exist, actual undefined; depois casos SSR/inexistente/handler inválido/handler real GREEN",
-    "green": "node --check, protocolo self-test e 17 testes guard locais PASS; prova HML pendente"
+    "green": "node --check, protocolo self-test e 17 testes guard locais PASS; prova HML pendente",
+    "final_proof": {
+      "state": "PASS",
+      "run": 42391662453,
+      "job": 128460335194,
+      "backend_head": "2943e8ea7e1fa53ecddb70c5614eb0c9e46a5e6e",
+      "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+      "http_assertions": 40,
+      "browser_assertions": 43,
+      "failed": 0,
+      "artifact": 13581497168,
+      "sha256": "477361181d1dbc5ad0e5a19e1173cb68dec734cc6ad1770bb31b51d2b6a2d704",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 8
+      },
+      "v1_certified": false
+    }
+  },
+  "workflow_routing_plan": {
+    "failed_run": 42369440188,
+    "failed_job": 128394319186,
+    "cause": "Listas recebeu tarefa V117 e falhou fechado antes de deploy",
+    "scope": "Skip explícito fora da tarefa/fase, sem enfraquecer SHA/hash/CI/cleanup",
+    "gate_separado": true,
+    "paths": [
+      ".github/workflows/p0-crud-listas-hml.yml",
+      ".github/workflows/p0-v117-revisao-hml.yml",
+      ".github/workflows/p0-v117-browser-hml.yml",
+      "supabase/tests/p0_workflow_routing.test.mjs",
+      ".github/workflows/restore-isolado.yml"
+    ],
+    "prod": false,
+    "database": false,
+    "auth": false
   }
 }
