@@ -26,3 +26,9 @@ PLAN→guard/merge→GATE separado→guard/merge→RED protocolo/canários/clean
 
 ## Caminhos fechados / ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
 Os8caminhos exatos do manifesto. Nenhumsrc/public/typesschema/migration/RLS/Edge/PROD. Componentes/tokens/BRAND01 preservados. GitHubdireto, pipeline/normasjáaprovados reutilizados; não consumemLovableBUILD. Economia não reduzsegurança/testes/evidência. Arquivoespecíficodecorreção deproduto requeroutroPLAN/GATE; esteharnessnãodispensaaprovaçãodecisãomaterial inédita.
+
+## GATE separado — validado
+
+PLAN120 integradof19e3e6375574994cc17fcdc9a9d72d13d89f252 apósguardSUCCESS. FrontendFIX291 HEAD74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8 integrado46b28e3ae8588b78f32e7f7be2d9221ed5e940d7 comZeroDrift/TesteC/protecttypesSUCCESS,1150testeslocais eCRUD-LISTA-001tratado. Pinexatoaprovado paraexecução, semtrocarporbranch.
+
+Revisão técnica: jobprivado não fazdeploy; exige sourceSHA/main eguard/restore/backup, pinfrontendintegrado/3checks, namespaceHMLexato. AuthAdmin/banco somentePython; browsercomambienteallowlist ecredenciaisprópriasGoTrue, fixturesporAPIoficial/intentrecuperável, semSQLauth.users. finally+always independentes eartefatos porallowlist/canários. Testesdematriz porjornada podemserexecutados emlotes paraisolarfalhas, mas nenhumlotepartial viraPASSglobal; faltantesmantêmNO_GO epróximafila. Não omitir novasfalhas, nãofazerstatus/workerfalso. CorreçãodeprodutoforaAPIexigePLAN/GATEpróprio. Nenhumriscoineditointransferível identificado; autorizaçãorotineira do titular vigente. BUILD sóapósCIeintegraçãodesteGATE.
