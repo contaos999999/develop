@@ -166,3 +166,75 @@ test('audit RLS denial cannot pass on an expired session or backend outage',asyn
  assert.doesNotThrow(()=>validateAuditDenied({status:403,count:null,code:'42501'}));
  for(const result of [{status:401,count:null,code:'PGRST301'},{status:500,count:null,code:'XX000'},{status:200,count:1,code:null}])assert.throws(()=>validateAuditDenied(result));
 });
+
+test('document quarantine rejects foreign scope and queues and preserves completed or running work',()=>{
+ const code=`import runpy
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py')
+fn=m.get('document_quarantine_actions');assert callable(fn),'Missing document quarantine planner'
+a='11111111-1111-4111-8111-111111111111';b='22222222-2222-4222-8222-222222222222';c='33333333-3333-4333-8333-333333333333';j='44444444-4444-4444-8444-444444444444'
+row=dict(id=j,id_organizacao=a,id_contrato=c,fila='documents',status='enfileirado',message_id=17)
+assert fn([row],{a},{c:a})=={'cancel':[j],'active':[]}
+for status in ['concluido','cancelado']:
+ assert fn([dict(row,status=status)],{a},{c:a})=={'cancel':[],'active':[]}
+assert fn([dict(row,status='processando')],{a},{c:a})=={'cancel':[],'active':[j]}
+for bad in [dict(row,id_organizacao=b),dict(row,fila='reports'),dict(row,id_contrato=b),dict(row,message_id='PRIVATE_CANARY'),dict(row,status='unknown')]:
+ try:fn([bad],{a},{c:a})
+ except (AssertionError,ValueError):pass
+ else:raise AssertionError('Unsafe job accepted')
+print('DOCUMENT_QUARANTINE_PLANNER_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});
+ assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_QUARANTINE_PLANNER_PASS/);
+});
+
+test('document quarantine recovers missing receipts and refuses running or newly spawned work',()=>{
+ const code=`import runpy,json
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py');R=m['Runner']
+assert callable(getattr(R,'quarantine_document_jobs',None)),'Missing own document quarantine'
+a='11111111-1111-4111-8111-111111111111';c='33333333-3333-4333-8333-333333333333';j='44444444-4444-4444-8444-444444444444';done='55555555-5555-4555-8555-555555555555'
+f={'scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' '}
+base=dict(id_organizacao=a,id_contrato=c,fila='documents',message_id=17)
+def run(active=False,processing=False,orphan=False):
+ r=object.__new__(R);r.report={};calls=[];cancelled=False
+ def sql(source,fetch=False):
+  nonlocal cancelled
+  calls.append(source)
+  if 'DOCUMENT_OWN_SCOPE' in source:
+   assert f['prefix'] in source
+   return json.dumps({'orgs':[a],'contracts':[{'id':c,'id_organizacao':a}]})
+  if 'DOCUMENT_ACTIVE_PROCESSINGS' in source:return '1' if processing else '0'
+  if 'DOCUMENT_ACTIVE_QUEUE_MESSAGES' in source:return '1' if orphan else '0'
+  if 'DOCUMENT_OWN_JOBS' in source:
+   rows=[dict(base,id=done,status='concluido'),dict(base,id=j,status='cancelado' if cancelled else 'enfileirado')]
+   if active and cancelled:rows.append(dict(base,id='66666666-6666-4666-8666-666666666666',status='processando'))
+   return json.dumps(rows)
+  assert 'DOCUMENT_QUARANTINE_PENDING' in source and j in source
+  assert done not in source and 'pgmq.delete' in source and 'for update' in source.lower()
+  assert 'update public.arquivos' not in source.lower() and 'delete from public.' not in source.lower()
+  cancelled=True
+ r.sql=sql
+ if active or processing or orphan:
+  try:r.quarantine_document_jobs(f,max_wait_seconds=0)
+  except RuntimeError:pass
+  else:raise AssertionError('Running child was called clean')
+ else:
+  result=r.quarantine_document_jobs(f,max_wait_seconds=0)
+  assert result['active_jobs']==0 and result['cancelled_jobs']==1
+ assert cancelled
+run();run(True);run(processing=True);run(orphan=True)
+print('DOCUMENT_QUARANTINE_RECOVERY_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});
+ assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_QUARANTINE_RECOVERY_PASS/);
+});
+
+test('document SQL proof is restricted to the disposable local restore database',()=>{
+ const code=`import runpy
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py');fn=m.get('validate_local_restore_url')
+assert callable(fn),'Missing local restore database guard'
+fn('postgresql://postgres:postgres@127.0.0.1:54322/postgres')
+for raw in ['postgresql://postgres:postgres@db.example.invalid:54322/postgres','postgresql://postgres:postgres@127.0.0.1:5432/postgres','postgresql://postgres:postgres@127.0.0.1:54322/other']:
+ try:fn(raw)
+ except AssertionError:pass
+ else:raise AssertionError('Non-local proof target accepted')
+print('LOCAL_RESTORE_GUARD_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/LOCAL_RESTORE_GUARD_PASS/);
+});

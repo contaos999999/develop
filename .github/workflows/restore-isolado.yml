@@ -266,6 +266,15 @@ jobs:
           DATABASE_URL: postgresql://postgres.gklhhhyosgasnyoxlrui:placeholder@aws.pooler.supabase.com/postgres
         run: python3 supabase/tests/p0_v117_revisao_jwt.py --self-test
 
+      - name: Teste 20 - Quarentena documental no banco local descartável
+        shell: bash
+        env:
+          CONTAOS_LOCAL_QUARANTINE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          set -euo pipefail
+          python3 supabase/tests/p0_crud_global_hml.py --local-document-quarantine-proof | tee restore-proof/document-quarantine-local.txt
+          grep -Fxq 'DOCUMENT_QUARANTINE_LOCAL_SQL_PASS' restore-proof/document-quarantine-local.txt
+
       - name: Registrar histórico reconstruído
         shell: bash
         run: |

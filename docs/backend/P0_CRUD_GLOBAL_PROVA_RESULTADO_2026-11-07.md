@@ -1,3 +1,15 @@
+## FAIL do fixture SQL isolado — correção de tipo em validação
+
+PrimeiroCI134 HEAD eaaa11a99f2faa428b6ced1d2081a25049327342, restore42407348738/job128507798885: FAIL no Teste20 ao enfileirar o primeiro job sintético, antes da rotina de quarentena. Logs lidos; assinatura versionada de privado.enfileirar_job recebejsonb, mas o fixture passoujson explícito. Corrigido cast parajsonb; nova execução necessária. Guard/backup/probe anteriores não aprovam o novoHEAD. NenhumHML/upload/worker real foi executado e nenhumPASS de quarentena SQL declarado.
+
+Revisão independente do incremento: semCritical/Important,20/20protocolo reexecutados. Acrescentado caso de corrida real por segundo psql transacional na prova local: readiness por pg_stat_activity, bloqueio observável e preservação do worker em processamento. Essa prova SQL/concor­rência continua PENDENTE CI; os testes locais não a executaram.
+
+## Infraestrutura de quarentena documental — aguardando prova SQL isolada
+
+PLAN132 integrado639e033 eGATE133 integrado0dd7501, ambos apósguard/restore/backupSUCCESS no mesmoHEAD. Implementação incremental de quarentena sem upload/workerHML:20/20protocolo e50/50suíte locais, REDs preservados no manifesto. Teste20 de restore executará o SQL real somente no banco descartável127.0.0.1:54322. Não há provaSQL real concluída ainda; revisão independente pendente. FaseGATE e inicializador material continuam impedindo DOCUMENTOS. Nenhum arquivo/segurança/job de HML foi alterado neste BUILD parcial.
+
+---
+
 ## Resultado comprovado — Auditoria; próximo PLAN documental
 
 HML42404359665/job128498779742 em bf25e4bde1cc72a4457c7fd1ff91e51806f7fee1:52Auth/SQL+132browser,0FAIL/runtime,quarentena6contas/2organizações verificada. Artefato13585849628 SHA2564f8cbfb967abe0a9991f5b36f63f498590cb47457c10671d6980a8ed07cc8d07 baixado/conferido. Revisão independente dos relatórios/16PNG semCritical/Important funcional. PASS só SELECT seguro/filtros/paginação/persistência/roles/RLS reais, não atomicidade semântica integral do Prompt75. Visual parcial: contraste inconclusivo26nós em768claro/390claro/escuro, nome acessível incompleto e todas as posições da tabela/teclado/paginação não demonstradas integralmente. WCAG/V1 não certificados. Checkpoint297 integrado1a03001f60ef67d327638298b2164ac16b207432 após3checksSUCCESS.

@@ -7,6 +7,20 @@ ALLOWED=('PATH','HOME','RUNNER_TEMP','TMPDIR','LANG','TZ','CI','XDG_CACHE_HOME',
 def browser_environment(env): return {k:env[k] for k in ALLOWED if k in env}
 def q(value): return "'"+str(value).replace("'","''")+"'"
 def uid(): return str(uuid.uuid4())
+def document_quarantine_actions(rows, orgs, contracts):
+    result={'cancel':[],'active':[]}
+    for row in rows:
+        assert row['id_organizacao'] in orgs and contracts.get(row['id_contrato'])==row['id_organizacao'],'Foreign job scope'
+        assert row['fila'] in ('documents','ocr','ai','embeddings'),'Unexpected document queue'
+        assert str(uuid.UUID(row['id']))==row['id'],'Invalid own job identity'
+        assert type(row['message_id']) is int and row['message_id']>0,'Invalid own message identity'
+        assert row['status'] in ('enfileirado','processando','concluido','falhou','cancelado'),'Unexpected job status'
+        if row['status']=='processando':result['active'].append(row['id'])
+        elif row['status'] in ('enfileirado','falhou'):result['cancel'].append(row['id'])
+    return result
+def validate_local_restore_url(raw):
+    target=urllib.parse.urlsplit(raw)
+    assert (target.scheme,target.hostname,target.port,target.username,target.password,target.path)==('postgresql','127.0.0.1',54322,'postgres','postgres','/postgres') and not target.query and not target.fragment,'Local restore only'
 def public_record(name, passed, http=None):
     import re
     assert re.fullmatch('[A-Z0-9_]{1,100}',name) and type(passed) is bool
@@ -93,6 +107,61 @@ class Runner:
         for command in f.get('commands',[]):
             self.check('COMMAND_AUDIT_AND_RECEIPT',self.sql("select exists(select 1 from public.eventos_auditoria where metadados->>'request_id'="+q(command['request_id'])+') and exists(select 1 from public.comandos_idempotentes where chave='+q(command['request_id'])+" and status='concluido');",True)=='t')
         self.check('OWN_AUDIT_PRESENT',int(self.sql('select count(*) from public.eventos_auditoria where id_organizacao='+q(f['org'])+';',True))>0)
+    def quarantine_document_jobs(self, f, max_wait_seconds=300):
+        import re,time
+        assert f['scope']=='P0-CRUD-GLOBAL-HML' and re.fullmatch('[0-9a-f]{32}',f['nonce'])
+        assert f['prefix']=='0000 CRUDG '+f['nonce']+' '
+        assert type(max_wait_seconds) is int and 0<=max_wait_seconds<=300
+        own="o.razao_social in ("+q(f['prefix']+'A')+','+q(f['prefix']+'B')+')'
+        scope=json.loads(self.sql("/* DOCUMENT_OWN_SCOPE */ select json_build_object('orgs',array(select o.id from public.organizacoes o where "+own+"),'contracts',coalesce((select json_agg(json_build_object('id',c.id,'id_organizacao',c.id_organizacao)) from public.contratos c join public.organizacoes o on o.id=c.id_organizacao where "+own+"),'[]'::json));",True))
+        orgs=set(scope['orgs']);contracts={x['id']:x['id_organizacao'] for x in scope['contracts']}
+        for value in [*orgs,*contracts]:assert str(uuid.UUID(value))==value
+        assert all(value in orgs for value in contracts.values())
+        if not orgs:return {'active_jobs':0,'cancelled_jobs':0}
+        osql=','.join(map(q,orgs));csql=','.join(map(q,contracts)) or 'null'
+        queue_count_sql='/* DOCUMENT_ACTIVE_QUEUE_MESSAGES */ select '+ '+'.join('(select count(*) from '+table+" where message->>'id_organizacao' in ("+osql+") or message->>'id_contrato' in ("+csql+'))' for table in ('pgmq.q_documents','pgmq.q_ocr','pgmq.q_ai','pgmq.q_embeddings'))+';'
+        deadline=time.monotonic()+max_wait_seconds
+        while True:
+            rows=json.loads(self.sql("/* DOCUMENT_OWN_JOBS */ select coalesce(json_agg(j),'[]'::json) from (select id,id_organizacao,id_contrato,fila,status,message_id from public.execucoes_assincronas where id_organizacao in ("+osql+') or id_contrato in ('+csql+') order by id limit 1001) j;',True))
+            assert len(rows)<=1000,'Own document jobs exceeded safe bound'
+            actions=document_quarantine_actions(rows,orgs,contracts)
+            if not actions['cancel'] and not actions['active']:
+                processing=self.sql("/* DOCUMENT_ACTIVE_PROCESSINGS */ select count(*) from public.processamentos_documento where id_organizacao in ("+osql+") and status in ('pendente','processando');",True)
+                if processing=='0' and self.sql(queue_count_sql,True)=='0':return {'active_jobs':0,'cancelled_jobs':sum(x['status']=='cancelado' for x in rows)}
+            if actions['cancel']:
+                ids=','.join(map(q,actions['cancel']))
+                # Identifiers come exclusively from this constant mapping, never from a request.
+                for queue,table in (('documents','pgmq.q_documents'),('ocr','pgmq.q_ocr'),('ai','pgmq.q_ai'),('embeddings','pgmq.q_embeddings')):
+                    self.sql("""/* DOCUMENT_QUARANTINE_PENDING */ do $own_quarantine$
+                    declare own_job record;
+                    begin
+                      for own_job in select e.id,e.message_id,e.id_organizacao,e.id_contrato,e.entidade_tipo,e.entidade_id
+                        from """+table+""" message join public.execucoes_assincronas e on e.message_id=message.msg_id
+                        where e.fila="""+q(queue)+""" and e.id in ("""+ids+""")
+                          and e.id_organizacao in ("""+osql+""") and e.id_contrato in ("""+csql+""")
+                          and message.message->>'id_organizacao'=e.id_organizacao::text
+                          and message.message->>'id_contrato'=e.id_contrato::text
+                          and e.status in ('enfileirado','falhou')
+                        for update of message,e
+                      loop
+                        perform pgmq.delete("""+q(queue)+""",own_job.message_id);
+                        update public.execucoes_assincronas set status='cancelado',erro_codigo='FIXTURE_QUARANTINE',concluido_em=now() where id=own_job.id and status in ('enfileirado','falhou');
+                        if own_job.entidade_tipo='versao_documento' then
+                          update public.processamentos_documento set status='cancelado',erro_codigo='FIXTURE_QUARANTINE',concluido_em=now()
+                            where id_organizacao=own_job.id_organizacao and id_contrato=own_job.id_contrato and id_versao_documento=own_job.entidade_id
+                              and etapa="""+q(queue)+""" and status in ('pendente','falhou');
+                        end if;
+                      end loop;
+                    end $own_quarantine$;""")
+                # Re-read even at timeout: a concurrent child must not be reported clean.
+                final=json.loads(self.sql("/* DOCUMENT_OWN_JOBS */ select coalesce(json_agg(j),'[]'::json) from (select id,id_organizacao,id_contrato,fila,status,message_id from public.execucoes_assincronas where id_organizacao in ("+osql+') or id_contrato in ('+csql+') order by id limit 1001) j;',True))
+                assert len(final)<=1000
+                remaining=document_quarantine_actions(final,orgs,contracts)
+                if not remaining['cancel'] and not remaining['active']:
+                    processing=self.sql("/* DOCUMENT_ACTIVE_PROCESSINGS */ select count(*) from public.processamentos_documento where id_organizacao in ("+osql+") and status in ('pendente','processando');",True)
+                    if processing=='0' and self.sql(queue_count_sql,True)=='0':return {'active_jobs':0,'cancelled_jobs':sum(x['status']=='cancelado' for x in final)}
+            if time.monotonic()>=deadline:raise RuntimeError('Own document work still active; quarantine incomplete')
+            time.sleep(1)
     def cleanup(self):
         p=self.root/'fixture.json'
         if not p.exists():
@@ -145,8 +214,74 @@ def self_test():
         assert json.loads((r.root/'cleanup.json').read_text())['state']=='QUARENTENA_VERIFICADA'
         assert not any('insert into auth.users' in x.lower() for x in calls)
     print('CRUD_GLOBAL_PROTOCOL_PASS')
+def local_document_quarantine_proof():
+    # No Auth, HML or production access: the explicit URL guard runs before any SQL.
+    db=os.environ.get('CONTAOS_LOCAL_QUARANTINE_DB_URL','');validate_local_restore_url(db)
+    runner=object.__new__(Runner);runner.db=db;runner.report={}
+    nonce=uuid.uuid4().hex;f={'scope':'P0-CRUD-GLOBAL-HML','nonce':nonce,'prefix':'0000 CRUDG '+nonce+' '}
+    scope=[]
+    for label in ('A','B','FOREIGN'):
+        org,contractor,contract=uid(),uid(),uid();scope.append((org,contract))
+        name=f['prefix']+label if label!='FOREIGN' else 'LOCAL FOREIGN '+nonce
+        runner.sql('begin;insert into public.organizacoes(id,razao_social) values('+q(org)+','+q(name)+');insert into public.contratantes(id,id_organizacao,razao_social) values('+q(contractor)+','+q(org)+",'Local quarantine contractor');insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio) values("+q(contract)+','+q(org)+','+q(contractor)+','+q('LOCAL-'+nonce+'-'+label)+",'Local quarantine proof','2026-01-01');commit;")
+    org,contract=scope[0];file_id,doc,version=uid(),uid(),uid();sha='0'*64
+    runner.sql('begin;insert into public.arquivos(id,id_organizacao,id_contrato,path,nome_original,mime,tamanho,sha256) values('+q(file_id)+','+q(org)+','+q(contract)+','+q(org+'/'+contract+'/local.txt')+",'local-quarantine.txt','text/plain',1,"+q(sha)+');insert into public.documentos_contrato(id,id_organizacao,id_contrato,tipo,titulo) values('+q(doc)+','+q(org)+','+q(contract)+",'contrato','Local quarantine document');insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_contrato,numero_versao,id_arquivo,hash) values("+q(version)+','+q(org)+','+q(contract)+','+q(doc)+',1,'+q(file_id)+','+q(sha)+');insert into public.processamentos_documento(id_organizacao,id_contrato,id_versao_documento,etapa,status) values('+q(org)+','+q(contract)+','+q(version)+",'documents','pendente'),("+q(org)+','+q(contract)+','+q(version)+",'ocr','concluido');commit;")
+    def job(tenant,contract_id,queue='documents'):
+        return runner.sql('select privado.enfileirar_job('+q(queue)+','+q(tenant)+','+q(contract_id)+",'versao_documento',"+q(version)+",'{}'::jsonb,null);",True)
+    pending=job(org,contract);complete=job(org,contract,'ocr');foreign=job(*scope[2])
+    runner.sql("select pgmq.delete('ocr',message_id) from public.execucoes_assincronas where id="+q(complete)+";update public.execucoes_assincronas set status='concluido' where id="+q(complete)+';')
+    result=runner.quarantine_document_jobs(f,max_wait_seconds=0)
+    assert result['active_jobs']==0 and result['cancelled_jobs']==1
+    assert runner.sql("select status from public.execucoes_assincronas where id="+q(pending)+';',True)=='cancelado'
+    assert runner.sql("select status from public.execucoes_assincronas where id="+q(complete)+';',True)=='concluido'
+    assert runner.sql("select status from public.execucoes_assincronas where id="+q(foreign)+';',True)=='enfileirado'
+    assert runner.sql("select status from public.processamentos_documento where id_versao_documento="+q(version)+" and etapa='documents';",True)=='cancelado'
+    assert runner.sql("select status from public.processamentos_documento where id_versao_documento="+q(version)+" and etapa='ocr';",True)=='concluido'
+    orphan=int(runner.sql("select pgmq.send('documents',jsonb_build_object('id_organizacao',"+q(org)+",'id_contrato',"+q(contract)+"));",True))
+    try:runner.quarantine_document_jobs(f,max_wait_seconds=0)
+    except RuntimeError:pass
+    else:raise AssertionError('Orphan queue message was falsely called clean')
+    runner.sql("select pgmq.delete('documents',"+str(orphan)+');')
+    active=job(org,contract);runner.sql("update public.execucoes_assincronas set status='processando' where id="+q(active)+';')
+    try:runner.quarantine_document_jobs(f,max_wait_seconds=0)
+    except RuntimeError:pass
+    else:raise AssertionError('Running own worker was falsely called clean')
+    assert runner.sql("select status from public.execucoes_assincronas where id="+q(active)+';',True)=='processando'
+    # Real TOCTOU race: cleanup reads queued work, then a worker locks it before cancellation.
+    import time
+    racing=job(org,contract);original_sql=runner.sql;started=False;worker=None;blocked=0
+    def race_sql(source,fetch=False):
+        nonlocal started,worker,blocked
+        if 'DOCUMENT_QUARANTINE_PENDING' in source and not started:
+            started=True;app='local_document_race_'+nonce
+            worker_sql="set application_name="+q(app)+";begin;do $worker$ begin perform 1 from pgmq.q_documents message join public.execucoes_assincronas e on e.message_id=message.msg_id where e.id="+q(racing)+" for update of message,e;update public.execucoes_assincronas set status='processando' where id="+q(racing)+";end $worker$;select pg_sleep(1);commit;"
+            worker=subprocess.Popen(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',worker_sql],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+            ready=False
+            for _ in range(100):
+                if original_sql("select exists(select 1 from pg_stat_activity where application_name="+q(app)+" and wait_event='PgSleep');",True)=='t':ready=True;break
+                if worker.poll() is not None:break
+                time.sleep(.02)
+            assert ready,'Local worker did not acquire the real lock'
+            before=time.monotonic();result=original_sql(source,fetch);blocked=time.monotonic()-before
+            return result
+        return original_sql(source,fetch)
+    runner.sql=race_sql
+    try:
+        try:runner.quarantine_document_jobs(f,max_wait_seconds=0)
+        except RuntimeError:pass
+        else:raise AssertionError('Racing worker was falsely called clean')
+        assert worker is not None
+        _,_=worker.communicate(timeout=5);assert worker.returncode==0 and blocked>=.4,'Real lock race not demonstrated'
+    finally:
+        runner.sql=original_sql
+        if worker is not None and worker.poll() is None:worker.kill();worker.communicate(timeout=5)
+    assert runner.sql("select status from public.execucoes_assincronas where id="+q(racing)+';',True)=='processando'
+    # Teardown is local-only; these are synthetic negative-control messages, never HML jobs.
+    runner.sql("select pgmq.delete('documents',message_id) from public.execucoes_assincronas where id in ("+q(active)+','+q(foreign)+','+q(racing)+");update public.execucoes_assincronas set status='cancelado' where id in ("+q(active)+','+q(foreign)+','+q(racing)+');')
+    print('DOCUMENT_QUARANTINE_LOCAL_SQL_PASS')
 def main():
     if '--self-test' in sys.argv:self_test();return 0
+    if '--local-document-quarantine-proof' in sys.argv:local_document_quarantine_proof();return 0
     r=Runner(os.environ)
     if '--cleanup' in sys.argv:
         if (r.root/'report.json').exists():r.report=json.loads((r.root/'report.json').read_text())
