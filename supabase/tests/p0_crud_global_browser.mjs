@@ -13,6 +13,19 @@ export function publicRecord({name,pass,http}){
   assert(http===undefined||Number.isInteger(http)&&http>=100&&http<=599);
   return {name,pass,...(http===undefined?{}:{http})};
 }
+export function validateAuditRead(raw,rows,org,status=200){
+  assert([200,206].includes(status));
+  const url=new URL(raw);
+  const fields=['id','criado_em','evento','entidade','origem','id_usuario','id_entidade','correlation_id'];
+  assert.equal(url.origin,'https://gklhhhyosgasnyoxlrui.supabase.co');
+  assert.equal(url.pathname,'/rest/v1/eventos_auditoria');
+  assert.equal(url.searchParams.get('select'),fields.join(','));
+  assert.equal(url.searchParams.get('id_organizacao'),'eq.'+org);
+  assert.equal(url.searchParams.get('limit'),'25');
+  assert(/^\d+$/.test(url.searchParams.get('offset')??''));
+  assert(Array.isArray(rows)&&rows.length<=25);
+  for(const row of rows)assert.deepEqual(Object.keys(row).sort(),[...fields].sort());
+}
 export function sanitizeUiDiagnostic(value){
   const result={};
   for(const key of ['manage_list','change_state','loading','denied','inconsistent','transient','pending']){
@@ -86,7 +99,7 @@ async function main(){
   const frontend=resolve(process.env.CONTAOS_FRONTEND_DIR||'');const req=createRequire(process.env.CONTAOS_PLAYWRIGHT_MODULE);assert.equal(req('playwright/package.json').version,'1.64.1');const {chromium,expect}=req('playwright/test');
   const probe=process.argv.includes('--public-probe');const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Stable-state contrast does not close historical transient V117 contrast']};
+  const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:probe?'PUBLIC_PROBE':f.batch||'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Stable-state contrast does not close historical transient V117 contrast']};
   const save=()=>writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});
   function stage(s){assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
   function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
@@ -135,6 +148,70 @@ async function main(){
       await sample.evaluate(()=>{setTimeout(()=>{const p=document.querySelector('section');p.innerHTML='<p>Own recovered</p><button>Editar lista</button>';},50);});
       await settled;check('VISUAL_WAITS_FOR_RECOVERED_ENABLED_PANEL',await sample.evaluate(listUiIsSettled,'Own recovered'));
       await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;
+    }
+    if(f.batch==='AUDITORIA'){
+      const admin=await open('administrador');const ap=admin.page;await chooseOrg(ap,f.org);
+      stage('AUDIT_REAL_EVENTS_SETUP');await ap.goto(base+'/contratos/'+f.contract);
+      for(let i=0;i<27;i++){
+        const region=await manager(ap,'contract');
+        await editCadastro(ap,region,'contract','Objeto',f.prefix+'audit-'+i,'AUDIT_SETUP_EDIT_'+i);
+      }
+      const auditPath=base+'/administracao/auditoria';
+      async function readAudit(page,org,action,predicate=()=>true,allowEmpty=false){
+        const got=page.waitForResponse(r=>r.request().method()==='GET'&&new URL(r.url()).pathname==='/rest/v1/eventos_auditoria'&&predicate(new URL(r.url())));
+        await action();const response=await got;check('AUDIT_READ_HTTP',[200,206].includes(response.status()),response.status());
+        const rows=await response.json();validateAuditRead(response.url(),rows,org,response.status());check('AUDIT_SAFE_PROJECTION_AND_SCOPE',true);
+        if(!allowEmpty)assert(rows.length>0);
+        if(rows.length){f.audit_reads??=[];f.audit_reads.push({org,ids:rows.map(r=>r.id)});writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});}
+        await expect(page.getByRole('heading',{name:'Trilha de auditoria',exact:true})).toBeVisible();
+        return rows;
+      }
+      stage('AUDIT_ADMIN_FIRST_PAGE');const rows=await readAudit(ap,f.org,()=>ap.goto(auditPath));assert.equal(rows.length,25);
+      await expect(ap.getByRole('region',{name:'Eventos de auditoria',exact:true})).toBeVisible();
+      const reference=rows.find(r=>r.id_usuario===f.users.find(u=>u.profile==='administrador').id);assert(reference);
+      stage('AUDIT_PAGINATION');await readAudit(ap,f.org,()=>ap.getByRole('button',{name:'Próxima',exact:true}).click(),u=>u.searchParams.get('offset')==='25');
+      await expect(ap.getByText('Página 2',{exact:true})).toBeVisible();
+      await readAudit(ap,f.org,()=>ap.getByRole('button',{name:'Anterior',exact:true}).click(),u=>u.searchParams.get('offset')==='0');
+      check('AUDIT_PAGINATION_REAL',true);
+      for(const [label,key,value] of [['Evento','evento',reference.evento],['Entidade','entidade',reference.entidade],['ID do usuário','id_usuario',reference.id_usuario],['Correlation ID','correlation_id',reference.correlation_id]]){
+        stage('AUDIT_FILTER_'+key.toUpperCase());assert(value);
+        const result=await readAudit(ap,f.org,()=>ap.getByLabel(label,{exact:true}).fill(value),u=>u.searchParams.get(key)==='eq.'+value);
+        assert(result.every(r=>r[key]===value));await expect(ap.getByText('Página 1',{exact:true})).toBeVisible();
+        await readAudit(ap,f.org,()=>ap.getByLabel(label,{exact:true}).fill(''),u=>!u.searchParams.has(key));
+        check('AUDIT_FILTER_'+key.toUpperCase(),true);
+      }
+      stage('AUDIT_DATE_FILTER');await readAudit(ap,f.org,()=>ap.getByLabel('Data inicial',{exact:true}).fill('2026-01-01'),u=>u.searchParams.getAll('criado_em').some(v=>v==='gte.2026-01-01T03:00:00.000Z'));
+      await readAudit(ap,f.org,()=>ap.getByLabel('Data final',{exact:true}).fill('2027-12-31'),u=>u.searchParams.getAll('criado_em').some(v=>v==='lte.2028-01-01T02:59:59.000Z'));check('AUDIT_DATE_FILTER_BOUNDS',true);
+      await expect(ap.getByText(reference.correlation_id,{exact:true}).first()).toBeVisible();
+      await ap.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
+      for(const theme of ['light','dark'])for(const width of [1440,1280,768,390]){
+        stage('AUDIT_VISUAL_'+width+'_'+theme.toUpperCase());await ap.setViewportSize({width,height:1000});
+        await ap.evaluate(t=>{document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;},theme);
+        const table=ap.getByRole('region',{name:'Eventos de auditoria',exact:true});await table.focus();await expect(table).toBeFocused();await ap.keyboard.press('ArrowRight');
+        check('AUDIT_TABLE_KEYBOARD_FOCUS_'+width+'_'+theme.toUpperCase(),true);
+        check('AUDIT_NO_PAGE_OVERFLOW_'+width+'_'+theme.toUpperCase(),await ap.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+        await ap.waitForFunction(()=>document.getAnimations().every(a=>a.playState!=='running'||a.effect?.getTiming().iterations===Infinity),undefined,{timeout:5000});
+        await ap.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
+        const top='crud-audit-'+width+'-'+theme+'-top.png',panel='crud-audit-'+width+'-'+theme+'-panel.png';
+        await ap.screenshot({path:join(output,top),animations:'disabled'});
+        await table.evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));
+        const raw=await ap.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {testEngine:{version:r.testEngine.version},violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
+        const a11y=summarizeAccessibility(raw);report.visual.push({width,theme,a11y,screenshots:{top,panel},scope:'Audit table focus and stable screenshots; manual WCAG pending'});save();
+        await ap.screenshot({path:join(output,panel),animations:'disabled'});
+        check('AUDIT_AUTOMATED_ACCESSIBILITY_'+width+'_'+theme.toUpperCase(),a11y.violations.length===0);
+      }
+      await admin.context.close();
+      for(const role of ['master','auditor','juridico_conformidade']){
+        stage('AUDIT_ALLOWED_'+role.toUpperCase());const user=await open(role);await chooseOrg(user.page,f.org);
+        await readAudit(user.page,f.org,()=>user.page.goto(auditPath));check('AUDIT_ALLOWED_'+role.toUpperCase(),true);await user.context.close();
+      }
+      const reader=await open('leitor');await chooseOrg(reader.page,f.org);let deniedReads=0;
+      reader.page.on('request',r=>{if(new URL(r.url()).pathname==='/rest/v1/eventos_auditoria')deniedReads++;});
+      stage('AUDIT_READER_DENIED');await reader.page.goto(auditPath);await expect(reader.page.getByRole('alert')).toContainText('Você não tem permissão para consultar a auditoria desta organização.');check('AUDIT_READER_NO_QUERY',deniedReads===0);await reader.context.close();
+      const other=await open('usuario_b');await chooseOrg(other.page,f.org_b);stage('AUDIT_OTHER_TENANT');
+      const foreign=await readAudit(other.page,f.org_b,()=>other.page.goto(auditPath),()=>true,true);
+      const ownIds=new Set(f.audit_reads.filter(r=>r.org===f.org).flatMap(r=>r.ids));assert(foreign.every(r=>!ownIds.has(r.id)));check('AUDIT_TENANT_ISOLATION',true);await other.context.close();
+      check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';report.completed_domains=['auditoria'];save();return;
     }
     const master=await open('master');master.page._crudRole='master';const mp=master.page;
     stage('ORG_CREATE_FORM');await mp.goto(base+'/selecionar-organizacao');await mp.getByRole('button',{name:'Nova organização',exact:true}).click();await mp.getByLabel('Razão social',{exact:true}).fill(f.prefix+'created');

@@ -120,6 +120,26 @@ test('list state selector rejects unsupported state before touching the page',as
  await assert.rejects(()=>selectListState(new Proxy({}, {get(){throw Error('Unexpected DOM access');}}),'encerrada'),{name:'AssertionError'});
 });
 
+// Public audit reports must never contain backend payload columns or other tenants.
+test('audit read validator rejects broad projection, wrong tenant and unbounded pages',async()=>{
+ const {validateAuditRead}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof validateAuditRead,'function');
+ const org='11111111-1111-4111-8111-111111111111';
+ const fields='id,criado_em,evento,entidade,origem,id_usuario,id_entidade,correlation_id';
+ const url='https://gklhhhyosgasnyoxlrui.supabase.co/rest/v1/eventos_auditoria?select='+fields+'&id_organizacao=eq.'+org+'&offset=0&limit=25';
+ const row=Object.fromEntries(fields.split(',').map(k=>[k,null]));
+ assert.doesNotThrow(()=>validateAuditRead(url,[row],org));
+ assert.doesNotThrow(()=>validateAuditRead(url,[row],org,206));
+ assert.throws(()=>validateAuditRead(url,[row],org,400));
+ assert.throws(()=>validateAuditRead(url,[row],org,201));
+ assert.throws(()=>validateAuditRead(url,[{...row,metadados:'PRIVATE_CANARY'}],org));
+ assert.throws(()=>validateAuditRead(url.replace('select='+fields,'select=*'),[row],org));
+ assert.throws(()=>validateAuditRead(url, [row], '22222222-2222-4222-8222-222222222222'));
+ assert.throws(()=>validateAuditRead(url.replace('limit=25','limit=500'),[row],org));
+ assert.throws(()=>validateAuditRead(url,Array(26).fill(row),org));
+ assert.throws(()=>validateAuditRead(url.replace('offset=0','offset=-1'),[row],org));
+});
+
 test('visual readiness rejects busy, disabled, stale and missing list panels',async()=>{
  const {listUiIsSettled}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof listUiIsSettled,'function');
  const prior=globalThis.document;
