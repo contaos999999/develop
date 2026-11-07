@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "Prova privada do CRUD global V1 por interface e persistência",
   "status": "ativa",
-  "phase": "GATE_PROVA_PRIVADA_DOCUMENTOS",
+  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -139,7 +139,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI SQL local Teste20 e revisão desta infraestrutura; corrigirFAILsem habilitar upload. ApósGREEN/merge, implementar loteDOCUMENTOS noBUILD seguinte, somenteentão faseBUILD eHML real.",
+  "next_step": "CI guard/restore/backup no HEAD final; integrar apenas após checks exigidos SUCCESS. Execução HML real DOCUMENTOS, limpeza e evidências antes de qualquer certificação. Domínio documental e CRUD global permanecem pendentes.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -680,7 +680,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "BUILD_QUARENTENA_DOCUMENTAL_CI_SQL_PENDENTE_UPLOAD_BLOQUEADO",
+    "state": "BUILD_DOCUMENTOS_IMPLEMENTADO_LOCAL_REVISAO_CI_HML_PENDENTES",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -903,6 +903,34 @@
         "state": "FAIL_LOCAL_FIXTURE_JOB_ENQUEUE",
         "cause": "Local fixture passed explicit json to privado.enfileirar_job whose payload argument is jsonb; corrected cast, new CI pending",
         "hml_upload": false
+      }
+    },
+    "document_harness_build": {
+      "base": "c993e38c1f9b9f6a6d45a754945b5b0542fb3ccc",
+      "scope": "TXT/PDF + nova versão de cada; UI/Storage oficial, hashes/tamanhos, worker normal, negativos leitor/tenantB, capturas 4 larguras/2 temas",
+      "red_observed": [
+        "cleanup 20 PASS/1 FAIL -> 21/21",
+        "validators 21 PASS/1 FAIL -> 22/22",
+        "recovery/init 22 PASS/1 FAIL -> 23/23"
+      ],
+      "local_protocol": 27,
+      "local_full_suite": 57,
+      "pdf_fixture": "pdftotext TXT extraction PASS for both PDF versions",
+      "cleanup": "ban/revoke before document recovery/quarantine; active work preserves CLEANUP_FAILED and QUARENTENA_PENDENTE; organization not inactivated until document work is clear",
+      "phase_unchanged": "GATE_PROVA_PRIVADA_DOCUMENTOS until independent review and validated activation",
+      "hml": "NOT_EXECUTED",
+      "global_complete": false,
+      "review_fix": {
+        "findings": [
+          "Negativa de revogação em sessão já autorizada ausente",
+          "Cobertura de domínio inteiro indevida para TXT/PDF"
+        ],
+        "red": "node --test supabase/tests/p0_crud_global_protocol.test.mjs: 24 PASS/2 FAIL",
+        "green": "27/27 protocolo; node --test: 57/57",
+        "control": "Private nonce/org/user closed action REVOKE_OWN_ADMIN; Python guard only; intent before SQL, no replay; same browser session proves real denial and valid Auth before contexts close",
+        "coverage": "completed_scopes DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER; documentos_contrato remains unverified/remaining",
+        "hml": "NOT_EXECUTED",
+        "phase": "GATE_PROVA_PRIVADA_DOCUMENTOS"
       }
     }
   },
