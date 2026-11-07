@@ -52,7 +52,8 @@
     ".github/workflows/p0-v117-browser-hml.yml",
     "docs/backend/P0_V117_TIMEOUT_2026-11-07.md",
     ".github/workflows/p0-crud-listas-hml.yml",
-    "supabase/tests/p0_workflow_routing.test.mjs"
+    "supabase/tests/p0_workflow_routing.test.mjs",
+    "docs/backend/P0_WORKFLOW_ROUTING_GATE_2026-11-07.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -128,7 +129,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar PLAN103 reancorado após guard SUCCESS; GATE separado antes de RED/BUILD do roteamento. Prova privada V117 e quarentena PASS run42391662453; V1 não certificada.",
+  "next_step": "GATE roteamento proposto; aguardar checks e merge antes de RED/BUILD; V1 não certificada.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
