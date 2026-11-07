@@ -1,8 +1,8 @@
 {
-  "id": "P0-CRUD-CADASTROS-20261106",
-  "title": "CRUD global: operações canônicas de organizações e contratos",
+  "id": "P0-CRUD-LISTAS-20261107",
+  "title": "CRUD global V1: listas de verificação versionadas",
   "status": "ativa",
-  "phase": "PLAN_VALIDADO_EMENDA_PIN_DEPLOY",
+  "phase": "PLAN_VALIDADO_AGUARDANDO_CI_RED_BUILD",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-05",
@@ -35,19 +35,20 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Completar gestão operacional pela interface mediante APIs Supabase canônicas; implementar backend mínimo testado e depois integração frontend.",
+  "objective": "Completar configuração/versionamento de listasV1-CHK-001..004 pela interface, com Supabase autoritativo, snapshots/histórico preservados.",
   "allowed_paths": [
-    "docs/backend/P0_CRUD_CADASTROS_PLAN_2026-11-06.md",
-    "docs/backend/P0_CRUD_CADASTROS_RESULTADO_2026-11-06.md",
+    "docs/backend/P0_CRUD_LISTAS_PLAN_2026-11-07.md",
+    "docs/backend/P0_CRUD_LISTAS_RESULTADO_2026-11-07.md",
     "docs/tasks/active-task.json",
-    "supabase/migrations/20261106230839_p0_crud_organizacoes_contratos.sql",
-    "supabase/tests/p0_crud_cadastros.sql",
-    "supabase/tests/p0_crud_cadastros_jwt.py",
-    "supabase/tests/p0_crud_cadastros_catalog_expected.json",
+    "supabase/migrations/20261107001620_p0_crud_listas_verificacao.sql",
+    "supabase/tests/p0_crud_listas.sql",
+    "supabase/tests/p0_crud_listas_concurrency.py",
+    "supabase/tests/p0_crud_listas_jwt.py",
+    "supabase/tests/p0_crud_listas_catalog_expected.json",
     "supabase/tests/history_catalog_compare.py",
     ".github/workflows/restore-isolado.yml",
-    ".github/workflows/p0-crud-cadastros-hml.yml",
-    ".github/workflows/p0-hml-migration-version-parity.yml"
+    ".github/workflows/p0-crud-listas-hml.yml",
+    ".github/workflows/p0-crud-cadastros-hml.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -64,7 +65,7 @@
   "authorization": {
     "by": "titular",
     "date": "2026-11-06",
-    "scope": "Execute integralmente o CRUD global, não pare até concluir. Backend HML próprio com PLAN/GATE, sem PROD. Auth permitido exclusivamente para fixtures sintéticas de testes reais; nenhuma alteração de configuração/schema/política Auth."
+    "scope": "Execute integralmente o CRUD global não pare até concluir. HML apenas, PLAN/GATE, V1 antesV2, semPROD. Auth exclusivamentefixtures próprias, nunca configuração."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -106,41 +107,48 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Escopo do Prompt 38 revisado contra os requisitos com indicação explícita de V1-17, mais os NFR transversais da tarefa; não significa certificação dos 100 planos funcionais. Antes de TESTE C, comparar artefato final com todos os requisitos associados."
   },
-  "previous_task_id": "V123-AUDITORIA-CAPACIDADE-RPC-HML-20261105",
-  "previous_task_snapshot_commit": "c530fca558e4ce3e3c2cce4cabb660b1ccc05f97",
+  "previous_task_id": "P0-CRUD-CADASTROS-20261106",
+  "previous_task_snapshot_commit": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
   "prod_untouched": true,
   "acceptance": [
-    "guard e restore integral no mesmo HEAD",
-    "incremento de versão exatamente1",
-    "idempotência sem duplicar auditoria/snapshots",
-    "negativas sem efeitos para sessão/perfil/contexto/campos/transições",
-    "JWT real pós-deploy com fixtures em quarentena",
-    "paridade GitHub/HML CLI preservada",
-    "frontend/PROD não alterados nesta tarefa"
+    "guard/restore integral e concorrência no mesmoHEAD",
+    "header versão exatamente1 porcomando",
+    "publicação e fechamento temporal sem apagar snapshotsanteriores",
+    "DMLdireto e uso tenant/versão inválidos negados semefeitos",
+    "idempotência + auditoria atômicas",
+    "JWTreais, perfis/MASTERsemherançaespecializada, corrida publicacao/criarcompetencia, quarentena",
+    "paridadeGitHub/HMLCLI",
+    "UI permanece tarefa posterior, V1 não certificada"
   ],
-  "next_step": "Após merge do PLAN e guard verde, executar RED de ausência de APIs e BUILD delimitado. Em seguida restore/CI, deploy canônico e JWT; depois PLAN frontend.",
+  "next_step": "Após guardSUCCESS e merge PLAN, RED metadados/negativas, BUILD delimitado; restore+concorrência, revisão, canônicoSHA/hash, JWTfixtures/quarentena e depoisPLANfrontend.",
   "database_change_scope": {
-    "migration": "20261106230839_p0_crud_organizacoes_contratos.sql",
+    "migration": "20261107001620_p0_crud_listas_verificacao.sql",
     "new_public_functions": [
-      "obter_cadastro_operacional_v1",
-      "atualizar_organizacao_v1",
-      "alterar_situacao_organizacao_v1",
-      "atualizar_contrato_v1",
-      "alterar_situacao_contrato_v1"
+      "obter_lista_operacional_v1",
+      "executar_comando_lista_v1"
     ],
+    "new_private_functions": [
+      "crud_lista_autorizar_v1",
+      "crud_lista_consultar_v1",
+      "crud_lista_mutar_v1",
+      "crud_lista_integridade_v1",
+      "crud_lista_validar_regra_v1"
+    ],
+    "existing_function_changed": "privado.criar_competencia(uuid,date,date,date,date): somente lock org→contrato compartilhado para serializar snapshot com fechamento/publicação de lista, preservar regras/resto",
     "tables_changed": [],
-    "rls_changed": false,
-    "touch_triggers": [
-      "organizacoes_touch",
-      "contratos_touch"
-    ],
     "existing_business_tables": [
-      "organizacoes",
-      "contratos",
-      "versoes_contrato",
+      "listas_verificacao",
+      "versoes_lista",
+      "itens_lista",
+      "competencias",
+      "requisitos_competencia",
       "comandos_idempotentes",
-      "eventos_auditoria"
-    ]
+      "eventos_auditoria",
+      "fontes_normativas",
+      "versoes_fontes_normativas",
+      "aplicabilidades_fonte"
+    ],
+    "triggers": "touch específico header sem duplicar versão; guard INSERT/UPDATE/DELETE autenticado dos3cadastros; semRLS/grants novos"
   },
   "evidence": {
     "test_pr": 52,
@@ -391,5 +399,25 @@
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
     "previous_guard_failure": "42305029003: arquivo documental fora da allowlist",
     "current_evidence": "Contagens históricas não substituem provas posteriores de RBAC ou certificação V1"
+  },
+  "crud_cadastros_concluido": {
+    "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
+    "deploy": 42314729963,
+    "jwt": 42314717439,
+    "assertions": 50,
+    "passed": 50,
+    "quarantine": {
+      "banned": 4,
+      "sessions": 0,
+      "master": 0,
+      "memberships": 0,
+      "orgs_inactive": 2
+    },
+    "report_sha256": "14a9fc945e6785341df28f768ce4965423565d1a3edb33823e9e75f8d7aef5f8",
+    "frontend_pr": 248,
+    "frontend_merge": "23d120f94e295f8031ade24ab785eaa39343c070",
+    "frontend_ci": 42316728042,
+    "frontend_regression": "1017/1017",
+    "private_ui": "NAO_VERIFICADA"
   }
 }
