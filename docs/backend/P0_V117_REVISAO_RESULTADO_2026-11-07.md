@@ -1,3 +1,11 @@
+# Atualização comprovada em07/11/2026
+
+O registro histórico abaixo foi superado neste ponto: BUILD99 integrado em744dee8636c164415774e413e76883e08dffbc09; deploy canônico42362617182 SUCCESS; JWT real42362609674 tentativa3, job128386155328 SUCCESS,38 assertions e quarentena própria verificada. Artifact ZIP SHA256 e082a3669c2e9adf34674ad9e74134bcb9ef46d20d88453887925fa3af92e43d. A chave Auth Admin foi configurada pelo titular e funcionou; não há bloqueio atual por ausência dela.
+
+Frontend PLAN269 e GATE270 integrados; BUILD271 HEAD e4275ee62593fa6cce49d0b6a1417a37f389ae08 publicado,1128 testes locais. CI/merge e teste privado ainda pendentes neste registro. Próxima etapa: PLAN de prova privada com fixtures oficiais, sem repetir login pessoal cancelado, deploy ou DDL. V1 não certificada; CRUD global não concluído.
+
+---
+
 # Revisão humana V1-17: registro de execução
 
 Estado: BUILD em validação. Nenhum deploy HML desta migration comprovado neste commit. V1 não certificada e CRUD global não concluído.

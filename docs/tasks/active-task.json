@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "BUILD_EM_VALIDACAO",
+  "phase": "PLAN_PROVA_PRIVADA_FRONTEND",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -47,7 +47,9 @@
     "supabase/tests/p0_v117_revisao_catalog_expected.json",
     "supabase/tests/history_catalog_compare.py",
     ".github/workflows/restore-isolado.yml",
-    ".github/workflows/p0-v117-revisao-hml.yml"
+    ".github/workflows/p0-v117-revisao-hml.yml",
+    "supabase/tests/p0_v117_revisao_browser.mjs",
+    ".github/workflows/p0-v117-browser-hml.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -123,7 +125,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI PLAN, RED isolado, BUILD, restore/concorrência/revisão, deploy canônico HML e JWT, PLAN frontend.",
+  "next_step": "Integrar PLAN e GATE separado; RED do protocolo privado; BUILD harness navegador real com frontend aprovado; quarentena e relatório sanitizado.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -360,8 +362,19 @@
       "isolated_sql": "PASS",
       "concurrency": "PASS, duas conexões/CAS/replay/revogação/reanálise",
       "final_ci": "PENDENTE",
-      "hml_deploy": "PENDENTE",
-      "real_jwt": "PENDENTE"
+      "hml_deploy": 42362617182,
+      "real_jwt": {
+        "run": 42362609674,
+        "attempt": 3,
+        "job": 128386155328,
+        "passed": 38,
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      "final_head": "e63894d48b832239ed5bb3637765041be8a49942",
+      "merge": "744dee8636c164415774e413e76883e08dffbc09",
+      "frontend_build_pr": 271,
+      "frontend_tested_head": "e4275ee62593fa6cce49d0b6a1417a37f389ae08",
+      "frontend_local_tests": 1128
     }
   },
   "restore_synthetic_plan": {
@@ -418,5 +431,25 @@
     "frontend_regression": "1017/1017",
     "private_ui": "NAO_VERIFICADA"
   },
-  "auth_change_scope": "Somente identidades sintéticas próprias via Auth Admin API e quarentena/revogação das próprias sessões. Nenhuma configuração Auth/SMTP/provedores ou identidade preexistente."
+  "auth_change_scope": "Somente identidades sintéticas próprias via Auth Admin API e quarentena/revogação das próprias sessões. Nenhuma configuração Auth/SMTP/provedores ou identidade preexistente.",
+  "browser_proof_scope": {
+    "frontend_repository": "contaos999999/contaos-hml-control",
+    "frontend_head": "e4275ee62593fa6cce49d0b6a1417a37f389ae08",
+    "environment": "hml",
+    "no_deploy": true,
+    "no_schema_changes": true,
+    "official_auth_fixtures_only": true,
+    "widths": [
+      1440,
+      1280,
+      768,
+      390
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "tokens_artifact": false,
+    "separate_gate_required": true
+  }
 }
