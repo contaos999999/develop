@@ -2,7 +2,7 @@
   "id": "P0-V117-REVISAO-20261107",
   "title": "Revisão humana V1-17 com CAS e idempotência",
   "status": "ativa",
-  "phase": "BUILD_ROTEAMENTO_WORKFLOW_HML",
+  "phase": "ROTEAMENTO_WORKFLOW_HML_CONCLUIDO",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -129,7 +129,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Validar RED/GREEN, revisão e CI do BUILD roteamento; integrar após guard/restore/backup/probe SUCCESS, comprovar jobs materiais SKIPPED em main; V1 não certificada.",
+  "next_step": "Roteamento PLAN103/GATE117/BUILD118 concluído com scopesSUCCESS e materiaisSKIPPED comprovados; retomar auditoria da matriz CRUDglobal/V1, contraste transitório e critérios ainda NÃO VERIFICADOS. V1 não certificada.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -553,6 +553,108 @@
       "list_deploy": "P0-CRUD-LISTAS-20261107/BUILD_EM_VALIDACAO",
       "review_deploy": "P0-V117-REVISAO-20261107/BUILD_EM_VALIDACAO",
       "private_browser": "P0-V117-REVISAO-20261107/BUILD_PROVA_PRIVADA_FRONTEND"
-    }
+    },
+    "status": "PASS_ESCOPO_ROTEAMENTO",
+    "build": {
+      "pr": 118,
+      "head": "545231b2ea47198b089085c50c38eb77f93f359a",
+      "merge": "2ebb9e3a639ea837430f3d9f1b4e7acfdbb8bb35",
+      "local_suite": {
+        "passed": 30,
+        "failed": 0
+      },
+      "focused": {
+        "passed": 13,
+        "failed": 0
+      },
+      "review": "SemCritical/Important; minor cobertura regex/JS e checkoutrefsemassertion específica registrado",
+      "ci": {
+        "guard": 42393190669,
+        "restore": 42393190805,
+        "public_probe": 42393190673,
+        "all_required_same_head": "SUCCESS"
+      },
+      "main_restore": 42393429340
+    },
+    "live_proof": [
+      {
+        "id": 42393625175,
+        "name": "ContaOS CRUD Listas HML",
+        "jobs": [
+          {
+            "id": 128466217848,
+            "name": "scope",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 128466249496,
+            "name": "canonical-deploy",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 128466249648,
+            "name": "real-jwt",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      },
+      {
+        "id": 42393625123,
+        "name": "ContaOS Revisão V117 HML",
+        "jobs": [
+          {
+            "id": 128466217768,
+            "name": "scope",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 128466247984,
+            "name": "canonical-deploy",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 128466248525,
+            "name": "real-jwt",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      },
+      {
+        "id": 42393625096,
+        "name": "ContaOS V117 Navegador Privado HML",
+        "jobs": [
+          {
+            "id": 128466217565,
+            "name": "scope",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 128466218545,
+            "name": "public-probe",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 128466249394,
+            "name": "private-browser",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      }
+    ],
+    "live_proof_reason": "Três logs scope conferidos: NOT_APPLICABLE_TASK_OR_PHASE: material jobs skipped",
+    "limitations": [
+      "PASS somente roteamento e preservação de controles; nenhuma nova prova funcional de deploy/JWT/HML",
+      "Teste de configuração usa extração restrita de YAML por regex/expressões JS; GitHub validou configuração e skips reais",
+      "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
+    ]
   }
 }
