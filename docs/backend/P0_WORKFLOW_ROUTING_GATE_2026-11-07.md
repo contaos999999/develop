@@ -15,3 +15,11 @@ PLAN do PR #103 integrado em 534a6d3dec156f60ac31b5b0c7f1fd05ab6bbbe7, após pro
 Reverter somente o roteamento, sem apagar provas anteriores. BRAND-01, 25 documentos canônicos e catálogo 100/97 preservados. O GATE não altera comportamento em runtime e não dispensa verificações de segurança ou acessibilidade.
 
 **Estado:** GATE proposto; aguarda checks, revisão e integração.
+
+## Execução do BUILD
+
+GATE117 integrado8f48e37317c711c6736a33e9a34421c3967326d3 após guardSUCCESS. RED local:13testes,4PASS/9FAIL por scopeausente. GREEN posterior13/13. Seleção read-only interpreta manifesto no SHA do restore, aceita somente evento workflow_run de push main do próprio repositório e restoreSUCCESS. Origem ou tarefa/fase não aplicável deixa jobs materiais SKIPPED; manifesto malformado falha. Aplicável mantém gates SHA/hash/allowlist/checks, dispatch e cleanup inalterados. Missing guard/restore/backup é executado contra gates reais com transporte gh controlado sem rede e produz FAIL pelo check ausente, não por setup.
+
+Decisão técnica: listas e revisão só permitem fase BUILD_EM_VALIDACAO para deploy; a fase histórica PLAN_VALIDADO_AGUARDANDO_CI_RED_BUILD não autoriza deploy. Isso impede execução material durante planejamento e exige manifesto explícito em eventual nova tarefa. Browser privado preserva BUILD_PROVA_PRIVADA_FRONTEND. Tarefa atual BUILD_ROTEAMENTO_WORKFLOW_HML não deve executar nenhum dos três jobs materiais. Sem autorização atual de DB/Auth, campos gerais do manifesto agora false; evidências e escopos históricos preservados.
+
+Revisão, CI e evidência pós-merge ainda pendentes. Falhas históricas continuam FAIL; nenhum sucesso material inferido de skip.
