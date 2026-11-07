@@ -29,6 +29,15 @@ def save(name, data):
     p = ROOT / name
     p.write_text(json.dumps(data, indent=2) + '\n')
     os.chmod(p, 0o600)
+    if name == 'fixture.json':
+        recovery = {'organizations': [data['org']] + ([data['org_b']] if data.get('org_b') else []),
+                    'users': [{k: user[k] for k in ('id', 'email', 'intent_id', 'profile', 'creation_state') if k in user} for user in data['users']]}
+        report['fixture_ids'] = recovery
+        report_path = ROOT / 'report.json'
+        persisted = json.loads(report_path.read_text()) if report_path.exists() else dict(report)
+        persisted['fixture_ids'] = recovery
+        report_path.write_text(json.dumps(persisted, indent=2) + '\n')
+        os.chmod(report_path, 0o600)
 
 def sql(query, fetch=False):
     p = subprocess.run(['psql', DB, '-X', '-qAt', '-v', 'ON_ERROR_STOP=1'], input=query, capture_output=True, text=True, timeout=45)
@@ -86,14 +95,22 @@ def cleanup():
     if ids:
         # Revoke only sessions of own synthetic identities. Provisioning never uses SQL Auth writes.
         sql('delete from auth.sessions where user_id in (' + ','.join(map(q, ids)) + ');')
-    sql('update public.organizacoes set situacao=\'inativa\' where id=' + q(f['org']) + ';')
+    orgs = [f['org']] + ([f['org_b']] if f.get('org_b') else [])
+    sql('update public.organizacoes set situacao=\'inativa\' where id in (' + ','.join(map(q, orgs)) + ');')
     if ids:
         clean = sql('select not exists(select 1 from auth.sessions where user_id in (' + ','.join(map(q, ids)) + ')) and not exists(select 1 from public.vinculos_usuarios where ativo and id_usuario in (' + ','.join(map(q, ids)) + ')) and not exists(select 1 from privado.administradores_master where ativo and id_usuario in (' + ','.join(map(q, ids)) + '));', True)
         if clean != 't':
             raise RuntimeError('Own fixture quarantine verification failed')
+    if sql('select not exists(select 1 from public.organizacoes where situacao<>\'inativa\' and id in (' + ','.join(map(q, orgs)) + '));', True) != 't':
+        raise RuntimeError('Own organization quarantine verification failed')
     if unresolved:
         raise RuntimeError('Ambiguous own Auth creation remains unresolved; known fixtures quarantined, quarantine not certified')
-    save('cleanup.json', {'state': 'QUARENTENA_VERIFICADA', 'own_users': len(ids)})
+    result = {'state': 'QUARENTENA_VERIFICADA', 'own_users': len(ids)}
+    save('cleanup.json', result)
+    if (ROOT / 'report.json').exists():
+        persisted = json.loads((ROOT / 'report.json').read_text())
+        persisted['cleanup'] = result
+        save('report.json', persisted)
 
 def self_test():
     # Recovery fault injection, no network or database calls.
@@ -132,9 +149,9 @@ try:
         save('report.json', report)
         raise RuntimeError('Auth Admin API credential unavailable; no identities or business fixtures created')
     assert not (ROOT / 'fixture.json').exists(), 'Refuse fixture reuse'
-    f = {'scope': 'P0-V117-REVISAO', 'org': uid(), 'contractor': uid(), 'contract': uid(), 'competence': uid(), 'requirement': uid(), 'requirement2': uid(), 'execution': uid(), 'users': []}
+    f = {'scope': 'P0-V117-REVISAO', 'org': uid(), 'org_b': uid(), 'contractor': uid(), 'contract': uid(), 'competence': uid(), 'requirement': uid(), 'requirement2': uid(), 'execution': uid(), 'users': []}
     save('fixture.json', f)
-    for profile in ['administrador', 'master', 'auditor', 'leitor', 'sem_vinculo']:
+    for profile in ['administrador', 'master', 'auditor', 'direcao_aprovador', 'leitor', 'sem_vinculo', 'usuario_b', 'restrito']:
         user = {'profile': profile, 'email': 'v117-' + uid() + '@example.invalid', 'password': secrets.token_urlsafe(40) + 'Aa1!', 'intent_id': uid(), 'creation_state': 'pending'}
         f['users'].append(user)
         save('fixture.json', f)
@@ -147,11 +164,15 @@ try:
         user['creation_state'] = 'created'
         save('fixture.json', f)
     statements = ['begin;', f"insert into public.organizacoes(id,razao_social) values({q(f['org'])},'V117 synthetic review');", f"insert into public.contratantes(id,id_organizacao,razao_social) values({q(f['contractor'])},{q(f['org'])},'V117 synthetic');", f"insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio) values({q(f['contract'])},{q(f['org'])},{q(f['contractor'])},'V117-{uid()}','Synthetic review','2026-01-01');"]
+    statements.append(f"insert into public.organizacoes(id,razao_social) values({q(f['org_b'])},'V117 synthetic tenant B');")
     for user in f['users']:
         if user['profile'] == 'master':
             statements.append(f"insert into privado.administradores_master(id_usuario,motivo) values({q(user['id'])},'Own synthetic V117 review');")
         elif user['profile'] != 'sem_vinculo':
-            statements.append(f"insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_todos_contratos) values({q(f['org'])},{q(user['id'])},{q(user['profile'])},true);")
+            target_org = f['org_b'] if user['profile'] == 'usuario_b' else f['org']
+            profile = 'administrador' if user['profile'] == 'usuario_b' else 'gestor_contrato' if user['profile'] == 'restrito' else user['profile']
+            all_contracts = 'false' if user['profile'] == 'restrito' else 'true'
+            statements.append(f"insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_todos_contratos) values({q(target_org)},{q(user['id'])},{q(profile)},{all_contracts});")
     statements.append(f"insert into public.competencias(id,id_organizacao,id_contrato,competencia_referencia,periodo_inicio,periodo_fim,situacao) values({q(f['competence'])},{q(f['org'])},{q(f['contract'])},'2026-11-01','2026-11-01','2026-11-30','em_analise');")
     for req in [f['requirement'], f['requirement2']]:
         statements.append(f"insert into public.requisitos_competencia(id,id_organizacao,id_contrato,id_competencia,origem_tipo,descricao,hash_snapshot,codigo) values({q(req)},{q(f['org'])},{q(f['contract'])},{q(f['competence'])},'manual','Synthetic requirement',{q(req)},{q(req)});")
@@ -168,10 +189,10 @@ try:
     payload = {'p_id_competencia': f['competence'], 'p_id_requisito': f['requirement']}
     st, ctx = rpc('obter_contexto_revisao_v117', payload, tokens['administrador'])
     check('Authorized context', st == 200 and ctx.get('pode_revisar') is True, st)
-    for profile in ['master', 'auditor']:
+    for profile in ['master', 'auditor', 'direcao_aprovador']:
         st, data = rpc('obter_contexto_revisao_v117', payload, tokens[profile])
         check('Capability ' + profile, st == 200 and data.get('pode_revisar') is True, st)
-    for profile in ['leitor', 'sem_vinculo']:
+    for profile in ['leitor', 'sem_vinculo', 'usuario_b', 'restrito']:
         st, _ = rpc('obter_contexto_revisao_v117', payload, tokens[profile])
         check('Denied context ' + profile, st == 403, st)
     def command(context, key):
@@ -185,10 +206,10 @@ try:
     check('Different payload same key denied', st == 409, st)
     st, _ = rpc('registrar_revisao_requisito_v117', {**cmd, 'p_request_id': uid()}, tokens['administrador'])
     check('Stale CAS denied', st == 409, st)
-    for profile in ['master', 'auditor']:
+    for profile in ['master', 'auditor', 'direcao_aprovador']:
         st, _ = rpc('registrar_revisao_requisito_v117', cmd, tokens[profile])
         check('Other actor cannot replay ' + profile, st == 409, st)
-    for profile in ['leitor', 'sem_vinculo']:
+    for profile in ['leitor', 'sem_vinculo', 'usuario_b', 'restrito']:
         st, _ = rpc('registrar_revisao_requisito_v117', cmd, tokens[profile])
         check('Denied write ' + profile, st == 403, st)
     st, ctx = rpc('obter_contexto_revisao_v117', payload, tokens['administrador'])
