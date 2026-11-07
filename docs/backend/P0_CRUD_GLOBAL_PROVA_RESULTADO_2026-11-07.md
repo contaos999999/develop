@@ -1,3 +1,11 @@
+## Resultado incremental — CADASTROS_LISTAS e fila AUDITORIA
+
+Run42402246765/job128492370077 em a0337932872402b12a5378040f18feb2161bc723: PASS_BATCH restrito a organizações, contratantes, contratos e listas. Relatórios37 Auth/SQL/auditoria e76 navegador, zeroFAIL/runtime, CAS409 real, rascunho preservado/recuperado, persistência e isolamento aprovados. Quarentena4contas/3organizações verificada. Artefato13584889991 SHA25600fddbbdf18d76f4bc55c4e5fea8712973b92fa1fd375e151b9c6c19e1095110 baixado e conferido. Oito capturas de listas inspecionadas, sem corte horizontal da página; não certificam teclado, contraste integral ou todas as rotas. Checkpoint frontend295 integrado em733f3c0fdb0e5166f8007e3baad9471e9554711a com3checksSUCCESS.
+
+Próximo lote AUDITORIA em preparação sob PLAN120/GATE121:14/14 testes de protocolo e44/44 suíte locais, RED13PASS/1FAIL comprovado. Revisão independente sem Critical/Important após corrigir aceitação de200/206 conforme contrato PostgREST; protocolo14/14 reexecutado pelo revisor. HML PENDENTE. Não interpretar GREEN local como aprovação da Auditoria. Não certifica CRUDglobal/V1; V2–V5/PROD bloqueados.
+
+---
+
 # BUILD de prova privada CRUD global: lote CADASTROS_LISTAS
 
 PLAN120 e GATE121 integrados; baseline34d88b8a77cd3ae2abfca72ee78d441c426e767b. Frontendexato74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8, integradoPR291. Checkpointfrontend292 integrado6ddf8323520a26b92c2dbee3f5b80ac13b40518a, CIprincipalSUCCESS.
