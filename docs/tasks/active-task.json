@@ -661,7 +661,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "CORRECAO_HARNESS_AGUARDANDO_CI_E_HML",
+    "state": "FIX_SELETOR_AGUARDANDO_CI_HML",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -676,13 +676,13 @@
     },
     "green": {
       "state": "PASS_LOCAL",
-      "protocol_tests": 11,
-      "full_tests": 41,
+      "protocol_tests": 13,
+      "full_tests": 43,
       "syntax": "node --check + py_compile PASS",
       "guards": "Context/ZeroDrift/Crosswalk/Architecture/SQL/download/SSRF/browser/worker/history PASS",
       "yaml": "2 parsed",
       "review": "Independent review; Important receipt/persistence gap fixed RED→GREEN; no remaining Critical/Important",
-      "hml": "NOT_RUN"
+      "hml": "FAIL_CAUSE_CONFIRMED_PENDING_FIX_PROOF"
     },
     "first_hml": {
       "state": "FAIL_HARNESS_RECEIPT",
@@ -719,6 +719,29 @@
       "cause": "New version July start retained previous June end; clear end for open new validity",
       "red": "10 pass 1 fail; missing new version date input helper",
       "no_product_changes": true
+    },
+    "list_state_timeout": {
+      "diagnostic_pr": 125,
+      "diagnostic_merge": "01cde2e96e2fc98d601f9c9dfc865f05af4629b8",
+      "duplicate_pr_closed": 126,
+      "run": 42400417695,
+      "job": 128486778827,
+      "artifact": 13585232937,
+      "sha256": "fd3e7af52d01c55dfd0201b0d057da958631328d470b7f4d176afb3fb18c5fe0",
+      "stage": "LIST_STATE_INACTIVE_FILL",
+      "read_http": 200,
+      "change_state": true,
+      "other_flags": false,
+      "cause": "Exact wrapped select label includes option text in Playwright1.64.1; no exact match for Situação",
+      "fix": "Scope combobox to form containing heading Alterar situação",
+      "public_probe": "Real browser synthetic markup; both states and external control unchanged; pending CI",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 4,
+        "own_organizations": 3
+      },
+      "product_changes": false,
+      "timeout_increased": false
     }
   }
 }

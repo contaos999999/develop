@@ -52,6 +52,11 @@ export async function fillNextVersionDates(page,start){
   await page.getByLabel('Início da vigência',{exact:true}).fill(start);
   await page.getByLabel('Fim da vigência',{exact:true}).fill('');
 }
+export async function selectListState(page,state){
+  assert(['ativa','inativa'].includes(state));
+  const form=page.locator('form').filter({has:page.getByRole('heading',{name:'Alterar situação',exact:true})});
+  await form.getByRole('combobox').selectOption(state);
+}
 export function loginFormIsInteractive(){const e=document.querySelector('form');return !!e&&Object.keys(e).some(k=>k.startsWith('__reactProps$')&&typeof e[k]?.onSubmit==='function');}
 async function stop(server,browser){
   let timer;
@@ -97,7 +102,15 @@ async function main(){
     async function manager(page,kind){const name=kind==='org'?'Gerenciar organização selecionada':'Editar e gerenciar contrato';const button=page.getByRole('button',{name,exact:true});const region=page.getByRole('region',{name:kind==='org'?'Gestão da organização':'Gestão do contrato',exact:true});if(!await region.isVisible())await button.click();await expect(region).toBeVisible();return region;}
     async function editCadastro(page,region,kind,field,value,code){await expect(region.getByLabel(field,{exact:true})).toBeEnabled();await region.getByLabel(field,{exact:true}).fill(value);await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic CRUD verification');await region.getByRole('button',{name:'Revisar edição',exact:true}).click();await rpc(page,code,kind==='org'?'atualizar_organizacao_v1':'atualizar_contrato_v1',()=>region.getByRole('button',{name:'Confirmar edição',exact:true}).click());}
     async function stateCadastro(page,region,kind,state,code){await expect(region.getByLabel('Nova situação',{exact:true})).toBeEnabled();await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic lifecycle verification');await region.getByLabel('Nova situação',{exact:true}).selectOption(state);await region.getByRole('button',{name:'Revisar situação',exact:true}).click();await rpc(page,code,kind==='org'?'alterar_situacao_organizacao_v1':'alterar_situacao_contrato_v1',()=>region.getByRole('button',{name:'Confirmar mudança de situação',exact:true}).click());}
-    if(probe){const x=await open('master');await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;}
+    if(probe){
+      const x=await open('master');const sample=await x.context.newPage();
+      await sample.setContent('<select aria-label="Filtro externo"><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select><form><h3>Alterar situação</h3><label><span>Situação</span><select><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select></label></form>');
+      check('WRAPPED_SELECT_EXACT_LABEL_MISMATCH',await sample.getByLabel('Situação',{exact:true}).count()===0);
+      await selectListState(sample,'inativa');await expect(sample.locator('form').getByRole('combobox')).toHaveValue('inativa');
+      await expect(sample.getByRole('combobox',{name:'Filtro externo',exact:true})).toHaveValue('ativa');check('LIST_STATE_SCOPED_INACTIVE',true);
+      await selectListState(sample,'ativa');await expect(sample.locator('form').getByRole('combobox')).toHaveValue('ativa');check('LIST_STATE_SCOPED_ACTIVE',true);
+      await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;
+    }
     const master=await open('master');master.page._crudRole='master';const mp=master.page;
     stage('ORG_CREATE_FORM');await mp.goto(base+'/selecionar-organizacao');await mp.getByRole('button',{name:'Nova organização',exact:true}).click();await mp.getByLabel('Razão social',{exact:true}).fill(f.prefix+'created');
     const org=await rpc(mp,'ORG_CREATE','criar_organizacao',()=>mp.getByRole('button',{name:'Criar organização',exact:true}).click());created('organization',typeof org.data==='string'?org.data:org.data?.id);
@@ -127,8 +140,8 @@ async function main(){
     await listOp(lp,'LIST_END_VALIDITY','Encerrar vigência',()=>lp.getByLabel('Fim da vigência',{exact:true}).fill('2026-06-30'));
     await listOp(lp,'LIST_VERSION_CREATE','Criar versão',()=>fillNextVersionDates(lp,'2026-07-01'));
     await listOp(lp,'LIST_DRAFT_DISCARD','Descartar rascunho');
-    await listOp(lp,'LIST_STATE_INACTIVE','Alterar situação',()=>lp.getByLabel('Situação',{exact:true}).selectOption('inativa'));
-    await listOp(lp,'LIST_STATE_ACTIVE','Alterar situação',()=>lp.getByLabel('Situação',{exact:true}).selectOption('ativa'));
+    await listOp(lp,'LIST_STATE_INACTIVE','Alterar situação',()=>selectListState(lp,'inativa'));
+    await listOp(lp,'LIST_STATE_ACTIVE','Alterar situação',()=>selectListState(lp,'ativa'));
     // Two real pages produce a real CAS conflict; offline toggles transport, never API responses.
     const second=await master.context.newPage();second.setDefaultTimeout(30000);await second.goto(base+'/contratos/'+f.contract+'/regras');await second.getByRole('button',{name:'Gerenciar listas',exact:true}).click();
     await lp.getByRole('button',{name:'Editar lista',exact:true}).click();await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'recovered');await lp.getByLabel('Motivo',{exact:true}).fill('Own conflict recovery draft');
