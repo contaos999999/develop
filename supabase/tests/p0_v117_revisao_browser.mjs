@@ -114,7 +114,10 @@ if(process.argv.includes('--self-test')) {
     await page.goto(route);
     const open=page.getByRole('button',{name:'Abrir requisito '+f.requirement,exact:true});
     stage('OPEN_REQUIREMENT');
+    const detailResponse=page.waitForResponse(r=>r.url().endsWith('/rpc/obter_detalhe_requisito_v117')&&r.request().method()==='POST');
     await open.click();
+    const detail=await detailResponse;check('Authorized detail HTTP',detail.status()===200,detail.status());
+    const detailData=await detail.json();report.detail_field_types=Object.fromEntries(['fonte_detalhe','regra_validacao','condicao_aplicabilidade','efeito_portao'].map(k=>[k,typeof detailData.requisito?.[k]]));save();
     await expect(page.getByRole('heading',{name:'Detalhe do requisito',exact:true})).toBeVisible();
     stage('OPEN_REVIEW');
     await page.getByRole('button',{name:'Revisar resultado',exact:true}).click();
@@ -135,8 +138,14 @@ if(process.argv.includes('--self-test')) {
       const overflow=await page.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));
       await page.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
       const a11y=await page.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {version:r.testEngine.version,violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
-      const screenshot='v117-'+width+'-'+theme+'.png';await page.screenshot({path:join(output,screenshot),fullPage:true});
-      report.visual.push({width,theme,overflow,a11y,screenshot});save();
+      const prefix='v117-'+width+'-'+theme;
+      const screenshots={review:prefix+'-review.png',top:prefix+'-top.png',actions:prefix+'-actions.png'};
+      await page.screenshot({path:join(output,screenshots.review),fullPage:false,animations:'disabled'});
+      await page.getByRole('dialog').evaluate(e=>{e.scrollTop=0;});
+      await page.screenshot({path:join(output,screenshots.top),fullPage:false,animations:'disabled'});
+      await page.getByRole('button',{name:'Revisar e confirmar',exact:true}).scrollIntoViewIfNeeded();
+      await page.screenshot({path:join(output,screenshots.actions),fullPage:false,animations:'disabled'});
+      report.visual.push({width,height:1000,theme,overflow,a11y,screenshots,capture_mode:'VIEWPORT_FIXED_DRAWER'});save();
       check('No horizontal overflow '+width+' '+theme,overflow<=2);
       check('Automated accessibility '+width+' '+theme,a11y.violations.length===0);
     }
@@ -181,7 +190,7 @@ if(process.argv.includes('--self-test')) {
       try {
         await page.locator('input').evaluateAll(es=>es.forEach(e=>e.value=''));
         report.failure_surface=await page.evaluate(()=>({path:location.pathname.split('/').map(x=>/^[a-z-]+$/.test(x)?x:'[id]').join('/'),headings:[...document.querySelectorAll('h1,h2')].map(e=>e.textContent).filter(x=>['Acesso ao ContaOS','Entrar no ContaOS','ContaOS','Entrar'].includes(x)),email_field:!!document.querySelector('#login-email'),password_field:!!document.querySelector('#login-senha')}));
-        await page.screenshot({path:join(output,'failure-cleared-inputs.png'),fullPage:true});
+        await page.screenshot({path:join(output,'failure-cleared-inputs.png'),fullPage:false});
       }catch{}
     }
     throw Error('Private browser acceptance failed; sanitized report contains the completed checks');}
