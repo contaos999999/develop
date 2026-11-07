@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "Prova privada V1: subtarefa de transporte CORS documental HML",
   "status": "ativa",
-  "phase": "GATE_CORS_DOCUMENTAL_HML",
+  "phase": "BUILD_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-07",
@@ -40,18 +40,23 @@
     "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
     "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
-    "docs/tasks/active-task.json"
+    "docs/tasks/active-task.json",
+    "supabase/functions/storage-sign-upload/index.ts",
+    "supabase/functions/storage-sign-download/index.ts",
+    "supabase/tests/storage_document_cors.test.mjs",
+    "supabase/tests/p0_crud_global_browser.mjs",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    "supabase/tests/p0_crud_global_hml.py"
   ],
   "forbidden_paths": [
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
-    "PROD/**",
-    "supabase/functions/**"
+    "PROD/**"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -135,7 +140,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar GATE após guard/restore/backup SUCCESS no mesmo HEAD. Só depois habilitar BUILD dos dez caminhos e duas Edges; nenhum deploy antes da integração e checks do BUILD.",
+  "next_step": "TDD local dos handlers e harness; revisão e CI antes de integrar. Sem deploy ou execução HML neste BUILD local; fase técnica mantém jobs materiais desabilitados.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -988,8 +993,8 @@
   "storage_test_fixtures_allowed": false,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
-    "phase": "GATE",
-    "state": "GATE_DOCUMENTAL_EM_VALIDACAO",
+    "phase": "BUILD",
+    "state": "BUILD_LOCAL_NO_DEPLOY",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1075,7 +1080,8 @@
         "8c194c8cb6489db78ed8cd9f98c5c48639e8e69c"
       ],
       "local_node_modules_not_pin": "2.119.0"
-    }
+    },
+    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea"
   },
   "auth_configuration_changes_allowed": false
 }
