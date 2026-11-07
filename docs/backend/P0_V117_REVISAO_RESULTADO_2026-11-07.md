@@ -1,3 +1,8 @@
+## BUILD do harness privado em validação
+PLAN100 integrado6e53e57; GATE101 integrado937bd9b após guard verde em4c5b6fa. Harness Playwright novo em RED por módulo inexistente e GREEN no teste local do protocolo; não equivale a execução HML. Quarentena fault-injection local PASS. Revisão independente encontrou herança de segredos pelo subprocesso Node/Chromium: reproduzido teste negativo antes da função de allowlist; corrigido por ambiente restrito no Python, guarda fail-closed no Node e env explícito Chromium. Ambiente desconhecido fica excluído por padrão.
+
+Workflow privado aguarda restore/backup/guard backend e frontend pin508c5ff471b4cb453961c71415d3ac62fbb0d245 integrado com todos checks. Sem deploy. Workflow anterior de deploy passa a exigir fase BUILD_EM_VALIDACAO; a fase de prova privada não reimplanta migration aplicada. Hook opt-in permanece inerte nos38 testes JWT anteriores sem CONTAOS_V117_BROWSER=1. Nova evidência documental é metadado sintético aprovado, não upload físico. Prova real, screenshots e inspeção visual ainda pendentes.
+
 # Atualização comprovada em07/11/2026
 
 O registro histórico abaixo foi superado neste ponto: BUILD99 integrado em744dee8636c164415774e413e76883e08dffbc09; deploy canônico42362617182 SUCCESS; JWT real42362609674 tentativa3, job128386155328 SUCCESS,38 assertions e quarentena própria verificada. Artifact ZIP SHA256 e082a3669c2e9adf34674ad9e74134bcb9ef46d20d88453887925fa3af92e43d. A chave Auth Admin foi configurada pelo titular e funcionou; não há bloqueio atual por ausência dela.

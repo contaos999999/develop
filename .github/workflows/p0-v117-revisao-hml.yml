@@ -20,6 +20,7 @@ jobs:
       checks: read
     outputs:
       tested_head: ${{ steps.gate.outputs.tested_head }}
+      deploy_authorized: ${{ steps.gate.outputs.deploy_authorized }}
     env:
       GH_TOKEN: ${{ github.token }}
       TESTED_HEAD: ${{ github.event.workflow_run.head_sha }}
@@ -47,7 +48,14 @@ jobs:
               assert any(x['name']==name and x['head_sha']==os.environ['TESTED_HEAD'] and x['conclusion']=='success' for x in checks),name
           PY
           echo "tested_head=$TESTED_HEAD" >> "$GITHUB_OUTPUT"
+          python3 - <<'PY'
+          import json,os,pathlib
+          phase=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())['phase']
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:
+              f.write('deploy_authorized='+str(phase=='BUILD_EM_VALIDACAO').lower()+'\n')
+          PY
       - name: Dispatch unchanged canonical CLI parity deploy
+        if: steps.gate.outputs.deploy_authorized == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -69,6 +77,7 @@ jobs:
           PY
   real-jwt:
     needs: canonical-deploy
+    if: needs.canonical-deploy.outputs.deploy_authorized == 'true'
     runs-on: ubuntu-latest
     environment: hml
     timeout-minutes: 15

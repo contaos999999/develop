@@ -1,0 +1,101 @@
+name: ContaOS V117 Navegador Privado HML
+on:
+  workflow_run:
+    workflows: ['ContaOS Restore Isolado']
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: contaos-v117-browser-hml
+  cancel-in-progress: false
+jobs:
+  private-browser:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    environment: hml
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Gate canonical backend and approved frontend
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TESTED_HEAD: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,subprocess
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api','repos/'+path],text=True))
+          be='contaos999999/develop';fe='contaos999999/contaos-hml-control'
+          t=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
+          assert t['phase']=='BUILD_PROVA_PRIVADA_FRONTEND'
+          sha=os.environ['TESTED_HEAD'];assert api(be+'/commits/main')['sha']==sha
+          for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
+              checks=api(be+'/commits/'+sha+'/check-runs')['check_runs']
+              assert any(x['name']==name and x['head_sha']==sha and x['conclusion']=='success' for x in checks),name
+          front=t['browser_proof_scope']['frontend_head'];assert len(front)==40
+          # Public read, no cross-repository private token or privileged secret transfer.
+          import urllib.request
+          def public(path):
+              with urllib.request.urlopen(urllib.request.Request('https://api.github.com/repos/'+fe+'/'+path,headers={'Accept':'application/vnd.github+json','User-Agent':'ContaOS-HML'}),timeout=30) as r:return json.load(r)
+          assert public('compare/'+front+'...main')['status'] in ('ahead','identical')
+          checks=public('commits/'+front+'/check-runs')['check_runs']
+          for name in ['ContaOS Frontend Zero-Drift','Auditoria de navegador independente (somente leitura) / ContaOS Teste C Independente','protect-types']:
+              assert any(x['name']==name and x['head_sha']==front and x['conclusion']=='success' for x in checks),name
+          with open(os.environ['GITHUB_ENV'],'a') as out:
+              out.write('TESTED_HEAD='+sha+'\nFRONTEND_HEAD='+front+'\nCONTAOS_TEST_PRIVATE_DIR='+os.environ['RUNNER_TEMP']+'/contaos-v117-browser-private\nCONTAOS_FRONTEND_DIR='+os.environ['RUNNER_TEMP']+'/contaos-v117-frontend\n')
+          PY
+      - name: Fetch exact public frontend source
+        run: |
+          git init "$CONTAOS_FRONTEND_DIR"
+          git -C "$CONTAOS_FRONTEND_DIR" remote add origin https://github.com/contaos999999/contaos-hml-control.git
+          git -C "$CONTAOS_FRONTEND_DIR" fetch --depth=1 origin "$FRONTEND_HEAD"
+          git -C "$CONTAOS_FRONTEND_DIR" checkout --detach FETCH_HEAD
+          test "$(git -C "$CONTAOS_FRONTEND_DIR" rev-parse HEAD)" = "$FRONTEND_HEAD"
+      - uses: oven-sh/setup-bun@v2
+      - name: Frozen frontend and isolated browser dependencies
+        run: |
+          cd "$CONTAOS_FRONTEND_DIR"
+          bun install --frozen-lockfile
+          mkdir -p "$RUNNER_TEMP/contaos-browser-deps"
+          npm install --prefix "$RUNNER_TEMP/contaos-browser-deps" --no-save --no-package-lock --ignore-scripts playwright@1.64.1 axe-core@4.14.0
+          "$RUNNER_TEMP/contaos-browser-deps/node_modules/.bin/playwright" install --with-deps chromium
+          echo "CONTAOS_PLAYWRIGHT_MODULE=$RUNNER_TEMP/contaos-browser-deps/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
+          echo "CONTAOS_AXE_SOURCE_PATH=$RUNNER_TEMP/contaos-browser-deps/node_modules/axe-core/axe.min.js" >> "$GITHUB_ENV"
+      - name: Real synthetic Auth browser and persisted effect
+        env:
+          DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY || secrets.CONTAOS_HML_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CONTAOS_V117_BROWSER: '1'
+        run: |
+          python3 - <<'PY'
+          import os,subprocess
+          p=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c',"select count(*) from supabase_migrations.schema_migrations where version='20261107094443'"],capture_output=True,text=True)
+          assert p.returncode==0 and p.stdout.strip()=='1','Migration parity gate failed'
+          PY
+          python3 supabase/tests/p0_v117_revisao_jwt.py
+      - name: Independent own fixture quarantine retry
+        if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''
+        env:
+          DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY || secrets.CONTAOS_HML_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python3 supabase/tests/p0_v117_revisao_jwt.py --cleanup
+      - name: Sanitized evidence only
+        if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contaos-v117-private-browser-sanitized
+          path: |
+            ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/report.json
+            ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/public-browser/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Erase own runner private material
+        if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''
+        run: rm -rf -- "$CONTAOS_TEST_PRIVATE_DIR" "$CONTAOS_FRONTEND_DIR"
