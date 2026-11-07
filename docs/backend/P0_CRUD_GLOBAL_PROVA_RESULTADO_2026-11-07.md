@@ -35,3 +35,14 @@ Diagnóstico mínimo no escopo PLAN120/GATE121: fases OPEN/FILL/REVIEW antes das
 Impacto visual N/A: somente diagnóstico do harness. Marca e produto frontend preservados. Ferramentas diretas e fontes existentes, sem BUILD Lovable. Evidências anteriores preservadas; nenhum segredo, DDL/RLS/Edge/Authconfig ou PROD alterado.
 
 Revisão independente do diagnóstico: sem Critical/Important. Limites minor: últimoHTTP é compartilhado entre páginas, não prova correlação com ação; diagnósticoPage pode ficar na segunda aba nas etapas posteriores; teste deHTTP inválido falha antes na ausência de flags. Não usar essas informações como prova de causa, conformidade ou PASS. Alvo imediato pós-descarte ocorre antes da segunda aba. Mantidos para evitar expansão do diagnóstico além da falha observada.
+
+
+## Diagnóstico real125 e correção de seletor de situação
+
+Run42400417695/job128486778827 no backend01cde2e FAIL emLIST_STATE_INACTIVE_FILL. Flags: gestãoaberta, botãoalterarsituaçãopresente, semloading/denial/inconsistência/errotransitório/replaypendente, últimaRPCleituraHTTP200. Novamentecriarversão/descartarHTTP200 e recibosPASS. Artefato13585232937 SHA256fd3e7af52d01c55dfd0201b0d057da958631328d470b7f4d176afb3fb18c5fe0, ZIPbaixado/hashconferido; quarentena4usuários/3organizaçõesVERIFICADA.
+
+Causa confirmada no seletor do harness, não no backend: o campo JSX emGerenciarListas envolve select+opções no label. O motorgetElementLabels/elementText da versãoPlaywright1.64.1 incluiopções e produzSituaçãoAtivaInativa. ReproduçãoDOM emJSDOM26.1.0 executando o código inalterado do motorPlaywright: match exatoSituação=false; prefixo=true. Teste não dependeu de credenciais nem requestsHML. Tentativa local deChromium não disponível por restrição do ambiente; não usada como evidência de navegador. Sem contornar restrições.
+
+Delta: selecionar label porprefixo, exclusivamente na regiãoGestão de listas, para evitar filtroFiltrar por situação. Nenhuma mudançaUI/API/permissões/timeouts/assertions; duastransições continuam exigidas comRPC/recibo e confirmaçãoSQL posterior. RED12PASS/1FAIL porhelperausente; GREEN13/13protocolo e43/43suiteNode. Não éPASS HML, lote/global/V1 permanecemFAIL/PENDENTES até reteste completo. Próxima: CI/revisão/merge permitido, mainrestore e prova real comconfirmaçãoSQL/quarentena/capturas. PLAN120/GATE121 e escopofechado preservados.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impactovisualN/A, alteração somenteharness; componentes/tipos/BRAND/backenddeproduto/PROD intocados; ferramentasdiretas, semLovableBUILD ou repetição de efeitos válidos para alegar nova cobertura.

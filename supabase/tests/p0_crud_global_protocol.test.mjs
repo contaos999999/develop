@@ -113,3 +113,15 @@ test('failure diagnostics expose only known UI flags and bounded read status',as
  assert.throws(()=>sanitizeUiDiagnostic({manage_list:'PRIVATE_CANARY'}));
  assert.throws(()=>sanitizeUiDiagnostic({read_http:'PRIVATE_CANARY'}));
 });
+
+
+test('list situation selector matches its wrapping label including option text',async()=>{
+ const {selectListSituation}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof selectListSituation,'function');
+ let selected=null;
+ const page={getByRole:(role,options)=>{assert.equal(role,'region');assert.deepEqual(options,{name:'Gestão de listas',exact:true});return {getByLabel:(matcher)=>{
+   assert(matcher instanceof RegExp);assert(matcher.test('SituaçãoAtivaInativa'));assert(!matcher.test('Filtrar por situação'));return {selectOption:async value=>{selected=value;}};
+ }};}};
+ await selectListSituation(page,'inativa');assert.equal(selected,'inativa');
+ await selectListSituation(page,'ativa');assert.equal(selected,'ativa');
+});

@@ -48,6 +48,12 @@ export async function withReadTransportFailure(session,action){
     return await action();
   }finally{try{await session.send('Network.setBlockedURLs',{urls:[]});}finally{await session.detach();}}
 }
+export async function selectListSituation(page,state){
+  assert(['ativa','inativa'].includes(state));
+  // Playwright label text includes the options of a select inside its label.
+  // Scope to the management region; exact 'Situação' does not match that label.
+  await page.getByRole('region',{name:'Gestão de listas',exact:true}).getByLabel(/^Situação/).selectOption(state);
+}
 export async function fillNextVersionDates(page,start){
   await page.getByLabel('Início da vigência',{exact:true}).fill(start);
   await page.getByLabel('Fim da vigência',{exact:true}).fill('');
@@ -127,8 +133,8 @@ async function main(){
     await listOp(lp,'LIST_END_VALIDITY','Encerrar vigência',()=>lp.getByLabel('Fim da vigência',{exact:true}).fill('2026-06-30'));
     await listOp(lp,'LIST_VERSION_CREATE','Criar versão',()=>fillNextVersionDates(lp,'2026-07-01'));
     await listOp(lp,'LIST_DRAFT_DISCARD','Descartar rascunho');
-    await listOp(lp,'LIST_STATE_INACTIVE','Alterar situação',()=>lp.getByLabel('Situação',{exact:true}).selectOption('inativa'));
-    await listOp(lp,'LIST_STATE_ACTIVE','Alterar situação',()=>lp.getByLabel('Situação',{exact:true}).selectOption('ativa'));
+    await listOp(lp,'LIST_STATE_INACTIVE','Alterar situação',()=>selectListSituation(lp,'inativa'));
+    await listOp(lp,'LIST_STATE_ACTIVE','Alterar situação',()=>selectListSituation(lp,'ativa'));
     // Two real pages produce a real CAS conflict; offline toggles transport, never API responses.
     const second=await master.context.newPage();second.setDefaultTimeout(30000);await second.goto(base+'/contratos/'+f.contract+'/regras');await second.getByRole('button',{name:'Gerenciar listas',exact:true}).click();
     await lp.getByRole('button',{name:'Editar lista',exact:true}).click();await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'recovered');await lp.getByLabel('Motivo',{exact:true}).fill('Own conflict recovery draft');
