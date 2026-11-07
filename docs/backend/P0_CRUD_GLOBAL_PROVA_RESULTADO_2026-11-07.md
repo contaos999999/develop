@@ -1,0 +1,9 @@
+# BUILD de prova privada CRUD global: lote CADASTROS_LISTAS
+
+PLAN120 e GATE121 integrados; baseline34d88b8a77cd3ae2abfca72ee78d441c426e767b. Frontendexato74cd8ef9aa15bd19d33ce1b5d2dc6515f6066db8, integradoPR291. Checkpointfrontend292 integrado6ddf8323520a26b92c2dbee3f5b80ac13b40518a, CIprincipalSUCCESS.
+
+RED observado: 2 testes falharam pela ausência dos dois arquivos novos. Implementação do protocolo com ambiente allowlist, credenciais só Python, AuthAdmin API/intenções persistidas, verificação SQL e finally+always de quarentena. Casos reais de UI: criar/editar/transitar organizações, contratantes e contratos, dez comandos de listas, duas abas para CAS409 e offline/online para draft. Artefatos somente relatório reduzido e capturas sintéticas. Nenhum deploy/migration/alteraçãoPROD.
+
+Estado atual: BUILD em validação, sem execução HML deste lote. GREEN local: 38/38 testes (8 protocolo, 13 roteamento, 8 RBAC upload, 4 histórico, 5 RNF); syntax Node/Python, YAML2, Context/ZeroDrift/Crosswalk/arquitetura/segurança/históricoPASS. Revisãoindependente tratou Important de comprovação insuficiente: novo RED real por helper ausente, depois recibos comrequestid/evento/valores/CAS eSQL final de campos/estados/itens/versões/auditoria/idempotência. Revisor confirmousemCritical/Important restante. CIeHMLpendentes. Não há PASS global ou certificação V1. Capturas quatro larguras/dois temas e overflow não substituem auditoria manual de acessibilidade; worker/upload e os14 domínios restantes não são provados por este lote. Matrizfrontend mantémNO_GO até completar todas operações aplicáveis.
+
+Sem segredo no browser, fixture, dump, HAR ou trace nosartefatos. A evidência privada não retorna nomes/emails/senhas/tokens/SQL/URLs assinadas. Contas próprias são banidas via API, sessões revogadas, vínculos/MASTER desativados e organizações próprias inativadas; auditoria/versões ficam preservadas.
