@@ -79,3 +79,19 @@ test('RPC receipt rejects HTTP success with missing identity or unchanged values
  assert.throws(()=>validateReceipt('atualizar_organizacao_v1',request,{...data,request_id:'wrong'}));
  assert.throws(()=>validateReceipt('executar_comando_lista_v1',request,{...data,lista:null}));
 });
+
+test('item receipt keeps item description separate from list header description',async()=>{
+ const {validateReceipt}=await import('./p0_crud_global_browser.mjs');
+ const id='11111111-1111-4111-8111-111111111111';
+ const request={p_request_id:id,p_id_lista:id,p_versao_esperada:2,p_acao:'salvar_item',p_payload:{codigo:'OWN1',descricao:'Own optional item'}};
+ const data={request_id:id,evento_id:id,acao:'salvar_item',lista:{id,versao_registro:3,descricao:'Own initial list description'}};
+ assert.doesNotThrow(()=>validateReceipt('executar_comando_lista_v1',request,data));
+});
+
+test('transient read failure blocks transport only and always restores it',async()=>{
+ const {withReadTransportFailure}=await import('./p0_crud_global_browser.mjs');
+ assert.equal(typeof withReadTransportFailure,'function');const calls=[];
+ const session={send:async(method,args)=>calls.push([method,args]),detach:async()=>calls.push(['DETACH'])};
+ await assert.rejects(()=>withReadTransportFailure(session,async()=>{throw Error('assertion');}));
+ assert.deepEqual(calls,[['Network.enable',undefined],['Network.setBlockedURLs',{urls:['*gklhhhyosgasnyoxlrui.supabase.co/rest/v1/rpc/obter_lista_operacional_v1*']}],['Network.setBlockedURLs',{urls:[]}],['DETACH']]);
+});

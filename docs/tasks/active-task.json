@@ -661,7 +661,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "BUILD_LOCAL_AGUARDANDO_CI_HML",
+    "state": "CORRECAO_HARNESS_AGUARDANDO_CI_E_HML",
     "frontend_merge": "46b28e3ae8588b78f32e7f7be2d9221ed5e940d7",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -676,13 +676,31 @@
     },
     "green": {
       "state": "PASS_LOCAL",
-      "protocol_tests": 8,
-      "full_tests": 38,
+      "protocol_tests": 10,
+      "full_tests": 40,
       "syntax": "node --check + py_compile PASS",
       "guards": "Context/ZeroDrift/Crosswalk/Architecture/SQL/download/SSRF/browser/worker/history PASS",
       "yaml": "2 parsed",
       "review": "Independent review; Important receipt/persistence gap fixed RED→GREEN; no remaining Critical/Important",
       "hml": "NOT_RUN"
+    },
+    "first_hml": {
+      "state": "FAIL_HARNESS_RECEIPT",
+      "run": 42398052328,
+      "job": 128479623493,
+      "backend_head": "c5b0a31793ead6bace7a28246bcb848c26b0d107",
+      "artifact": 13583744282,
+      "sha256": "528fdc8a960b2cc16002aeeb023976795e86d5d50064c9abf18cfed060e36b9d",
+      "stage": "LIST_ITEM_CREATE",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 4,
+        "own_organizations": 3
+      },
+      "cause": "Item descricao was incorrectly compared with list header descricao",
+      "fix_red": "8 pass 1 fail, separate descriptions",
+      "adjacent_red": "QueryClient real offline pauses fetch without queryFn/error; new transport helper missing RED9pass1fail",
+      "no_product_changes": true
     }
   }
 }

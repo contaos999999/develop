@@ -26,11 +26,19 @@ export function validateReceipt(name,request,data){
     assert(uuid(data.lista?.id));assert.equal(data.acao,request.p_acao);
     if(request.p_id_lista)assert.equal(data.lista.id,request.p_id_lista);
     assert.equal(data.lista.versao_registro,(request.p_versao_esperada??0)+1);
-    for(const key of ['nome','descricao','situacao'])if(key in request.p_payload)assert.equal(data.lista[key],request.p_payload[key]);
+    const fields=request.p_acao==='alterar_situacao'?['situacao']:['criar_lista','editar_lista'].includes(request.p_acao)?['nome','descricao']:[];
+    for(const key of fields)if(key in request.p_payload)assert.equal(data.lista[key],request.p_payload[key]);
   }else{
     assert(data.registro);
     for(const [key,value] of Object.entries(request.p_alteracoes??{situacao:request.p_situacao}))assert.equal(data.registro[key],value);
   }
+}
+export async function withReadTransportFailure(session,action){
+  try{
+    await session.send('Network.enable');
+    await session.send('Network.setBlockedURLs',{urls:['*gklhhhyosgasnyoxlrui.supabase.co/rest/v1/rpc/obter_lista_operacional_v1*']});
+    return await action();
+  }finally{try{await session.send('Network.setBlockedURLs',{urls:[]});}finally{await session.detach();}}
 }
 export function loginFormIsInteractive(){const e=document.querySelector('form');return !!e&&Object.keys(e).some(k=>k.startsWith('__reactProps$')&&typeof e[k]?.onSubmit==='function');}
 async function stop(server,browser){
@@ -113,8 +121,15 @@ async function main(){
     await lp.getByRole('button',{name:'Editar lista',exact:true}).click();await lp.getByLabel('Nome',{exact:true}).fill(f.prefix+'recovered');await lp.getByLabel('Motivo',{exact:true}).fill('Own conflict recovery draft');
     await listOp(second,'LIST_CONCURRENT_EDIT','Editar lista',()=>second.getByLabel('Descrição',{exact:true}).fill('Own concurrent real edit'));
     await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();stage('LIST_REAL_CONFLICT');const conflict=lp.waitForResponse(r=>r.url().endsWith('/rpc/executar_comando_lista_v1')&&r.request().method()==='POST');await lp.getByRole('button',{name:'Confirmar operação',exact:true}).click();check('LIST_REAL_CONFLICT',(await conflict).status()===409,409);
-    await master.context.setOffline(true);await lp.getByRole('button',{name:'Atualizar dados e revisar rascunho',exact:true}).click();await expect(lp.getByText(/Seu rascunho foi preservado/)).toBeVisible();await expect(lp.getByLabel('Nome',{exact:true})).toHaveValue(f.prefix+'recovered');await expect(lp.getByRole('button',{name:'Confirmar operação',exact:true})).toBeDisabled();check('LIST_OFFLINE_DRAFT_PRESERVED',true);
-    await master.context.setOffline(false);await lp.getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(lp.getByRole('button',{name:'Confirmar operação',exact:true})).toBeEnabled();await lp.getByRole('button',{name:'Revisar campos',exact:true}).click();await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();await rpc(lp,'LIST_RECOVERED_WRITE','executar_comando_lista_v1',()=>lp.getByRole('button',{name:'Confirmar operação',exact:true}).click());await second.close();
+    // Browser transport fails for the real read URL while navigator remains online.
+    // Context offline would pause React Query before any read, so it cannot prove read failure.
+    stage('LIST_TRANSIENT_READ');let writesDuringFault=0;const countWrite=r=>{if(r.url().includes('/rpc/executar_comando_lista_v1')&&r.method()==='POST')writesDuringFault++;};lp.on('request',countWrite);
+    await withReadTransportFailure(await master.context.newCDPSession(lp),async()=>{
+      await lp.getByRole('button',{name:'Atualizar dados e revisar rascunho',exact:true}).click();
+      await expect(lp.getByText(/Seu rascunho foi preservado/)).toBeVisible();await expect(lp.getByLabel('Nome',{exact:true})).toHaveValue(f.prefix+'recovered');await expect(lp.getByRole('button',{name:'Confirmar operação',exact:true})).toBeDisabled();
+      check('LIST_TRANSIENT_DRAFT_PRESERVED',true);check('LIST_NO_WRITE_DURING_FAILED_READ',writesDuringFault===0);
+    });lp.off('request',countWrite);
+    await lp.getByRole('button',{name:'Tentar novamente',exact:true}).click();await expect(lp.getByRole('button',{name:'Confirmar operação',exact:true})).toBeEnabled();await lp.getByRole('button',{name:'Revisar campos',exact:true}).click();await lp.getByRole('button',{name:'Revisar operação',exact:true}).click();await rpc(lp,'LIST_RECOVERED_WRITE','executar_comando_lista_v1',()=>lp.getByRole('button',{name:'Confirmar operação',exact:true}).click());await second.close();
     for(const width of [1440,1280,768,390])for(const theme of ['light','dark']){stage('VISUAL_'+width+'_'+theme.toUpperCase());await lp.setViewportSize({width,height:1000});await lp.emulateMedia({colorScheme:theme});await lp.evaluate(t=>document.documentElement.classList.toggle('dark',t==='dark'),theme);const overflow=await lp.evaluate(()=>Math.max(0,document.documentElement.scrollWidth-innerWidth));check('OVERFLOW_'+width+'_'+theme.toUpperCase(),overflow<=2);await lp.screenshot({path:join(output,'crud-list-'+width+'-'+theme+'.png'),fullPage:false,animations:'disabled'});}
     await master.context.close();
     const reader=await open('leitor');reader.page._crudRole='leitor';await chooseOrg(reader.page,f.org);await reader.page.goto(base+'/contratos/'+f.contract+'/regras');await reader.page.getByRole('button',{name:'Gerenciar listas',exact:true}).click();await expect(reader.page.getByRole('button',{name:'Criar lista',exact:true})).toHaveCount(0);await expect(reader.page.getByRole('button',{name:'Editar lista',exact:true})).toHaveCount(0);check('READER_MUTATIONS_ABSENT',true);await reader.context.close();
