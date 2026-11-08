@@ -1,5 +1,23 @@
 """Own physical source, draft-only edits/removal, publication and immutable history."""
+import json
+import time
 from p0_crud_global_hml import q,uid
+
+def approve_source(r,file,timeout=300,pause=time.sleep):
+    """Register this budget's own source; wait for the normal document worker only."""
+    f=r.fixture
+    receipt=r.operation('criar_documento_contrato_completo',{'p_id_contrato':f['contract'],'p_tipo':'proposta_orcamentaria','p_titulo':f['prefix']+'Budget source','p_categoria':'orcamento','p_vigencia_inicio':'2026-01-01','p_vigencia_fim':None,'p_observacoes':'Own synthetic budget prerequisite','p_id_arquivo':file,'p_chave_idempotencia':uid()})
+    document=r.entity('source_document',receipt['id_documento']);version=r.entity('source_document_version',receipt['id_versao']);job=r.entity('source_document_job',receipt['id_job'])
+    query="select json_build_object('owned',count(*)=1,'ready',coalesce(bool_and(a.status_seguranca='aprovado' and p.status='concluido' and e.status='concluido' and exists(select 1 from public.paginas_documento where id_versao_documento=v.id) and exists(select 1 from public.fragmentos_documento where id_versao_documento=v.id)),false),'failed',coalesce(bool_or(a.status_seguranca in ('bloqueado','quarentena') or p.status in ('falhou','cancelado') or e.status in ('falhou','cancelado')),false)) from public.arquivos a join public.versoes_documento v on v.id_arquivo=a.id and v.id_organizacao=a.id_organizacao and v.id_contrato=a.id_contrato join public.documentos_contrato d on d.id=v.id_documento_contrato and d.id_contrato=a.id_contrato and d.id_organizacao=a.id_organizacao join public.processamentos_documento p on p.id_versao_documento=v.id and p.etapa='documents' join public.execucoes_assincronas e on e.entidade_id=v.id and e.entidade_tipo='versao_documento' and e.fila='documents' and e.id_organizacao=a.id_organizacao and e.id_contrato=a.id_contrato where a.id="+q(file)+' and a.id_organizacao='+q(f['org'])+' and a.id_contrato='+q(f['contract'])+' and d.id='+q(document)+' and v.id='+q(version)+' and e.id='+q(job)+' and v.hash=a.sha256;'
+    deadline=time.monotonic()+timeout
+    while True:
+        result=json.loads(r.sql(query,True))
+        assert set(result)=={'owned','ready','failed'} and all(type(x) is bool for x in result.values())
+        assert result['owned'] and not result['failed'],'Own budget source processing failed'
+        if result['ready']:break
+        assert time.monotonic()<deadline,'Own budget source worker timed out'
+        pause(2)
+    r.check('BUDGET_SOURCE_WORKER_READY',True)
 
 def run(r):
     f=r.fixture;org=f['org'];rpc='salvar_proposta_orcamentaria_v108'
@@ -10,6 +28,7 @@ def run(r):
     edit={**cmd,'p_id_proposta':proposal,'p_titulo':f['prefix']+'Edited budget','p_versao_esperada':1,'p_chave_idempotencia':uid()}
     r.operation(rpc,edit);r.operation(rpc,{**edit,'p_chave_idempotencia':uid()},status=409,code='PT409')
     file=r.upload('budget-source');r.entity('source_file',file)
+    approve_source(r,file)
     version={'p_id_organizacao':org,'p_id_proposta':proposal,'p_vigencia_inicio':'2026-01-01','p_vigencia_fim':None,'p_id_arquivo_origem':file,'p_chave_idempotencia':uid()}
     v1=r.operation('registrar_versao_proposta_v108',version)['versao'];vid=r.entity('version1',v1['id'])
     line={'p_id_organizacao':org,'p_id_versao_proposta':vid,'p_id_linha':None,'p_codigo':'OWN','p_grupo':'Pessoal','p_rubrica':'Own staff','p_subrubrica':None,'p_descricao':None,'p_valor_mensal':100,'p_valor_anual':1200,'p_permite_remanejamento':False,'p_limite_remanejamento_percentual':None,'p_observacoes':None,'p_versao_esperada':None,'p_chave_idempotencia':uid()}
