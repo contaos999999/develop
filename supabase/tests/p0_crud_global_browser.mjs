@@ -565,6 +565,9 @@ export function sanitizeDocumentDiagnostic(value){
   const result={};for(const key of ['upload_button_present','upload_button_enabled','dialog_open','file_input_present','queue_present','title_input_present','form_alert','format_rejected','config_unavailable','upload_busy','upload_complete','config_loaded','txt_allowed','pdf_allowed']){assert.equal(typeof value[key],'boolean');result[key]=value[key];}
   result.network={};for(const key of ['config','sign','storage','confirm','register']){const v=value.network[key];assert(Number.isInteger(v.requests)&&v.requests>=0&&v.requests<=1000);assert(v.http===null||Number.isInteger(v.http)&&v.http>=100&&v.http<=599);assert.equal(typeof v.failed,'boolean');result.network[key]={requests:v.requests,http:v.http,failed:v.failed};}return result;
 }
+export async function waitForDocumentVisualStability(page){
+  await page.waitForFunction(()=>document.getAnimations().every(a=>a.playState!=='running'||a.effect?.getTiming().iterations===Infinity),undefined,{timeout:5000});
+}
 export function recordDocumentVisualAssertion(report,name,pass){
   assert(/^DOCUMENT_(?:ACCESSIBILITY|NO_PAGE_OVERFLOW)_(?:1440|1280|768|390)_(?:light|dark|LIGHT|DARK)$/.test(name));
   const record=publicRecord({name,pass});report.assertions.push(record);
@@ -766,6 +769,10 @@ async function main(){
       await sample.getByLabel('Buscar por título',{exact:true}).fill('Own local ');
       await expect(sample.getByRole('listitem')).toHaveCount(3);check('DOCUMENT_DRAFT_FILTER_NOT_APPLIED',true);
       await applyDocumentTitleFilter(sample,'Own local ');await expect(sample.getByRole('listitem')).toHaveCount(2);check('DOCUMENT_FILTER_SUBMITTED_BEFORE_ROW_ASSERTION',true);
+      await sample.setContent('<div id="finite-visual">Own finite transition</div>');
+      const finiteActive=await sample.evaluate(()=>{const a=document.querySelector('#finite-visual').animate([{opacity:.2},{opacity:1}],{duration:300,fill:'forwards'});return a.playState==='running'&&a.effect.getTiming().iterations===1;});
+      check('DOCUMENT_VISUAL_FINITE_ANIMATION_ACTIVE',finiteActive);
+      await waitForDocumentVisualStability(sample);check('DOCUMENT_VISUAL_FINITE_ANIMATION_SETTLED',await sample.evaluate(()=>document.getAnimations().every(a=>a.playState!=='running'||a.effect?.getTiming().iterations===Infinity)));
       await x.page.evaluate(()=>sessionStorage.setItem('contaos.public-probe-tab-context','synthetic-own-context'));
       const fresh=await x.context.newPage();await fresh.goto(base+'/login');
       check('NEW_TAB_HAS_SEPARATE_SESSION_STORAGE',await fresh.evaluate(()=>sessionStorage.getItem('contaos.public-probe-tab-context'))===null);
@@ -863,6 +870,7 @@ async function main(){
         stage('DOCUMENT_VISUAL_'+width+'_'+theme.toUpperCase());await ap.setViewportSize({width,height:1000});await ap.evaluate(t=>{document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;},theme);
         await ap.getByRole('button',{name:'Atualizar lista',exact:true}).focus();await expect(ap.getByRole('button',{name:'Atualizar lista',exact:true})).toBeFocused();await ap.keyboard.press('Tab');
         recordDocumentVisualAssertion(report,'DOCUMENT_NO_PAGE_OVERFLOW_'+width+'_'+theme.toUpperCase(),await ap.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));save();
+        await waitForDocumentVisualStability(ap);
         const raw=await ap.evaluate(async()=>{const r=await window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']}});return {testEngine:{version:r.testEngine.version},violations:r.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.length})),incomplete:r.incomplete.map(v=>({id:v.id,nodes:v.nodes.length}))};});
         const a11y=summarizeAccessibility(raw),name='crud-documents-'+width+'-'+theme+'.png';await ap.screenshot({path:join(output,name),animations:'disabled',fullPage:true});report.visual.push({width,theme,a11y,screenshot:name});save();recordDocumentVisualAssertion(report,'DOCUMENT_ACCESSIBILITY_'+width+'_'+theme.toUpperCase(),a11y.violations.length===0);save();
       }

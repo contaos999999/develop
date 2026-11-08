@@ -1106,3 +1106,8 @@ test('real browser finalization marks receipt only after close, proxy drain and 
   if(saved.length)assert.equal(saved.at(-1).browser_finalization==='CLOSED_AND_DRAINED',fail===null);
  }
 });
+test('document visual sampling waits finite transitions without disabling animations or axe',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.waitForDocumentVisualStability,'function');let calls=0;
+ await m.waitForDocumentVisualStability({waitForFunction:async(fn,arg,options)=>{calls++;assert.equal(options.timeout,5000);const source=fn.toString();assert.match(source,/getAnimations/);const predicate=vm.runInNewContext('('+source+')',{document:{getAnimations:()=>[{playState:'running',effect:{getTiming:()=>({iterations:1})}}]}});assert.equal(predicate(),false);const done=vm.runInNewContext('('+source+')',{document:{getAnimations:()=>[{playState:'finished',effect:{getTiming:()=>({iterations:1})}}]}});assert.equal(done(),true);}});assert.equal(calls,1);
+ const s=readFileSync(browser,'utf8');const start=s.indexOf("stage('DOCUMENT_VISUAL_'");assert(start>=0);const end=s.indexOf("stage('DOCUMENT_REVOKE_AUTHORIZED_SESSION')",start);const loop=s.slice(start,end);assert(loop.indexOf('await waitForDocumentVisualStability(ap)')<loop.indexOf('window.axe.run'));
+});
