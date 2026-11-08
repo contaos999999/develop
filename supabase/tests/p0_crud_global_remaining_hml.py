@@ -13,12 +13,16 @@ import urllib.parse
 import urllib.request
 from p0_crud_global_hml import Runner as FixtureRunner, URL, KEY, q, uid
 
-DOMAINS=('base_normativa','orcamento','competencias')
+DOMAINS=('base_normativa','orcamento','competencias','regras_preventivas','documento_detalhe','documentos_competencia')
 PROTECTED=('supabase/tests/p0_crud_global_browser.mjs','supabase/tests/p0_crud_global_hml.py','supabase/tests/p0_crud_global_protocol.test.mjs','supabase/functions/storage-sign-upload/index.ts','supabase/functions/storage-sign-download/index.ts')
 REQUIRED={
  'base_normativa':{'rpc':('salvar_fonte_normativa_v107','registrar_versao_fonte_v107','aprovar_versao_fonte_v107','definir_aplicabilidade_fonte_v107'),'checks':('NORMATIVE_REPLAY_EXACT','NORMATIVE_CAS_RACE','NORMATIVE_SQL_PERSISTENCE','NORMATIVE_AUDIT_PRESENT','NORMATIVE_READER_READ','NORMATIVE_TENANT_ISOLATED','NORMATIVE_REVOKED_SESSION_DENIED')},
  'orcamento':{'rpc':('salvar_proposta_orcamentaria_v108','registrar_versao_proposta_v108','salvar_linha_orcamentaria_v108','remover_linha_orcamentaria_v108','publicar_versao_proposta_v108','confirmar_upload_arquivo','criar_documento_contrato_completo'),'checks':('BUDGET_REPLAY_EXACT','BUDGET_SOURCE_WORKER_READY','OWN_PHYSICAL_SOURCE_UPLOADED','OWN_PHYSICAL_SOURCE_SQL','BUDGET_SQL_PERSISTENCE','BUDGET_AUDIT_PRESENT','BUDGET_READER_READ','BUDGET_TENANT_ISOLATED')},
  'competencias':{'rpc':('criar_competencia','obter_visao_geral_competencia','executar_comando_lista_v1'),'checks':('COMPETENCE_OVERVIEW_SCOPE','COMPETENCE_NO_GATE_BYPASS','COMPETENCE_READER_READ','COMPETENCE_TENANT_ISOLATED','COMPETENCE_DUPLICATE_REJECTED','COMPETENCE_INVALID_REFERENCE_REJECTED','COMPETENCE_SQL_PERSISTENCE','COMPETENCE_REAL_AUDIT','COMPETENCE_SNAPSHOT_MATERIALIZED','COMPETENCE_SNAPSHOT_IMMUTABLE','COMPETENCE_SNAPSHOT_TENANT_ISOLATED','COMPETENCE_SNAPSHOT_SQL')}
+,
+ 'regras_preventivas':{'rpc':('salvar_fonte_normativa_v107','registrar_versao_fonte_v107','aprovar_versao_fonte_v107','aprovar_regra_preventiva'),'checks':('PREVENTIVE_DENIAL_UNCHANGED','PREVENTIVE_READER_READ','PREVENTIVE_TENANT_ISOLATED','PREVENTIVE_NO_DIRECT_PROMOTION','PREVENTIVE_SQL_APPROVAL','PREVENTIVE_AUDIT')},
+ 'documento_detalhe':{'rpc':('confirmar_upload_arquivo','criar_documento_contrato_completo','definir_vigencia_sugestao_extracao','revisar_sugestao_extracao'),'checks':('OWN_PHYSICAL_SOURCE_UPLOADED','OWN_PHYSICAL_SOURCE_SQL','OWN_DOCUMENT_WORKER_READY','DETAIL_VIGENCY_NOOP','DETAIL_REVIEW_CLASSIFICACAO','DETAIL_REVIEW_METADADO','DETAIL_REVIEW_OBRIGACAO','DETAIL_REVIEW_PRAZO','DETAIL_READER_PAGES','DETAIL_TENANT_ISOLATED','DETAIL_SQL_REVIEW','DETAIL_SQL_VIGENCY','DETAIL_AUDIT')},
+ 'documentos_competencia':{'rpc':('criar_competencia','confirmar_upload_arquivo','criar_documento_competencia_v115','adicionar_versao_documento_competencia_v115','obter_documentos_competencia_v115'),'checks':('OWN_PHYSICAL_SOURCE_UPLOADED','OWN_PHYSICAL_SOURCE_SQL','OWN_DOCUMENT_WORKER_READY','COMP_DOC_CREATE_REPLAY','COMP_DOC_VERSION_REPLAY','COMP_DOC_READER_READ','COMP_DOC_TENANT_ISOLATED','COMP_DOC_SQL_HISTORY','COMP_DOC_OFFICIAL_READ','COMP_DOC_AUDIT')}
 }
 def assert_complete(report,domain):
     required=REQUIRED[domain];assert report['domain']==domain and report['global_complete'] is False
@@ -105,6 +109,8 @@ class Runner(FixtureRunner):
             self.check('JWT_LOGIN_'+user['profile'].upper(),st==200 and isinstance(data,dict) and isinstance(data.get('access_token'),str),st)
             self.tokens[user['profile']]=data['access_token']
         self.report['dependency_sha256']={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in ['supabase/tests/p0_crud_global_remaining_hml.py','supabase/tests/remaining_domains/'+self.domain+'.py']}
+        if self.domain in ('documento_detalhe','documentos_competencia'):
+            p='supabase/tests/remaining_domains/document_fixture.py';self.report['dependency_sha256'][p]=hashlib.sha256(Path(p).read_bytes()).hexdigest()
         self.save('report.json',self.report)
     def operation(self,name,payload,role='administrador',status=200,code=None):
         assert re.fullmatch('[a-z][a-z0-9_]{1,90}',name)

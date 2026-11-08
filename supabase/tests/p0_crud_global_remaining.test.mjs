@@ -131,3 +131,41 @@ for state in [{'owned':False,'ready':True,'failed':False},{'owned':True,'ready':
  else:raise AssertionError('Unready or foreign source approved')
 print('BUDGET_PREREQUISITE_FAIL_CLOSED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/BUDGET_PREREQUISITE_FAIL_CLOSED/);
 });
+test('remaining second batch has positive operations, own worker prerequisites and mandatory SQL evidence',()=>{
+ const r=run(`import importlib
+import p0_crud_global_remaining_hml as m
+for domain in ('regras_preventivas','documento_detalhe','documentos_competencia'):
+ assert domain in m.DOMAINS
+ requirement=m.REQUIRED[domain]
+ assert len(requirement['rpc'])>=2 and any('SQL' in c for c in requirement['checks'])
+ assert callable(importlib.import_module('remaining_domains.'+domain).run)
+print('SECOND_BATCH_CLOSED_REGISTRY')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/SECOND_BATCH_CLOSED_REGISTRY/);
+});
+test('own document worker refuses foreign, failed and timed out processing',()=>{
+ const r=run(`import json
+from remaining_domains.document_fixture import wait_document
+class Fake:
+ fixture={'org':'org','contract':'contract'}
+ def __init__(self,states):self.states=iter(states)
+ def entity(self,k,v):return v
+ def sql(self,q,readonly):
+  assert readonly is True and q.startswith('select ') and 'v.hash=a.sha256' in q
+  assert 'id_organizacao' in q and 'id_contrato' in q
+  return json.dumps(next(self.states))
+ def check(self,n,v):assert v
+receipt={'id_documento':'document','id_versao':'version','id_job':'job'}
+for kind in ('contrato','competencia'):
+ r=Fake([{'owned':True,'ready':False,'failed':False},{'owned':True,'ready':True,'failed':False}]);assert wait_document(r,receipt,'file',kind,pause=lambda _:None)==receipt
+for state in [{'owned':False,'ready':True,'failed':False},{'owned':True,'ready':False,'failed':True},{'owned':True,'ready':False,'failed':False}]:
+ try:wait_document(Fake([state]),receipt,'file','competencia',timeout=-1,pause=lambda _:None)
+ except AssertionError:pass
+ else:raise AssertionError('Invalid worker state passed')
+print('OWN_WORKER_FAIL_CLOSED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/OWN_WORKER_FAIL_CLOSED/);
+});
+test('reviewed second batch cannot omit official reader or persisted vigency proof',()=>{
+ const r=run(`import p0_crud_global_remaining_hml as m
+assert 'obter_documentos_competencia_v115' in m.REQUIRED['documentos_competencia']['rpc']
+assert 'COMP_DOC_OFFICIAL_READ' in m.REQUIRED['documentos_competencia']['checks']
+assert 'DETAIL_SQL_VIGENCY' in m.REQUIRED['documento_detalhe']['checks']
+print('REVIEW_GAPS_REQUIRED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/REVIEW_GAPS_REQUIRED/);
+});

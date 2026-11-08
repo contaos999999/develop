@@ -1813,7 +1813,9 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
-      "orcamento"
+      "regras_preventivas",
+      "documento_detalhe",
+      "documentos_competencia"
     ],
     "pending_domains": [
       "regras_preventivas",
@@ -1842,6 +1844,37 @@
       }
     },
     "authorization": "Titular autoriza executar automaticamente plano único e correções, sem novas aprovações rotineiras; HML apenas, sem alterar frontend317/PROD, sem dispensar CI/segurança.",
-    "global_complete": false
+    "global_complete": false,
+    "preserved_domain_runs": [
+      {
+        "domain": "base_normativa",
+        "head": "43b3dfcbf7998fd2b4a1beeeb9a7116236d30559",
+        "run": 42506755544,
+        "job": 128810963312,
+        "artifact": 13627767634,
+        "sha256": "d06e144e38d17567be0ccde23b4e917532df98fbd00584c16690ac53ebe9d979",
+        "assertions": 38,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "competencias",
+        "head": "43b3dfcbf7998fd2b4a1beeeb9a7116236d30559",
+        "run": 42506755544,
+        "job": 128810963309,
+        "artifact": 13627369092,
+        "sha256": "c970d54f36b32112f63e002072fbea49a314bdc5df6d794f79688f03cd883712",
+        "assertions": 39,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      }
+    ],
+    "orcamento_retry": {
+      "pr": 171,
+      "head": "56a080177881b48d487d41057dce4712a2c9454c",
+      "merge": "f8f6b414e63761c21f95e6839ba757d49786b808",
+      "state": "PENDING_MATERIAL_RESULT",
+      "prevent_phase2_merge_until_budget_job_terminal": true
+    }
   }
 }
