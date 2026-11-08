@@ -1,10 +1,175 @@
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
-import {readFileSync,writeFileSync,mkdirSync,renameSync,existsSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,renameSync,existsSync,unlinkSync} from 'node:fs';
 import {resolve,join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
+export const PUBLISHED_ORIGIN='https://scope-and-approval-keeper.lovable.app';
+const HML_ORIGIN='https://gklhhhyosgasnyoxlrui.supabase.co';
+const FRONTEND_PIN='164b10b44eaf5b553efcc7ab4e053b86c4d3b269';
+export function persistBrowserFixture(path,fixture){
+  const current=JSON.parse(readFileSync(path,'utf8'));assert.equal(current.nonce,fixture.nonce);
+  for(const key of ['permission_control','readiness_control'])if(current[key])fixture[key]=current[key];
+  const temporary=path+'.browser.tmp';writeFileSync(temporary,JSON.stringify(fixture,null,2)+'\n',{mode:0o600});renameSync(temporary,path);
+}
+export function createProofRecorder(local,saveLocal){
+  let target=local,save=saveLocal;
+  return {
+    check(name,pass,http){target.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);},
+    async published(report,saveReport,operation){assert.equal(target,local);target=report;save=saveReport;try{return await operation();}finally{target=local;save=saveLocal;}}
+  };
+}
+export async function runDocumentProvenances({proveBackend,published,local,now=Date.now}){
+  const deadline=now()+900000;let timer;
+  try{await Promise.race([(async()=>{await proveBackend();assert(now()<deadline);await published(deadline);assert(now()<deadline);await local(deadline);assert(now()<deadline);})(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DOCUMENT_BATCH_DEADLINE')),900000);})]);}finally{clearTimeout(timer);}
+}
+async function boundedPublicText(fetcher,url,maximum){
+  const target=new URL(url);assert.equal(target.origin,PUBLISHED_ORIGIN);assert(!target.username&&!target.password&&!target.hash);
+  const response=await fetcher(target.href,{redirect:'error',credentials:'omit',signal:AbortSignal.timeout(15000)});
+  assert(response.ok&&response.status===200&&new URL(response.url).href===target.href);
+  const reader=response.body.getReader(),parts=[];let bytes=0;
+  try{while(true){const next=await reader.read();if(next.done)break;bytes+=next.value.byteLength;assert(bytes<=maximum);parts.push(Buffer.from(next.value));}}
+  finally{await reader.cancel();}
+  return Buffer.concat(parts).toString('utf8');
+}
+export async function inspectPublishedBackend(fetcher,analyzer){
+  try{
+    const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
+    // HTML is never executed here. Reject inline modules, foreign scripts, base URLs and ambiguous attributes.
+    assert(!/<base\b/i.test(html));const entries=[];
+    for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)){
+      const attrs=[...match[1].matchAll(/([\w-]+)\s*=\s*(["'])(.*?)\2/g)];
+      const values=new Map();for(const [,key,,value] of attrs){assert(!values.has(key.toLowerCase()));values.set(key.toLowerCase(),value);}
+      if(['application/json','application/ld+json'].includes(values.get('type')))continue;assert.equal(values.get('type'),'module');
+      assert(values.has('src')&&!match[2].trim());const raw=values.get('src');assert(!/[&<>\s]/.test(raw));
+      const url=new URL(raw,PUBLISHED_ORIGIN+'/login');assert.equal(url.origin,PUBLISHED_ORIGIN);assert(url.pathname.startsWith('/assets/')&&!url.search&&!url.hash);entries.push(url.href);
+    }
+    assert(entries.length>0&&entries.length<=8);const modules=new Map(),pending=[...new Set(entries)];let total=0;
+    while(pending.length){
+      const url=pending.shift();if(modules.has(url))continue;assert(modules.size<32);
+      const source=await boundedPublicText(fetcher,url,4194304);total+=Buffer.byteLength(source);assert(total<=8388608);modules.set(url,source);
+      // The parser returns imports, not arbitrary URLs; every dependency is bounded and same origin.
+      const imports=analyzer.imports(source);
+      for(const name of imports){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);if(!modules.has(child.href))pending.push(child.href);}
+    }
+    const binding=analyzer.prove(modules,entries);assert.equal(binding.verified,true);assert(/^\d+\.\d+\.\d+$/.test(analyzer.version));if(analyzer.reference_sha256){assert(/^[a-f0-9]{64}$/.test(analyzer.reference_sha256));assert.equal(analyzer.compiler_version,'1.2.1');}
+    return {state:'HML_CONFIG_CONFIRMED',frontend_head:null,source_parity:'NAO_VERIFICADA',module_count:modules.size,asset_sha256:[...modules.values()].map(s=>createHash('sha256').update(s).digest('hex')),parser_version:analyzer.version,sdk_version:'2.118.0',...(analyzer.reference_sha256?{sdk_source_sha256:analyzer.reference_sha256,compiler_version:analyzer.compiler_version}:{} )};
+  }catch{throw Error('PUBLICADA_BACKEND_NAO_COMPROVADO');}
+}
+export function publishedRequestAllowed(raw,navigation=false,ownDownloads=[]){
+  let url;try{url=new URL(raw);}catch{return false;}
+  if(navigation)return url.origin===PUBLISHED_ORIGIN||(url.origin===HML_ORIGIN&&ownDownloads.some(path=>url.pathname==='/storage/v1/object/sign/contaos-documentos/'+path));
+  if(url.hostname.endsWith('.supabase.co')||url.hostname.endsWith('.supabase.in'))return url.origin===HML_ORIGIN;
+  return url.origin===PUBLISHED_ORIGIN||['data:','blob:'].includes(url.protocol);
+}
+// Inert source analysis. Fetched modules are parsed, never imported or evaluated.
+// Client identity is a complete class AST match to the frozen installed SDK, not a name/string heuristic.
+export function publishedAnalyzer(ts,referenceSource){
+  const parse=(name,source)=>{const file=ts.createSourceFile(name,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);assert.equal(file.parseDiagnostics.length,0);return file;};
+  const visit=(node,fn)=>{fn(node);ts.forEachChild(node,c=>visit(c,fn));};
+  const isClass=n=>ts.isClassDeclaration(n)||ts.isClassExpression(n);
+  function program(modules){
+    const files=new Map([...modules].map(([name,source])=>[name,parse(name,source)]));
+    const host={getSourceFile:name=>files.get(name),getDefaultLibFileName:()=>'',writeFile:()=>{},getCurrentDirectory:()=> '/',getDirectories:()=>[],fileExists:name=>files.has(name),readFile:name=>modules.get(name),getCanonicalFileName:n=>n,useCaseSensitiveFileNames:()=>true,getNewLine:()=> '\n',resolveModuleNames:(names,from)=>names.map(n=>{const resolvedFileName=new URL(n,from).href;return files.has(resolvedFileName)?{resolvedFileName,extension:ts.Extension.Js}:undefined;})};
+    const p=ts.createProgram([...modules.keys()],{allowJs:true,noLib:true,noResolve:false,target:ts.ScriptTarget.Latest,module:ts.ModuleKind.ESNext},host);
+    return {files,checker:p.getTypeChecker()};
+  }
+  function fingerprint(node,checker){
+    const symbols=new Map();
+    function encode(n){
+      if(ts.isParenthesizedExpression(n))return encode(n.expression);
+      if(ts.isIdentifier(n)){
+        const property=(ts.isBindingElement(n.parent)&&n.parent.propertyName===n)||(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n)||((ts.isPropertyAssignment(n.parent)||ts.isMethodDeclaration(n.parent)||ts.isGetAccessorDeclaration(n.parent)||ts.isSetAccessorDeclaration(n.parent))&&n.parent.name===n);
+        if(property||['URL','Error','Proxy','Promise','Object','JSON','String','Number','Boolean','Array','Map','Set','Symbol','RegExp','Math','Date','console','globalThis','undefined'].includes(n.text))return ['property',n.text];
+        const symbol=checker.getSymbolAtLocation(n);assert(symbol,'Unresolved SDK identifier');if(!symbols.has(symbol))symbols.set(symbol,symbols.size);return ['binding',symbols.get(symbol)];
+      }
+      if(ts.isStringLiteral(n)||ts.isNoSubstitutionTemplateLiteral(n)||ts.isNumericLiteral(n)||ts.isRegularExpressionLiteral(n))return [n.kind,n.text];
+      const children=[];ts.forEachChild(n,c=>{if(c!==node.name&&c.kind!==ts.SyntaxKind.ExportKeyword&&c.kind!==ts.SyntaxKind.DefaultKeyword)children.push(encode(c));});return [n.kind,...children];
+    }
+    return JSON.stringify(encode(node));
+  }
+  const reference=program(new Map([[PUBLISHED_ORIGIN+'/assets/reference.js',referenceSource]]));const referenceClasses=[];
+  for(const file of reference.files.values())visit(file,n=>{if(isClass(n)&&n.members.some(m=>m.name?.text==='_initSupabaseAuthClient')&&n.members.some(m=>m.name?.text==='_getAccessToken'||m.name?.text==='_getSessionToken'))referenceClasses.push(n);});
+  assert.equal(referenceClasses.length,1,'Frozen SDK client implementation unavailable');
+  const trustedFingerprint=fingerprint(referenceClasses[0],reference.checker);
+  function imports(source){
+    const file=parse(PUBLISHED_ORIGIN+'/assets/module.js',source),found=[];
+    visit(file,n=>{
+      if(ts.isImportDeclaration(n)||ts.isExportDeclaration(n)){if(n.moduleSpecifier){assert(ts.isStringLiteral(n.moduleSpecifier));found.push(n.moduleSpecifier.text);}}
+      if(ts.isCallExpression(n)&&n.expression.kind===ts.SyntaxKind.ImportKeyword){assert(n.arguments.length===1&&ts.isStringLiteral(n.arguments[0]));found.push(n.arguments[0].text);}
+      // eval/new Function would hide effective clients from static binding analysis.
+      if((ts.isCallExpression(n)||ts.isNewExpression(n))&&ts.isIdentifier(n.expression))assert(!['eval','Function'].includes(n.expression.text));
+    });
+    for(const name of found)assert(/^(?:\.\.?\/|\/assets\/)/.test(name));return [...new Set(found)];
+  }
+  function prove(modules,entries){
+    assert(entries.length>0&&entries.every(e=>modules.has(e)));const {files,checker}=program(modules),nodes=[];
+    for(const file of files.values())visit(file,n=>nodes.push(n));
+    const symbol=n=>{let result=checker.getSymbolAtLocation(n);if(result?.flags&ts.SymbolFlags.Alias)result=checker.getAliasedSymbol(result);return result;};
+    const unwrap=n=>ts.isParenthesizedExpression(n)?unwrap(n.expression):n;
+    const candidates=nodes.filter(n=>isClass(n)&&n.members.some(m=>m.name?.text==='_initSupabaseAuthClient'));assert.equal(candidates.length,1);
+    const clients=candidates.filter(n=>fingerprint(n,checker)===trustedFingerprint);
+    assert.equal(clients.length,1,'SDK implementation is ambiguous or unsupported');
+    const client=clients[0],className=ts.isVariableDeclaration(client.parent)?client.parent.name:client.name;assert(className&&ts.isIdentifier(className));const clientSymbol=symbol(className);assert(clientSymbol);
+    const factories=new Map();
+    for(const n of nodes){
+      if(!ts.isArrowFunction(n)&&!ts.isFunctionExpression(n)&&!ts.isFunctionDeclaration(n))continue;
+      let body=n.body;if(ts.isBlock(body)){if(body.statements.length!==1||!ts.isReturnStatement(body.statements[0]))continue;body=body.statements[0].expression;}
+      if(!body)continue;body=unwrap(body);
+      if(!ts.isNewExpression(body)||symbol(body.expression)!==clientSymbol)continue;
+      assert(n.parameters.length>=2&&n.parameters.length<=3&&body.arguments?.length===n.parameters.length);
+      assert(n.parameters.every((p,i)=>ts.isIdentifier(p.name)&&ts.isIdentifier(body.arguments[i])&&symbol(p.name)===symbol(body.arguments[i])));
+      const name=n.name??(ts.isVariableDeclaration(n.parent)?n.parent.name:null);assert(name&&ts.isIdentifier(name));factories.set(symbol(name),body);
+    }
+    const instances=nodes.filter(n=>(ts.isCallExpression(n)&&factories.has(symbol(unwrap(n.expression))))||(ts.isNewExpression(n)&&symbol(n.expression)===clientSymbol&&![...factories.values()].includes(n)));
+    assert.equal(instances.length,1,'Multiple or unresolved configured clients');const call=instances[0];
+    function literal(n,seen=new Set()){
+      n=unwrap(n);if(ts.isStringLiteral(n)||ts.isNoSubstitutionTemplateLiteral(n))return n.text;
+      assert(ts.isIdentifier(n));const sym=symbol(n);assert(sym&&!seen.has(sym));seen.add(sym);const declarations=sym.declarations??[];assert.equal(declarations.length,1);const d=declarations[0];
+      assert(ts.isVariableDeclaration(d)&&d.initializer&&(d.parent.flags&ts.NodeFlags.Const));return literal(d.initializer,seen);
+    }
+    assert(call.arguments.length>=2&&call.arguments.length<=3);assert.equal(literal(call.arguments[0]),HML_ORIGIN);assert(literal(call.arguments[1]).length>20);
+    if(call.arguments[2]){
+      const options=unwrap(call.arguments[2]);assert(ts.isObjectLiteralExpression(options));
+      for(const prop of options.properties){assert(ts.isPropertyAssignment(prop)&&prop.name.text==='auth'&&ts.isObjectLiteralExpression(prop.initializer));for(const field of prop.initializer.properties)assert(ts.isPropertyAssignment(field)&&['storage','persistSession','autoRefreshToken','detectSessionInUrl','storageKey','flowType'].includes(field.name.text));}
+    }
+    assert(ts.isVariableDeclaration(call.parent)&&ts.isIdentifier(call.parent.name));const instanceSymbol=symbol(call.parent.name);assert(instanceSymbol);
+    const usage=new Set();
+    for(const node of nodes){
+      if(ts.isStringLiteral(node)&&/^https?:\/\/[^/]+\.supabase\.(co|in)(?:\/|$)/.test(node.text))assert.equal(new URL(node.text).origin,HML_ORIGIN,'Foreign backend configuration');
+      if(ts.isIdentifier(node)&&symbol(node)===instanceSymbol){const parent=node.parent;assert((ts.isVariableDeclaration(parent)&&parent.name===node)||(ts.isPropertyAccessExpression(parent)&&parent.expression===node)||ts.isImportSpecifier(parent)||ts.isExportSpecifier(parent),'Unresolved configured client alias or escape');}
+      if(ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&ts.isPropertyAccessExpression(node.expression.expression)){
+        const member=node.expression.expression;if(symbol(member.expression)===instanceSymbol)usage.add(member.name.text+'.'+node.expression.name.text);
+      }
+      if(ts.isBinaryExpression(node)&&node.operatorToken.kind>=ts.SyntaxKind.FirstAssignment&&node.operatorToken.kind<=ts.SyntaxKind.LastAssignment){
+        let target=node.left;while(ts.isPropertyAccessExpression(target)||ts.isElementAccessExpression(target))target=target.expression;assert(![instanceSymbol,clientSymbol,...factories.keys()].includes(symbol(target)),'Configured client mutation is unsupported');
+      }
+    }
+    assert(usage.has('auth.signInWithPassword')&&usage.has('functions.invoke'),'Client is not bound to login and document flow');
+    return {verified:true};
+  }
+  return {version:ts.version,imports,prove};
+}
+async function loadPublishedAnalyzer(frontend){
+  const require=createRequire(join(frontend,'package.json')),ts=require('typescript'),compiler=require('rolldown/utils');
+  assert.equal(require('rolldown').VERSION,'1.2.1','Frozen frontend compiler required');
+  assert.equal(require('@supabase/supabase-js/package.json').version,'2.118.0','Frozen frontend SDK required');
+  const entry=require.resolve('@supabase/supabase-js');const candidate=entry.replace(/index\.cjs$/, 'index.mjs');
+  const original=readFileSync(candidate,'utf8');const transformed=compiler.minifySync('sdk-reference.js',original);assert(!transformed.errors?.length);
+  const analyzer=publishedAnalyzer(ts,transformed.code);analyzer.reference_sha256=createHash('sha256').update(original).digest('hex');analyzer.compiler_version='1.2.1';
+  // Real parser positive/negative fixtures run in the canonical probe, never a mocked parser PASS.
+  // Source remains inert, including the synthetic appended consumer calls.
+  const referenceName=analyzer; // one parser instance with one frozen class identity
+  const file=ts.createSourceFile('reference.js',transformed.code,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);let ctor;
+  function locate(n){if((ts.isClassDeclaration(n)||ts.isClassExpression(n))&&n.members.some(m=>m.name?.text==='_initSupabaseAuthClient'))ctor=n.name?.text??n.parent.name?.text;ts.forEachChild(n,locate);}locate(file);assert(ctor);
+  const append=url=>transformed.code+';const proofURL='+JSON.stringify(url)+';const proofClient=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");proofClient.auth.signInWithPassword({});proofClient.functions.invoke("storage-sign-upload");';
+  const name=PUBLISHED_ORIGIN+'/assets/fixture.js',positive=append(HML_ORIGIN);referenceName.prove(new Map([[name,positive]]),[name]);
+  const factory=positive.replace('const proofClient=new '+ctor+'(proofURL,','const proofFactory=(a,b)=>new '+ctor+'(a,b);const proofClient=proofFactory(proofURL,');referenceName.prove(new Map([[name,factory]]),[name]);
+  const negatives=[append('https://foreign.supabase.co')+';const unused='+JSON.stringify(HML_ORIGIN)+';',positive+';const another=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");',positive.replace('new '+ctor+'(proofURL,','new '+ctor+'(unknownConfiguration,'),positive.replace('proofClient.auth.signInWithPassword','unboundClient.auth.signInWithPassword'),positive.replace('new '+ctor+'(proofURL,','misleadingCreateClient(proofURL,'),positive+';const escaped=proofClient;',positive+';proofClient.auth=unknown;'];
+  for(const source of negatives)assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
+  return analyzer;
+}
 export async function fillDocumentUploadForm(dialog,file,version,title,nonce,stage){
   stage('SELECT_FILE');await dialog.getByLabel(version===1?'Arquivos':'Arquivo',{exact:true}).setInputFiles({name:file.name,mimeType:file.mime,buffer:file.bytes});
   if(version===1){
@@ -152,7 +317,7 @@ async function main(){
   const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:probe?'PUBLIC_PROBE':f.batch||'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Stable-state contrast does not close historical transient V117 contrast']};
   const save=()=>writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});
   function stage(s){assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
-  function check(name,pass,http){report.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);}
+  const recorder=createProofRecorder(report,save);const check=(name,pass,http)=>recorder.check(name,pass,http);
   function created(name,id){assert(['organization','contractor','contract','list'].includes(name)&&/^[a-f0-9-]{36}$/.test(id));f.created[name]=id;writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});}
   const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;let diagnosticPage;let readHttp=null;
   const documentNetwork=Object.fromEntries(['config','sign','storage','confirm','register'].map(k=>[k,{requests:0,http:null,failed:false}]));
@@ -161,8 +326,10 @@ async function main(){
   try{
     stage('SERVER_READY');for(let i=0;i<120;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
     browser=await chromium.launch({headless:true,env:browserEnvironment(process.env)});
-    async function open(role){
-      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light',locale:'pt-BR'});const page=await context.newPage();page.setDefaultTimeout(30000);diagnosticPage=page;
+    async function open(role,origin=base){
+      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light',locale:'pt-BR',serviceWorkers:'block'});let originViolation=false;
+      if(origin===PUBLISHED_ORIGIN)context.on('request',request=>{if(!publishedRequestAllowed(request.url(),request.isNavigationRequest()&&request.frame()===request.frame().page().mainFrame(),f?.uploads?.filter(u=>u.provenance==='PUBLISHED'&&u.path).map(u=>u.path)??[])){originViolation=true;void context.close().catch(()=>{});}});
+      const page=await context.newPage();page.setDefaultTimeout(30000);diagnosticPage=page;
       page.on('response',r=>{if(r.url().endsWith('/rpc/obter_lista_operacional_v1')&&r.request().method()==='POST')readHttp=r.status();});
       if(f?.batch==='DOCUMENTOS'){
         page.on('request',r=>{const key=documentEndpoint(r.url());if(key)documentNetwork[key].requests=Math.min(1000,documentNetwork[key].requests+1);});
@@ -171,13 +338,15 @@ async function main(){
       }
 
       page.on('pageerror',e=>{report.runtime_errors.push({name:['Error','TypeError','SyntaxError','ReferenceError'].includes(e.name)?e.name:'Other'});save();});
-      stage('LOGIN_'+role.toUpperCase());await page.goto(base+'/login');await page.waitForFunction(loginFormIsInteractive);
+      stage((origin===PUBLISHED_ORIGIN?'PUBLISHED_':'')+'LOGIN_'+role.toUpperCase());await page.goto(origin+'/login');await page.waitForFunction(loginFormIsInteractive);
+      if(origin===PUBLISHED_ORIGIN){await page.waitForLoadState('networkidle');assert.equal(new URL(page.url()).origin,PUBLISHED_ORIGIN);assert(!originViolation,'Published network fence');}
+      page._publishedFence=()=>{if(origin===PUBLISHED_ORIGIN){assert(!originViolation);assert.equal(new URL(page.url()).origin,PUBLISHED_ORIGIN);}};
       if(probe){await page.getByRole('button',{name:'Mostrar senha',exact:true}).click();await expect(page.getByLabel('Senha',{exact:true})).toHaveAttribute('type','text');check('PUBLIC_INTERACTIVITY',true);return{context,page};}
       const u=f.users.find(x=>x.profile===role);assert(u?.id&&u.creation_state==='created');await page.getByLabel('E-mail',{exact:true}).fill(u.email);await page.getByLabel('Senha',{exact:true}).fill(u.password);
-      const received=page.waitForResponse(r=>r.url().includes('/auth/v1/token?')&&r.request().method()==='POST');await page.getByRole('button',{name:'Entrar',exact:true}).click();const login=await received;check('LOGIN_'+role.toUpperCase(),login.status()===200,login.status());await page.waitForURL(u=>!u.pathname.includes('/login'));return{context,page};
+      page._publishedFence();const received=page.waitForResponse(r=>r.url().startsWith(HML_ORIGIN+'/auth/v1/token?')&&r.request().method()==='POST');await page.getByRole('button',{name:'Entrar',exact:true}).click();const login=await received;check('LOGIN_'+role.toUpperCase(),login.status()===200,login.status());await page.waitForURL(u=>!u.pathname.includes('/login'));page._publishedFence();return{context,page};
     }
     async function chooseOrg(page,id){
-      await page.goto(base+'/selecionar-organizacao');
+      await page.goto(new URL(page.url()).origin+'/selecionar-organizacao');
       const label=f.prefix+(id===f.org?'A':'B');
       await page.getByRole('radio').filter({hasText:label}).click();
       await page.getByRole('button',{name:'Continuar',exact:true}).click();
@@ -192,6 +361,7 @@ async function main(){
     async function editCadastro(page,region,kind,field,value,code){await expect(region.getByLabel(field,{exact:true})).toBeEnabled();await region.getByLabel(field,{exact:true}).fill(value);await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic CRUD verification');await region.getByRole('button',{name:'Revisar edição',exact:true}).click();await rpc(page,code,kind==='org'?'atualizar_organizacao_v1':'atualizar_contrato_v1',()=>region.getByRole('button',{name:'Confirmar edição',exact:true}).click());}
     async function stateCadastro(page,region,kind,state,code){await expect(region.getByLabel('Nova situação',{exact:true})).toBeEnabled();await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic lifecycle verification');await region.getByLabel('Nova situação',{exact:true}).selectOption(state);await region.getByRole('button',{name:'Revisar situação',exact:true}).click();await rpc(page,code,kind==='org'?'alterar_situacao_organizacao_v1':'alterar_situacao_contrato_v1',()=>region.getByRole('button',{name:'Confirmar mudança de situação',exact:true}).click());}
     if(probe){
+      stage('PUBLISHED_BACKEND_READONLY_FENCE');const analyzer=await loadPublishedAnalyzer(frontend);report.published_backend=await inspectPublishedBackend(fetch,analyzer);check('PUBLISHED_REAL_PARSER_FIXTURES',true);check('PUBLISHED_BACKEND_CONFIGURATION',true);
       const x=await open('master');const sample=await x.context.newPage();
       await sample.setContent('<select aria-label="Filtro externo"><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select><form><h3>Alterar situação</h3><label><span>Situação</span><select><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select></label></form>');
       check('WRAPPED_SELECT_EXACT_LABEL_MISMATCH',await sample.getByLabel('Situação',{exact:true}).count()===0);
@@ -209,17 +379,27 @@ async function main(){
       await x.context.close();report.state='PASS_PUBLIC_PROBE';save();return;
     }
     if(f.batch==='DOCUMENTOS'){
-      const admin=await open('administrador');const ap=admin.page;await chooseOrg(ap,f.org);
-      const docsPath=base+'/contratos/'+f.contract+'/documentos';await ap.goto(docsPath);
-      await expect(ap.getByRole('heading',{name:'Central de documentos',exact:true})).toBeVisible();
-      const persist=()=>writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});
-      const batchDeadline=Date.now()+900000;f.uploads??=[];
+      let admin,ap,docsPath,batchDeadline;let provenance='PUBLISHED';f.uploads??=[];
+      const persist=()=>persistBrowserFixture(join(root,'fixture.json'),f);
+      const smoke={schema:'contaos.published-document-smoke.v1',frontend_head:null,source_parity:'NAO_VERIFICADA',state:'RUNNING',assertions:[]};
+      const saveSmoke=()=>writeFileSync(join(output,'published-smoke.json'),JSON.stringify(smoke,null,2)+'\n',{mode:0o600});saveSmoke();
+      async function documentPage(origin){admin=await open('administrador',origin);ap=admin.page;await chooseOrg(ap,f.org);docsPath=origin+'/contratos/'+f.contract+'/documentos';await ap.goto(docsPath);await expect(ap.getByRole('heading',{name:'Central de documentos',exact:true})).toBeVisible();ap._publishedFence();}
+      async function publishedProgress(intent,deadline){
+        const sequence=(f.readiness_control?.sequence??0)+1;
+        const request={action:'PUBLISHED_READINESS',nonce:f.nonce,sequence,intent_nonce:intent.intent_nonce,file:intent.file,document:intent.document,id_version:intent.id_version};
+        const requestPath=join(root,'document-readiness-request.json'),responsePath=join(root,'document-readiness-response.json');
+        assert(!existsSync(requestPath));if(existsSync(responsePath))unlinkSync(responsePath);
+        writeFileSync(requestPath+'.tmp',JSON.stringify(request),{mode:0o600});renameSync(requestPath+'.tmp',requestPath);
+        while(!existsSync(responsePath)){assert(Date.now()<deadline);await new Promise(r=>setTimeout(r,100));}
+        const ack=JSON.parse(readFileSync(responsePath,'utf8'));assert.deepEqual(Object.keys(ack).sort(),['action','nonce','sequence','state']);assert.equal(ack.action,request.action);assert.equal(ack.nonce,f.nonce);assert.equal(ack.sequence,sequence);assert(['READY','PENDING','FAILED'].includes(ack.state));
+        f.readiness_control={sequence,state:ack.state};assert.notEqual(ack.state,'FAILED');ap._publishedFence();return ack.state==='READY';
+      }
       async function upload(format,version,document){
         stage('DOCUMENT_UPLOAD_'+format.toUpperCase()+'_V'+version);
-        const file=documentFixture(f.nonce,format,version),title=f.prefix+format;
-        const intent={intent_nonce:f.nonce+'-'+format+'-'+version,org:f.org,contract:f.contract,name:file.name,mime:file.mime,sha256:file.sha256,size:file.size,version,title,state:'INTENT',...(document?{document}:{} )};
+        const contentNonce=provenance==='PUBLISHED'?createHash('sha256').update(f.nonce+'-published').digest('hex').slice(0,32):f.nonce;const file=documentFixture(contentNonce,format,version);file.name='crudg-'+f.nonce+'-'+provenance.toLowerCase()+'-'+format+'-v'+version+'.'+format;const title=f.prefix+provenance.toLowerCase()+' '+format;
+        const intent={provenance,frontend_head:provenance==='PUBLISHED'?null:FRONTEND_PIN,source_parity:provenance==='PUBLISHED'?'NAO_VERIFICADA':'PINNED',intent_nonce:f.nonce+'-'+provenance.toLowerCase()+'-'+format+'-'+version,org:f.org,contract:f.contract,name:file.name,mime:file.mime,sha256:file.sha256,size:file.size,version,title,state:'INTENT',...(document?{document}:{} )};
         f.uploads.push(intent);persist(); // durable before opening the form or making any upload request
-        const substage=action=>stage('DOCUMENT_'+format.toUpperCase()+'_V'+version+'_'+action);
+        const substage=action=>stage('DOCUMENT_'+provenance+'_'+format.toUpperCase()+'_V'+version+'_'+action);
         substage('OPEN_FORM');await ap.getByRole('button',{name:version===1?'Enviar documentos':'Nova versão de '+title,exact:true}).click();
         const dialog=ap.getByRole('dialog');substage('WAIT_DIALOG');await expect(dialog).toBeVisible();
         await fillDocumentUploadForm(dialog,file,version,title,f.nonce,substage);
@@ -237,6 +417,13 @@ async function main(){
         substage('CLOSE_FORM');await expect(dialog.getByRole('button',{name:'Fechar',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Fechar',exact:true}).click();
         substage('WAIT_REAL_WORKER');const deadline=Math.min(batchDeadline,Date.now()+300000);let ready=false;
         while(Date.now()<deadline){
+          if(provenance==='PUBLISHED'){
+            await ap.getByRole('button',{name:'Atualizar lista',exact:true}).click();
+            const button=ap.getByRole('button',{name:'Baixar '+file.name,exact:true});
+            const uiReady=await button.count()===1&&await button.isEnabled();
+            if(await publishedProgress(intent,deadline)&&uiReady){ready=true;break;}
+            await new Promise(r=>setTimeout(r,5000));continue;
+          }
           const progress=await ap.evaluate(async expected=>{
             const {supabase}=await import('/src/integrations/supabase/client.ts');
             const ar=await supabase.from('arquivos').select('id,id_organizacao,id_contrato,sha256,tamanho,status_seguranca').eq('id',expected.file).single();
@@ -259,10 +446,17 @@ async function main(){
         await ap.getByRole('button',{name:'Baixar '+file.name,exact:true}).click();const signed=await downloadResponse;check('DOCUMENT_OFFICIAL_DOWNLOAD',signed.ok(),signed.status());
         assert.equal(signed.request().postDataJSON().id_arquivo,intent.file);const signedData=await signed.json();assert.equal(signedData.ok,true);const url=new URL(signedData.signed_url);assert.equal(url.origin,'https://gklhhhyosgasnyoxlrui.supabase.co');assert.equal(url.pathname,'/storage/v1/object/sign/contaos-documentos/'+intent.path);
         const downloaded=await admin.context.request.get(url.href);const bytes=await downloaded.body();check('DOCUMENT_PHYSICAL_HASH_AND_SIZE',downloaded.ok()&&bytes.length===file.size&&createHash('sha256').update(bytes).digest('hex')===file.sha256,downloaded.status());
-        const opened=await popup;if(opened)await opened.close();intent.download_verified=true;persist();return intent.document;
+        const opened=await popup;if(opened)await opened.close();intent.download_verified=true;persist();ap._publishedFence();return intent.document;
       }
+      await runDocumentProvenances({
+        proveBackend:async()=>{stage('PUBLISHED_BACKEND_READONLY_FENCE');try{const analyzer=await loadPublishedAnalyzer(frontend);smoke.backend=await inspectPublishedBackend(fetch,analyzer);saveSmoke();}catch(e){smoke.state='PUBLICADA_BACKEND_NAO_COMPROVADO';saveSmoke();throw e;}},
+        published:async deadline=>recorder.published(smoke,saveSmoke,async()=>{batchDeadline=deadline;
+          try{report.local_state='NOT_STARTED';await documentPage(PUBLISHED_ORIGIN);await upload('txt',1);assert.equal(report.runtime_errors.length,0);smoke.state='PASS_SMOKE';smoke.runtime_errors=[];saveSmoke();await admin.context.close();}
+          catch(e){smoke.state='FAIL';saveSmoke();throw e;}
+        }),
+        local:async deadline=>{batchDeadline=deadline;provenance='LOCAL';report.local_state='RUNNING';for(const key of Object.keys(documentNetwork))documentNetwork[key]={requests:0,http:null,failed:false};Object.assign(documentConfig,{config_loaded:false,txt_allowed:false,pdf_allowed:false});assert.equal(process.env.FRONTEND_HEAD,FRONTEND_PIN);await documentPage(base);
       for(const format of ['txt','pdf']){const document=await upload(format,1);await upload(format,2,document);}
-      await ap.reload();await expect(ap.getByRole('list',{name:'Documentos',exact:true}).locator(':scope > li')).toHaveCount(2);
+      await ap.reload();await ap.getByLabel('Buscar por título',{exact:true}).fill(f.prefix+'local ');await expect(ap.getByRole('list',{name:'Documentos',exact:true}).locator(':scope > li')).toHaveCount(2);
       await ap.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
       for(const theme of ['light','dark'])for(const width of [1440,1280,768,390]){
         stage('DOCUMENT_VISUAL_'+width+'_'+theme.toUpperCase());await ap.setViewportSize({width,height:1000});await ap.evaluate(t=>{document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;},theme);
@@ -284,7 +478,7 @@ async function main(){
         const read=await supabase.from('documentos_contrato').select('id').eq('id_contrato',input.contract).limit(25);
         const download=await supabase.functions.invoke('storage-sign-download',{body:{id_arquivo:input.file}});let code=null,status=download.error?.context?.status??(download.error?0:200);try{code=(await download.error.context.json()).codigo;}catch{}
         return {session_valid:!session.error&&session.data.user?.id===input.user,mutation:{status:mutation.status,code:mutation.error?.code??null},read:{status:read.status,code:read.error?.code??null,count:read.data?.length??null},download:{status,code}};
-      },{document:f.uploads[0].document,file:f.uploads[0].file,contract:f.contract,user:ownAdmin.id});
+      },{document:f.uploads.find(u=>u.provenance==='LOCAL').document,file:f.uploads.find(u=>u.provenance==='LOCAL').file,contract:f.contract,user:ownAdmin.id});
       check('DOCUMENT_REVOKED_SESSION_STILL_AUTHENTICATED',revoked.session_valid);
       validateDocumentDenial(revoked.mutation,'mutation');validateDocumentDenial(revoked.download,'download');validateAuditDenied(revoked.read);
       check('DOCUMENT_REVOKED_MUTATION_DENIED',true,revoked.mutation.status);check('DOCUMENT_REVOKED_DOWNLOAD_DENIED',true,revoked.download.status);check('DOCUMENT_REVOKED_READ_DENIED',true,revoked.read.status);
@@ -303,14 +497,15 @@ async function main(){
             const read=await supabase.from('documentos_contrato').select('id').eq('id_contrato',input.contract).limit(25);
             let download=null;if(input.other)download=await edgeResult(await supabase.functions.invoke('storage-sign-download',{body:{id_arquivo:input.file}}));
             return {upload,mutation:{status:mutation.status,code:mutation.error?.code??null},read:{status:read.status,code:read.error?.code??null,count:read.data?.length??null},download};
-          },{org:f.org,contract:f.contract,file:f.uploads[0].file,document:f.uploads[0].document,other:role==='usuario_b'});
+          },{org:f.org,contract:f.contract,file:f.uploads.find(u=>u.provenance==='LOCAL').file,document:f.uploads.find(u=>u.provenance==='LOCAL').document,other:role==='usuario_b'});
           validateDocumentDenial(result.upload,'upload');validateDocumentDenial(result.mutation,'mutation');check('DOCUMENT_'+role.toUpperCase()+'_VERSION_DENIED',true,result.mutation.status);check('DOCUMENT_'+role.toUpperCase()+'_UPLOAD_DENIED',true,result.upload.status);
           if(role==='usuario_b'){validateAuditDenied(result.read);validateDocumentDenial(result.download,'download');check('DOCUMENT_OTHER_TENANT_READ_DOWNLOAD_DENIED',true,result.download.status);}
-          else {assert([200,206].includes(result.read.status)&&result.read.count===2);check('DOCUMENT_READER_READ_ALLOWED',true,result.read.status);}
+          else {assert([200,206].includes(result.read.status)&&result.read.count===3);check('DOCUMENT_READER_READ_ALLOWED',true,result.read.status);}
         }
         await user.context.close();
       }
-      report.limits=report.limits.filter(x=>x!=='No physical upload or worker proof in this batch');report.limits.push('TXT/PDF only; other formats, multipart, AI extraction and full manual WCAG remain unverified');check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';Object.assign(report,documentCoverage());report.completed_domains=[];save();return;
+      report.limits=report.limits.filter(x=>x!=='No physical upload or worker proof in this batch');report.limits.push('TXT/PDF only; other formats, multipart, AI extraction and full manual WCAG remain unverified');check('NO_RUNTIME_ERRORS',report.runtime_errors.length===0);report.state='PASS_BATCH';Object.assign(report,documentCoverage());report.completed_domains=[];report.local_state='PASS';save();}
+      });return;
     }
     if(f.batch==='AUDITORIA'){
       const admin=await open('administrador');const ap=admin.page;await chooseOrg(ap,f.org);
@@ -480,7 +675,7 @@ async function main(){
       });
       report.ui_diagnostic=sanitizeUiDiagnostic({...flags,read_http:readHttp});
     }catch{report.ui_diagnostic_unavailable=true;}}
-    report.state='FAIL';report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
+    report.state='FAIL';if(report.stage==='PUBLISHED_BACKEND_READONLY_FENCE')report.failure_code='PUBLICADA_BACKEND_NAO_COMPROVADO';report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
   finally{save();await stop(server,browser);}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();
