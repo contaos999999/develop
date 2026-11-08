@@ -623,7 +623,7 @@ test('backend inspection progress exposes only closed phase labels on failure',a
 test('published response fence rejects redirects and changed executable bytes before resume',async()=>{
   const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');
   const {createHash}=await import('node:crypto');const url='https://scope-and-approval-keeper.lovable.app/assets/proof.js',body=Buffer.from('globalThis.proof=1;');
-  const proof={modules:new Map([[url,createHash('sha256').update(body).digest('hex')]]),html_sha256:createHash('sha256').update('<!doctype html>').digest('hex')};
+  const proof={origin:'https://scope-and-approval-keeper.lovable.app',modules:new Map([[url,createHash('sha256').update(body).digest('hex')]]),html_sha256:createHash('sha256').update('<!doctype html>').digest('hex')};
   assert.equal(validatePublishedResponse(proof,{url,resourceType:'Script',status:200,body}),true);
   for(const status of [301,302,303,307,308])assert.throws(()=>validatePublishedResponse(proof,{url,resourceType:'Script',status,body}));
   assert.throws(()=>validatePublishedResponse(proof,{url,resourceType:'Script',status:200,body:Buffer.from('changed')}));
