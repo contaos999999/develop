@@ -152,28 +152,13 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   const active=new Set();
   const fail=error=>{failed=true;if(!failureProtocol&&Number.isInteger(error?.protocol_code))failureProtocol={code:error.protocol_code,reason:error.protocol_reason};if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
-  // Context routing covers the first popup request; Chromium's response pause
-  // independently prevents redirects and releases only hash-verified executable bytes.
-  await context.route('**/*',async route=>{
-    let routeStage='FENCE_ROUTE_REQUEST';try{
-      const request=route.request();const requestPage=request.frame().page();if(requestPage!==page){await route.abort('blockedbyclient');if(!expectedPopup(request.url()))fail({code:'FENCE_UNEXPECTED_POPUP'});return;}
-      if(failed||!allowed(request.url(),request.isNavigationRequest())){failed=true;await route.abort('blockedbyclient');fail({code:'FENCE_REQUEST_ORIGIN_BLOCKED'});return;}
-      // Hold even an approved popup URL until its own native response fence is ready.
-      routeStage='FENCE_ROUTE_IDENTITY';
-      // BrowserContext routing already scopes this request. Do not ask Playwright
-      // for a popup session before its first navigation can commit.
-      const {targetInfos}=await root.send('Target.getTargets');
-      const owned=nativePageBarrier(targetInfos,sessions.values(),ownContext,initialTarget);
-      routeStage='FENCE_ROUTE_TARGET_READY';
-      for(const targetId of owned){for(let i=0;!configured.has(targetId)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(configured.has(targetId),'Unresolved routed context target');await configured.get(targetId);}
-      assert(!failed);
-      routeStage='FENCE_ROUTE_CONTINUE';await route.continue();
-    }catch(error){await route.abort('blockedbyclient').catch(()=>{});fail(Object.assign(error,{code:routeStage}));}
-  });
+  // No Playwright routing: its frozen implementation fabricates preflight 204.
+  // One native CDP agent validates Request and Response without modifying bytes.
   function track(p){active.add(p);p.catch(fail).finally(()=>active.delete(p));}
   const send=(session,method,params={})=>{if(method==='Runtime.runIfWaitingForDebugger'&&session.contextId===ownContext&&['worker','shared_worker'].includes(session.type))workerRuntimeResumes++;return root.send(method,params,session.id);};
   async function paused(session,event){
     const requestId=event.requestId,url=event.request.url,resourceType=event.resourceType;
+    if(session.type==='page'&&session.targetId!==initialTarget){await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'});if(!expectedPopup(url))throw Object.assign(Error('Unexpected page target'),{code:'FENCE_UNEXPECTED_POPUP'});return;}
     if(failed||!allowed(url,resourceType==='Document')){await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'});throw Error('Published request blocked before transmission');}
     const response=event.responseStatusCode!==undefined||event.responseErrorReason!==undefined;
     if(!response){await send(session,'Fetch.continueRequest',{requestId});return;}
@@ -204,7 +189,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
       // Native network-service offline rules stop only WS/WSS handshakes;
       // HTTP(S), navigator state and the real browser CORS path remain intact.
       const denied=await send(session,'Network.emulateNetworkConditionsByRule',webSocketDenyRules());assert.equal(denied.ruleIds?.length,2);
-      await send(session,'Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Response'}]});
+      await send(session,'Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Request'},{urlPattern:'*',requestStage:'Response'}]});
       await send(session,'Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true,filter:targetFilter});
       await send(session,'Runtime.runIfWaitingForDebugger');if(['worker','shared_worker'].includes(event.targetInfo.type))workerReady++;
     })();configured.set(event.targetInfo.targetId,ready);track(ready);
@@ -223,10 +208,10 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=()=>{}){
-  const counters={foreign:0,post:0,preflight:0,executed:0,upgrades:0,worker_scripts:0,worker_starts:0,redirect307:0,redirect308:0};let mode='normal';let own,other;
+  const counters={foreign:0,post:0,preflight:0,post_allowed:0,preflight_allowed:0,executed:0,upgrades:0,worker_scripts:0,worker_starts:0,redirect307:0,redirect308:0};let mode='normal';let own,other;
   const script='globalThis.nativeFenceFixture=true;';
   const html='<!doctype html><html><head><script src="/main.js"></script></head><body>Own synthetic fence fixture</body></html>';
-  const foreign=createServer((request,response)=>{counters.foreign++;if(request.method==='OPTIONS')counters.preflight++;if(request.method==='POST')counters.post++;response.writeHead(request.method==='OPTIONS'?204:200,{'Content-Type':'text/plain'});response.end('own synthetic foreign fixture');});
+  const foreign=createServer((request,response)=>{counters.foreign++;const allowed=request.url==='/allow-effect';if(request.method==='OPTIONS')counters[allowed?'preflight_allowed':'preflight']++;if(request.method==='POST')counters[allowed?'post_allowed':'post']++;response.writeHead(request.method==='OPTIONS'?204:200,{'Content-Type':'text/plain',...(allowed?{'Access-Control-Allow-Origin':own,'Access-Control-Allow-Methods':'POST','Access-Control-Allow-Headers':'content-type'}:{})});response.end('own synthetic foreign fixture');});
   foreign.on('upgrade',(request,socket)=>{counters.upgrades++;socket.destroy();});
   const local=createServer((request,response)=>{
     if(request.url==='/redirect307'||request.url==='/redirect308'){counters['redirect'+request.url.slice(-3)]++;response.writeHead(Number(request.url.slice(-3)),{Location:other+'/effect'});response.end();return;}
@@ -269,8 +254,9 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=
       assert(state.failed&&state.worker_waiting>0,'Unexpected worker was not denied while paused');assert.equal(state.worker_runtime_resumes,0);assert.equal(counters.worker_starts,0);assert.equal(counters.foreign,0);assert.equal(counters.upgrades,0);
     });}
     onPhase('CHANGED_SCRIPT');await fixture(async({page,fence})=>{await page.goto(own+'/login').catch(()=>{});assert(fence.snapshot().failed,'Changed executable response was not blocked');assert.equal(counters.executed,0,'Changed executable ran before hash proof');},{changed:true});
+    onPhase('NATIVE_CORS_ALLOWED');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const status=await page.evaluate(async url=>(await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"fixture":true}'})).status,other+'/allow-effect');onEvidence({phase:'NATIVE_CORS_ALLOWED',browser_status:status,preflight_requests:counters.preflight_allowed,post_effects:counters.post_allowed,fence_failed:fence.snapshot().failed});assert.equal(status,200);assert(counters.preflight_allowed>0);assert.equal(counters.post_allowed,1);fence.assertSafe();},{permitForeign:true});
     onPhase('NATIVE_CORS');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const outcome=await page.evaluate(async url=>{try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"fixture":true}'});return {rejected:false,status:response.status};}catch{return {rejected:true,status:null};}},other+'/effect');onEvidence({phase:'NATIVE_CORS',browser_rejected:outcome.rejected,browser_status:outcome.status,preflight_requests:counters.preflight,post_effects:counters.post,foreign_http_requests:counters.foreign,fence_failed:fence.snapshot().failed});if(!outcome.rejected)throw Object.assign(Error('Native CORS enforcement was bypassed'),{code:'FENCE_NATIVE_CORS_NOT_REJECTED'});if(!(counters.preflight>0))throw Object.assign(Error('Native preflight did not run'),{code:'FENCE_NATIVE_CORS_PREFLIGHT_NOT_OBSERVED'});if(counters.post!==0)throw Object.assign(Error('Native CORS transmitted denied POST'),{code:'FENCE_NATIVE_CORS_POST_TRANSMITTED'});fence.assertSafe();},{permitForeign:true});
-    return {redirect_307_blocked:true,redirect_308_blocked:true,native_popups_denied:true,popup_windows_certified:false,unexpected_popup_rejected:true,native_websocket_denied:true,iframe_blocked:true,unexpected_browser_workers_denied:true,browser_worker_execution_certified:false,changed_script_blocked:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
+    return {redirect_307_blocked:true,redirect_308_blocked:true,native_popups_denied:true,popup_windows_certified:false,unexpected_popup_rejected:true,native_websocket_denied:true,iframe_blocked:true,unexpected_browser_workers_denied:true,browser_worker_execution_certified:false,changed_script_blocked:true,native_cors_positive_verified:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
   }finally{await Promise.all([close(local),close(foreign)]);}
 }
 // Inert source analysis. Fetched modules are parsed, never imported or evaluated.
