@@ -77,6 +77,7 @@ def validate_document_partition(f):
     for u in uploads:
         validate_upload_intent(u,f)
         assert u['state']=='PROCESSED' and u['download_verified'] is True
+        assert u.get('download_proof_kind')=='UI_EDGE_AND_SIGNED_GET' and u.get('popup_rendering')=='NAO_CERTIFICADO'
         for key in ('file','document','id_version'):assert str(uuid.UUID(u[key]))==u[key]
     published=[u for u in uploads if u['provenance']=='PUBLISHED'];local=[u for u in uploads if u['provenance']=='LOCAL']
     assert len(published)==1 and len(local)==4 and uploads[0] is published[0]
@@ -481,7 +482,7 @@ def main():
         returncode=r.run_browser()
         r.check('REAL_BROWSER_BATCH',returncode==0)
         r.verify();r.report['state']='PASS_BATCH';r.report['completed_domains']=[] if r.batch=='DOCUMENTOS' else ['auditoria'] if r.batch=='AUDITORIA' else ['organizacoes','contratantes','contratos','listas'];r.report['unverified_domains']=['regras_preventivas','base_normativa','orcamento','documentos_contrato','documento_detalhe','competencias','documentos_competencia','analise_revisao','parecer','apresentacao','protocolo','historico','administracao','auditoria']
-        if r.batch=='DOCUMENTOS':r.report['completed_scopes']=['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'];r.report['remaining_domains']=list(r.report['unverified_domains']);r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas','auditoria']
+        if r.batch=='DOCUMENTOS':r.report['completed_scopes']=['DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL'];r.report['download_proof_kind']='UI_EDGE_AND_SIGNED_GET';r.report['popup_rendering']='NAO_CERTIFICADO';r.report['remaining_domains']=list(r.report['unverified_domains']);r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas','auditoria']
         if r.batch=='AUDITORIA':r.report['unverified_domains'].remove('auditoria');r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas']
     except Exception as e:
         failed=True;r.report['state']='FAIL';r.report['failure_class']=type(e).__name__

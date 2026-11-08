@@ -125,9 +125,16 @@ async function connectNativeBrowserCDP(browser,identity){
   const transport={send(method,params={},sessionId){const id=++serial;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{commands.delete(id);reject(Error('Chromium interception command timeout'));},10000);commands.set(id,{resolve,reject,timer,method});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});},onEvent(callback){listener=callback;},onClose(callback){onClose=callback;},close(){socket.close();}};
   try{const target=await transport.send('Target.getTargetInfo',{targetId:identity.targetId});assert.equal(target.targetInfo.browserContextId,identity.browserContextId);}catch(error){transport.close();throw error;}return transport;
 }
+export async function boundedSignedDownload(fetcher,raw,ownPath,expectedSize){
+  const url=new URL(raw);assert.equal(url.origin,HML_ORIGIN);assert(!url.username&&!url.password&&!url.hash);assert.equal(url.pathname,'/storage/v1/object/sign/contaos-documentos/'+ownPath);assert(typeof ownPath==='string'&&ownPath.length>0&&!ownPath.includes('..'));assert(Number.isSafeInteger(expectedSize)&&expectedSize>0&&expectedSize<=4194304);
+  const response=await fetcher(url.href,{redirect:'error',credentials:'omit',signal:AbortSignal.timeout(15000)});assert.equal(response.status,200);
+  const reader=response.body.getReader(),parts=[];let size=0;
+  try{while(true){const next=await reader.read();if(next.done)break;size+=next.value.byteLength;assert(size<=expectedSize,'Signed download exceeds expected size');parts.push(Buffer.from(next.value));}}finally{await reader.cancel();}
+  assert.equal(size,expectedSize);return Buffer.concat(parts);
+}
 // Native Chromium interception preserves browser CORS, cookies and Origin semantics.
 // No request body/header is read, and no response is replaced or fulfilled by the harness.
-export async function installPublishedCDPFence(browser,context,page,proof,allowed){
+export async function installPublishedCDPFence(browser,context,page,proof,allowed,expectedPopup=()=>false){
   assert(proof?.modules instanceof Map&&proof.modules.size>0);assert.equal(typeof allowed,'function');
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
@@ -139,7 +146,8 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   // independently prevents redirects and releases only hash-verified executable bytes.
   await context.route('**/*',async route=>{
     let routeStage='FENCE_ROUTE_REQUEST';try{
-      const request=route.request();if(failed||!allowed(request.url(),request.isNavigationRequest())){failed=true;await route.abort('blockedbyclient');fail({code:'FENCE_REQUEST_ORIGIN_BLOCKED'});return;}
+      const request=route.request();const requestPage=request.frame().page();if(requestPage!==page){await route.abort('blockedbyclient');if(!expectedPopup(request.url()))fail({code:'FENCE_UNEXPECTED_POPUP'});return;}
+      if(failed||!allowed(request.url(),request.isNavigationRequest())){failed=true;await route.abort('blockedbyclient');fail({code:'FENCE_REQUEST_ORIGIN_BLOCKED'});return;}
       // Hold even an approved popup URL until its own native response fence is ready.
       routeStage='FENCE_ROUTE_IDENTITY';
       // BrowserContext routing already scopes this request. Do not ask Playwright
@@ -172,7 +180,8 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
     }catch(error){await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
   }
   function message(session,data){
-    if(data.method==='Fetch.requestPaused')track(paused(session,data.params));
+    if(data.method==='Page.windowOpen'){if(!expectedPopup(data.params.url))fail({code:'FENCE_UNEXPECTED_POPUP'});}
+    else if(data.method==='Fetch.requestPaused')track(paused(session,data.params));
     else if(data.method==='Target.attachedToTarget')attach(session,data.params);
   }
   const targetFilter=[{type:'page'},{type:'iframe'},{type:'worker'},{type:'shared_worker'},{exclude:true}];
@@ -181,6 +190,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
     const ready=(async()=>{
       assert(session.contextId,'Unresolved attached target context');
       if(session.contextId!==ownContext){await send(session,'Runtime.runIfWaitingForDebugger');return;}
+      if(event.targetInfo.type==='page')await send(session,'Page.enable');
       await send(session,'Network.enable');await send(session,'Network.setBlockedURLs',{urls:['ws://*','wss://*']});
       await send(session,'Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Response'}]});
       await send(session,'Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true,filter:targetFilter});
@@ -201,10 +211,11 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=()=>{}){
-  const counters={foreign:0,post:0,preflight:0,executed:0,redirect307:0,redirect308:0};let mode='normal';let own,other;
+  const counters={foreign:0,post:0,preflight:0,executed:0,upgrades:0,redirect307:0,redirect308:0};let mode='normal';let own,other;
   const script='globalThis.nativeFenceFixture=true;';
   const html='<!doctype html><html><head><script src="/main.js"></script></head><body>Own synthetic fence fixture</body></html>';
   const foreign=createServer((request,response)=>{counters.foreign++;if(request.method==='OPTIONS')counters.preflight++;if(request.method==='POST')counters.post++;response.writeHead(request.method==='OPTIONS'?204:200,{'Content-Type':'text/plain'});response.end('own synthetic foreign fixture');});
+  foreign.on('upgrade',(request,socket)=>{counters.upgrades++;socket.destroy();});
   const local=createServer((request,response)=>{
     if(request.url==='/redirect307'||request.url==='/redirect308'){counters['redirect'+request.url.slice(-3)]++;response.writeHead(Number(request.url.slice(-3)),{Location:other+'/effect'});response.end();return;}
     if(request.url==='/worker.js'){response.writeHead(200,{'Content-Type':'text/javascript'});response.end('fetch('+JSON.stringify(other+'/effect')+')');return;}
@@ -217,21 +228,32 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=
   try{
     own=await listen(local);other=await listen(foreign);
     const proof={origin:own,html_sha256:createHash('sha256').update(html).digest('hex'),modules:new Map([[own+'/main.js',createHash('sha256').update(script).digest('hex')],[own+'/worker.js',createHash('sha256').update('fetch('+JSON.stringify(other+'/effect')+')').digest('hex')]])};
-    async function fixture(action,{permitForeign=false,changed=false}={}){
+    async function fixture(action,{permitForeign=false,changed=false,expectedPopup=false}={}){
       mode=changed?'changed':'normal';const context=await browser.newContext({serviceWorkers:'block'});const page=await context.newPage();
-      let fence;try{fence=await installPublishedCDPFence(browser,context,page,proof,url=>{const origin=new URL(url).origin;return origin===own||(permitForeign&&origin===other);});await action({context,page,fence});}
+      let fence;try{fence=await installPublishedCDPFence(browser,context,page,proof,url=>{const origin=new URL(url).origin;return origin===own||(permitForeign&&origin===other);},()=>expectedPopup);await action({context,page,fence});}
       catch(error){const code=fence?.snapshot().failure_code;if(code)error.code=code;throw error;}
       finally{await context.close().catch(()=>{});}
     }
     for(const status of [307,308]){onPhase('REDIRECT_'+status);await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.goto(own+'/redirect'+status).catch(()=>{});await new Promise(resolve=>setTimeout(resolve,100));assert.equal(counters.foreign,0,'Redirect transmitted to foreign endpoint');assert(fence.snapshot().failed);});}
-    onPhase('POPUP_DIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>{window.open(url,'_blank');},other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));if(!fence.snapshot().failed)throw Object.assign(Error('Popup was not fenced'),{code:'FENCE_POPUP_NOT_FENCED'});if(counters.foreign!==0)throw Object.assign(Error('Popup transmitted to foreign endpoint'),{code:'FENCE_POPUP_FOREIGN_TRANSMITTED'});});
-    onPhase('POPUP_ALLOWED');await fixture(async({context,page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const previous=fence.snapshot();const pending=context.waitForEvent('page',{timeout:10000});await page.evaluate(url=>{window.open(url,'_blank');},own+'/login');const popup=await pending;await popup.waitForLoadState('networkidle');fence.assertSafe();assert.equal(await popup.evaluate(()=>globalThis.nativeFenceFixture),true);const current=fence.snapshot();onEvidence({phase:'POPUP_ALLOWED',documents_before:previous.verified_documents,documents_after:current.verified_documents,scripts_before:previous.verified_scripts,scripts_after:current.verified_scripts,foreign_requests:counters.foreign});if(!(current.verified_scripts>previous.verified_scripts&&current.verified_documents>previous.verified_documents))throw Object.assign(Error('Popup executable bytes not independently checked'),{code:'FENCE_POPUP_SOURCE_NOT_CHECKED'});await popup.close();});
-    onPhase('POPUP_REDIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const before=counters.redirect308;await page.evaluate(url=>{window.open(url,'_blank');},own+'/redirect308').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));onEvidence({phase:'POPUP_REDIRECT',own_redirect_requests:counters.redirect308-before,foreign_requests:counters.foreign,native_redirect_blocks:fence.snapshot().redirect_blocks});if(!fence.snapshot().failed)throw Object.assign(Error('Redirecting popup was not fenced'),{code:counters.redirect308===before?'FENCE_POPUP_REDIRECT_NOT_SENT':(counters.foreign?'FENCE_POPUP_REDIRECT_FOREIGN_EFFECT':'FENCE_POPUP_REDIRECT_NOT_PAUSED')});if(counters.foreign!==0)throw Object.assign(Error('Popup redirect transmitted to foreign endpoint'),{code:'FENCE_POPUP_REDIRECT_TRANSMITTED'});assert.equal(counters.redirect308,before+1,'Approved popup request did not reach own server');assert.equal(fence.snapshot().redirect_blocks,1,'Popup redirect response was not blocked by native CDP');});
+    onPhase('NATIVE_POPUP_DENY');await fixture(async({context,page,fence})=>{
+      await page.goto(own+'/login');fence.assertSafe();const before=counters.redirect308;
+      const denied=await page.evaluate(([foreignURL,ownURL,websocketURL])=>{
+        const direct=window.open(foreignURL,'_blank'),approved=window.open(ownURL,'_blank'),blank=window.open('about:blank','_blank');
+        if(blank)blank.document.write('<script>fetch('+JSON.stringify(foreignURL)+');new WebSocket('+JSON.stringify(websocketURL)+');<\/script>');
+        return direct===null&&approved===null&&blank===null;
+      },[other+'/effect',own+'/redirect308',other.replace('http:','ws:')+'/socket']);
+      assert(denied,'Native Chromium policy did not deny window.open');
+      await page.evaluate(url=>{const a=document.createElement('a');a.href=url;a.target='_blank';a.textContent='Own deny link';document.body.append(a);const form=document.createElement('form');form.action=url;form.target='_blank';const button=document.createElement('button');button.textContent='Own deny form';form.append(button);document.body.append(form);},other+'/effect');
+      await page.getByRole('link',{name:'Own deny link',exact:true}).click();await page.getByRole('button',{name:'Own deny form',exact:true}).click();await new Promise(resolve=>setTimeout(resolve,100));
+      assert.equal(context.pages().length,1,'A new web contents escaped native denial');assert.equal(counters.foreign,0);assert.equal(counters.redirect308,before);assert.equal(counters.upgrades,0);fence.assertSafe();onEvidence({phase:'NATIVE_POPUP_DENY',foreign_requests:counters.foreign,own_redirect_requests:counters.redirect308-before,websocket_upgrades:counters.upgrades,extra_pages:context.pages().length-1});
+    },{expectedPopup:true});
+    onPhase('UNEXPECTED_POPUP');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>{window.open(url,'_blank');},other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Unexpected popup attempt was not reported');assert.equal(counters.foreign,0);});
+    onPhase('NATIVE_WEBSOCKET_DENY');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const blocked=await page.evaluate(url=>new Promise(resolve=>{const socket=new WebSocket(url);socket.onopen=()=>{socket.close();resolve(false);};socket.onerror=()=>resolve(true);setTimeout(()=>resolve(false),1000);}),other.replace('http:','ws:')+'/socket');assert(blocked,'Native websocket denial did not occur');assert.equal(counters.upgrades,0);fence.assertSafe();});
     onPhase('IFRAME_FOREIGN');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>{const frame=document.createElement('iframe');frame.src=url;document.body.append(frame);},other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Iframe was not fenced');assert.equal(counters.foreign,0,'Iframe transmitted to foreign endpoint');});
     onPhase('WORKER_FOREIGN');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(()=>{globalThis.ownFenceWorker=new Worker('/worker.js');}).catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Worker was not fenced');assert.equal(counters.foreign,0,'Worker transmitted to foreign endpoint');});
     onPhase('CHANGED_SCRIPT');await fixture(async({page,fence})=>{await page.goto(own+'/login').catch(()=>{});assert(fence.snapshot().failed,'Changed executable response was not blocked');assert.equal(counters.executed,0,'Changed executable ran before hash proof');},{changed:true});
     onPhase('NATIVE_CORS');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const rejected=await page.evaluate(async url=>{try{await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"fixture":true}'});return false;}catch{return true;}},other+'/effect');assert(rejected,'Native CORS enforcement was bypassed');assert(counters.preflight>0,'Native preflight did not run');assert.equal(counters.post,0,'Native CORS transmitted denied POST');fence.assertSafe();},{permitForeign:true});
-    return {redirect_307_blocked:true,redirect_308_blocked:true,popup_blocked:true,approved_popup_hash_verified:true,popup_redirect_blocked:true,iframe_blocked:true,worker_blocked:true,changed_script_blocked:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
+    return {redirect_307_blocked:true,redirect_308_blocked:true,native_popups_denied:true,popup_windows_certified:false,unexpected_popup_rejected:true,native_websocket_denied:true,iframe_blocked:true,worker_blocked:true,changed_script_blocked:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
   }finally{await Promise.all([close(local),close(foreign)]);}
 }
 // Inert source analysis. Fetched modules are parsed, never imported or evaluated.
@@ -393,7 +415,7 @@ export function sanitizeDocumentDiagnostic(value){
   const result={};for(const key of ['upload_button_present','upload_button_enabled','dialog_open','file_input_present','queue_present','title_input_present','form_alert','format_rejected','config_unavailable','upload_busy','upload_complete','config_loaded','txt_allowed','pdf_allowed']){assert.equal(typeof value[key],'boolean');result[key]=value[key];}
   result.network={};for(const key of ['config','sign','storage','confirm','register']){const v=value.network[key];assert(Number.isInteger(v.requests)&&v.requests>=0&&v.requests<=1000);assert(v.http===null||Number.isInteger(v.http)&&v.http>=100&&v.http<=599);assert.equal(typeof v.failed,'boolean');result.network[key]={requests:v.requests,http:v.http,failed:v.failed};}return result;
 }
-export function documentCoverage(){return {completed_scopes:['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false};}
+export function documentCoverage(){return {completed_scopes:['DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false};}
 export function documentFixture(nonce,format,version){
   assert(/^[a-f0-9]{32}$/.test(nonce)&&['txt','pdf'].includes(format)&&[1,2].includes(version));
   const text='ContaOS own synthetic document '+nonce+' version '+version+'. No personal data.';
@@ -520,23 +542,23 @@ async function main(){
   const probe=process.argv.includes('--public-probe');const f=probe?null:JSON.parse(readFileSync(join(root,'fixture.json'),'utf8'));
   if(f)assert(['CADASTROS_LISTAS','AUDITORIA','DOCUMENTOS'].includes(f.batch));
   const output=join(root,'public-browser');mkdirSync(output,{recursive:true,mode:0o700});
-  const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:probe?'PUBLIC_PROBE':f.batch||'CADASTROS_LISTAS',global_complete:false,state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Stable-state contrast does not close historical transient V117 contrast']};
+  const report={schema:'contaos.crud-global.browser.v1',backend_head:process.env.TESTED_HEAD,frontend_head:process.env.FRONTEND_HEAD,batch:probe?'PUBLIC_PROBE':f.batch||'CADASTROS_LISTAS',global_complete:false,popup_rendering:'NAO_CERTIFICADO',download_proof_kind:'UI_EDGE_AND_SIGNED_GET',state:'RUNNING',stage:'START',visual:[],assertions:[],runtime_errors:[],limits:['Partial batch; remaining matrix domains are not certified','No physical upload or worker proof in this batch','Automated tests do not certify full manual WCAG','Native Chromium denies new windows; popup rendering is not certified','Official UI Edge response and bounded signed GET integrity are separate proofs','Stable-state contrast does not close historical transient V117 contrast']};
   const save=()=>writeFileSync(join(output,probe?'public-probe.json':'report.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600});
   function stage(s){assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
   const recorder=createProofRecorder(report,save);const check=(name,pass,http)=>recorder.check(name,pass,http);
   function created(name,id){assert(['organization','contractor','contract','list'].includes(name)&&/^[a-f0-9-]{36}$/.test(id));f.created[name]=id;writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});}
-  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;let diagnosticPage;let publishedProof;let readHttp=null;
+  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;let diagnosticPage;let publishedProof;let expectedPublishedDownload=null;let readHttp=null;
   const documentNetwork=Object.fromEntries(['config','sign','storage','confirm','register'].map(k=>[k,{requests:0,http:null,failed:false}]));
   const documentConfig={config_loaded:false,txt_allowed:false,pdf_allowed:false};
   function documentEndpoint(raw){const u=new URL(raw);if(u.origin!=='https://gklhhhyosgasnyoxlrui.supabase.co')return null;const p=u.pathname;if(p==='/rest/v1/configuracao_upload')return 'config';if(p==='/functions/v1/storage-sign-upload')return 'sign';if(p.startsWith('/storage/v1/object/upload/sign/'))return 'storage';if(p==='/rest/v1/rpc/confirmar_upload_arquivo')return 'confirm';if(['/rest/v1/rpc/criar_documento_contrato_completo','/rest/v1/rpc/adicionar_versao_documento_contrato'].includes(p))return 'register';return null;}
   try{
     stage('SERVER_READY');for(let i=0;i<120;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
     const reservation=createServer();await new Promise((resolve,reject)=>{reservation.once('error',reject);reservation.listen(0,'127.0.0.1',resolve);});const debugPort=reservation.address().port;await new Promise(resolve=>reservation.close(resolve));
-    browser=await chromium.launch({headless:true,args:['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1'],env:browserEnvironment(process.env)});browserDebugPorts.set(browser,debugPort);
+    browser=await chromium.launch({headless:true,args:['--block-new-web-contents','--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1'],env:browserEnvironment(process.env)});browserDebugPorts.set(browser,debugPort);
     async function open(role,origin=base){
       const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light',locale:'pt-BR',serviceWorkers:'block'});
 
-      const page=await context.newPage();const fence=origin===PUBLISHED_ORIGIN?await installPublishedCDPFence(browser,context,page,publishedProof,(url,navigation)=>publishedRequestAllowed(url,navigation,f?.uploads?.filter(u=>u.provenance==='PUBLISHED'&&u.path).map(u=>u.path)??[])):null;page.setDefaultTimeout(30000);diagnosticPage=page;
+      const page=await context.newPage();const fence=origin===PUBLISHED_ORIGIN?await installPublishedCDPFence(browser,context,page,publishedProof,(url,navigation)=>publishedRequestAllowed(url,navigation,f?.uploads?.filter(u=>u.provenance==='PUBLISHED'&&u.path).map(u=>u.path)??[]),raw=>{if(!expectedPublishedDownload)return false;try{const url=new URL(raw);return url.origin===HML_ORIGIN&&!url.username&&!url.password&&url.pathname==='/storage/v1/object/sign/contaos-documentos/'+expectedPublishedDownload;}catch{return false;}}):null;page.setDefaultTimeout(30000);diagnosticPage=page;
       page.on('response',r=>{if(r.url().endsWith('/rpc/obter_lista_operacional_v1')&&r.request().method()==='POST')readHttp=r.status();});
       if(f?.batch==='DOCUMENTOS'){
         page.on('request',r=>{const key=documentEndpoint(r.url());if(key)documentNetwork[key].requests=Math.min(1000,documentNetwork[key].requests+1);});
@@ -590,7 +612,7 @@ async function main(){
     if(f.batch==='DOCUMENTOS'){
       let admin,ap,docsPath,batchDeadline;let provenance='PUBLISHED';f.uploads??=[];
       const persist=()=>persistBrowserFixture(join(root,'fixture.json'),f);
-      const smoke={schema:'contaos.published-document-smoke.v1',frontend_head:null,source_parity:'NAO_VERIFICADA',state:'RUNNING',assertions:[]};
+      const smoke={schema:'contaos.published-document-smoke.v1',popup_rendering:'NAO_CERTIFICADO',download_proof_kind:'UI_EDGE_AND_SIGNED_GET',frontend_head:null,source_parity:'NAO_VERIFICADA',state:'RUNNING',assertions:[]};
       const saveSmoke=()=>writeFileSync(join(output,'published-smoke.json'),JSON.stringify(smoke,null,2)+'\n',{mode:0o600});saveSmoke();
       async function documentPage(origin){admin=await open('administrador',origin);ap=admin.page;await chooseOrg(ap,f.org);docsPath=origin+'/contratos/'+f.contract+'/documentos';await ap.goto(docsPath);await expect(ap.getByRole('heading',{name:'Central de documentos',exact:true})).toBeVisible();ap._publishedFence();}
       async function publishedProgress(intent,deadline){
@@ -651,11 +673,12 @@ async function main(){
         check('DOCUMENT_REAL_WORKER_'+format.toUpperCase()+'_V'+version,ready);intent.state='PROCESSED';persist();
         substage('REFRESH_DOCUMENT_LIST');await ap.getByRole('button',{name:'Atualizar lista',exact:true}).click();
         substage('DOWNLOAD_DOCUMENT');const downloadResponse=ap.waitForResponse(r=>r.url().endsWith('/functions/v1/storage-sign-download')&&r.request().method()==='POST');
-        const popup=admin.context.waitForEvent('page',{timeout:10000}).catch(()=>null);
+        if(provenance==='PUBLISHED')expectedPublishedDownload=intent.path;
+        const popup=admin.context.waitForEvent('page',{timeout:1000}).catch(()=>null);
         await ap.getByRole('button',{name:'Baixar '+file.name,exact:true}).click();const signed=await downloadResponse;check('DOCUMENT_OFFICIAL_DOWNLOAD',signed.ok(),signed.status());
         assert.equal(signed.request().postDataJSON().id_arquivo,intent.file);const signedData=await signed.json();assert.equal(signedData.ok,true);const url=new URL(signedData.signed_url);assert.equal(url.origin,'https://gklhhhyosgasnyoxlrui.supabase.co');assert.equal(url.pathname,'/storage/v1/object/sign/contaos-documentos/'+intent.path);
-        const downloaded=await admin.context.request.get(url.href);const bytes=await downloaded.body();check('DOCUMENT_PHYSICAL_HASH_AND_SIZE',downloaded.ok()&&bytes.length===file.size&&createHash('sha256').update(bytes).digest('hex')===file.sha256,downloaded.status());
-        const opened=await popup;if(opened)await opened.close();intent.download_verified=true;persist();ap._publishedFence();return intent.document;
+        const bytes=await boundedSignedDownload(fetch,url.href,intent.path,file.size);check('DOCUMENT_SIGNED_GET_HASH_AND_SIZE',bytes.length===file.size&&createHash('sha256').update(bytes).digest('hex')===file.sha256,200);
+        const opened=await popup;if(opened)await opened.close();expectedPublishedDownload=null;intent.download_verified=true;intent.download_proof_kind='UI_EDGE_AND_SIGNED_GET';intent.popup_rendering='NAO_CERTIFICADO';persist();ap._publishedFence();return intent.document;
       }
       await runDocumentProvenances({
         proveBackend:async()=>{stage('PUBLISHED_BACKEND_READONLY_FENCE');try{const analyzer=await loadPublishedAnalyzer(frontend);smoke.backend=await inspectPublishedBackend(fetch,analyzer,phase=>{smoke.backend_inspection_phase=phase;saveSmoke();});publishedProof=smoke.backend.runtimeProof;saveSmoke();}catch(e){smoke.state='PUBLICADA_BACKEND_NAO_COMPROVADO';saveSmoke();throw e;}},

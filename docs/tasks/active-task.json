@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: GATE complementar de contenção nativa e CORS parcial",
+  "title": "Prova privada V1: BUILD CORS com contenção nativa e provas parciais",
   "status": "ativa",
   "phase": "BUILD_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
@@ -140,7 +140,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "TDD local dos handlers e harness; revisão e CI antes de integrar. Sem deploy ou execução HML neste BUILD local; fase técnica mantém jobs materiais desabilitados.",
+  "next_step": "Validar DENY nativo, hashes carregados e GET limitado após GATE140 integrado. Exigir revisão e guard/restore/backup/public-probe SUCCESS no mesmo HEAD antes de integrar BUILD139. Material e deploy dependem da sequência governada e continuam desabilitados nesta fase.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1093,7 +1093,11 @@
         "EDGE_CORS_UI_REAL",
         "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
       ],
-      "full_document_crud_v1_certification": false
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 140,
+      "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
+      "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
+      "build_state": "EM_VALIDACAO"
     }
   },
   "auth_configuration_changes_allowed": false
