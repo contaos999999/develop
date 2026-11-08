@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: GATE complementar de contenção nativa e CORS parcial",
+  "title": "Prova privada V1: GATE complementar CSP restritiva de Browser Workers",
   "status": "ativa",
   "phase": "GATE_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
@@ -135,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar GATE complementar documental após revisão e guard/restore/backup SUCCESS no mesmo HEAD. Reancorar BUILD139 sem force push; só depois validar DENY nativo e GET limitado. Material e deploy continuam desabilitados nesta fase.",
+  "next_step": "Revisão e checks do GATE CSP separado; integrar antes de reancorar e implementar no PR139. Execução material desabilitada.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -989,7 +989,7 @@
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "GATE",
-    "state": "GATE_COMPLEMENTAR_POPUP_DENY_EM_VALIDACAO",
+    "state": "GATE_COMPLEMENTAR_CSP_WORKER_EM_VALIDACAO",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1087,6 +1087,18 @@
         "EDGE_CORS_UI_REAL",
         "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
       ],
+      "full_document_crud_v1_certification": false
+    },
+    "browser_worker_csp_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "APPEND_DOCUMENT_CSP_WORKER_SRC_NONE",
+      "source_head": "f94595306886c358c73400a3a83424344fb75180",
+      "source_run": 42440477002,
+      "artifact": 13600703885,
+      "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
+      "browser_workers": "NAO_CERTIFICADOS",
+      "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
       "full_document_crud_v1_certification": false
     }
   },
