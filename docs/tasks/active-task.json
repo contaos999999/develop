@@ -2000,7 +2000,7 @@
         "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
         "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
       },
-      "gate": "Review, guard, Restore/rebuild/backup and public probe at approved HEAD; normal merge; main checks; zero active AI queue before and after HML-only deployment; management source readback exact; receipt in GATE138 bound to live main; manual workflow_dispatch exact HEAD/Restore/comment id before Auth. Automatic workflow_run held."
+      "gate": "Review and required CI exact HEAD; normal merge and main CI; HML-only AI deployment and exact Management source/version readback with zero active AI jobs; closed JSON receipt in GATE138. runtime-ready blocks before HML environment until unique current-HEAD receipt and same-HEAD push Restore succeed. Resume only failed readiness and dependents through standard GitHub rerun, or explicit exact-HEAD manual dispatch."
     },
     "uncertified_ai_consumers": [
       "consulta_semantica (no handler, fail closed)",

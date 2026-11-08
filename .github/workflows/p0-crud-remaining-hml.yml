@@ -69,6 +69,59 @@ jobs:
               out.write('applicable='+str(applicable).lower()+'\n'+'domains='+json.dumps(domains)+'\n'+'tested_head='+subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()+'\n')
           print('APPLICABLE_OWN_DOMAINS' if applicable else 'NOT_APPLICABLE_NO_HML_ACCESS')
           PY
+  runtime-ready:
+    needs: scope
+    if: needs.scope.result == 'success' && needs.scope.outputs.applicable == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      actions: read
+      issues: read
+    outputs:
+      receipt_comment_id: ${{ steps.ready.outputs.receipt_comment_id }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.scope.outputs.tested_head }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Exact HEAD and independently verified deployment before HML environment
+        id: ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TESTED_HEAD: ${{ needs.scope.outputs.tested_head }}
+          RESTORE_RUN_ID: ${{ inputs.restore_run_id || github.event.workflow_run.id }}
+          DEPLOY_RECEIPT_COMMENT_ID: ${{ inputs.deploy_receipt_comment_id }}
+        run: |
+          python3 - <<'PY'
+          import json,os,pathlib,re,subprocess,sys,urllib.parse
+          sys.path.insert(0,'supabase/tests')
+          from remaining_domains.ai_deploy_gate import find_deployment_receipt
+          task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
+          sha=os.environ['TESTED_HEAD']
+          assert re.fullmatch('[0-9a-f]{40}',sha) and subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==sha
+          def api(path):return json.loads(subprocess.check_output(['gh','api','repos/contaos999999/develop/'+path],text=True))
+          assert api('commits/main')['sha']==sha,'Live HEAD changed before deployment readiness'
+          checks=api('commits/'+sha+'/check-runs?per_page=100')['check_runs']
+          for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
+              assert any(c['name']==name and c['head_sha']==sha and c['conclusion']=='success' for c in checks),name
+          comment_id=''
+          if task.get('remaining_certification',{}).get('approved_ai_worker_deploy'):
+              run=os.environ['RESTORE_RUN_ID'];assert re.fullmatch('[1-9][0-9]{1,20}',run)
+              restore=api('actions/runs/'+run)
+              assert restore['head_sha']==sha and restore['head_branch']=='main' and restore['event']=='push' and restore['status']=='completed' and restore['conclusion']=='success' and restore['name']=='ContaOS Restore Isolado'
+              given=os.environ.get('DEPLOY_RECEIPT_COMMENT_ID','')
+              if given:
+                  assert re.fullmatch('[1-9][0-9]{1,20}',given)
+                  comments=[api('issues/comments/'+given)]
+              else:
+                  comments=api('issues/138/comments?per_page=100&since='+urllib.parse.quote(restore['created_at'],safe=''))
+              comment_id,_=find_deployment_receipt(task,sha,comments)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('receipt_comment_id='+str(comment_id)+'\n')
+          print('RUNTIME_DEPLOYMENT_READY_NO_HML_CREDENTIALS')
+          PY
   public-probe:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -117,8 +170,8 @@ jobs:
         if: always()
         run: rm -rf -- "$CONTAOS_TEST_PRIVATE_DIR" "$CONTAOS_FRONTEND_DIR"
   domain-proof:
-    needs: scope
-    if: needs.scope.result == 'success' && needs.scope.outputs.applicable == 'true'
+    needs: [scope, runtime-ready]
+    if: needs.scope.result == 'success' && needs.scope.outputs.applicable == 'true' && needs.runtime-ready.result == 'success'
     strategy:
       fail-fast: false
       matrix:
@@ -136,7 +189,7 @@ jobs:
       FRONTEND_HEAD: 164b10b44eaf5b553efcc7ab4e053b86c4d3b269
       DOMAIN: ${{ matrix.domain }}
       RESTORE_RUN_ID: ${{ inputs.restore_run_id || github.event.workflow_run.id }}
-      DEPLOY_RECEIPT_COMMENT_ID: ${{ inputs.deploy_receipt_comment_id }}
+      DEPLOY_RECEIPT_COMMENT_ID: ${{ needs.runtime-ready.outputs.receipt_comment_id }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -170,10 +223,9 @@ jobs:
           if task.get('remaining_certification',{}).get('approved_ai_worker_deploy'):
               import re
               from remaining_domains.ai_deploy_gate import validate_receipt
-              assert os.environ['GITHUB_EVENT_NAME']=='workflow_dispatch'
               comment_id=os.environ['DEPLOY_RECEIPT_COMMENT_ID'];assert re.fullmatch('[1-9][0-9]{1,20}',comment_id)
               comment=api('issues/comments/'+comment_id)
-              assert comment['user']['login']=='contaos999999' or comment['user']['login']=='contaos9999'
+              assert comment['user']['login']=='contaos9999'
               assert comment['issue_url']=='https://api.github.com/repos/contaos999999/develop/issues/138'
               receipt=validate_receipt(task,sha,json.loads(comment['body']))
               private.mkdir(mode=0o700,parents=True,exist_ok=True)
