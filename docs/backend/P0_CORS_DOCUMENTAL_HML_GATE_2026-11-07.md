@@ -170,3 +170,36 @@ Os advisors registrados no PLAN são baseline não causal. Não revogar RPCs, cr
 Impacto visual de implementação: N/A justificado. ContaOS Brand v1.0, BRAND-01, componentes, assets e tokens permanecem preservados. Reutilizar o runner, as fixtures e os contratos oficiais; nenhum workflow novo ou turno Lovable de implementação. Economia não reduz TDD, Teste C, segurança, CI, proveniência, cleanup ou prova de navegador.
 
 Esta minuta pode ser validada e publicada somente como GATE documental, com manifesto ainda sem habilitar Edges. BUILD e deploy dependem da integração e dos checks de suas etapas. Não declarar executado o que este documento apenas condiciona.
+
+
+## 11. GATE complementar: contenção nativa de novas janelas e prova parcial
+
+Este complemento é documental e deve ser integrado em PR próprio, com guard, reconstrução e backup SUCCESS no mesmo HEAD, antes de integrar o BUILD que o implemente. Não habilita execução material, deploy ou novos caminhos. O PR #139 mantém DRAFT até a integração deste complemento, reancoragem normal sem force push, revisão e checks do seu HEAD final.
+
+### 11.1 Causa e decisão estrita
+
+O public-probe do HEAD `2454c855975fa2e5df4a4d6d97226975989504f8`, run `42436054090`, demonstrou que o documento inicial de popup não foi conferido: documentos 1→1, scripts 1→2, zero requests estrangeiros nessa fixture. Artefato `13599568037`, SHA256 `c457238db46c9f4cde726c1dc1bf35265775e7dd880a760a23e2df47ec415257`. Não constitui PASS de popup nem libera credenciais com fence incompleto.
+
+Adotar política DENY para toda nova janela iniciada pelo conteúdo. É autorizada a flag restritiva nativa do Chromium `--block-new-web-contents`, desde que o próprio runner com versão congelada comprove o bloqueio real. A fonte primária GoogleChrome/chrome-launcher, `docs/chrome-flags-for-tools.md`, documenta a política; o histórico do issue Chromium `523639090` exige não confiar somente na presença da flag. Não desativar sandbox, isolamento, CORS ou validações de segurança.
+
+O routing nativo de contexto aborta antes da transmissão toda requisição que não pertença à página principal, inclusive identidade de frame ausente. Popup inesperado observável encerra a execução com FAIL. Única tentativa tolerável, sempre sem transmitir: após ação oficial de download, URL HTTPS da origem HML e path exato do arquivo próprio já recebido no protocolo. Nenhuma URL, token ou payload dessa tentativa entra no relatório público. Não reexecutar navegação abortada, injetar SDK, modificar `window.open`, usar API interna do Playwright ou fabricar handshake WebSocket.
+
+### 11.2 Provas reais necessárias
+
+As fixtures sem credenciais devem provar zero requests HTTP e zero upgrades WebSocket por `window.open`, links e formulários `target=_blank`, e `about:blank` seguido de `document.write` com fetch/WebSocket. Devem provar também que nova janela não foi criada, que tentativas inesperadas observáveis falham e que a página principal continua protegida por deny de WebSocket nativo antes de executar conteúdo. Não usar `routeWebSocket` sem conexão, pois isso pode fabricar handshake do lado cliente.
+
+Na página principal, manter URL allowlist antes da transmissão, bloqueio de todos os redirects antes de seguir e comparação dos bytes efetivamente carregados de HTML/scripts com o grafo público inspecionado antes de preencher credenciais. Nenhuma exceção de origem. CORS deve continuar nativo: sem relay, fulfill, mock, troca de headers/cookies/Origin ou leitura de body/header de autenticação. Native CORS negativo, preflight e ausência de POST negado permanecem verificações reais.
+
+### 11.3 Resultado parcial admissível e pendências integrais
+
+O botão oficial e a chamada real de `storage-sign-download` continuam sendo exercitados pela UI na origem em teste. Sua resposta recebida pelo navegador prova somente esse transporte CORS, não a abertura da janela. O GET da URL assinada oficial é prova separada de integridade física, com origem/path próprios validados antes do request, redirects proibidos (maxRedirects 0 ou `redirect:error` equivalente) e leitura por streaming limitada ao tamanho esperado antes de hash. Não obter credencial privilegiada ou fabricar URL.
+
+Somente essas provas parciais podem ser declaradas se todos os demais critérios do lote passarem. A janela/download renderizado nativo permanece NÃO CERTIFICADO e pendente para certificação integral de documentos, CRUD global e V1. A política do harness não altera o produto, não converte essa pendência funcional em PASS e não abolirá o critério original de aceite. O relatório deve separar claramente resposta Edge na UI, hash do GET e janela não verificada.
+
+Permanecem obrigatórios o TXT publicado adicional antes dos quatro uploads locais, cinco recibos disjuntos e recuperação exata, worker real, negativos, auditoria, readiness SELECT restrita, banimento/revogação antes de quarentena, cleanup e limites 300/900 segundos. Qualquer falha desses critérios interrompe o smoke e mantém FAIL. Nenhuma certificação de versões posteriores ou PROD decorre deste complemento.
+
+### 11.4 Ordem e autorizações
+
+Após os checks e revisão documental deste PR, integrar o complemento; reancorar o BUILD #139 com merge normal de main; implementar/testar DENY e GET limitado; Teste C independente do harness completo; obter guard/restore/backup/public-probe SUCCESS no mesmo HEAD final; somente então integrar BUILD. Deploy HML e retomada material continuam sujeitos à seção 9 e a checkpoint próprio. Nenhuma nova aprovação humana rotineira é necessária; preservam-se as autorizações e negações da seção 10.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, dependências, workflows, novas origens, funções ou escopo de produto.
