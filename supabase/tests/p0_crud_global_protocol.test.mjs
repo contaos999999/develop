@@ -9,10 +9,25 @@ const root=resolve('.');
 
 import {spawnSync} from 'node:child_process';
 const browser='supabase/tests/p0_crud_global_browser.mjs';
+test('worker ACL failure aborts inside the installation transaction before its only COMMIT',()=>{
+ const sql=readFileSync('supabase/migrations/20261108060000_restore_document_worker_pg_net.sql','utf8');
+ const start=sql.indexOf('DO $worker_acl_fence$');
+ const end=sql.indexOf('$worker_acl_fence$;',start);
+ assert(start>sql.indexOf('REVOKE ALL PRIVILEGES ON ALL FUNCTIONS'), 'effective ACL fence must follow all four revocations');
+ assert(end>start && end<sql.indexOf('COMMIT;'),'ACL exception must precede COMMIT');
+ assert.equal((sql.match(/\bCOMMIT\s*;/gi)||[]).length,1);
+ const block=sql.slice(start,end);
+ assert.match(block,/RAISE EXCEPTION USING ERRCODE = '42501'/);
+ for(const fn of ['has_schema_privilege','has_table_privilege','has_any_column_privilege','has_sequence_privilege','has_function_privilege'])assert(block.includes(fn));
+ assert.equal(/EXCEPTION\s+WHEN|vault\.|http_request_queue\s*;|RAISE\s+(?:NOTICE|WARNING|LOG)/i.test(block),false);
+});
 test('worker runtime migration enables nonpublic pg_net and closes inherited access atomically',()=>{
  const file='supabase/migrations/20261108060000_restore_document_worker_pg_net.sql';
  assert(existsSync(file),'approved worker runtime migration required');
- assert.equal(readFileSync(file,'utf8').replace(/^--.*$/gm,'').trim(),`BEGIN;
+ const source=readFileSync(file,'utf8').replace(/^--.*$/gm,'');
+ const fence=source.match(/DO \$worker_acl_fence\$[\s\S]*?\$worker_acl_fence\$;/);
+ assert(fence,'effective privilege assertion required before commit');
+ assert.equal(source.replace(fence[0],'').replace(/\n\s*\n/g,'\n').trim(),`BEGIN;
 CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 REVOKE ALL PRIVILEGES ON SCHEMA net FROM PUBLIC, anon, authenticated;
 REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA net FROM PUBLIC, anon, authenticated;

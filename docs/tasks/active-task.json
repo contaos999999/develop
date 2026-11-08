@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "BUILD: runtime documental HML com pg_net isolado e Restore sem egress",
+  "title": "Correção proposta: abortar instalação pg_net antes do COMMIT se ACL efetiva permanecer aberta",
   "status": "ativa",
-  "phase": "BUILD_DOCUMENT_WORKER_RUNTIME_HML",
+  "phase": "BUILD_ATOMIC_ACL_FENCE_REVIEW_ONLY",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos",
+  "context_read_by": "Codex Trilha B desta execução; 25 canônicos, manifesto, P0, checkpoints138/139/148/155/157 e HEADs main a779e75 /155 d5d79b6 lidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -40,13 +40,8 @@
     "docs/tasks/active-task.json",
     "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
     "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
-    "supabase/tests/hml_acceptance.sql",
-    "supabase/tests/p0_crud_global_hml.py",
     "supabase/tests/p0_crud_global_protocol.test.mjs",
-    "supabase/tests/queues_edge_auth.sql",
-    ".github/workflows/restore-isolado.yml",
-    "scripts/p0-v1-synthetic-data-restore.sh",
-    "scripts/isolated-db-network.sh"
+    "supabase/tests/worker_atomic_acl.postgres.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -1445,5 +1440,14 @@
       "exact_status": "NOT_EXPOSED_NOT_PRESUMED",
       "no_hml_mutation": true
     }
+  },
+  "atomic_acl_fence": {
+    "base": "d5d79b626a8236f3ed0a618d2ae5d733f311aac7",
+    "main": "a779e75a6985f63bba9dcc5019b48f6b6aed38d7",
+    "scope": "Proposta independente para revisão; nenhum avanço da branch155; assertiva efetiva dentro da transação antes de COMMIT, sem relaxar quatro REVOKEs ou oito assertions",
+    "hml_apply_allowed": false,
+    "security_boundary_change_allowed": false,
+    "requires_independent_review": true,
+    "migration_not_applied": true
   }
 }

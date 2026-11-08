@@ -115,3 +115,33 @@ HEAD4deade48a165d4df2d0643643b778cf283b46b09: guard42455696954, histórico424556
 Delta somente de diagnóstico noSQLjápermitido: SELECTcatálogo dosroles/superuser/herança e ACLs/owners de schema/tabelas/sequências/funçõesnet, semler filas,headers,segredos oucriarobjetos. Mantidas todasassertions bloqueantes. O titular nesta conversa determinou resolverworker e verificações dafixture152; reutilizar155 semduplicação. HMLcontinua intacto e arquivo152 pendente/enfileirado.
 
 Diagnóstico40323f2/restore42456721306: owners/grantors net=supabase_admin; grantsPUBLIC eexplícitosanon/authcontinuamabertos; rolesclientesnãoSuperuser/nãomembrospostgres. CausaentreREVOKEineficazporgrantor e reaplicaçãopósCLI aindaadistinguir. PróximodeltasomenteSQLlocalemsavepoint: executar osmesmos4REVOKEs, registrar catálogoimediato eROLLBACKTOantesdasassertionsoriginais. NenhumREVOKEcorrectivotardio éusadoparaaprovar. Sepermissõespermaneceremabertasantes/depois, nãoaplicarHML e buscarfluxooficialdeowner/instalação.
+
+
+## Proposta independente: aborto atômico antes do COMMIT
+
+Base do delta: PR155/d5d79b626a8236f3ed0a618d2ae5d733f311aac7. Main lida diretamente: a779e75a6985f63bba9dcc5019b48f6b6aed38d7; checkpoint157 mantém bloqueio de segurança. Este executor não modifica a branch155 nem atribui a si commits ou provas anteriores.
+
+Defeito adicional: a migration ainda não aplicada executa CREATE e quatro REVOKEs, mas chega ao COMMIT mesmo que PostgreSQL emita WARNING e não retire privilégio algum. Teste posterior detecta o problema quando a extensão já foi confirmada. A proteção preventiva precisa ocorrer dentro da mesma transação.
+
+Plano mínimo para revisão: manter os quatro REVOKEs e acrescentar um DO antes do único COMMIT, verificando assinatura e objetos obrigatórios, USAGE/CREATE de schema, todos os privilégios de tabela e coluna, sequências e funções para anon/authenticated, inclusive herança PUBLIC, mais acesso do scheduler postgres. Qualquer falha levanta 42501 com mensagem fixa, sem ler filas, headers, Vault ou segredos. Não captura exceção para continuar. Não altera owner, role, catálogo, policy, cron ou Edge.
+
+Esse complemento fortalece GATE153 sem substituir a exigência de isolamento. A alternativa DataAPI do checkpoint157 permanece sem implementação/aplicação. A mudança textual do contrato exato da migration exige revisão do complemento antes de integração ao PR155; este delta fica em PR separado e DRAFT. A migration não consta de main nem foi aplicada no HML, portanto não reescreve migration aplicada. Os quatro comandos de REVOKE e as oito assertions posteriores permanecem exigidos.
+
+Validação: reproduzir RED por ausência da barreira, testar o bloco SQL em PostgreSQL local com ACLs sintéticas abertas/fechadas e falhas individuais, verificar rollback real, executar suíte Node completa e dez guards. O PostgreSQL de teste não prova pg_net gerenciado, firewall nativo, Restore ou HML. Exigir CI e revisão independente do mesmo HEAD. Restore no provedor continuará bloqueado de forma antecipada até solução suportada; nunca converter esse bloqueio em PASS.
+
+Pendência de decisão técnica: o provedor não suporta as revogações exigidas. A opção documentada157 aceita logins SQL diretos como fronteira administrativa confiável e mantém net fora da DataAPI, mas muda a condição de segurança. A instrução genérica de resolver não é registrada como aceite específico desse risco. Sem decisão específica ou solução que mantenha a proteção, nenhum deploy ou prova material é liberado.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A, somente barreira SQL preventiva e regressão; nenhum frontend ou turno Lovable, sem bypass de checks, sem PROD e sem certificação V1/CRUD.
+
+
+### Evidências desta execução para a barreira atômica
+
+- Baseline no HEAD155 d5d79b6: node --test, 329/329 PASS.
+- RED novo: teste worker ACL failure, 0/1 PASS, ausência da barreira antes de COMMIT.
+- Primeiro ensaio PostgreSQL local detectou 42809: otimizador podia avaliar has_sequence_privilege em relação não-sequência apesar do filtro AND. Correção mínima usa CASE por relkind, preservando a exigência de privilégio efetivo. Falha não foi aceita como isolamento.
+- GREEN: node --test, 330/330 PASS, zero skip/cancelamento; protocolo71/71 na revisão técnica independente; dez guards e git diff --check PASS.
+- PostgreSQL local PGlite@0.3.14: 13/13 cenários PASS, reexecutados pelo revisor. Cenário fechado confirma COMMIT; outros12 confirmam 42501, transação25P02 e COMMIT convertido em ROLLBACK da sentinela. Casos: PUBLICschema, CREATEauth, tabela, coluna, resposta, sequência, função, roleherdado, tabelaextra, funçãoextra, objetoausente e assinaturaausente.
+- Regressão reproduzível: instalar @electric-sql/pglite@0.3.14 em diretório temporário com --ignore-scripts, definir CONTAOS_PGLITE_MODULE como fileURL de dist/index.js e executar node supabase/tests/worker_atomic_acl.postgres.mjs na raiz. Dependência apenas de teste local; nenhuma biblioteca de produto adicionada. O teste usa objetos/ACLs sintéticos no mecanismo PostgreSQL, sem pg_net instalado.
+- Revisão técnica independente read-only sem Critical/Important; contexto normativo integral da revisão ainda pendente no momento deste registro. Nenhuma aprovação de merge/aplicação derivada dessa revisão técnica.
+- SQL HML desta execução: consulta de catálogo somente leitura confirmou netausente; pg_cron em pg_catalog, httpextensiondisponível masnãoinstalada; crons4–9 ativos. Não consultou conteúdo de filas/headers/Vault, não invocou worker e não criou fixture.
+- Não houve novas provas materiais5/3/5, deploy, merge, alteraçãofrontend317 ouPROD. Continuam condições técnicas ainda não cumpridas. Este delta não resolve a limitação da plataforma nem substitui a decisão documentada157.
