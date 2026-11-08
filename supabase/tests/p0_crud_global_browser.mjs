@@ -657,6 +657,11 @@ export async function fillNextVersionDates(page,start){
   await page.getByLabel('Início da vigência',{exact:true}).fill(start);
   await page.getByLabel('Fim da vigência',{exact:true}).fill('');
 }
+export async function applyDocumentTitleFilter(page,title){
+  const form=page.getByRole('form',{name:'Filtros',exact:true});
+  await form.getByLabel('Buscar por título',{exact:true}).fill(title);
+  await form.getByRole('button',{name:'Aplicar filtros',exact:true}).click();
+}
 export async function selectListState(page,state){
   assert(['ativa','inativa'].includes(state));
   const form=page.locator('form').filter({has:page.getByRole('heading',{name:'Alterar situação',exact:true})});
@@ -751,6 +756,11 @@ async function main(){
       await selectListState(sample,'inativa');await expect(sample.locator('form').getByRole('combobox')).toHaveValue('inativa');
       await expect(sample.getByRole('combobox',{name:'Filtro externo',exact:true})).toHaveValue('ativa');check('LIST_STATE_SCOPED_INACTIVE',true);
       await selectListState(sample,'ativa');await expect(sample.locator('form').getByRole('combobox')).toHaveValue('ativa');check('LIST_STATE_SCOPED_ACTIVE',true);
+      await sample.setContent('<form aria-label="Filtros"><label>Buscar por título<input></label><button>Aplicar filtros</button></form><ul aria-label="Documentos"><li>Own published txt</li><li>Own local txt</li><li>Own local pdf</li></ul>');
+      await sample.evaluate(()=>{document.querySelector('form').onsubmit=e=>{e.preventDefault();const title=document.querySelector('input').value;for(const row of document.querySelectorAll('li'))row.hidden=!row.textContent.includes(title);};});
+      await sample.getByLabel('Buscar por título',{exact:true}).fill('Own local ');
+      await expect(sample.getByRole('listitem')).toHaveCount(3);check('DOCUMENT_DRAFT_FILTER_NOT_APPLIED',true);
+      await applyDocumentTitleFilter(sample,'Own local ');await expect(sample.getByRole('listitem')).toHaveCount(2);check('DOCUMENT_FILTER_SUBMITTED_BEFORE_ROW_ASSERTION',true);
       await x.page.evaluate(()=>sessionStorage.setItem('contaos.public-probe-tab-context','synthetic-own-context'));
       const fresh=await x.context.newPage();await fresh.goto(base+'/login');
       check('NEW_TAB_HAS_SEPARATE_SESSION_STORAGE',await fresh.evaluate(()=>sessionStorage.getItem('contaos.public-probe-tab-context'))===null);
@@ -840,8 +850,10 @@ async function main(){
         }),
         local:async deadline=>{batchDeadline=deadline;provenance='LOCAL';report.local_state='RUNNING';for(const key of Object.keys(documentNetwork))documentNetwork[key]={requests:0,http:null,failed:false};Object.assign(documentConfig,{config_loaded:false,txt_allowed:false,pdf_allowed:false});assert.equal(process.env.FRONTEND_HEAD,FRONTEND_PIN);await documentPage(base);
       for(const format of ['txt','pdf']){const document=await upload(format,1);await upload(format,2,document);}
-      await ap.reload();await ap.getByLabel('Buscar por título',{exact:true}).fill(f.prefix+'local ');await expect(ap.getByRole('list',{name:'Documentos',exact:true}).locator(':scope > li')).toHaveCount(2);
-      await ap.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
+      stage('DOCUMENT_LOCAL_RELOAD_AFTER_UPLOADS');await ap.reload();
+      stage('DOCUMENT_LOCAL_APPLY_TITLE_FILTER');await applyDocumentTitleFilter(ap,f.prefix+'local ');
+      stage('DOCUMENT_LOCAL_VERIFY_FILTERED_ROWS');await expect(ap.getByRole('list',{name:'Documentos',exact:true}).locator(':scope > li')).toHaveCount(2);
+      stage('DOCUMENT_LOCAL_ACCESSIBILITY_SETUP');await ap.addScriptTag({path:process.env.CONTAOS_AXE_SOURCE_PATH});
       for(const theme of ['light','dark'])for(const width of [1440,1280,768,390]){
         stage('DOCUMENT_VISUAL_'+width+'_'+theme.toUpperCase());await ap.setViewportSize({width,height:1000});await ap.evaluate(t=>{document.documentElement.classList.toggle('dark',t==='dark');document.documentElement.style.colorScheme=t;},theme);
         await ap.getByRole('button',{name:'Atualizar lista',exact:true}).focus();await expect(ap.getByRole('button',{name:'Atualizar lista',exact:true})).toBeFocused();await ap.keyboard.press('Tab');

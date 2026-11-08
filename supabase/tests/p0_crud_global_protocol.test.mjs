@@ -1039,3 +1039,9 @@ test('live HEAD and checks are revalidated after dependency install and public p
  assert.match(proof,/check-runs/);
  assert.match(proof,/unset GH_TOKEN\n          python3 supabase\/tests\/p0_crud_global_hml.py/);
 });
+test('document filter submits draft through exact own form before checking two local documents',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.applyDocumentTitleFilter,'function');
+ const calls=[];const form={getByLabel(name,opt){assert.equal(name,'Buscar por título');assert.equal(opt.exact,true);return {fill:async value=>calls.push(['draft',value])};},getByRole(role,opt){assert.equal(role,'button');assert.deepEqual(opt,{name:'Aplicar filtros',exact:true});return {click:async()=>calls.push(['submit'])};}};
+ await m.applyDocumentTitleFilter({getByRole(role,opt){assert.equal(role,'form');assert.deepEqual(opt,{name:'Filtros',exact:true});return form;}},'Own local ');
+ assert.deepEqual(calls,[['draft','Own local '],['submit']]);
+});

@@ -11,3 +11,9 @@ A autorização material passa a exigir manifesto explícito para tarefa, fase, 
 Sequência: revisão independente e CI deste HEAD; merge normal CAS; Restore no merge; runner com TXT publicado primeiro e quatro provas locais, cinco arquivos/três documentos/cinco versões; JWT/RLS, quarentena/cleanup e recibos independentes; inspeção dos artefatos e checkpoint. Falhas exigem correção e nova prova, sem converter skip em PASS. Nenhuma certificação CRUD/V1 antecipada, nenhuma V2.
 
 RED observado: novo teste de autorização falhou por ausência da validação. GREEN protocolo75/75 antes da inclusão dos nove casos executáveis de autorização. Evidências finais de CI e lote ainda pendentes.
+
+## Falha material e correção do harness
+
+Run42499476089 no merge9c35f6f6 falhou após cinco uploads. Artifact13624619281 baixado/conferido SHA2563c7eb23dafc7b5aca6dd6bc596a5857ad9c00cf5b892c3ff4a710d65bdf003be. Publicado PASS_SMOKE primeiro; quatro uploads/worker/downloads locais e hashes PASS. Isolamento final ainda não executado. Cleanup próprio nonce7a98911bd10743a09536af3cb684b86b:4contas/2organizações,5objetos/5arquivos preservados por retenção,0jobsativos,2cancelados.
+
+A UI mantém rascunho e filtro aplicado separados e exige botão Aplicar filtros. O harness apenas preenchia o rascunho e esperava2linhas, mantendo3documentos visíveis. Correção apenas harness: preencher e submeter formulário exato, marcar etapas de reload/filtro/contagem/axe. Fixture Chromium pública sem credenciais reproduz3linhas antes da submissão e2depois. Teste unitário RED por helper inexistente, GREEN exigindo fill antes do submit. Nenhum ajuste de produto, filtro, expectativa, permissão ou timeout. Novo lote completo com nonce novo após revisão/CI obrigatório.
