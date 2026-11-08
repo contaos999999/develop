@@ -89,3 +89,35 @@ Se o titular aprovar esta alternativa, um GATE complementar deve fechar os camin
 **Estado:** diagnóstico concluído; duas pendências de produto ainda NÃO resolvidas; PR #155 bloqueado; nenhum deploy HML autorizado por este checkpoint. A prova de upload #152 permanece válida e não deve ser repetida ou apagada. V1/global/CRUD continuam sem certificação integral. Não iniciar V2 ou alterar PROD.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A; diagnóstico e planejamento sem turno Lovable, sem alteração do backend HML, sem reduzir teste ou proteção silenciosamente.
+
+## GATE complementar aprovado pelo titular: fronteira efetiva da API
+
+Em 08/11/2026 o titular respondeu **“Surorizo”**, interpretado no contexto inequívoco como **“Autorizo”**, à pergunta expressa do checkpoint #157. A autorização aceita manter os workers no Supabase, proteger a fronteira da API e limitar SQL direto a serviços administrativos confiáveis, ciente de que essas contas podem ler headers da fila pg_net. Não solicitar novamente essa mesma decisão. O registro histórico de oito negativas ACL e da decisão anterior permanece intacto.
+
+Este complemento substitui **somente** a condição inexequível de revogar os grants gerenciados de pg_net do GATE #153. Não afirma ACLs fechadas nem ausência de acesso SQL administrativo. Preserva o backend Supabase, Auth/JWT/token interno/RBAC/RLS/Storage, workers/crons, filas e payloads existentes, a contenção real TCP/HTTP dos GATEs #154/#156, as provas de restore/backup/guards e a proibição de consumidor global manual. Frontend, PROD e migrations já aplicadas permanecem intocados.
+
+### BUILD fechado após integração deste GATE
+
+Reutilizar o PR #155 com reancoragem normal, mantendo seus dez caminhos já autorizados e acrescentando somente:
+
+- `.github/workflows/p0-hml-migration-version-parity.yml`;
+- `supabase/tests/worker_api_boundary_hml.py`;
+- `supabase/tests/worker_api_boundary.test.mjs`.
+
+A migration **ainda não aplicada** `20261108060000_restore_document_worker_pg_net.sql` passa a conter somente BEGIN, CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions e COMMIT. Retirar os REVOKEs ineficazes dessa versão não aplicada, preservando seus hashes/falhas anteriores no histórico. Não mudar owners, grantors, roles, membership, LOGIN, configuraçãoAuth ou catálogos privilegiados. A extensão deve estar fora de public, sua API oficial disponível ao scheduler e as identidades de aplicação sem LOGIN. Qualquer role SQL de LOGIN além da lista nominal dos serviços já inventariados deve bloquear a implantação para análise, sem revogação cega de infraestrutura.
+
+Substituir as oito assertions que exigiam ACLs impossíveis por testes precisos de contrato gerenciado: namespace, assinatura, owners gerenciados, capacidade do scheduler, anon/authenticated sem LOGIN e inventário fechado de logins. Registrar que esses testes SQL não certificam a Data API. Não retirar as demais provas e negativas existentes. O preflight do runner documental deve exigir extensão/cron/destino HML e os controles efetivos, sem alegar grants revogados.
+
+### Prova real antes e depois do deploy
+
+No workflow canônico de deploy_one, **somente para a versão 20261108060000**, executar o novo script antes de qualquer DDL e novamente depois da aplicação, após conferir fonte/hash/checks/manifesto e exatamente uma migration pendente. Disponibilizar `CONTAOS_HML_AUTH_ADMIN_KEY` somente no passo de prova correspondente, dentro do ambiente protegido hml. Nenhum token, senha, body de erro ou URL assinada pode ser impresso ou publicado. Preservar comportamentos/inputs das outras migrations e os gates atuais da CLI.
+
+O script valida project ref/host/role do DATABASE_URL e origem HTTPS fixa, sem redirects. Lê somente metadados de extensão, roles e comparação booleana do destino Vault, nunca valores de secrets ou linhas das filas. Cria apenas uma identidade Auth sintética própria por execução, com escopo/nonce/intent_id recuperáveis; autentica pela API normal e confirma identidade. Usa a chave pública já existente, mantendo a chave administrativa apenas na API Auth. Exige controles positivos de API pública e sessão autenticada; para **ambas** as identidades, uma leitura com `Accept-Profile: net`, seleção apenas de id e limite zero deve retornar exatamente 406/PGRST106. Outros erros, falha de transporte ou autenticação não contam como proteção. Essa é a prova da configuração efetiva da API; não inferir configuração global de GUC ausente numa sessão SQL. Não selecionar headers, body, tokens ou linhas de net.
+
+A identidade própria deve ser excluída e sua ausência confirmada, inclusive quando a requisição de criação tiver resultado incerto. Verificar scope/nonce/intent_id antes de qualquer exclusão; não excluir usuário preexistente, de outra execução ou da fixture #152. Limpeza incompleta mantém FAIL; relatório sanitizado identifica estágio, HEAD, booleans e status, sem credenciais. Não criar arquivos/documentos/jobs nem chamar workers nesse preflight. Um FAIL anterior impede DDL; FAIL posterior impede declarar conclusão e preserva os recibos para correção, sem apagar filas ou aplicar rollback destrutivo automaticamente.
+
+TDD deve provar recusa de status/código divergentes, erro de transporte/redirect, inventário inesperado, estados de extensão incompatíveis e ciclo de recuperação/cleanup de identidade própria. Regressão valida o workflow exato antes/depois do deploy e limita a migration ao contrato aprovado. Suíte Node completa, sintaxe Python/YAML, todos os guards, public-probe, restore SQL e backup reais no mesmo HEAD, mais revisão independente do conjunto, são obrigatórios antes de merge/aplicação.
+
+Após implantação e controles efetivos aprovados, **observar os crons normais**, sem consumidor manual, até processar a fixture #152. Comprovar job real, segurança aprovada pelo worker, extração, páginas/fragmentos e atualização autenticada na interface. Não atualizar status de segurança manualmente nem atribuir a prova de um TXT a antivírus universal, todos os formatos, CRUD global ou certificação V1. Encerrar com checkpoint integrado de commits, CI, implantação e pendências reais.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A; reaproveitar workers e código existentes, sem turno Lovable, nova arquitetura de backend ou relaxamento silencioso de requisito. A mudança da condição de segurança está expressamente aprovada e delimitada acima.

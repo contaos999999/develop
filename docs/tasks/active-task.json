@@ -1366,7 +1366,7 @@
       "no_new_build_paths": true
     },
     "platform_constraint": {
-      "state": "BLOCKED_PENDING_SECURITY_DECISION",
+      "state": "AUTHORIZED_PENDING_COMPLEMENT_GATE",
       "diagnostic_head": "d5d79b626a8236f3ed0a618d2ae5d733f311aac7",
       "diagnostic_run": 42456946721,
       "rebuild_job": 128657901129,
@@ -1382,6 +1382,35 @@
         "message": "Invalid schema: net"
       },
       "authenticated_api_negative": "NOT_EXECUTED",
+      "new_build_authorized": false,
+      "decision": {
+        "by": "titular",
+        "date": "2026-11-08",
+        "message": "Surorizo",
+        "interpretation": "Autorizo a alternativa solicitada no checkpoint157: fronteiraAPI, SQLdireto somenteadministrativo confiável e risco de headers legíveis porSQLdireto aceito",
+        "scope": "HML apenas; preservar workers Supabase, JWT/RBAC/RLS, configuraçãoAuth e PROD"
+      }
+    },
+    "api_boundary_complement": {
+      "phase": "GATE",
+      "supersedes": "GATE153 somente exigência de REVOKEs/ACLs internos pg_net; risco aceito explicitamente pelo titular após157",
+      "future_build_paths": [
+        "docs/tasks/active-task.json",
+        "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
+        "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
+        "supabase/tests/hml_acceptance.sql",
+        "supabase/tests/p0_crud_global_hml.py",
+        "supabase/tests/p0_crud_global_protocol.test.mjs",
+        "supabase/tests/queues_edge_auth.sql",
+        ".github/workflows/restore-isolado.yml",
+        "scripts/p0-v1-synthetic-data-restore.sh",
+        "scripts/isolated-db-network.sh",
+        ".github/workflows/p0-hml-migration-version-parity.yml",
+        "supabase/tests/worker_api_boundary_hml.py",
+        "supabase/tests/worker_api_boundary.test.mjs"
+      ],
+      "pre_and_post_deploy_proof": true,
+      "auth_fixture_only": true,
       "new_build_authorized": false
     }
   }
