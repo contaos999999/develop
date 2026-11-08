@@ -108,7 +108,7 @@ jobs:
           for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
               assert any(c['name']==name and c['head_sha']==sha and c['conclusion']=='success' for c in checks),name
           comment_id=''
-          if task.get('remaining_certification',{}).get('approved_ai_worker_deploy'):
+          if task.get('remaining_certification',{}).get('approved_ai_worker_deploy') or task.get('remaining_certification',{}).get('approved_ai_worker_runtime'):
               run=os.environ['RESTORE_RUN_ID'];assert re.fullmatch('[1-9][0-9]{1,20}',run)
               restore=api('actions/runs/'+run)
               not_before=verify_ci_binding(restore,checks,sha)
@@ -118,7 +118,12 @@ jobs:
                   comments=[api('issues/comments/'+given)]
               else:
                   comments=api('issues/138/comments?per_page=100&since='+urllib.parse.quote(restore['created_at'],safe=''))
-              comment_id,_=find_deployment_receipt(task,sha,comments,not_before=not_before)
+              origin=None
+              runtime=task['remaining_certification'].get('approved_ai_worker_runtime')
+              if runtime:
+                  origin_id=runtime['origin_receipt_comment_id'];assert type(origin_id) is int and origin_id>0
+                  origin=api('issues/comments/'+str(origin_id))
+              comment_id,_=find_deployment_receipt(task,sha,comments,not_before=not_before,origin_comment=origin)
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('receipt_comment_id='+str(comment_id)+'\n')
           print('RUNTIME_DEPLOYMENT_READY_NO_HML_CREDENTIALS')
           PY
@@ -220,7 +225,7 @@ jobs:
           for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
               assert any(c['name']==name and c['head_sha']==sha and c['conclusion']=='success' for c in checks),name
           private=pathlib.Path(os.environ['RUNNER_TEMP'])/('contaos-remaining-'+os.environ['DOMAIN'])
-          if task.get('remaining_certification',{}).get('approved_ai_worker_deploy'):
+          if task.get('remaining_certification',{}).get('approved_ai_worker_deploy') or task.get('remaining_certification',{}).get('approved_ai_worker_runtime'):
               import re
               from remaining_domains.ai_deploy_gate import validate_receipt,verify_ci_binding
               comment_id=os.environ['DEPLOY_RECEIPT_COMMENT_ID'];assert re.fullmatch('[1-9][0-9]{1,20}',comment_id)
@@ -229,7 +234,12 @@ jobs:
               assert comment['issue_url']=='https://api.github.com/repos/contaos999999/develop/issues/138'
               restore=api('actions/runs/'+os.environ['RESTORE_RUN_ID'])
               not_before=verify_ci_binding(restore,checks,sha)
-              receipt=validate_receipt(task,sha,json.loads(comment['body']),not_before=not_before,comment_created_at=comment['created_at'])
+              origin=None
+              runtime=task['remaining_certification'].get('approved_ai_worker_runtime')
+              if runtime:
+                  origin_id=runtime['origin_receipt_comment_id'];assert type(origin_id) is int and origin_id>0
+                  origin=api('issues/comments/'+str(origin_id))
+              receipt=validate_receipt(task,sha,json.loads(comment['body']),not_before=not_before,comment_created_at=comment['created_at'],origin_comment=origin)
               private.mkdir(mode=0o700,parents=True,exist_ok=True)
               path=private/'ai-deploy-receipt.json';path.write_text(json.dumps(receipt,indent=2)+'\n');path.chmod(0o600)
           with open(os.environ['GITHUB_ENV'],'a') as out:out.write('CONTAOS_TEST_PRIVATE_DIR='+str(private)+'\n')

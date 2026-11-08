@@ -38,7 +38,7 @@ print('TRANSPORT_FAIL_CLOSED_PASS')`);assert.equal(r.status,0,r.stderr);assert.m
 test('domain PASS requires actual positive operations, SQL checks and exact negative roles',()=>{
  const r=run(`import p0_crud_global_remaining_hml as m,copy
 for domain,required in m.REQUIRED.items():
- report={'domain':domain,'global_complete':False,'assertions':[{'name':n,'passed':True} for n in required['checks']],'receipts':[{'operation':n,'role':'administrador','http':200} for n in (*required['rpc'],*required.get('edge',()))]+[{'operation':n,'role':'master','http':200} for n in required.get('master_rpc',())]+[{'role':role,'http':403} for role in ('leitor','usuario_b','anon')]}
+ report={'domain':domain,'global_complete':False,'assertions':[{'name':n,'passed':True} for n in required['checks']],'receipts':[{'operation':n,'role':'administrador','http':200} for n in (*required['rpc'],*required.get('edge',()))]+[{'operation':n,'role':'master','http':required.get('master_http',{}).get(n,200)} for n in required.get('master_rpc',())]+[{'role':role,'http':403} for role in ('leitor','usuario_b','anon')]}
  m.assert_complete(report,domain)
  for key in ('assertions','receipts'):
   bad={**report,key:[]}
@@ -76,7 +76,7 @@ test('real gate rejects missing check, failed check and advanced HEAD before Aut
  try{
   const task=JSON.parse(readFileSync('docs/tasks/active-task.json','utf8'));const protectedPaths=Object.keys(task.remaining_certification.preserved_documental.protected_sha256);
   for(const p of [...protectedPaths,'supabase/tests/p0_crud_global_remaining_hml.py','docs/tasks/active-task.json']){mkdirSync(join(dir,p,'..'),{recursive:true});copyFileSync(p,join(dir,p));}
-  delete task.remaining_certification.approved_ai_worker_deploy;task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
+  delete task.remaining_certification.approved_ai_worker_deploy;delete task.remaining_certification.approved_ai_worker_runtime;task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
   mkdirSync(join(dir,'bin'));
   writeFileSync(join(dir,'bin/git'),`#!/usr/bin/env python3
 import sys,os
