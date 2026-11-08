@@ -242,3 +242,22 @@ for section in ('schemas','column_privileges'):
  assert compare_catalogs(base,actual)['state']=='FAIL_APPLICATION_CATALOG_DRIFT'
 print('COLUMN_SCHEMA_ACL_REQUIRED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/COLUMN_SCHEMA_ACL_REQUIRED/);
 });
+
+test('local historical queue fixture uses dedicated producer instead of generic closed enqueuer',()=>{
+ const code=String.raw`import ast,pathlib
+source=ast.parse(pathlib.Path('supabase/tests/remaining_domains/history_quarantine_local.py').read_text())
+main=next(n for n in source.body if isinstance(n,ast.FunctionDef) and n.name=='main')
+job=next(n for n in main.body if isinstance(n,ast.FunctionDef) and n.name=='job')
+class Local:
+ def __init__(self):self.calls=[]
+ def sql(self,query,fetch):self.calls.append(query);return 'own-id'
+r=Local();ns={'runner':r,'q':lambda x:"'"+x+"'",'version':'own-version'}
+exec(compile(ast.Module(body=[job],type_ignores=[]),'local-producer','exec'),ns)
+assert ns['job']('own-org','own-contract')=='own-id'
+assert "pgmq.send('historico'" in r.calls[-1] and 'insert into public.execucoes_assincronas' in r.calls[-1]
+assert 'privado.enfileirar_job' not in r.calls[-1]
+ns['job']('own-org','own-contract','ocr')
+assert "privado.enfileirar_job('ocr'" in r.calls[-1]
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);
+});
