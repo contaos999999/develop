@@ -33,15 +33,23 @@ async function boundedPublicText(fetcher,url,maximum){
   finally{await reader.cancel();}
   return Buffer.concat(parts).toString('utf8');
 }
-export async function inspectPublishedBackend(fetcher,analyzer){
+export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
   try{
-    const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
+    onPhase('READ_HTML');const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
+    onPhase('PARSE_SCRIPT_ENTRIES');
     // Every executable script participates in inert analysis; no auxiliary script is ignored.
     assert(!/<base\b/i.test(html));const entries=[],modules=new Map();let total=0;
     const allowedScriptPath=p=>p.startsWith('/assets/')||p==='/~flock.js'||/^\/__l5e\/events\.[a-f0-9]+\.js$/.test(p);
     for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)){
-      const attrs=[...match[1].matchAll(/([\w-]+)\s*=\s*(["'])(.*?)\2/g)];
-      const values=new Map();for(const [,key,,value] of attrs){assert(!values.has(key.toLowerCase()));values.set(key.toLowerCase(),value);}
+      // Only a fully consumed, quoted/boolean attribute grammar is accepted.
+      // Reject unquoted values rather than interpreting them differently from the browser.
+      const values=new Map();let rest=match[1];
+      while(rest.trim()){
+        const attr=/^\s+([A-Za-z_:][A-Za-z0-9_:.-]*)(?:\s*=\s*("[^"<>]*"|'[^'<>]*'))?(?=\s|$)/.exec(rest);assert(attr,'Ambiguous script attributes');
+        const key=attr[1].toLowerCase();assert(!values.has(key));
+        assert(attr[2]!==undefined||['async','defer','nomodule'].includes(key),'Unsupported boolean script attribute');
+        values.set(key,attr[2]===undefined?'':attr[2].slice(1,-1));rest=rest.slice(attr[0].length);
+      }
       const type=values.get('type');if(['application/json','application/ld+json'].includes(type))continue;
       assert(type===undefined||['module','text/javascript','application/javascript'].includes(type));
       if(values.has('src')){
@@ -50,19 +58,19 @@ export async function inspectPublishedBackend(fetcher,analyzer){
       }else{
         assert(!/\bsrc\b/i.test(match[1]),'Ambiguous script source');const source=match[2];if(!source.trim())continue;
         assert(Buffer.byteLength(source)<=262144);total+=Buffer.byteLength(source);
-        const id=PUBLISHED_ORIGIN+'/assets/__inline_'+createHash('sha256').update(source).digest('hex')+'.js';assert(!modules.has(id));modules.set(id,source);entries.push(id);
+        const id=PUBLISHED_ORIGIN+'/__inline_'+createHash('sha256').update(source).digest('hex')+'.js';assert(!modules.has(id));modules.set(id,source);entries.push(id);
       }
     }
     assert(entries.length>0&&entries.length<=16);const pending=[...new Set(entries.filter(e=>!modules.has(e)))];
     for(const [url,source] of modules)for(const name of analyzer.imports(source)){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);pending.push(child.href);}
-    while(pending.length){
+    onPhase('READ_SCRIPT_GRAPH');while(pending.length){
       const url=pending.shift();if(modules.has(url))continue;assert(modules.size<32);
       const source=await boundedPublicText(fetcher,url,4194304);total+=Buffer.byteLength(source);assert(total<=8388608);modules.set(url,source);
       // The parser returns imports, not arbitrary URLs; every dependency is bounded and same origin.
       const imports=analyzer.imports(source);
       for(const name of imports){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);if(!modules.has(child.href))pending.push(child.href);}
     }
-    const binding=analyzer.prove(modules,entries);assert.equal(binding.verified,true);assert(/^\d+\.\d+\.\d+$/.test(analyzer.version));if(analyzer.reference_sha256){assert(/^[a-f0-9]{64}$/.test(analyzer.reference_sha256));assert.equal(analyzer.compiler_version,'1.2.1');}
+    onPhase('PROVE_CONFIGURED_CLIENT');const binding=analyzer.prove(modules,entries);assert.equal(binding.verified,true);assert(/^\d+\.\d+\.\d+$/.test(analyzer.version));if(analyzer.reference_sha256){assert(/^[a-f0-9]{64}$/.test(analyzer.reference_sha256));assert.equal(analyzer.compiler_version,'1.2.1');}
     return {state:'HML_CONFIG_CONFIRMED',frontend_head:null,source_parity:'NAO_VERIFICADA',module_count:modules.size,asset_sha256:[...modules.values()].map(s=>createHash('sha256').update(s).digest('hex')),parser_version:analyzer.version,sdk_version:'2.118.0',...(analyzer.reference_sha256?{sdk_source_sha256:analyzer.reference_sha256,compiler_version:analyzer.compiler_version}:{} )};
   }catch{throw Error('PUBLICADA_BACKEND_NAO_COMPROVADO');}
 }
@@ -370,7 +378,7 @@ async function main(){
     async function editCadastro(page,region,kind,field,value,code){await expect(region.getByLabel(field,{exact:true})).toBeEnabled();await region.getByLabel(field,{exact:true}).fill(value);await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic CRUD verification');await region.getByRole('button',{name:'Revisar edição',exact:true}).click();await rpc(page,code,kind==='org'?'atualizar_organizacao_v1':'atualizar_contrato_v1',()=>region.getByRole('button',{name:'Confirmar edição',exact:true}).click());}
     async function stateCadastro(page,region,kind,state,code){await expect(region.getByLabel('Nova situação',{exact:true})).toBeEnabled();await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic lifecycle verification');await region.getByLabel('Nova situação',{exact:true}).selectOption(state);await region.getByRole('button',{name:'Revisar situação',exact:true}).click();await rpc(page,code,kind==='org'?'alterar_situacao_organizacao_v1':'alterar_situacao_contrato_v1',()=>region.getByRole('button',{name:'Confirmar mudança de situação',exact:true}).click());}
     if(probe){
-      stage('PUBLISHED_BACKEND_READONLY_FENCE');const analyzer=await loadPublishedAnalyzer(frontend);report.published_backend=await inspectPublishedBackend(fetch,analyzer);check('PUBLISHED_REAL_PARSER_FIXTURES',true);check('PUBLISHED_BACKEND_CONFIGURATION',true);
+      stage('PUBLISHED_BACKEND_READONLY_FENCE');const analyzer=await loadPublishedAnalyzer(frontend);report.published_backend=await inspectPublishedBackend(fetch,analyzer,phase=>{report.backend_inspection_phase=phase;save();});check('PUBLISHED_REAL_PARSER_FIXTURES',true);check('PUBLISHED_BACKEND_CONFIGURATION',true);
       const x=await open('master');const sample=await x.context.newPage();
       await sample.setContent('<select aria-label="Filtro externo"><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select><form><h3>Alterar situação</h3><label><span>Situação</span><select><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select></label></form>');
       check('WRAPPED_SELECT_EXACT_LABEL_MISMATCH',await sample.getByLabel('Situação',{exact:true}).count()===0);
@@ -458,7 +466,7 @@ async function main(){
         const opened=await popup;if(opened)await opened.close();intent.download_verified=true;persist();ap._publishedFence();return intent.document;
       }
       await runDocumentProvenances({
-        proveBackend:async()=>{stage('PUBLISHED_BACKEND_READONLY_FENCE');try{const analyzer=await loadPublishedAnalyzer(frontend);smoke.backend=await inspectPublishedBackend(fetch,analyzer);saveSmoke();}catch(e){smoke.state='PUBLICADA_BACKEND_NAO_COMPROVADO';saveSmoke();throw e;}},
+        proveBackend:async()=>{stage('PUBLISHED_BACKEND_READONLY_FENCE');try{const analyzer=await loadPublishedAnalyzer(frontend);smoke.backend=await inspectPublishedBackend(fetch,analyzer,phase=>{smoke.backend_inspection_phase=phase;saveSmoke();});saveSmoke();}catch(e){smoke.state='PUBLICADA_BACKEND_NAO_COMPROVADO';saveSmoke();throw e;}},
         published:async deadline=>recorder.published(smoke,saveSmoke,async()=>{batchDeadline=deadline;
           try{report.local_state='NOT_STARTED';await documentPage(PUBLISHED_ORIGIN);await upload('txt',1);assert.equal(report.runtime_errors.length,0);smoke.state='PASS_SMOKE';smoke.runtime_errors=[];saveSmoke();await admin.context.close();}
           catch(e){smoke.state='FAIL';saveSmoke();throw e;}

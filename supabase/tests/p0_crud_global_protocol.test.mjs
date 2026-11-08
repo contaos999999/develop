@@ -602,3 +602,20 @@ test('public inspection parses same-origin classic and inline scripts rather tha
  const result=await m.inspectPublishedBackend(async url=>({ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})}),{version:'5.9.3',imports:()=>[],prove(modules,entries){assert.equal(modules.size,3);assert.equal(entries.length,3);assert([...modules.values()].includes('const bootstrap=1;'));assert([...modules.values()].includes('const telemetry=1;'));inspected++;return {verified:true};}});
  assert.equal(inspected,1);assert.equal(result.module_count,3);assert(!JSON.stringify(result).includes('bootstrap'));
 });
+
+
+test('public inspector rejects unquoted and mixed duplicate attributes before fetching scripts',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),o=m.PUBLISHED_ORIGIN;
+ for(const attrs of ['src=https://foreign.invalid/a.js src="/assets/main.js"','src="/assets/main.js" SRC=https://foreign.invalid/a.js','type=module src="/assets/main.js"']){
+  let reads=0;
+  await assert.rejects(()=>m.inspectPublishedBackend(async url=>{reads++;return {ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(reads===1?'<script '+attrs+'></script>':'const app=1;'));c.close();}})};},{version:'5.9.3',imports:()=>[],prove:()=>({verified:true})}),/PUBLICADA_BACKEND_NAO_COMPROVADO/);
+  assert.equal(reads,1);
+ }
+});
+
+
+test('backend inspection progress exposes only closed phase labels on failure',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),phases=[];
+ await assert.rejects(()=>m.inspectPublishedBackend(async()=>{throw Error('PRIVATE_CANARY_URL_TOKEN_STACK')},{},phase=>phases.push(phase)),/PUBLICADA_BACKEND_NAO_COMPROVADO/);
+ assert.deepEqual(phases,['READ_HTML']);assert(!JSON.stringify(phases).includes('PRIVATE_CANARY'));
+});
