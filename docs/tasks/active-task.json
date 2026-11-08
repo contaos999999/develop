@@ -1150,6 +1150,22 @@
         "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained",
         "data_origin_red": "54PASS/1FAIL validator absent"
       }
+    },
+    "paused_document_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "EXACT_PAUSED_DOCUMENT_FULL_GRAPH_AST_BEFORE_CONTINUE",
+      "source_head": "544026099abbe613b39f8ec0f6142ce47208653b",
+      "source_run": 42444107587,
+      "artifact": 13603076801,
+      "sha256": "a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34",
+      "no_normalization": true,
+      "no_self_hash_without_ast": true,
+      "published_source_parity": "NAO_VERIFICADA",
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 143,
+      "gate_merge": "f53304fbdab7570fa0f5167a9bcd0c76cded6be6",
+      "state": "INTEGRADO_ANTES_BUILD"
     }
   },
   "auth_configuration_changes_allowed": false
