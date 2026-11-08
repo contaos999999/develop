@@ -657,3 +657,13 @@ test('page request barrier cannot wait for worker bootstrap that depends on that
   assert.deepEqual([...nativePageBarrier(targets,[{targetId:'worker-child',type:'worker',contextId:'own'}],'own','main')],['main','frame']);
   assert.throws(()=>nativePageBarrier(targets,[],'other','main'));
 });
+
+test('unsupported browser workers are denied while paused instead of being resumed',async()=>{
+  const {unexpectedWorkerDeny}=await import('./p0_crud_global_browser.mjs');
+  for(const type of ['worker','shared_worker']){
+    assert.deepEqual(unexpectedWorkerDeny({type,contextId:'own',waitingForDebugger:true},'own'),{code:'FENCE_UNEXPECTED_WORKER_PAUSED',paused:true});
+    assert.deepEqual(unexpectedWorkerDeny({type,contextId:'own',waitingForDebugger:false},'own'),{code:'FENCE_UNEXPECTED_WORKER_RUNNING',paused:false});
+    assert.equal(unexpectedWorkerDeny({type,contextId:'other',waitingForDebugger:true},'own'),null);
+  }
+  assert.equal(unexpectedWorkerDeny({type:'page',contextId:'own'},'own'),null);
+});
