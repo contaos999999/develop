@@ -35,10 +35,10 @@ hashes={p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in FILE
 proof={'project':'gklhhhyosgasnyoxlrui','function_slug':'queue-worker-ai','from_version':4,'expected_version':5,'verify_jwt':False,'source_sha256':hashes,'prior_source_sha256':'4dcd7031ee37747fa5aa42a78616ffb682149edafd9a435efff6b009c7b9da14'}
 task={'remaining_certification':{'project':proof['project'],'approved_ai_worker_deploy':proof}}
 head='a'*40
-r={'schema':'contaos.ai-worker-deployment.v1','backend_head':head,'project':proof['project'],'function_slug':'queue-worker-ai','version':5,'prior_version':4,'verify_jwt':False,'status':'ACTIVE','readback_equal':True,'source_sha256':hashes,'prior_source_sha256':proof['prior_source_sha256'],'management_bundle_sha256':'b'*64,'active_ai_jobs_before':0,'active_ai_jobs_after':0}
+r={'schema':'contaos.ai-worker-deployment.v1','backend_head':head,'project':proof['project'],'function_slug':'queue-worker-ai','version':5,'prior_version':4,'verify_jwt':False,'status':'ACTIVE','readback_equal':True,'source_sha256':hashes,'prior_source_sha256':proof['prior_source_sha256'],'management_bundle_sha256':'b'*64,'active_ai_jobs_before':0,'active_ai_jobs_after':0,'deployed_at':'2026-11-08T20:02:00Z','verified_at':'2026-11-08T20:02:01Z'}
 assert validate_receipt(task,head,r)==r
 import json
-comment={'id':22,'user':{'login':'contaos9999'},'issue_url':'https://api.github.com/repos/contaos999999/develop/issues/138','body':json.dumps(r)}
+comment={'id':22,'created_at':'2026-11-08T20:02:02Z','user':{'login':'contaos9999'},'issue_url':'https://api.github.com/repos/contaos999999/develop/issues/138','body':json.dumps(r)}
 assert find_deployment_receipt(task,head,[comment])==(22,r)
 for comments in ([],[comment,comment],[{**comment,'user':{'login':'foreign'}}],[{**comment,'issue_url':'https://api.github.com/repos/foreign/repo/issues/138'}]):
  try:find_deployment_receipt(task,head,comments)
@@ -79,18 +79,24 @@ assert 'environment:' not in section and 'secrets.' not in section
 assert "needs: [scope, runtime-ready]" in source and "needs.runtime-ready.result == 'success'" in source
 script=section.split('        run: |\n',1)[1];script='\n'.join(x[10:] if x.startswith('          ') else x for x in script.splitlines())
 head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip();task=json.load(open('docs/tasks/active-task.json'));p=task['remaining_certification']['approved_ai_worker_deploy']
-r={'schema':'contaos.ai-worker-deployment.v1','backend_head':head,'project':p['project'],'function_slug':p['function_slug'],'version':5,'prior_version':4,'verify_jwt':False,'status':'ACTIVE','readback_equal':True,'source_sha256':p['source_sha256'],'prior_source_sha256':p['prior_source_sha256'],'management_bundle_sha256':'b'*64,'active_ai_jobs_before':0,'active_ai_jobs_after':0}
-comment={'id':22,'user':{'login':'contaos9999'},'issue_url':'https://api.github.com/repos/contaos999999/develop/issues/138','body':json.dumps(r)}
-for case in ['valid','missing','ambiguous','stale_restore','failed_backup','advanced_head']:
+r={'schema':'contaos.ai-worker-deployment.v1','backend_head':head,'project':p['project'],'function_slug':p['function_slug'],'version':5,'prior_version':4,'verify_jwt':False,'status':'ACTIVE','readback_equal':True,'source_sha256':p['source_sha256'],'prior_source_sha256':p['prior_source_sha256'],'management_bundle_sha256':'b'*64,'active_ai_jobs_before':0,'active_ai_jobs_after':0,'deployed_at':'2026-11-08T20:02:00Z','verified_at':'2026-11-08T20:02:01Z'}
+comment={'id':22,'created_at':'2026-11-08T20:02:02Z','user':{'login':'contaos9999'},'issue_url':'https://api.github.com/repos/contaos999999/develop/issues/138','body':json.dumps(r)}
+for case in ['valid','missing','ambiguous','stale_restore','failed_backup','advanced_head','stale_comment','early_deployment','early_verification','newer_failed_backup']:
  with tempfile.TemporaryDirectory() as d:
   base=pathlib.Path(d);(base/'bin').mkdir();gh=base/'bin/gh'
   gh.write_text("#!/usr/bin/env python3\nimport json,sys,os\nd=json.load(open(os.environ['FIXTURE']));p=sys.argv[-1]\nif p.endswith('/commits/main'):v={'sha':d['live']}\nelif '/check-runs?' in p:v={'check_runs':d['checks']}\nelif '/actions/runs/' in p:v=d['restore']\nelif '/issues/138/comments?' in p:v=d['comments']\nelse:raise SystemExit('Unexpected API')\nprint(json.dumps(v))\n");gh.chmod(0o700)
-  data={'live':head,'checks':[{'name':n,'head_sha':head,'conclusion':'success'} for n in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']],'restore':{'head_sha':head,'head_branch':'main','event':'push','status':'completed','conclusion':'success','name':'ContaOS Restore Isolado','created_at':'2026-11-08T20:00:00Z'},'comments':[comment]}
+  data={'live':head,'checks':[{'id':10+i,'name':n,'head_sha':head,'conclusion':'success','completed_at':'2026-11-08T20:01:00Z'} for i,n in enumerate( ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias'])],'restore':{'head_sha':head,'head_branch':'main','event':'push','status':'completed','conclusion':'success','name':'ContaOS Restore Isolado','created_at':'2026-11-08T20:00:00Z','updated_at':'2026-11-08T20:01:00Z'},'comments':[comment]}
   if case=='missing':data['comments']=[]
   if case=='ambiguous':data['comments']=[comment,comment]
   if case=='stale_restore':data['restore']['head_sha']='b'*40
   if case=='failed_backup':data['checks'][-1]['conclusion']='failure'
+  if case=='newer_failed_backup':data['checks'].append({**data['checks'][-1],'id':99,'conclusion':'failure'})
   if case=='advanced_head':data['live']='b'*40
+  if case=='stale_comment':data['comments']=[{**comment,'created_at':'2026-11-08T19:00:00Z'}]
+  if case in ('early_deployment','early_verification'):
+   bad=copy.deepcopy(r);bad['deployed_at']='2026-11-08T19:00:00Z'
+   if case=='early_verification':bad['verified_at']='2026-11-08T19:00:01Z'
+   data['comments']=[{**comment,'body':json.dumps(bad)}]
   (base/'fixture').write_text(json.dumps(data));env={'PATH':str(base/'bin')+':'+os.environ['PATH'],'FIXTURE':str(base/'fixture'),'TESTED_HEAD':head,'RESTORE_RUN_ID':'11','GITHUB_OUTPUT':str(base/'out'),'DEPLOY_RECEIPT_COMMENT_ID':''}
   result=subprocess.run(['bash','-e','-o','pipefail','-c',script],env=env,capture_output=True,text=True)
   assert (result.returncode==0)==(case=='valid'),(case,result.stderr)
