@@ -667,3 +667,11 @@ test('unsupported browser workers are denied while paused instead of being resum
   }
   assert.equal(unexpectedWorkerDeny({type:'page',contextId:'own'},'own'),null);
 });
+
+test('native fence cannot activate Playwright preflight auto-fulfillment',async()=>{
+  const {installPublishedCDPFence}=await import('./p0_crud_global_browser.mjs');const source=installPublishedCDPFence.toString();
+  assert.equal(/context\.route\s*\(/.test(source),false,'Playwright routing fabricates OPTIONS success in the frozen runtime');
+  assert.equal(/Fetch\.fulfillRequest|route\.fulfill|routeWebSocket/.test(readFileSync(browser,'utf8')),false);
+  assert.ok(/requestStage:'Request'/.test(source));assert.ok(/requestStage:'Response'/.test(source));
+  assert.ok(/Fetch\.continueRequest',\{requestId\}/.test(source));
+});
