@@ -116,6 +116,18 @@ def public_record(name, passed, http=None):
     assert re.fullmatch('[A-Z0-9_]{1,100}',name) and type(passed) is bool
     assert http is None or type(http) is int and 100<=http<=599
     return dict(name=name,passed=passed,http=http)
+def document_backend_receipt_ready(report, head):
+    import re
+    required={'DOCUMENT_REVOKED_SESSION_STILL_AUTHENTICATED','DOCUMENT_REVOKED_MUTATION_DENIED','DOCUMENT_REVOKED_DOWNLOAD_DENIED','DOCUMENT_REVOKED_READ_DENIED','DOCUMENT_MASTER_READ','DOCUMENT_LEITOR_VERSION_DENIED','DOCUMENT_LEITOR_UPLOAD_DENIED','DOCUMENT_READER_READ_ALLOWED','DOCUMENT_USUARIO_B_VERSION_DENIED','DOCUMENT_USUARIO_B_UPLOAD_DENIED','DOCUMENT_OTHER_TENANT_READ_DOWNLOAD_DENIED','NO_RUNTIME_ERRORS'}
+    try:
+        if not (report['backend_head']==head and report['state']=='FAIL' and report['failure_code']=='DOCUMENT_VISUAL_AUDIT_FAILED' and report['document_backend_state']=='PASS_BROWSER_PENDING_SQL' and report['browser_finalization']=='CLOSED_AND_DRAINED' and report['runtime_errors']==[]):return False
+        assertions=report['assertions']
+        if not isinstance(assertions,list):return False
+        if not all(any(a.get('name')==name and a.get('pass') is True for a in assertions) for name in required):return False
+        failed=[a for a in assertions if a.get('pass') is not True]
+        return bool(failed) and all(a.get('pass') is False and re.fullmatch(r'DOCUMENT_(?:ACCESSIBILITY|NO_PAGE_OVERFLOW)_(?:1440|1280|768|390)_(?:LIGHT|DARK)',a.get('name','')) for a in failed)
+    except (KeyError,TypeError,AttributeError):return False
+
 class Runner:
     def __init__(self, env):
         self.env=env; self.root=Path(env['CONTAOS_TEST_PRIVATE_DIR']).resolve()
@@ -298,6 +310,8 @@ class Runner:
             a,v=q(upload['file']),q(upload['id_version']);org,contract=q(f['org']),q(f['contract'])
             proof="select exists(select 1 from public.arquivos a join public.versoes_documento v on v.id_arquivo=a.id join public.documentos_contrato d on d.id=v.id_documento_contrato where a.id="+a+' and v.id='+v+' and a.id_organizacao='+org+' and a.id_contrato='+contract+' and d.id='+q(upload['document'])+' and v.numero_versao='+str(upload['version'])+' and a.sha256='+q(upload['sha256'])+' and v.hash=a.sha256 and a.tamanho='+str(upload['size'])+" and a.status_seguranca='aprovado' and a.origem='upload_usuario' and v.enviado_por="+q(next(u['id'] for u in f['users'] if u['profile']=='administrador'))+" and (v.numero_versao=1 or length(v.motivo_substituicao)>0)) and exists(select 1 from public.processamentos_documento where id_versao_documento="+v+" and etapa='documents' and status='concluido') and exists(select 1 from public.execucoes_assincronas where entidade_id="+v+" and fila='documents' and status='concluido') and exists(select 1 from public.paginas_documento where id_versao_documento="+v+") and exists(select 1 from public.fragmentos_documento where id_versao_documento="+v+');'
             self.check('DOCUMENT_INTEGRITY_VERSION_WORKER_PERSISTED',self.sql(proof,True)=='t')
+            self.report.setdefault('document_receipts',[]).append({**{k:upload[k] for k in ('provenance','file','document','id_version','version','sha256','size')},'sql_verified':True})
+            self.save('report.json',self.report)
             entity=upload['document'] if upload['version']==1 else upload['id_version'];event='DocumentoContratoCriado' if upload['version']==1 else 'VersaoDocumentoContratoCriada'
             self.check('DOCUMENT_REAL_AUDIT_PERSISTED',self.sql('select exists(select 1 from public.eventos_auditoria where id_organizacao='+org+' and id_entidade='+q(entity)+' and evento='+q(event)+' and id_usuario='+q(next(u['id'] for u in f['users'] if u['profile']=='administrador'))+');',True)=='t')
         self.check('DOCUMENT_NO_UNAUTHORIZED_WRITES',self.sql('select (select count(*) from public.documentos_contrato where id_organizacao='+q(f['org'])+')=3 and (select count(*) from public.versoes_documento where id_organizacao='+q(f['org'])+')=5 and (select count(*) from public.arquivos where id_organizacao='+q(f['org'])+')=5;',True)=='t')
@@ -504,8 +518,18 @@ def main():
     try:
         r.prepare()
         returncode=r.run_browser()
+        independent=False
+        if r.batch=='DOCUMENTOS' and returncode!=0:
+            receipt=r.root/'public-browser'/'report.json'
+            if receipt.is_file() and not receipt.is_symlink() and receipt.stat().st_size<=2000000:
+                independent=document_backend_receipt_ready(json.loads(receipt.read_text()),r.env['TESTED_HEAD'])
+        if returncode==0 or independent:
+            r.verify()
+            if r.batch=='DOCUMENTOS':r.report['backend_state']='PASS_SCOPE_SQL_CONFIRMED'
+            r.save('report.json',r.report)
+        # Visual failure remains an overall failure and a nonzero exit. Never waive CI.
         r.check('REAL_BROWSER_BATCH',returncode==0)
-        r.verify();r.report['state']='PASS_BATCH';r.report['completed_domains']=[] if r.batch=='DOCUMENTOS' else ['auditoria'] if r.batch=='AUDITORIA' else ['organizacoes','contratantes','contratos','listas'];r.report['unverified_domains']=['regras_preventivas','base_normativa','orcamento','documentos_contrato','documento_detalhe','competencias','documentos_competencia','analise_revisao','parecer','apresentacao','protocolo','historico','administracao','auditoria']
+        r.report['state']='PASS_BATCH';r.report['completed_domains']=[] if r.batch=='DOCUMENTOS' else ['auditoria'] if r.batch=='AUDITORIA' else ['organizacoes','contratantes','contratos','listas'];r.report['unverified_domains']=['regras_preventivas','base_normativa','orcamento','documentos_contrato','documento_detalhe','competencias','documentos_competencia','analise_revisao','parecer','apresentacao','protocolo','historico','administracao','auditoria']
         if r.batch=='DOCUMENTOS':r.report['completed_scopes']=['DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL'];r.report['download_proof_kind']='UI_EDGE_AND_SIGNED_GET';r.report['popup_rendering']='NAO_CERTIFICADO';r.report['remaining_domains']=list(r.report['unverified_domains']);r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas','auditoria']
         if r.batch=='AUDITORIA':r.report['unverified_domains'].remove('auditoria');r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas']
     except Exception as e:
