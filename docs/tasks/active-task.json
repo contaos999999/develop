@@ -1,12 +1,12 @@
 {
-  "id": "C-CHAT-001-PLAN-20261108",
-  "title": "Trilha C — copiloto conversacional PLAN canônico e handoff preservado",
+  "id": "C-CHAT-002-SCOPE-QUOTA-HML-PLAN-20261108",
+  "title": "Trilha C — PLAN/GATE fonte elegível, quota atômica e runner HML",
   "status": "ativa",
-  "phase": "PLAN",
+  "phase": "PLAN_GATE",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex Trilha B, contexto canônico integral e checkpoint165/HEAD87c18599; correção solicitada expressamente pelo titular",
+  "context_read_by": "Codex Trilha C,25canônicos00..20+AGENTS+P0+manifesto e PLAN179 lidos integralmente",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -35,11 +35,10 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Integrar plano canônico do copiloto e iniciar BUILD posterior sem alterar código certificado das Trilhas A/B, mantendo Zero-Drift, RLS, JWT e gates.",
+  "objective": "Aprovar exclusivamente documentação do fechamento seguro RAG/quota/prova HML, sem implementar ou aplicar SQL/Edge/harness neste PR.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
-    "docs/TRILHA_C_COPILOTO_CANONICO_PLAN.md"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -55,7 +54,7 @@
   "authorization": {
     "by": "titular",
     "date": "2026-11-08",
-    "scope": "Handoff imediato autorizado expressamente para arquivar manifesto anterior, ativar PLAN Trilha C, reexecutar Zero-Drift e integrar PR #179 apenas com controles aprovados; sem PROD, sem alterar código ou certificações B."
+    "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -133,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Concluir CI do PLAN PR #179, integrar somente se gates verdes; abrir BUILD separado para Edge OpenAI + frontend e testes HML. Escopo certificado da Trilha B permanece imutável.",
+  "next_step": "Revisar estePLAN/CI; gerar caminho CLI e fechar GATE exato antes deBUILD SQL/Edge/runner, sem merge/deploy automático.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2047,5 +2046,21 @@
     "closure_scope": "Encerramento do controle ativo da tarefa anterior, sem afirmar certificação integral da V1 ou eliminar pendências registradas",
     "checkpoint_pr": 138,
     "plan_pr": 179
+  },
+  "copilot_scope_quota_hml_gate": {
+    "state": "PLAN_ONLY_NO_IMPLEMENTATION",
+    "build_enabled": false,
+    "edge_dependency_pr": 180,
+    "edge_dependency_head": "0c3ad25a36dd1bb4bd62a5506e3b437451c21023",
+    "blockers": [
+      "USER_RLS_SOURCE_ELIGIBILITY_AND_FILE_SECURITY_BEFORE_SIMILARITY",
+      "ATOMIC_ACTOR_TENANT_QUOTA",
+      "REAL_JWT_HML_PROOF_AND_CLEANUP"
+    ],
+    "migration_path": null,
+    "migration_gate_required": true,
+    "prod": false,
+    "verify_jwt": true,
+    "frontend_dependency_head": "9bc106ce8322e2ed55ee4946e2a6e71d6d752dfd"
   }
 }
