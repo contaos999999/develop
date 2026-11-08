@@ -49,7 +49,7 @@ def analyze_review_opinion(r,c,req,version,round):
     assert len(opinions)==1;opinion=r.entity('opinion_'+str(round),opinions[0]['id'])
     approval={'p_id_parecer':opinion,'p_aprovar':True,'p_fundamento':'Independent own Master approval of synthetic draft'}
     r.deny('aprovar_parecer_interno',approval)
-    r.operation('aprovar_parecer_interno',approval,'master')
+    r.operation('aprovar_parecer_interno',approval,'master',status=204)
     r.sql_check('FLOW_SQL_OPINION_APPROVAL','select exists(select 1 from public.pareceres_internos where id='+q(opinion)+" and status='aprovado' and autor is null and aprovado_por="+q(next(u['id'] for u in f['users'] if u['profile']=='master'))+' and aprovado_em is not null);')
     return opinion
 

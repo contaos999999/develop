@@ -4,7 +4,9 @@ from datetime import datetime,timedelta
 from pathlib import Path
 FILES=('supabase/functions/queue-worker-ai/index.ts','supabase/functions/queue-worker-ai/job-envelope.mjs')
 def runtime_route(task,event):
-    proof=task.get('remaining_certification',{}).get('approved_ai_worker_deploy')
+    c=task.get('remaining_certification',{});deployment=c.get('approved_ai_worker_deploy');runtime=c.get('approved_ai_worker_runtime')
+    assert not(deployment and runtime),'Ambiguous runtime authorization'
+    proof=deployment or runtime
     return event in (('workflow_run','workflow_dispatch') if proof else ('workflow_run',))
 def instant(value):
     assert isinstance(value,str)
@@ -24,7 +26,7 @@ def verify_ci_binding(restore,checks,head):
         bounds.append(instant(latest['completed_at']))
     return max(bounds).isoformat()
 
-def validate_receipt(task,head,receipt,root=Path('.'),not_before=None,comment_created_at=None):
+def validate_deployment_receipt(task,head,receipt,root=Path('.'),not_before=None,comment_created_at=None):
     assert re.fullmatch('[0-9a-f]{40}',head)
     assert set(receipt)=={'schema','backend_head','project','function_slug','version','prior_version','verify_jwt','status','readback_equal','source_sha256','prior_source_sha256','management_bundle_sha256','active_ai_jobs_before','active_ai_jobs_after','deployed_at','verified_at'}
     proof=task['remaining_certification']['approved_ai_worker_deploy']
@@ -50,15 +52,41 @@ def validate_receipt(task,head,receipt,root=Path('.'),not_before=None,comment_cr
         if not_before is not None:assert created>=instant(not_before)
     return receipt
 
-def find_deployment_receipt(task,head,comments,root=Path('.'),not_before=None):
+def validate_receipt(task,head,receipt,root=Path('.'),not_before=None,comment_created_at=None,origin_comment=None):
+    c=task['remaining_certification'];runtime=c.get('approved_ai_worker_runtime')
+    assert not(c.get('approved_ai_worker_deploy') and runtime)
+    if not runtime:return validate_deployment_receipt(task,head,receipt,root,not_before,comment_created_at)
+    assert re.fullmatch('[0-9a-f]{40}',head) and not_before is not None and comment_created_at is not None
+    assert isinstance(origin_comment,dict) and type(origin_comment['id']) is int and origin_comment['id']==runtime['origin_receipt_comment_id']
+    assert origin_comment['user']['login']=='contaos9999' and origin_comment['issue_url']=='https://api.github.com/repos/contaos999999/develop/issues/138'
+    origin=json.loads(origin_comment['body'])
+    historical={**task,'remaining_certification':{**c,'approved_ai_worker_deploy':runtime['origin_approval']}}
+    validate_deployment_receipt(historical,runtime['origin_backend_head'],origin,root,comment_created_at=origin_comment['created_at'])
+    assert origin['management_bundle_sha256']==runtime['expected_bundle_sha256'] and origin['deployed_at']==runtime['expected_deployed_at']
+    assert runtime['project']==origin['project'] and runtime['function_slug']==origin['function_slug'] and runtime['expected_version']==origin['version'] and runtime['verify_jwt'] is False
+    assert runtime['source_sha256']==origin['source_sha256']
+    assert set(receipt)==set(origin)|{'origin_deployment_receipt_id'}
+    assert receipt['schema']=='contaos.ai-worker-runtime.v1' and receipt['backend_head']==head
+    assert type(receipt['origin_deployment_receipt_id']) is int and receipt['origin_deployment_receipt_id']==runtime['origin_receipt_comment_id']
+    keys=set(origin)-{'schema','backend_head','verified_at'}
+    # Canonical JSON distinguishes booleans from numeric aliases and preserves all
+    # deployed source, bundle, version and original deployment facts exactly.
+    canonical=lambda v:json.dumps(v,sort_keys=True,separators=(',',':'))
+    assert canonical({k:receipt[k] for k in keys})==canonical({k:origin[k] for k in keys})
+    verified=instant(receipt['verified_at'])
+    assert verified>=instant(not_before) and verified>=instant(origin['verified_at']) and verified<=instant(comment_created_at)
+    return receipt
+
+def find_deployment_receipt(task,head,comments,root=Path('.'),not_before=None,origin_comment=None):
     assert isinstance(comments,list) and len(comments)<100
     matches=[]
+    expected_schema='contaos.ai-worker-runtime.v1' if task['remaining_certification'].get('approved_ai_worker_runtime') else 'contaos.ai-worker-deployment.v1'
     for comment in comments:
         if comment.get('user',{}).get('login')!='contaos9999' or comment.get('issue_url')!='https://api.github.com/repos/contaos999999/develop/issues/138':continue
         try:body=json.loads(comment['body'])
         except (ValueError,KeyError,TypeError):continue
-        if not isinstance(body,dict) or body.get('schema')!='contaos.ai-worker-deployment.v1' or body.get('backend_head')!=head:continue
-        receipt=validate_receipt(task,head,body,root,not_before=not_before,comment_created_at=comment['created_at'])
+        if not isinstance(body,dict) or body.get('schema')!=expected_schema or body.get('backend_head')!=head:continue
+        receipt=validate_receipt(task,head,body,root,not_before=not_before,comment_created_at=comment['created_at'],origin_comment=origin_comment)
         assert type(comment['id']) is int and comment['id']>0
         matches.append((comment['id'],receipt))
     assert len(matches)==1,'RUNTIME_DEPLOYMENT_PENDING_OR_AMBIGUOUS_NO_HML_ACCESS'

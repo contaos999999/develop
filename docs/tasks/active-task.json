@@ -58,7 +58,7 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": true,
+  "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -142,7 +142,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Govern reviewed AI worker envelope correction; hold automatic material jobs until HML deploy and exact source readback receipt; then dispatch detail regression and dependent presentation proof only.",
+  "next_step": "Retry only dependent presentation proof with exact void-approval 204 plus SQL state, after fresh current-HEAD runtime readback and origin-linked receipt; no redeploy or repetition of detail/documentary/other domains.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -1818,7 +1818,6 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
-      "documento_detalhe",
       "apresentacao"
     ],
     "pending_domains": [
@@ -1934,6 +1933,23 @@
         "state": "PASS_DOMAIN",
         "cleanup": "QUARENTENA_VERIFICADA",
         "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
+      },
+      {
+        "domain": "documento_detalhe",
+        "head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
+        "run": 42519982869,
+        "attempt": 2,
+        "job": 128852148966,
+        "artifact": 13632763978,
+        "sha256": "4d0acc715960ab6ac1dab3ce2a7dbfbdab0228fa911d729b24cfbfc80f3480ce",
+        "assertions": 59,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA",
+        "ai_worker_version": 5,
+        "ai_worker_source_sha256": {
+          "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
+          "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
+        }
       }
     ],
     "orcamento_retry": {
@@ -1984,28 +2000,51 @@
       "raw_actual_sha256": "fd207fd0020dc5c1520c2708a2a980668c714fc25dc2ae9d11f4ad7115b03f9e",
       "physical_raw_acl_identity_claimed": false
     },
-    "affected_domain_regression": [
-      "documento_detalhe"
+    "affected_domain_regression": [],
+    "uncertified_ai_consumers": [
+      "consulta_semantica (no handler, fail closed)",
+      "extrair_diligencia/revalidar_apontamento/minuta_contestacao/aprendizado_desfecho (contract tests only, material proofs not claimed)"
     ],
-    "approved_ai_worker_deploy": {
+    "approved_ai_worker_runtime": {
       "project": "gklhhhyosgasnyoxlrui",
       "function_slug": "queue-worker-ai",
-      "from_version": 4,
       "expected_version": 5,
       "verify_jwt": false,
-      "prior_source_sha256": "4dcd7031ee37747fa5aa42a78616ffb682149edafd9a435efff6b009c7b9da14",
-      "prior_bundle_sha256": "7025f81502cd2cda045a8d2149a22d6a543123721bf3796edfdbe2774e6e3b00",
-      "rollback_source_commit": "7f91937419ff4f9ddb1642f5cb4e6f2aaff98ac1",
       "source_sha256": {
         "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
         "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
       },
-      "gate": "Review and required CI exact HEAD; normal merge and main CI; HML-only AI deployment and exact Management source/version readback with zero active AI jobs; closed JSON receipt in GATE138. runtime-ready blocks before HML environment until unique current-HEAD receipt and same-HEAD push Restore succeed. Resume only failed readiness and dependents through standard GitHub rerun, or explicit exact-HEAD manual dispatch."
+      "expected_bundle_sha256": "63eed432eef3b7b0a859f5a4a2c73673e2d9a96c2b270f010d58f6bff8d75ff8",
+      "expected_deployed_at": "2026-11-08T20:27:09Z",
+      "origin_backend_head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
+      "origin_receipt_comment_id": 6726699971,
+      "origin_approval": {
+        "project": "gklhhhyosgasnyoxlrui",
+        "function_slug": "queue-worker-ai",
+        "from_version": 4,
+        "expected_version": 5,
+        "verify_jwt": false,
+        "prior_source_sha256": "4dcd7031ee37747fa5aa42a78616ffb682149edafd9a435efff6b009c7b9da14",
+        "prior_bundle_sha256": "7025f81502cd2cda045a8d2149a22d6a543123721bf3796edfdbe2774e6e3b00",
+        "rollback_source_commit": "7f91937419ff4f9ddb1642f5cb4e6f2aaff98ac1",
+        "source_sha256": {
+          "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
+          "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
+        },
+        "gate": "Review and required CI exact HEAD; normal merge and main CI; HML-only AI deployment and exact Management source/version readback with zero active AI jobs; closed JSON receipt in GATE138. runtime-ready blocks before HML environment until unique current-HEAD receipt and same-HEAD push Restore succeed. Resume only failed readiness and dependents through standard GitHub rerun, or explicit exact-HEAD manual dispatch."
+      },
+      "gate": "No deploy. Re-read existing HML Management version/bundle/two sources after current-HEAD CI, require exact origin deployment identity and current source SHA, fresh runtime.v1 receipt bound to current live HEAD/CI. Old HEAD is provenance only, not current authorization."
     },
-    "uncertified_ai_consumers": [
-      "consulta_semantica (no handler, fail closed)",
-      "extrair_diligencia/revalidar_apontamento/minuta_contestacao/aprendizado_desfecho (contract tests only, material proofs not claimed)"
+    "archived_ai_worker_deployments": [
+      {
+        "head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
+        "receipt_comment_id": 6726699971,
+        "version": 5,
+        "verified_at": "2026-11-08T20:27:30Z",
+        "deployed_at": "2026-11-08T20:27:09Z",
+        "state": "DEPLOYED_AND_SOURCE_READBACK_EXACT"
+      }
     ]
   },
-  "edge_function_change_scope": "Only queue-worker-ai HML: canonical nested envelope adapter and failed result persistence must not be called success. Preserve internal-token auth and current verify_jwt=false; both storage Edges/JWT true remain byte-identical. No frontend or PROD."
+  "edge_function_change_scope": "No Edge code/deploy delta. Management read-only revalidation of already approved worker v5 and unchanged two source hashes after current HEAD checks. Storage Edges/JWT true preserved."
 }
