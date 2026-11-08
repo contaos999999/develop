@@ -363,7 +363,7 @@ print('DOCUMENT_CLOSED_CONTROL_PASS')`;
 
 test('document completion retains whole domain as unverified and refuses expired-session revocation proof',async()=>{
  const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.documentCoverage,'function');
- assert.deepEqual(m.documentCoverage(),{completed_scopes:['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false});
+ assert.deepEqual(m.documentCoverage(),{completed_scopes:['DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false});
  for(const status of [401,500]){assert.throws(()=>m.validateDocumentDenial({status,code:'42501'},'mutation'));assert.throws(()=>m.validateDocumentDenial({status,code:'REGISTRO_NAO_ENCONTRADO'},'download'));}
 });
 
@@ -450,7 +450,7 @@ nonce='a'*32;org='11111111-1111-4111-8111-111111111111';contract='22222222-2222-
 f=dict(batch='DOCUMENTOS',scope='P0-CRUD-GLOBAL-HML',nonce=nonce,prefix='0000 CRUDG '+nonce+' ',org=org,contract=contract,users=[],uploads=[])
 for i,(source,fmt,version,doc) in enumerate([('PUBLISHED','txt',1,1),('LOCAL','txt',1,2),('LOCAL','txt',2,2),('LOCAL','pdf',1,3),('LOCAL','pdf',2,3)]):
  ident=lambda n:'00000000-0000-4000-8000-'+str(n).zfill(12)
- f['uploads'].append(dict(provenance=source,frontend_head=None if source=='PUBLISHED' else '164b10b44eaf5b553efcc7ab4e053b86c4d3b269',source_parity='NAO_VERIFICADA' if source=='PUBLISHED' else 'PINNED',intent_nonce=nonce+'-'+source.lower()+'-'+fmt+'-'+str(version),org=org,contract=contract,name='crudg-'+nonce+'-'+source.lower()+'-'+fmt+'-v'+str(version)+'.'+fmt,file=ident(i+10),document=ident(doc),id_version=ident(i+20),path=org+'/uploads/'+ident(i+30)+'/crudg-'+nonce+'-'+source.lower()+'-'+fmt+'-v'+str(version)+'.'+fmt,version=version,mime='text/plain' if fmt=='txt' else 'application/pdf',sha256=str(i)*64,size=42,state='PROCESSED',download_verified=True))
+ f['uploads'].append(dict(provenance=source,frontend_head=None if source=='PUBLISHED' else '164b10b44eaf5b553efcc7ab4e053b86c4d3b269',source_parity='NAO_VERIFICADA' if source=='PUBLISHED' else 'PINNED',intent_nonce=nonce+'-'+source.lower()+'-'+fmt+'-'+str(version),org=org,contract=contract,name='crudg-'+nonce+'-'+source.lower()+'-'+fmt+'-v'+str(version)+'.'+fmt,file=ident(i+10),document=ident(doc),id_version=ident(i+20),path=org+'/uploads/'+ident(i+30)+'/crudg-'+nonce+'-'+source.lower()+'-'+fmt+'-v'+str(version)+'.'+fmt,version=version,mime='text/plain' if fmt=='txt' else 'application/pdf',sha256=str(i)*64,size=42,state='PROCESSED',download_verified=True,download_proof_kind='UI_EDGE_AND_SIGNED_GET',popup_rendering='NAO_CERTIFICADO'))
 f['recovered_uploads']=[{k:u[k] for k in ('file','document','id_version','path','version','sha256','size','name')} for u in f['uploads']]
 f['recovered_objects']=[{'name':u['path']} for u in f['uploads']]
 `;
@@ -458,8 +458,10 @@ test('five receipts require two disjoint provenance sets and exact recovered uni
  pythonProtocol(partitionSetup+`
 fn=m.get('validate_document_partition');assert callable(fn),'Missing provenance partition validator'
 assert fn(f)=={'published':1,'local':4,'files':5,'documents':3,'versions':5}
-for change in ['drop','duplicate','cross','head','orphan','missing_object']:
+for change in ['drop','duplicate','cross','head','orphan','missing_object','ambiguous_download','popup_claim']:
  bad=copy.deepcopy(f)
+ if change=='ambiguous_download':bad['uploads'][0].pop('download_proof_kind')
+ if change=='popup_claim':bad['uploads'][0]['popup_rendering']='PASS'
  if change=='drop':bad['uploads'].pop()
  if change=='duplicate':bad['uploads'][4]['file']=bad['uploads'][0]['file']
  if change=='cross':bad['uploads'][1]['document']=bad['uploads'][0]['document']
@@ -629,4 +631,15 @@ test('published response fence rejects redirects and changed executable bytes be
   assert.throws(()=>validatePublishedResponse(proof,{url,resourceType:'Script',status:200,body:Buffer.from('changed')}));
   assert.throws(()=>validatePublishedResponse(proof,{url:url+'other',resourceType:'Script',status:200,body}));
   assert.throws(()=>validatePublishedResponse(proof,{url:url.replace('/assets/proof.js','/login'),resourceType:'Document',status:200,body:Buffer.from('changed')}));
+});
+
+test('signed download is bounded and cannot follow redirects or change owned destination',async()=>{
+  const {boundedSignedDownload}=await import('./p0_crud_global_browser.mjs');let calls=0;
+  const url='https://gklhhhyosgasnyoxlrui.supabase.co/storage/v1/object/sign/contaos-documentos/own/fixture.txt?token=synthetic';
+  const transport=async(raw,options)=>{calls++;assert.equal(raw,url);assert.equal(options.redirect,'error');assert.equal(options.credentials,'omit');assert.equal(options.headers,undefined);return new Response(Buffer.from('own'),{status:200});};
+  assert.deepEqual(await boundedSignedDownload(transport,url,'own/fixture.txt',3),Buffer.from('own'));
+  for(const raw of [url.replace('gklhhhyosgasnyoxlrui','foreign'),url.replace('own/fixture.txt','third/fixture.txt')])await assert.rejects(()=>boundedSignedDownload(transport,raw,'own/fixture.txt',3));
+  assert.equal(calls,1);
+  await assert.rejects(()=>boundedSignedDownload(async()=>new Response(null,{status:308,headers:{location:'https://foreign.invalid'}}),url,'own/fixture.txt',3));
+  await assert.rejects(()=>boundedSignedDownload(async()=>new Response(Buffer.from('oversized'),{status:200}),url,'own/fixture.txt',3));
 });
