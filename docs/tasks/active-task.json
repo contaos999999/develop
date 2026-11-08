@@ -140,7 +140,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "ImplementarBUILDexato153/154: contençãonativaCIantesmigrations,pg_netextensions+4REVOKEsnetatômicos,preflightreadonlyantesAuth. RED/GREEN,10guards,revisãoindependente eguard/public/RestorebackupmesmoHEAD antesmergenormal/applycanônicoHML. Repetirbacklogantesapply,preservar152/148DRAFT,semPROD/novasEdges/CRUD/V1/V2.",
+  "next_step": "BUILD156: contençãoTCP/HTTPnativaantesstartcompatívelcomSQLlocal,semcertificarDNS;provaREALnet.http_postlocal+DROP/receptor0/positivos+326regressões. Revisão/CIguard/public/Restore/backupnomesmoHEAD,mergenormal eapplycanônicoHMLsóapósPASS. PreservarFAIL0f36a,152/148DRAFT,semPROD/novasEdges/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1364,10 +1364,27 @@
       "gate_merge": "884fc628f8d03801fa2c63c5cce1aff1730617be",
       "gate_guard": 42453132612
     },
+    "native_firewall_complement": {
+      "phase": "BUILD",
+      "supersedes": "GATE154 --internal mechanism only; native TCP/HTTP containment and all tests preserved",
+      "failure_head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
+      "failure_run": 42453742973,
+      "backup_failure_artifact": 13607001525,
+      "backup_failure_sha256": "9fbee7cca5163b8aa0a7571505ccb863cb1a5144c120c66a517412751e6864ee",
+      "policy": "Own bridge + owned IPv4 source CIDR jumps DOCKER-USER/FORWARD and INPUT before any start; only ESTABLISHED return then DROP; exact rule ownership/order/counters; no IPv6 global route/address, no alternate NIC; real controlled TCP and pg_net HTTP deny proofs with positive controls and DROP delta",
+      "dns_certified": false,
+      "all_protocols_certified": false,
+      "real_pg_net_probe_required_after_reset": true,
+      "no_new_build_paths": true,
+      "gate_pr": 156,
+      "gate_head": "6784bfa06136f8ebb6717eece30fb040a53d7fd8",
+      "gate_merge": "7f692dc15a50e25d648bd164d65301018c83f03c",
+      "gate_guard": 42454206109
+    },
     "build_validation": {
-      "state": "PENDENTE_REVISAO_CI",
-      "local_node_tests": 326,
-      "local_protocol_tests": 67,
+      "state": "PENDENTE_REVISAO_CI_REANCORADO_G156",
+      "local_node_tests": 327,
+      "local_protocol_tests": 68,
       "red_before_runtime_implementation": "63PASS2FAIL",
       "native_helper_baseline_red": "1FAIL missing helper against GATE source",
       "preflight_live_hml_original": {
@@ -1380,7 +1397,18 @@
       "native_local_docker": "NOT_AVAILABLE_NOT_CERTIFIED",
       "hml_mutations": false,
       "material_fixtures_created": 0,
-      "backup_post_start_cleanup_red": "1FAIL STARTED without CLEANUP_ATTEMPT; flag moved before both starts, GREEN real orchestration regression"
+      "backup_post_start_cleanup_red": "1FAIL STARTED without CLEANUP_ATTEMPT; flag moved before both starts, GREEN real orchestration regression",
+      "firewall_bootstrap_red": "1FAIL no KERNEL -S INPUT on 0f36a helper; valid native-policy bootstrap reaches CLI only after rule checks; divergent policy rejected"
+    },
+    "first_build_failure": {
+      "head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
+      "restore": 42453742973,
+      "rebuild_job": 128648236429,
+      "backup_job": 128648236504,
+      "state": "FAIL_DBSTART_LOCAL_PORT_REFUSED_INTERNAL_NETWORK",
+      "backup_artifact": 13607001525,
+      "sha256": "9fbee7cca5163b8aa0a7571505ccb863cb1a5144c120c66a517412751e6864ee",
+      "no_hml_mutation": true
     }
   }
 }

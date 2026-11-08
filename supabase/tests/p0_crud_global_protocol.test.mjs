@@ -27,7 +27,7 @@ test('actual local network helper rejects foreign runner, remote credentials and
   const bin=join(dir,'bin');mkdirSync(bin);
   const network='contaos-proof-123-1-restore';
   const labels={'com.contaos.scope':'isolated-db-proof','com.contaos.run':'123','com.contaos.attempt':'1','com.contaos.job':'restore'};
-  const good={Name:network,Internal:true,Labels:labels,IPAM:{Config:[{Subnet:'172.29.0.0/16'}]}};
+  const good={Name:network,Internal:false,EnableIPv6:false,Labels:labels,IPAM:{Config:[{Subnet:'172.29.0.0/16'}]}};
   const docker=join(bin,'docker');writeFileSync(docker,`#!/usr/bin/env python3
 import os,sys,json
 with open(os.environ['CALLS'],'a') as f:f.write('docker\\n')
@@ -42,7 +42,8 @@ else:sys.exit(92)
    [{SUPABASE_DB_URL:'PRIVATE_CANARY'},good],
    [{SUPABASE_ACCESS_TOKEN:'PRIVATE_CANARY'},good],
    [{GITHUB_JOB:'unknown'},good],
-   [{},{...good,Internal:false}],
+   [{},{...good,Internal:true}],
+   [{},{...good,EnableIPv6:true}],
    [{},{...good,Labels:{...labels,'com.contaos.run':'another'}}],
    [{},good]
   ].entries()){
@@ -51,6 +52,41 @@ else:sys.exit(92)
    assert.notEqual(r.status,0,'unsafe case '+index+' must fail');assert(!readFileSync(calls,'utf8').includes('SUPABASE'));assert(!r.stdout.includes('PASS_NATIVE'));assert(!r.stderr.includes('PRIVATE_CANARY'));
    if(index<5)assert.equal(readFileSync(calls,'utf8'),'','runner/credential guards precede Docker');
   }
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('actual TCP containment bootstrap verifies kernel policy before allowing CLI start',()=>{
+ const helper=resolve('scripts/isolated-db-network.sh'),dir=mkdtempSync(join(tmpdir(),'contaos-firewall-bootstrap-'));
+ try{
+  const bin=join(dir,'bin');mkdirSync(bin);const network='contaos-proof-123-1-restore';
+  const metadata={Name:network,Internal:false,EnableIPv6:false,Labels:{'com.contaos.scope':'isolated-db-proof','com.contaos.run':'123','com.contaos.attempt':'1','com.contaos.job':'restore'},IPAM:{Config:[{Subnet:'172.29.0.0/16'}]}};
+  writeFileSync(join(dir,'network.json'),JSON.stringify([metadata]));
+  writeFileSync(join(bin,'docker'),`#!/usr/bin/env python3
+import os,sys
+if sys.argv[1:3]==['network','inspect']:print(open('network.json').read())
+else:sys.exit(1)
+`);chmodSync(join(bin,'docker'),0o700);
+  writeFileSync(join(bin,'sudo'),`#!/usr/bin/env python3
+import json,os,sys,shlex
+assert sys.argv[1:5]==['-n','iptables','-w','5']
+a=sys.argv[5:];path='kernel.json';state=json.load(open(path));op,chain=a[:2]
+with open('lifecycle','a') as f:f.write('KERNEL '+op+' '+chain+'\\n')
+if op=='-S':
+ if chain not in state:sys.exit(1)
+ print(('-P '+chain+' ACCEPT') if chain in ('INPUT','FORWARD') else '-N '+chain)
+ for row in state[chain]:print(shlex.join(['-A',chain,*row]))
+elif op=='-N':assert chain not in state;state[chain]=[]
+elif op=='-A':state[chain].append(a[2:])
+elif op=='-I':assert a[2]=='1';state[chain].insert(0,a[3:])
+else:sys.exit(90)
+json.dump(state,open(path,'w'))
+`);chmodSync(join(bin,'sudo'),0o700);
+  writeFileSync(join(bin,'supabase'),"#!/bin/sh\nprintf 'SUPABASE_START\\n' >> lifecycle\nexit 93\n");chmodSync(join(bin,'supabase'),0o700);
+  const env={PATH:bin+':'+process.env.PATH,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'contaos999999/develop',GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',GITHUB_JOB:'restore'};
+  writeFileSync(join(dir,'kernel.json'),JSON.stringify({INPUT:[],FORWARD:[['-j','DOCKER-USER']], 'DOCKER-USER':[]}));writeFileSync(join(dir,'lifecycle'),'');
+  const r=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env,encoding:'utf8',timeout:10000});
+  assert.equal(r.status,1,'CLI failure remains failure');const lifecycle=readFileSync(join(dir,'lifecycle'),'utf8');assert(lifecycle.includes('KERNEL -S INPUT'));assert(lifecycle.trim().endsWith('SUPABASE_START'),'verified native bootstrap must precede CLI');assert(!r.stdout.includes('PASS_NATIVE'));
+  const state=JSON.parse(readFileSync(join(dir,'kernel.json'),'utf8'));const chain=Object.keys(state).find(k=>k.startsWith('CTOS_'));assert(chain);state[chain].push(['-j','ACCEPT']);writeFileSync(join(dir,'kernel.json'),JSON.stringify(state));writeFileSync(join(dir,'lifecycle'),'');
+  const bad=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env,encoding:'utf8',timeout:10000});assert.notEqual(bad.status,0);assert(!readFileSync(join(dir,'lifecycle'),'utf8').includes('SUPABASE_START'),'divergent existing policy cannot be overwritten or bypassed');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
 test('actual backup cleanup covers a helper failure after the local database starts',()=>{
