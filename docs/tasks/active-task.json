@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "BUILD segurança: rejeitar NULL em paginação documental/análise",
+  "title": "Prova material documental HML: publicado primeiro e quatro provas locais",
   "status": "ativa",
-  "phase": "BUILD_NULL_PAGINATION_HML",
+  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex Trilha B; contexto25canônicos/fingerprint/P0 preservados; maina9abcdf161 integrado, revisão independente10RPCs e catálogoHML lidos",
+  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEADs/checkpoints vivos e PRs155/160/161/162 preservados; reancoragem própria148",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -38,12 +38,8 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_NULL_PAGINATION_HML_2026-11-08.md",
-    "supabase/migrations/20261108114652_p0_null_pagination_guard.sql",
-    "supabase/tests/hml_acceptance.sql",
-    "supabase/tests/p0_crud_global_protocol.test.mjs",
-    "supabase/tests/null_pagination_guard.postgres.mjs",
-    ".github/workflows/restore-isolado.yml"
+    "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
+    "supabase/tests/p0_crud_global_protocol.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -51,7 +47,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -137,7 +133,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Não repetir upload152, BUILD155 ou migration20261108060000: integrados e comprovados. Retomar requisitos pendentes da Trilha A no planejamento vigente, sem declarar auditoria global concluída. Executor Trilha B deve reancorar seu PR148 e executar sua prova material própria ainda pendente; não reutilizar nem limpar fixture152. Qualquer novo código/DDL exige escopo próprio e CI/revisão.",
+  "next_step": "Após revisão e CI deste HEAD, merge normal CAS148. Restore push/main+guard/rebuild/backup no MESMO mergeHEAD antes runner próprio1TXTpublicado PRIMEIRO+4locais;5arquivos/3docs/5versões,worker normal,recibosdisjuntos ecleanup. Não alterar fase/main enquanto runner ativo; não limparfixtures152/160 alheias. SQL162jáaplicadoHML/paridadecomprovada. SemCRUDglobal/V1/V2/PROD.",
   "database_change_scope": "Somente checkpoint documental de implantação já concluída; nenhuma nova DDL ou alteração HML autorizada por este manifesto.",
   "evidence": {
     "test_pr": 52,
@@ -656,7 +652,7 @@
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -669,7 +665,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "BLOQUEADO_DEPENDENCIA_CORS_OPTIONS405",
+    "state": "PENDENTE_PROVA_MATERIAL_DOCUMENTAL_POS_CORS",
     "frontend_merge": "b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -978,11 +974,11 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "BUILD",
-    "state": "BUILD_LOCAL_NO_DEPLOY",
+    "state": "BUILD_INTEGRADO_IMPLANTADO_HML_TRANSPORTE_VERIFICADO",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1011,7 +1007,7 @@
     ],
     "verify_jwt_must_remain": true,
     "hml_project": "gklhhhyosgasnyoxlrui",
-    "material_crud_disabled": true,
+    "material_crud_disabled": false,
     "independent_review": "Sem Critical/Important para PLAN; completed_scopes condicionado a PASS real; reancorar HEAD antes de publicar",
     "baseline_local_tests": "node --test:60/60 PASS em a672f44",
     "authorization": "Continuidade expressa do titular para correções HML por PLAN/GATE/BUILD; sem PROD ou ampliação de permissão",
@@ -1571,6 +1567,136 @@
       "source": "official npm supabase@2.122.0",
       "scripts": "disabled",
       "all_checks_preserved": true
+    },
+    "verified_receipt": {
+      "head": "2c92956ee331c8929768185a0130137c7758e809",
+      "merge": "601922fbf59accc7606b8ce4c697b6ece961f23e",
+      "guard": 42478754408,
+      "public": 42478754463,
+      "restore": 42478754441,
+      "deploy_hml": 42479062553,
+      "migration": "20261108114652",
+      "migration_sha256": "f3b8150532949b4842a3319f76875a3acbd276387c705d5fd5e4c800e6c7431c",
+      "post_hml_body_md5": [
+        "554d62877bb4482763ef38cf20f2956b",
+        "6f864780e95f9d62113cdcedffb13ccc"
+      ],
+      "owner_acl_search_path_preserved": true,
+      "node": 340,
+      "postgres_predicates": 29,
+      "real_rpc_local_sql": 14,
+      "http_hml_no_credentials": 10,
+      "global_complete": false
     }
+  },
+  "document_material_resume": {
+    "state": "PENDENTE_CI_CHECKPOINT_REANCORADO_APOS_162",
+    "backend_source": "601922fbf59accc7606b8ce4c697b6ece961f23e",
+    "pr139": {
+      "head": "2fcd7bae534e070607410689e5b582c2a142e581",
+      "merge": "a58689e1cd0d414abd503e674832aa4a1e4b2c37",
+      "guard": 42449196158,
+      "restore": 42449196348,
+      "probe": 42449196146,
+      "probe_artifact": 13604378113,
+      "probe_sha256": "ef57f6f10fbc9754f9c44e8646cf906a1cf24379ef3188421c0f5a6a32b38366",
+      "independent_review": 5816705849
+    },
+    "concurrent_pr145": {
+      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
+      "head": "a475479dcd6853da22a70026a9649e579077010c",
+      "merge": "b8003019fe937c8dad436fae3a0334aee23f2453",
+      "guard": 42449646955,
+      "restore": 42449952690,
+      "third_origin_gate": 144
+    },
+    "hml": {
+      "project": "gklhhhyosgasnyoxlrui",
+      "upload_version": 8,
+      "download_version": 6,
+      "verify_jwt": true,
+      "source_parity": "EXACT_OFFICIAL_FILE_CONTENT_MATCH_CURRENT_INTEGRATED_SOURCE",
+      "upload_bundle_sha256": "940e854c213c399c0f5c08d99278f8bb6a8f4d3676acc189bb5e1a67fbd3d5a4",
+      "download_bundle_sha256": "d641c940614865bcbe6eb0b75c8e95a0531b69f62a6d64ff0183fd18c09be025",
+      "original_origins_http_cases_passed": 12,
+      "negative_origin_method_header_and_no_jwt_passed": true
+    },
+    "proof_partition": {
+      "published_txt_first": 1,
+      "local_uploads": 4,
+      "files": 5,
+      "documents": 3,
+      "versions": 5,
+      "published_frontend_head": null,
+      "published_source_parity": "NAO_VERIFICADA",
+      "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269"
+    },
+    "limits": {
+      "per_file_seconds": 300,
+      "total_seconds": 900,
+      "timer_starts_before_published": true
+    },
+    "no_global_worker_invocation": true,
+    "own_quarantine_and_receipts_only": true,
+    "new_ddl_or_auth_storage_configuration": false,
+    "global_complete": false,
+    "v1_certified": false,
+    "prod": false,
+    "local_tests": 341,
+    "new_safety_regression": "Expired global deadline during backend proof blocks published credentials and local uploads",
+    "trigger": "Existing protocol test path triggers Restore PR/push and public-probe PR; no workflow changes or fabricated events",
+    "previous_blocker": {
+      "pr": 147,
+      "known_failure": "P0001_CONFIRMAR_UPLOAD_ARQUIVO_EXTENSION",
+      "ownership": "OTHER_EXECUTOR_MIGRATION_NO_DUPLICATE",
+      "independent_hml_select_cases": 7,
+      "material_never_started": true
+    },
+    "sql_repair": {
+      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
+      "pr": 147,
+      "head": "5297f1316b4a8d1fbfaeff0330f195da3300cdf8",
+      "merge": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
+      "migration_version": "20261108053000",
+      "canonical_deploy_run": 42450754658,
+      "canonical_deploy_state": "SUCCESS",
+      "hml_history_statement_count": 1,
+      "hml_private_body_md5": "a0c3d54699ca5ac54e0caf718b7426d1",
+      "hml_public_wrapper_body_md5": "2671383869a4df20e454b7b6a7556261",
+      "acl_search_path_security_preserved": true,
+      "material_proof": "PENDENTE"
+    },
+    "document_wrapper_repair": {
+      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
+      "gate_prs": [
+        149,
+        151
+      ],
+      "build_pr": 150,
+      "head": "46a7b821a4e06cf5b5162513c82e3afc5d9b93a2",
+      "state": "INTEGRADO_APLICADO_HML_VERIFICADO_READONLY",
+      "first_restore_failure": 42451142640,
+      "first_restore_failure_artifact": 13605617457,
+      "first_restore_failure_sha256": "8733dbc0a9e3fb7d55ca4098ab65bd66f42176ad6cf22c22ddbb45b529039878",
+      "expected_public_body_md5": "76a15744ab7c8e4e2fb11f3e6477e661",
+      "expected_private_body_md5": "4bd3d0edebe2522b9ced4e1d6c482e9d",
+      "independent_actual_catalog_helper_cases": 12,
+      "anon_execute_must_remain": false,
+      "private_authenticated_execute_must_remain": false,
+      "merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
+      "guard": 42451502833,
+      "restore": 42451502838,
+      "canonical_deploy_run": 42451722019,
+      "canonical_deploy_state": "SUCCESS",
+      "migration_version": "20261108054500",
+      "migration_sha256": "5798d972d1592b48c25139e7e489e900831af8fe3ce74c9057b1da7fadbb0f5d",
+      "hml_history_statement_count": 1,
+      "public_definer": true,
+      "private_definer": true,
+      "owner_search_path_bodies_and_acl_preserved": true,
+      "material_proof": "PENDENTE"
+    },
+    "previous_local_tests": 323,
+    "independent_review": "341/341 Node,10 guards,diff PASS; sem Critical/Important no HEAD reancorado; nova CI obrigatória"
   }
 }

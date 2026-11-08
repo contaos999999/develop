@@ -968,3 +968,9 @@ for ready,expected in [(12,True),(None,False)]:
 `;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
 });
+
+test('expired global deadline during backend proof blocks published credentials and local uploads',async()=>{
+  const {runDocumentProvenances}=await import('./p0_crud_global_browser.mjs');let now=0;const calls=[];
+  await assert.rejects(()=>runDocumentProvenances({now:()=>now,proveBackend:async()=>{calls.push('READONLY_BACKEND_PROOF');now=900001;},published:async()=>calls.push('PUBLISHED'),local:async()=>calls.push('LOCAL')}),{name:'AssertionError'});
+  assert.deepEqual(calls,['READONLY_BACKEND_PROOF']);
+});
