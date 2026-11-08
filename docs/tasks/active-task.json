@@ -1140,7 +1140,15 @@
       "full_document_crud_v1_certification": false,
       "gate_pr": 142,
       "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
-      "state": "INTEGRADO_ANTES_BUILD"
+      "state": "INTEGRADO_ANTES_BUILD",
+      "build_state": "EM_VALIDACAO_CI_REAL",
+      "local_tdd": {
+        "red": "52PASS/2FAIL proxy helpers absent",
+        "worker_latch_red": "53PASS/1FAIL finalizer absent",
+        "green_protocol": 54,
+        "green_full": 260,
+        "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained"
+      }
     }
   },
   "auth_configuration_changes_allowed": false
