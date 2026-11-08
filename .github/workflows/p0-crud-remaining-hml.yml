@@ -158,7 +158,13 @@ jobs:
           if task.get('remaining_certification',{}).get('approved_hml_migration'):
               import sys
               sys.path.insert(0,'supabase/tests')
-              from remaining_domains.detail_migration import ensure_migration
+              version=task['remaining_certification']['approved_hml_migration']['version']
+              if version=='20261108183000':
+                  from remaining_domains.detail_migration import ensure_migration
+              elif version=='20261108184219':
+                  from remaining_domains.metadata_migration import ensure_migration
+              else:
+                  raise AssertionError('Unreviewed migration dispatcher version')
               ensure_migration(os.environ)
           local=sorted(p.name.split('_',1)[0] for p in pathlib.Path('supabase/migrations').glob('*.sql'))
           remote=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c','select version from supabase_migrations.schema_migrations order by version'],capture_output=True,text=True)
