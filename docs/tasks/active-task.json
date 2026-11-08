@@ -140,7 +140,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Certify only historico, administracao and dependent parecer/apresentacao/protocolo after independent same-HEAD Restore catalog parity; preserve all previous documentary/domain receipts.",
+  "next_step": "Retry only dependent parecer/apresentacao/protocolo with an approved, activated, applicable formal source created through official RPCs; preserve eight passed backend domains and documentary batch.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -1816,16 +1816,12 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
-      "historico",
-      "administracao",
       "apresentacao"
     ],
     "pending_domains": [
       "parecer",
       "apresentacao",
-      "protocolo",
-      "historico",
-      "administracao"
+      "protocolo"
     ],
     "no_regression_premise": "Corrigir um domínio não pode regredir o que já funciona; evidência anterior só permanece válida se dependências materiais forem preservadas; qualquer delta exige teste direcionado de regressão.",
     "preserved_documental": {
@@ -1911,6 +1907,30 @@
         "assertions": 59,
         "state": "PASS_DOMAIN",
         "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "historico",
+        "head": "d063b0b65362fdd71473571dd1069866c9263172",
+        "run": 42516277443,
+        "job": 128839908915,
+        "artifact": 13631248955,
+        "sha256": "eb1b05adfe863a203b964f8437baa55c2f214a84c11e6bb921803fe9a56ec8f5",
+        "assertions": 41,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA",
+        "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
+      },
+      {
+        "domain": "administracao",
+        "head": "d063b0b65362fdd71473571dd1069866c9263172",
+        "run": 42516277443,
+        "job": 128839908936,
+        "artifact": 13631043127,
+        "sha256": "f71183ce00a135f2f15e6813191d92858b5226cf2024f9aee5596e25c3cfba8d",
+        "assertions": 56,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA",
+        "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
       }
     ],
     "orcamento_retry": {
@@ -1946,6 +1966,20 @@
       "SMTP delivery not certified; own existing-user invitation lookup only",
       "synthetic own scope is not real-party regulatory certification",
       "global_complete stays false until all applicable evidence is verified"
-    ]
+    ],
+    "catalog_parity_verified": {
+      "head": "d063b0b65362fdd71473571dd1069866c9263172",
+      "restore_run": 42516052448,
+      "restore_artifact": 13631486447,
+      "restore_artifact_sha256": "87afb8e12dcc8c594e2fea14bf21d73da9725fc810ebe3ff96dcdeb1dff84a37",
+      "normalized_sha256": "bed1cc8f7bde59c75f4d0e96468cd42e0fecc312521c93309fd4e046fd70916b",
+      "equivalence_rules": [
+        "POSTGRES_OWNER_IMPLICIT_GRANT_OPTION",
+        "EXACT_HOSTED_DDL_HELPER"
+      ],
+      "raw_expected_sha256": "0cdd256da69c2b24c8b012233b7a775e9601d33239307c3918283b5a161bc48f",
+      "raw_actual_sha256": "fd207fd0020dc5c1520c2708a2a980668c714fc25dc2ae9d11f4ad7115b03f9e",
+      "physical_raw_acl_identity_claimed": false
+    }
   }
 }
