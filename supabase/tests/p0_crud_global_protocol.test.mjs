@@ -796,3 +796,9 @@ test('late fence failure survives cleanup and is written to its original publish
   for(const state of ['PASS_BATCH','PASS_PUBLIC_PROBE','PASS_SMOKE']){const report={state};assert.equal(finalizePublishedFence(report,snapshot),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_LATE_PUBLISHED_FAILURE');}
   assert.equal(finalizePublishedFence({state:'PASS_BATCH'},{failed:false}),false);
 });
+
+test('expired global deadline during backend proof blocks published credentials and local uploads',async()=>{
+  const {runDocumentProvenances}=await import('./p0_crud_global_browser.mjs');let now=0;const calls=[];
+  await assert.rejects(()=>runDocumentProvenances({now:()=>now,proveBackend:async()=>{calls.push('READONLY_BACKEND_PROOF');now=900001;},published:async()=>calls.push('PUBLISHED'),local:async()=>calls.push('LOCAL')}),{name:'AssertionError'});
+  assert.deepEqual(calls,['READONLY_BACKEND_PROOF']);
+});
