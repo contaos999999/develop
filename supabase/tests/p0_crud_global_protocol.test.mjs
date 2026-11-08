@@ -688,3 +688,18 @@ test('document CSP appends a separate restrictive policy preserving every origin
   assert.throws(()=>nativeDocumentWorkerPolicy({...event,responseHeaders:undefined},'https://own.invalid'));
   assert.throws(()=>nativeDocumentWorkerPolicy({...event,responseHeaders:[{name:'Unsafe',value:'line\r\nbreak'}]},'https://own.invalid'));
 });
+
+test('native proxy bypass contains only exact canonical scheme host and port after implicit-loopback subtraction',async()=>{
+  const {nativeDestinationProxy}=await import('./p0_crud_global_browser.mjs');
+  assert.deepEqual(nativeDestinationProxy(['http://127.0.0.1:4173','https://gklhhhyosgasnyoxlrui.supabase.co'],23456),{server:'http://127.0.0.1:23456',bypass:'<-loopback>,http://127.0.0.1:4173,https://gklhhhyosgasnyoxlrui.supabase.co:443'});
+  assert.equal(nativeDestinationProxy(['https://scope-and-approval-keeper.lovable.app'],23456).bypass,'<-loopback>,https://scope-and-approval-keeper.lovable.app:443');
+  for(const origin of ['http://*.invalid','https://.invalid','http://user:pass@own.invalid','http://own.invalid/path','http://own.invalid?query','http://own.invalid#hash','ws://own.invalid','http://own.invalid.','http://127.1','http://own.invalid,direct://','http://own.invalid;DIRECT'])assert.throws(()=>nativeDestinationProxy([origin],23456));
+  for(const port of [0,-1,65536,'23456',NaN])assert.throws(()=>nativeDestinationProxy(['http://127.0.0.1:4173'],port));
+  assert.throws(()=>nativeDestinationProxy([],23456));assert.throws(()=>nativeDestinationProxy(['http://127.0.0.1:4173','http://127.0.0.1:4173'],23456));
+});
+
+test('native destination deny closes real TCP without response or forwarding and remains bounded on close',async()=>{
+  const {startNativeDestinationDeny}=await import('./p0_crud_global_browser.mjs');const {createConnection}=await import('node:net');const deny=await startNativeDestinationDeny();
+  try{let bytes=0;await new Promise((resolve,reject)=>{const socket=createConnection({host:'127.0.0.1',port:deny.port});socket.setTimeout(1000,()=>{socket.destroy();reject(Error('Deny did not close'));});socket.on('data',chunk=>bytes+=chunk.length);socket.on('error',()=>{});socket.on('close',resolve);});assert.equal(bytes,0);assert.equal(deny.snapshot().connections,1);}finally{await deny.close();}
+  assert.equal(deny.snapshot().closed,true);
+});
