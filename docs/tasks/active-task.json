@@ -41,7 +41,8 @@
     "docs/tasks/archive/C-CHAT-001-PLAN-20261108_snapshot.json",
     "docs/backend/TRILHA_C_COPILOT_OPENAI_BUILD_PLAN_2026-11-08.md",
     "supabase/functions/copilot-query/index.ts",
-    "supabase/tests/copilot_openai_contract.test.mjs"
+    "supabase/tests/copilot_openai_contract.test.mjs",
+    ".github/workflows/zero-drift.yml"
   ],
   "forbidden_paths": [
     "src/**",
