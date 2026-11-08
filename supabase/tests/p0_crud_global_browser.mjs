@@ -170,7 +170,13 @@ export function publishedAnalyzer(ts,referenceSource){
     const usage=new Set();
     for(const node of nodes){
       if(ts.isStringLiteral(node)&&/^https?:\/\/[^/]+\.supabase\.(co|in)(?:\/|$)/.test(node.text))assert.equal(new URL(node.text).origin,HML_ORIGIN,'Foreign backend configuration');
-      if(ts.isIdentifier(node)&&symbol(node)===instanceSymbol){const parent=node.parent;assert((ts.isVariableDeclaration(parent)&&parent.name===node)||(ts.isPropertyAccessExpression(parent)&&parent.expression===node)||ts.isImportSpecifier(parent)||ts.isExportSpecifier(parent),'Unresolved configured client alias or escape');}
+      const boundRpcCall=ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&node.expression.name.text==='call'&&ts.isPropertyAccessExpression(node.expression.expression)&&node.expression.expression.name.text==='rpc'&&symbol(node.expression.expression.expression)===instanceSymbol;
+      if(boundRpcCall)assert(node.arguments.length>=2&&ts.isIdentifier(node.arguments[0])&&symbol(node.arguments[0])===instanceSymbol,'RPC call receiver must be the configured client');
+      if(ts.isIdentifier(node)&&symbol(node)===instanceSymbol){
+        const parent=node.parent;
+        const ownRpcReceiver=ts.isCallExpression(parent)&&parent.arguments[0]===node&&ts.isPropertyAccessExpression(parent.expression)&&parent.expression.name.text==='call'&&ts.isPropertyAccessExpression(parent.expression.expression)&&parent.expression.expression.name.text==='rpc'&&symbol(parent.expression.expression.expression)===instanceSymbol;
+        assert((ts.isVariableDeclaration(parent)&&parent.name===node)||(ts.isPropertyAccessExpression(parent)&&parent.expression===node)||ts.isImportSpecifier(parent)||ts.isExportSpecifier(parent)||ownRpcReceiver,'Unresolved configured client alias or escape');
+      }
       if(ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&ts.isPropertyAccessExpression(node.expression.expression)){
         const member=node.expression.expression;if(symbol(member.expression)===instanceSymbol)usage.add(member.name.text+'.'+node.expression.name.text);
       }
