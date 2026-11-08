@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: GATE complementar CSP restritiva de Browser Workers",
+  "title": "Prova privada V1: GATE complementar de destinos nativos por proxy DENY",
   "status": "ativa",
   "phase": "GATE_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
@@ -135,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão e checks do GATE CSP separado; integrar antes de reancorar e implementar no PR139. Execução material desabilitada.",
+  "next_step": "Revisão normativa e checks do GATE proxy DENY separado antes de integrar/reancorar e implementar. Sem material ou deploy.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -989,7 +989,7 @@
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "GATE",
-    "state": "GATE_COMPLEMENTAR_CSP_WORKER_EM_VALIDACAO",
+    "state": "GATE_COMPLEMENTAR_PROXY_DENY_EM_VALIDACAO",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1099,6 +1099,21 @@
       "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
       "browser_workers": "NAO_CERTIFICADOS",
       "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
+      "full_document_crud_v1_certification": false,
+      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO"
+    },
+    "native_destination_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "NATIVE_CONTEXT_PROXY_DENY_EXACT_ORIGIN_BYPASS",
+      "source_head": "2447807580249d57b0e8215c4a078e9b2ae4a0cf",
+      "source_run": 42441727347,
+      "artifact": 13601469706,
+      "sha256": "27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721",
+      "no_forwarding": true,
+      "no_direct_fallback": true,
+      "browser_workers": "NAO_CERTIFICADOS",
+      "unexpected_product_worker": "FAIL",
       "full_document_crud_v1_certification": false
     }
   },
