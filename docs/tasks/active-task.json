@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-002-SCOPE-QUOTA-HML-PLAN-20261108",
-  "title": "Trilha C — PLAN/GATE fonte elegível, quota atômica e runner HML",
+  "id": "C-CHAT-003-CATALOG-ADDITIVE-GATE-20261108",
+  "title": "Trilha C GATE: comparação exata das nove funções aditivas no Restore",
   "status": "ativa",
-  "phase": "PLAN_GATE",
+  "phase": "PLAN_GATE_CATALOG",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -132,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisar/CI/integração destePLAN/GATE comcaminhoCLIexato;BUILDseparadoeCI/review/Restore/backupantesdeploymenttécnicoHML,readback,JWTrealeTesteC.",
+  "next_step": "CI/revisão/integração desteGATEdocumental; depoisBUILD182podealterarsomenteosdoispathsexatosdecatálogo,semexcluirfunçãogenéricaourelaxarcomparativohistórico.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2091,5 +2091,171 @@
       "lease_seconds": 90,
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
+  },
+  "copilot_catalog_gate": {
+    "state": "DOCUMENT_ONLY_NO_SQL_IMPLEMENTATION",
+    "build_enabled": false,
+    "additional_future_build_paths": [
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/copilot_catalog.test.mjs"
+    ],
+    "migration_sha256": "8057aa5f5ff82b7b36ad305f19a29a9067ce3cf3fcb8603ed32f6bfd6c2fa667",
+    "functions": [
+      {
+        "schema": "privado",
+        "name": "copilot_versao_elegivel",
+        "args": "p_versao uuid, p_org uuid, p_contrato uuid, p_data date",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "sql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": false,
+        "public_exec": false,
+        "body_md5": "802dccbc6b41c244ea7dd57b3719feac"
+      },
+      {
+        "schema": "privado",
+        "name": "copilot_precedente_elegivel",
+        "args": "p_id uuid, p_org uuid, p_contratante uuid",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "sql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": false,
+        "public_exec": false,
+        "body_md5": "d2bcc6291453a42f96bfb4ffc664b7d8"
+      },
+      {
+        "schema": "public",
+        "name": "worker_buscar_fragmentos_copiloto",
+        "args": "p_id_organizacao uuid, p_id_contrato uuid, p_ids_fragmentos uuid[], p_embedding extensions.vector, p_data_referencia date, p_limite integer",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "TABLE(id uuid, id_versao_documento uuid, pagina_inicio integer, pagina_fim integer, texto text, similaridade double precision, fonte_temporal text, inicio_vigencia date, fim_vigencia date)",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "58268b61ee1b83a0e9ac8693ebee4ed8"
+      },
+      {
+        "schema": "public",
+        "name": "worker_buscar_precedentes_copiloto",
+        "args": "p_id_organizacao uuid, p_id_contratante uuid, p_id_contrato uuid, p_ids_precedentes uuid[], p_embedding extensions.vector, p_limite integer",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "TABLE(id uuid, id_contrato_origem uuid, competencia_origem date, problema text, solucao text, desfecho text, escopo_resultado text, similaridade double precision, forca_score numeric, score_final numeric, confirmacoes integer, hierarquia_normativa integer, confianca numeric)",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "67a23d26ebc9608da48d576d33bf6ec6"
+      },
+      {
+        "schema": "privado",
+        "name": "copilot_ator_permite",
+        "args": "p_org uuid, p_contrato uuid, p_ator uuid, p_sessao uuid",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": false,
+        "public_exec": false,
+        "body_md5": "364955d7b3eee1325d8691dde52dc3db"
+      },
+      {
+        "schema": "public",
+        "name": "worker_reservar_consulta_copiloto",
+        "args": "p_id_organizacao uuid, p_id_contrato uuid, p_id_usuario uuid, p_texto text, p_filtros jsonb, p_modelo text",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "jsonb",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "b68f1ad83a5b68d6bd13d4782fdd1e4b"
+      },
+      {
+        "schema": "public",
+        "name": "worker_falhar_consulta_copiloto",
+        "args": "p_id_consulta uuid, p_token uuid, p_codigo text",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "8a1ca3751651956c646d9d8d9a2277d9"
+      },
+      {
+        "schema": "public",
+        "name": "worker_validar_lease_copiloto",
+        "args": "p_id_consulta uuid, p_token uuid",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "12a3a6349ed40ad9452473bc3c96b7d8"
+      },
+      {
+        "schema": "public",
+        "name": "worker_concluir_consulta_copiloto",
+        "args": "p_id_consulta uuid, p_token uuid, p_id_sessao uuid, p_retorno jsonb, p_fontes jsonb",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "jsonb",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "0cfce0ca3da751f82391606a631d79a5"
+      }
+    ],
+    "owner_privilege": "postgres EXECUTE owner-only, no grant option; public worker RPCs additionally service_role EXECUTE without grant option; no PUBLIC/anon/authenticated or unknown role grants",
+    "comparison": "Append exact nine approved contract records to expected baseline; retain all actual records; independently compare native owner/result/language/definer/config/body_md5/effective EXECUTE and raw ACL rows. Every original comparison remains unchanged."
   }
 }
