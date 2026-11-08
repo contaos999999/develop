@@ -1170,13 +1170,21 @@
     "paused_document_build": {
       "state": "EM_VALIDACAO_CI_REAL",
       "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
-      "local_protocol": 61,
-      "local_full_suite": 267,
+      "local_protocol": 62,
+      "local_full_suite": 268,
       "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
       "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
       "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
       "material_enabled": false,
-      "global_complete": false
+      "global_complete": false,
+      "first_ci": {
+        "head": "7bf439d6dc439ff29c69cd197648363276db0a6b",
+        "run": 42448576211,
+        "artifact": 13604377240,
+        "sha256": "6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2",
+        "state": "FAIL_CHANGED_SCRIPT",
+        "local_red": "failure latch false before awaited native abort; fixed synchronously"
+      }
     }
   },
   "auth_configuration_changes_allowed": false

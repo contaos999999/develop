@@ -757,13 +757,25 @@ test('a late failure during asynchronous Document proof cannot continue the paus
       const documentProofs=[],loadedScriptHashes=new Set(),calls=[],initialTarget='own';
       const body=Buffer.from('own'),origin='https://scope-and-approval-keeper.lovable.app';
       let proof={origin,modules:new Map([[origin+'/assets/a.js','a'.repeat(64)]]),inspectDocument:async()=>{${latch}=true;return {state:'HML_CONFIG_CONFIRMED',module_count:1,asset_sha256:[],runtimeProof:{origin,html_sha256:createHash('sha256').update(body).digest('hex'),modules:new Map()}};}};
-      const allowed=()=>true,expectedPopup=()=>false,send=async(session,method)=>{calls.push(method);return {body:'own',base64Encoded:false};};
+      const allowed=()=>true,expectedPopup=()=>false,fail=()=>{failed=true;},send=async(session,method)=>{calls.push(method);return {body:'own',base64Encoded:false};};
       ${source.slice(start,end)}
       try{await paused({type:'page',targetId:'own'},{requestId:'own',request:{url:origin+'/login'},resourceType:'Document',responseStatusCode:200});}catch{}
       return calls;
     })()`,{assert,Buffer,URL,createHash,validatePublishedResponse});
     assert.deepEqual(Array.from(result),['Fetch.getResponseBody','Fetch.failRequest']);
   }
+});
+
+test('response rejection latches failure before awaiting the native abort command',async()=>{
+  const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');const {createHash}=await import('node:crypto');const source=readFileSync('supabase/tests/p0_crud_global_browser.mjs','utf8'),start=source.indexOf('  async function paused(session,event){'),end=source.indexOf('  function message(session,data){',start);
+  const result=await vm.runInNewContext(`(async()=>{
+    let failed=false,closed=false,documentInspection=false,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,failureHTML=null;const documentProofs=[],loadedScriptHashes=new Set(),initialTarget='own',origin='https://scope-and-approval-keeper.lovable.app';
+    let proof={origin,modules:new Map([[origin+'/assets/a.js','a'.repeat(64)]])};const allowed=()=>true,expectedPopup=()=>false,fail=()=>{failed=true;};let latchedBeforeAbort;
+    const send=async(session,method)=>{if(method==='Fetch.failRequest')latchedBeforeAbort=failed;return {body:'changed',base64Encoded:false};};
+    ${source.slice(start,end)}
+    try{await paused({type:'page',targetId:'own'},{requestId:'own',request:{url:origin+'/assets/a.js'},resourceType:'Script',responseStatusCode:200});}catch{}
+    return latchedBeforeAbort;
+  })()`,{assert,Buffer,URL,createHash,validatePublishedResponse});assert.equal(result,true);
 });
 
 test('successful loaded-source hashes persist in the active provenance report only',async()=>{

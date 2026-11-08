@@ -110,3 +110,8 @@ TDD local:56PASS/2FAIL por inspector ausente; regressão adicional do path real 
 Estado: EM VALIDAÇÃO CI REAL, condições técnicas ainda não cumpridas. Nenhum resultado material, deploy ou certificação CRUD/V1 decorre dos testes locais. Revisão independente apontou e levou à correção de resolução de URL, corrida de falha e persistência positiva; parecer final condicionado ao CI. Publicação por CAS no HEAD base, preservando trabalho concorrente; nenhum commit anterior é atribuído a esta execução.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A justificado, harness backend; frontend/issue317/PROD intactos. Ferramentas locais/GitHub, sem turnos Lovable, timeout ampliado ou controle afrouxado.
+
+
+### Primeiro CI do BUILD143 e latch síncrono
+
+HEAD7bf439d6dc439ff29c69cd197648363276db0a6b: guard42448576205 SUCCESS; public42448576211/job128632687130 FAILURE em CHANGED_SCRIPT, antes das novas fixtures. Artefato13604377240 digest6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2 baixado/verificado: zero execução do script alterado e zero foreignTCP/HTTP/WS. AssertionError sem mensagem bruta não certifica causa única; investigação local reproduziu uma corrida concreta do caminho: a fixture pode consultar failed antes que o tracker o registre depois do await Fetch.failRequest. Novo RED: resposta rejeitada observa latch=false antes do abort; GREEN registra fail(error) sincronicamente antes do await. Nenhum conteúdo rejeitado passa a ser permitido. Protocolo62/62, suíte268/268; repetir CI no novo HEAD. Nenhum merge/deploy/material liberado.

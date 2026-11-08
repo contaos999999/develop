@@ -211,7 +211,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
       validatePublishedResponse(proof,{url,resourceType,status:event.responseStatusCode,body});
       if(resourceType==='Script'){verifiedScripts++;loadedScriptHashes.add(createHash('sha256').update(body).digest('hex'));}if(resourceType==='Document'&&new URL(url).origin===proof.origin)verifiedDocuments++;
       assert(!failed&&!closed,'Fence failed while response was paused');await send(session,'Fetch.continueResponse',{requestId});
-    }catch(error){if(error.code==='FENCE_DOCUMENT_HASH'&&typeof proof.diagnoseHTML==='function'){try{failureHTML=await proof.diagnoseHTML(body);}catch{failureHTML={available:false};}}if(!error.code)error.code=resourceType==='Document'?'FENCE_DOCUMENT_RESPONSE_REJECTED':resourceType==='Script'?'FENCE_SCRIPT_RESPONSE_REJECTED':'FENCE_OTHER_RESPONSE_REJECTED';await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
+    }catch(error){if(error.code==='FENCE_DOCUMENT_HASH'&&typeof proof.diagnoseHTML==='function'){try{failureHTML=await proof.diagnoseHTML(body);}catch{failureHTML={available:false};}}if(!error.code)error.code=resourceType==='Document'?'FENCE_DOCUMENT_RESPONSE_REJECTED':resourceType==='Script'?'FENCE_SCRIPT_RESPONSE_REJECTED':'FENCE_OTHER_RESPONSE_REJECTED';fail(error);await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
   }
   function message(session,data){
     if(data.method==='Page.windowOpen'){if(!expectedPopup(data.params.url))fail({code:'FENCE_UNEXPECTED_POPUP'});}
