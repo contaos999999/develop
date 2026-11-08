@@ -6,6 +6,17 @@ import json,time
 from p0_crud_global_hml import q,uid
 from remaining_domains.document_fixture import competence,wait_document
 
+def formal_source(r):
+    f=r.fixture;org=f['org'];contract=f['contract']
+    create={'p_id_organizacao':org,'p_id_contrato':contract,'p_id_fonte':None,'p_tipo':'norma_interna','p_titulo':f['prefix']+'Own synthetic physical document requirement','p_referencia':'Explicit own synthetic prerequisite only','p_descricao':'Require one readable own text document, not real-party compliance','p_situacao':'rascunho','p_versao_esperada':None,'p_chave_idempotencia':uid()}
+    source=r.operation('salvar_fonte_normativa_v107',create)['fonte'];r.entity('formal_source',source['id'])
+    version=r.operation('registrar_versao_fonte_v107',{'p_id_organizacao':org,'p_id_fonte':source['id'],'p_inicio_vigencia':'2026-01-01','p_fim_vigencia':None,'p_id_arquivo':None,'p_conteudo_texto':'Own synthetic requirement: one readable text document must be physically present on page 1. '+f['nonce'],'p_metadados':{'synthetic':True},'p_chave_idempotencia':uid()})['versao'];r.entity('formal_source_version',version['id'])
+    r.operation('aprovar_versao_fonte_v107',{'p_id_organizacao':org,'p_id_versao':version['id'],'p_hash_esperado':version['hash'],'p_fundamento':'Own authorized review of explicit synthetic requirement','p_chave_idempotencia':uid()})
+    r.operation('salvar_fonte_normativa_v107',{**create,'p_id_fonte':source['id'],'p_situacao':'ativa','p_versao_esperada':source['versao_registro'],'p_chave_idempotencia':uid()})
+    r.operation('definir_aplicabilidade_fonte_v107',{'p_id_organizacao':org,'p_id_contrato':contract,'p_id_versao':version['id'],'p_aplicavel':True,'p_fundamento':'Own contract synthetic scenario','p_atualizado_em_esperado':None,'p_chave_idempotencia':uid()})
+    r.sql_check('FLOW_FORMAL_SOURCE','select exists(select 1 from public.fontes_normativas f join public.versoes_fontes_normativas v on v.id_fonte=f.id join public.aplicabilidades_fonte a on a.id_fonte_versao=v.id where f.id='+q(source['id'])+" and f.situacao='ativa' and f.id_organizacao="+q(org)+' and f.id_contrato='+q(contract)+' and v.id='+q(version['id'])+' and v.hash='+q(version['hash'])+' and v.aprovado_em is not null and a.id_contrato='+q(contract)+' and a.aplicavel and a.aprovado_em is not null);')
+    return version['id']
+
 def wait_sql(r,query,label,timeout=360,pause=time.sleep):
     end=time.monotonic()+timeout
     while True:
@@ -42,12 +53,12 @@ def analyze_review_opinion(r,c,req,version,round):
     return opinion
 
 def run(r):
-    f=r.fixture;state={'id':None,'version':None,'revision':None}
+    f=r.fixture;formal_version=formal_source(r);state={'id':None,'version':None,'revision':None}
     def command(action,payload):
         result=r.operation('executar_comando_lista_v1',{'p_id_organizacao':f['org'],'p_id_contrato':f['contract'],'p_id_lista':state['id'],'p_versao_esperada':state['revision'],'p_acao':action,'p_payload':payload,'p_motivo':'Own mandatory physical-document flow prerequisite','p_request_id':uid()})
         state.update(id=result['lista']['id'],revision=result['lista']['versao_registro']);return result
     state['version']=command('criar_lista',{'nome':f['prefix']+'Mandatory document gate','vigencia_inicio':'2026-01-01'})['id_versao']
-    command('salvar_item',{'id_versao':state['version'],'codigo':'OWN-PHYSICAL','descricao':'Verificar existência de documento sintético próprio com texto legível na página1.','obrigatorio':True,'aplicavel':True,'impeditivo':True,'regra_validacao':{'documento':{'obrigatorio':True,'tipos':['outro']}}})
+    command('salvar_item',{'id_versao':state['version'],'codigo':'OWN-PHYSICAL','id_fonte_versao':formal_version,'descricao':'Verificar existência de documento sintético próprio com texto legível na página1.','obrigatorio':True,'aplicavel':True,'impeditivo':True,'regra_validacao':{'documento':{'obrigatorio':True,'tipos':['outro']}}})
     command('publicar_versao',{'id_versao':state['version']});c=competence(r)
     reqs=r.read('requisitos_competencia',{'select':'id,obrigatorio,aplicavel,efeito_portao','id_competencia':'eq.'+c})
     r.check('FLOW_MANDATORY_REQUIREMENT',len(reqs)==1 and all(reqs[0][k] is True for k in ('obrigatorio','aplicavel','efeito_portao')));req=r.entity('requirement',reqs[0]['id'])
