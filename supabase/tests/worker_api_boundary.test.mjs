@@ -63,3 +63,33 @@ test('worker boundary runs immediately before and after the single approved depl
  assert(w.includes("env.TARGET_VERSION == '20261108060000'"));
  assert(w.includes('path: ${{ runner.temp }}/contaos-worker-boundary/*-report.json'));
 });
+test('authenticated boundary refuses wrong issued token role or subject before authenticated REST',()=>{
+ const code=String.raw`import importlib.util,uuid,json,base64
+s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+identifier=str(uuid.uuid4());other=str(uuid.uuid4());nonce='own';intent=str(uuid.uuid4());email='own@example.invalid'
+owned={'id':identifier,'email':email,'app_metadata':{'scope':m.SCOPE,'boundary_nonce':nonce,'fixture_request_id':intent}}
+def token(role,sub):
+ enc=lambda v:base64.urlsafe_b64encode(json.dumps(v).encode()).decode().rstrip('=')
+ return enc({'alg':'RS256'})+'.'+enc({'role':role,'sub':sub})+'.fixture'
+def execute(issued):
+ p=object.__new__(m.Probe);p.nonce=nonce;p.intent=intent;p.email=email;p.user_id=None;p.creation_attempted=False;p.stage='preinstall'
+ p.report={'assertions':[],'cleanup':'NOT_REQUIRED','recovery':{}};p.save=lambda:None;p.cleanup=lambda:True
+ p.read_metadata=lambda:{'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+ calls=[]
+ def request(path,data=None,token=None,admin=False,method=None,profile=None):
+  if token and path.startswith('/rest/v1/'):calls.append(path)
+  if path=='/auth/v1/admin/users':return 200,owned
+  if path.startswith('/auth/v1/token'):return 200,{'access_token':issued}
+  if path=='/auth/v1/user':return 200,{'id':identifier}
+  if profile=='net':return 406,{'code':'PGRST106'}
+  return 200,{}
+ p.request=request
+ return p.run(),calls
+ok,calls=execute(token('authenticated',identifier));assert ok and len(calls)==2
+for invalid in [token('anon',identifier),token('service_role',identifier),token('authenticated',other),'malformed']:
+ ok,calls=execute(invalid)
+ assert not ok,'wrong issued token certified authenticated'
+ assert calls==[],'wrong issued token reached authenticated REST'
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
+});

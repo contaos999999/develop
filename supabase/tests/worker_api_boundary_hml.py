@@ -1,5 +1,5 @@
 """HML-only API boundary proof. Never prints credentials, response bodies or queue rows."""
-import argparse,json,os,re,secrets,subprocess,sys,uuid,urllib.request,urllib.error,urllib.parse
+import argparse,base64,json,os,re,secrets,subprocess,sys,uuid,urllib.request,urllib.error,urllib.parse
 from pathlib import Path
 URL='https://gklhhhyosgasnyoxlrui.supabase.co'
 KEY='sb_publishable_sHKZ-UiYCbkEFMqR1QbHMA_iCSLL8Am'
@@ -9,6 +9,15 @@ class BoundaryError(Exception):pass
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):raise BoundaryError('REDIRECT_DENIED')
 def api_denied(status,body):return type(status) is int and status==406 and isinstance(body,dict) and body.get('code')=='PGRST106'
+def issued_authenticated_token_matches(token,expected_subject):
+    # Coherence check only. Auth /user must still validate this exact issued token.
+    if not isinstance(token,str) or len(token)>16384:return False
+    parts=token.split('.')
+    if len(parts)!=3 or not all(parts) or not re.fullmatch('[A-Za-z0-9_-]+',parts[1]):return False
+    try:
+        payload=json.loads(base64.b64decode(parts[1]+'='*((-len(parts[1]))%4),altchars=b'-_',validate=True))
+    except (ValueError,UnicodeError):return False
+    return isinstance(payload,dict) and payload.get('role')=='authenticated' and payload.get('sub')==expected_subject
 def metadata_valid(data,stage):
     base={'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
     if stage not in ('preinstall','postinstall'):return False
@@ -121,6 +130,7 @@ class Probe:
             token=session.get('access_token') if isinstance(session,dict) else None
             self.check('AUTHENTICATED_SESSION_CREATED',status==200 and isinstance(token,str) and bool(token),status)
             status,user=self.request('/auth/v1/user',token=token);self.check('AUTHENTICATED_IDENTITY_CONFIRMED',status==200 and isinstance(user,dict) and user.get('id')==self.user_id,status)
+            self.check('AUTHENTICATED_ISSUED_TOKEN_ROLE_AND_SUBJECT',issued_authenticated_token_matches(token,self.user_id))
             status,_=self.request('/rest/v1/',token=token,profile='public');self.check('PUBLIC_API_CONTROL_AUTHENTICATED',status==200,status)
             status,data=self.request(path,token=token,profile='net');self.check('NET_SCHEMA_DENIED_AUTHENTICATED',api_denied(status,data),status)
             passed=True

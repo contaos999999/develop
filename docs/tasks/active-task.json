@@ -6,7 +6,7 @@
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos",
+  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos; Codex continuidade P0: 25 fontes canônicas e manifesto relidos, pacote ZIP/manual original conferidos, GATE158 e HEAD94667da verificados; delta JWT próprio com RED/GREEN/revisão e diagnóstico pg_net sem afrouxar prova",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",

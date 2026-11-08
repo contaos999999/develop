@@ -127,7 +127,9 @@ def native_proof(subnets):
                 denied=local_sql('select exists(select 1 from net._http_response where id='+request+' and status_code is null and (timed_out or error_msg is not null));')=='t'
                 if denied:break
                 time.sleep(.1)
-            pg_net_delta=dropped()-before_http;require(denied and pg_net_delta>0,'Real pg_net request must fail with native DROP proof');pg_net_state='PASS_REAL_LOCAL_HTTP_DENIED'
+            pg_net_delta=dropped()-before_http
+            print('LOCAL_PG_NET_CONTROL_DIAGNOSTIC '+json.dumps({'own_response_denied':denied,'drop_packets_delta':pg_net_delta,'controlled_receiver_connections':len(accepted)-1,'own_request_queued':local_sql('select exists(select 1 from net.http_request_queue where id='+request+');')=='t','worker_visible':local_sql("select exists(select 1 from pg_stat_activity where backend_type like 'pg_net%');")=='t'}),flush=True)
+            require(denied and pg_net_delta>0,'Real pg_net request must fail with native DROP proof');pg_net_state='PASS_REAL_LOCAL_HTTP_DENIED'
         else:require(operation==('db','start'),'Real pg_net probe required after reset')
         time.sleep(.2);require(len(accepted)==1,'Isolated container reached controlled host endpoint')
         positive(2)
