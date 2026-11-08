@@ -99,3 +99,11 @@ HEAD3fa747a/Restore42454969255rebuild128651938029/backup128651937842FAILantesres
 SubstituídométododeferramentaBash/timeoutporpg_isready(PQping)doPostgresjáinstalado,comtimeout3s e códigosnormativos:0servidoraceita,2semresposta;outroscódigosnãoatestamDENY. https://www.postgresql.org/docs/17/app-pg-isready.html. ControleloopbackusaportaSHOWportreal eexige0;mesmoendpointcontroladoexternoexige2+DROPdelta>0+receiver0+positivoshostantes/depois. Ferramentanãotransmitepassword;PGPASSWORD/PGPASSFILE/PGSERVICEherdadoszerados eusername/databasebenignosconstantes,semHMLcredenciais. Nenhumcódigo143/127/1éaceitoparaconverterFAILemPASS.
 
 Novo validadorREALextraídoporAST:RED1FAILausente→GREEN69/69protocolo;suítefull328/328PASS. Negativosstatusambíguo,errodetool,DROPausente,receiveratingido,tipoerradobloqueiam. Firewall,pré-start/IPv6/rules eprovaREALnet.http_postpósresetinalterados; nãoháprovanativaforaCI. Revisãoindependente/novoCIcontinuamobrigatórios.
+
+### Ambiente limpo para o controle positivo
+
+HEAD28e157e/Restore42455364024falhou no controle positivo local de pg_isready, antes de testar o destino externo/reset/nova migration. Backup13607765338/SHA256d340e4adc03e8a8ec9d0e374570e9cacfb5efe67d74bf5804cfd64338c77d4d2. O status não havia sido exposto; a causa anterior continua não comprovada. HML não foi alterado.
+
+O processo agora usa `env -i`, preservando somente PATH e PGPASSFILE=/dev/null. Serviço e senha herdados são removidos, em vez de passados como opções vazias. Host, porta e usuário/database benignos são parâmetros explícitos. O status do controle positivo e sua classe fechada são registrados antes de qualquer recusa, sem stderr ou dados privados. Nenhuma exigência0/2/DROP/receptor/pg_net/IPv6 é relaxada.
+
+Regressão extrai a função tcp_probe real, emula apenas Dockerexec e executa o shell/processo reais com canários herdados: RED1FAIL na versão anterior; GREEN comprova ausência de serviço, senha e qualquer canário no processo final. Protocolo70/70 e suítecompleta329/329PASS. Revisão independente favorável, mas contenção e pg_net reais ainda precisam passar no novo CI; sem material/CRUD/V1/V2.

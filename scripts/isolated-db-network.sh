@@ -77,8 +77,9 @@ def no_ipv6_route():
 def validate_tcp_controls(positive_code,negative_code,drop_packets,receiver_connections):
     return all(type(v) is int for v in (positive_code,negative_code,drop_packets,receiver_connections)) and positive_code==0 and negative_code==2 and drop_packets>0 and receiver_connections==0
 def tcp_probe(address,port):
-    # PQping/pg_isready sends no password. Clear inherited connection credentials.
-    return capture(['docker','exec','-e','PGUSER=contaos_native_probe','-e','PGDATABASE=contaos_native_probe','-e','PGPASSWORD=','-e','PGPASSFILE=/dev/null','-e','PGSERVICE=',container,'pg_isready','-h',address,'-p',str(port),'-t','3','-q'])
+    # Unset service/password entirely: an empty PGSERVICE is still a service option.
+    script='exec env -i PATH="$PATH" PGPASSFILE=/dev/null pg_isready -U contaos_native_probe -d contaos_native_probe -h "$1" -p "$2" -t 3 -q'
+    return capture(['docker','exec',container,'/bin/sh','-c',script,'proof',address,str(port)])
 def native_proof(subnets):
     c=existing_container();require(c is not None,'Local Postgres container required');sole_network(c)
     firewall(subnets);no_ipv6_route()
@@ -107,6 +108,7 @@ def native_proof(subnets):
         database_port=local_sql('show port;')
         require(re.fullmatch(r'[0-9]+',database_port) and 1<=int(database_port)<=65535,'Actual local Postgres TCP port required')
         positive_tcp=tcp_probe('127.0.0.1',database_port)
+        print('LOCAL_POSTGRES_TCP_POSITIVE_DIAGNOSTIC '+json.dumps({'status':positive_tcp.returncode,'class':{0:'POSTGRES_ACCEPTING',1:'POSTGRES_REJECTING',2:'POSTGRES_NO_RESPONSE',3:'CONNECTION_NOT_ATTEMPTED',126:'TOOL_NOT_EXECUTABLE',127:'TOOL_NOT_FOUND'}.get(positive_tcp.returncode,'UNKNOWN_FAILURE')}),flush=True)
         require(positive_tcp.returncode==0,'Local Postgres pg_isready positive or tool failed')
         p=tcp_probe(address,port)
         delta=dropped()-before_tcp;received=len(accepted)-1

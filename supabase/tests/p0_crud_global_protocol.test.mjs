@@ -98,6 +98,18 @@ for args in [(2,2,3,0),(0,0,3,0),(0,1,3,0),(0,3,3,0),(0,127,3,0),(0,143,3,0),(0,
 print('NATIVE_TCP_STATUS_GUARD_PASS')`;
  const r=spawnSync('python3',['-c',source],{env:{PATH:process.env.PATH},encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/NATIVE_TCP_STATUS_GUARD_PASS/);
 });
+test('actual TCP probe starts pg_isready without inherited libpq service or password',()=>{
+ const code=String.raw`import ast,pathlib,tempfile,subprocess,os
+s=pathlib.Path('scripts/isolated-db-network.sh').read_text().split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0];tree=ast.parse(s);f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='tcp_probe')
+with tempfile.TemporaryDirectory() as d:
+ tool=pathlib.Path(d)/'pg_isready';tool.write_text("#!/usr/bin/env python3\nimport os\nassert 'PGSERVICE' not in os.environ and 'PGPASSWORD' not in os.environ\nassert os.environ.get('PGPASSFILE')=='/dev/null'\nassert not any('PRIVATE_CANARY' in value for value in os.environ.values())\nprint('PQ_PING_CREDENTIAL_ISOLATION_PASS')\n");tool.chmod(0o700)
+ def capture(argv):
+  assert argv[:2]==['docker','exec'];args=argv[2:];env={'PATH':d+':'+os.environ['PATH'],'PGSERVICE':'PRIVATE_CANARY','PGPASSWORD':'PRIVATE_CANARY'}
+  while args[0]=='-e':key,value=args[1].split('=',1);env[key]=value;args=args[2:]
+  assert args[0]=='own-container';return subprocess.run(args[1:],env=env,capture_output=True,text=True,timeout=5)
+ ns={'capture':capture,'container':'own-container'};exec(compile(ast.Module(body=[f],type_ignores=[]),'<actual-tcp-probe>','exec'),ns);r=ns['tcp_probe']('127.0.0.1','5432');assert r.returncode==0,r.stderr;print(r.stdout.strip())`;
+ const r=spawnSync('python3',['-c',code],{env:{PATH:process.env.PATH},encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/PQ_PING_CREDENTIAL_ISOLATION_PASS/);
+});
 test('actual backup cleanup covers a helper failure after the local database starts',()=>{
  const dir=mkdtempSync(join(tmpdir(),'contaos-backup-start-fail-'));
  try{
