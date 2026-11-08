@@ -36,3 +36,5 @@ HEAD3ef22a371c38e552f9f3c862646eee3242f02411, run42502405227, artifact1362547902
 ## Execução inicial e revisão
 
 Leitura íntegra anterior dos25canônicos reancorada por hashes inalterados; HEAD3ef22 confirmado e trabalho alheio159 preservado. REDnovosgates por módulo inexistente observado; GREENinicial359/359 node--test. Revisão independente encontrou2Important antesdaCI: snapshot sem pré-condição material e testesnovos fora doRestore. Corrigidos: checklist/item publicados porRPC real, snapshot comorigem/versão/hash/isolamento eimutabilidadeapóseditarpróximorascunho; esseschecks são obrigatórios paraPASS. Restoreexecuta novosgates semcredenciais e fetch-depth0 permite confrontar os cincoarquivos protegidos contra o commit imutável. Nenhuma prova HML nova ou certificação antecipada.
+
+Revisãofinal359/359 semCritical/Important; Minor de dependências corrigido incluindo executar_comando_lista_v1 e confirmar_upload_arquivo no catálogo e na cobertura obrigatória. Fingerprints nomeiam RPCs diretos e helpers capturados, não substituem análise das dependências transitivas em qualquer correção de produto.
