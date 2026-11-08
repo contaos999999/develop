@@ -337,33 +337,33 @@ create temporary table version_wrapper_counts as select array[
  (select count(*) from public.processamentos_documento),(select count(*) from public.eventos_auditoria)] as counts;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','',true);
-select set_config('request.jwt.claims','{"sub":"","role":"authenticated","session_id":"","aal":"aal1"}',true);
-insert into contaos_testes values('VERSION_WRAPPER','Sem sessão',pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied')='42501','SQLSTATE exato');
+select set_config('request.jwt.claims','{}',true); -- No JWT, rather than malformed empty identifiers.
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Sem sessão',code='42501','SQLSTATE='||code from result;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"00000000-0000-4000-8000-000000000000","aal":"aal1"}',true);
-insert into contaos_testes values('VERSION_WRAPPER','Sessão inválida',pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied')='42501','SQLSTATE exato');
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Sessão inválida',code='42501','SQLSTATE='||code from result;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
 select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated","session_id":"bbbbbbbb-2222-4222-8222-222222222222","aal":"aal1"}',true);
-insert into contaos_testes values('VERSION_WRAPPER','Outro tenant',pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied')='42501','SQLSTATE exato');
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Outro tenant',code='42501','SQLSTATE='||code from result;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
 select set_config('request.jwt.claims','{"sub":"33333333-3333-4333-8333-333333333333","role":"authenticated","session_id":"cccccccc-3333-4333-8333-333333333333","aal":"aal1"}',true);
-insert into contaos_testes values('VERSION_WRAPPER','Leitor',pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied')='42501','SQLSTATE exato');
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Leitor',code='42501','SQLSTATE='||code from result;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
-insert into contaos_testes values('VERSION_WRAPPER','Motivo obrigatório',pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002',null,'version-wrapper-denied')='PT400','SQLSTATE exato');
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002',null,'version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Motivo obrigatório',code='PT400','SQLSTATE='||code from result;
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
 select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
-insert into contaos_testes values('VERSION_WRAPPER','Arquivo outro contrato',pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000003','Motivo','version-wrapper-denied')='42501','SQLSTATE exato');
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000003','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Arquivo outro contrato',code='42501','SQLSTATE='||code from result;
 reset role;
 insert into contaos_testes select 'VERSION_WRAPPER','Negativas sem efeitos',counts=array[
  (select count(*) from public.documentos_contrato),(select count(*) from public.versoes_documento),
