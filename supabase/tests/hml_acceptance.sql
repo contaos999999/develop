@@ -257,6 +257,19 @@ from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net
 select 'NET_ACL_DIAGNOSTIC_FUNCTION',jsonb_build_object('name',p.proname,'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text)
 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='net';
 
+-- Diagnostic only: undo all test-local ACL changes before the original assertions.
+savepoint net_acl_grantor_diagnostic;
+REVOKE ALL PRIVILEGES ON SCHEMA net FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA net FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA net FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated;
+select 'NET_ACL_DIAGNOSTIC_AFTER_REVOKE',jsonb_build_object('user',current_user,'session',session_user,'schema_acl',nspacl::text,
+ 'anon_usage',has_schema_privilege('anon','net','USAGE'),'auth_usage',has_schema_privilege('authenticated','net','USAGE'),
+ 'anon_http',has_function_privilege('anon','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'))
+from pg_namespace where nspname='net';
+rollback to savepoint net_acl_grantor_diagnostic;
+release savepoint net_acl_grantor_diagnostic;
+
 -- GATE153: the actual extension is nonpublic and its inherited privileges are closed.
 insert into contaos_testes
 select 'WORKER_RUNTIME','pg_net fora de public com assinatura oficial',
