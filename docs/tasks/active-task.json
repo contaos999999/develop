@@ -1,8 +1,8 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Concluir provas backend independentes preservando FAIL visual",
+  "title": "Plano único de certificação dos domínios restantes com proteção de regressão",
   "status": "ativa",
-  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
+  "phase": "BUILD_CERTIFICACAO_DOMINIOS_RESTANTES",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,10 +38,12 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_DOCUMENT_HEAD_AUTHORIZATION_2026-11-08.md",
-    "supabase/tests/p0_crud_global_browser.mjs",
-    "supabase/tests/p0_crud_global_hml.py",
-    "supabase/tests/p0_crud_global_protocol.test.mjs"
+    "docs/backend/P0_CERTIFICACAO_DOMINIOS_RESTANTES_2026-11-08.md",
+    "supabase/tests/p0_crud_global_remaining_hml.py",
+    "supabase/tests/p0_crud_global_remaining.test.mjs",
+    "supabase/tests/remaining_domains/**",
+    ".github/workflows/p0-crud-remaining-hml.yml",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -135,7 +137,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI e revisão independente no mesmo HEAD; merge CAS; novo lote publicado PRIMEIRO e quatro locais; recibos e cleanup independentes. Nenhuma certificação antecipada.",
+  "next_step": "Executar plano único por domínio, proteger PASS documental por hashes e evidências, CI/revisão independente, lote HML próprio, corrigir falhas e repetir domínio afetado e dependências.",
   "database_change_scope": "GATE163: somente SECURITY DEFINER da assinatura pública adicionar_versao_documento_contrato(uuid,uuid,text,text), com precondições de catálogo; preservar todos corpos/owner/ACL/search_path, sem grants/roles/RLS/Edges/frontend/PROD.",
   "evidence": {
     "test_pr": 52,
@@ -1805,5 +1807,43 @@
       "global_pass": false,
       "frontend_changes_forbidden": true
     }
+  },
+  "remaining_certification": {
+    "project": "gklhhhyosgasnyoxlrui",
+    "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
+    "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
+    "domains_to_run": [
+      "base_normativa",
+      "orcamento",
+      "competencias"
+    ],
+    "pending_domains": [
+      "regras_preventivas",
+      "documento_detalhe",
+      "documentos_competencia",
+      "parecer",
+      "apresentacao",
+      "protocolo",
+      "historico",
+      "administracao"
+    ],
+    "no_regression_premise": "Corrigir um domínio não pode regredir o que já funciona; evidência anterior só permanece válida se dependências materiais forem preservadas; qualquer delta exige teste direcionado de regressão.",
+    "preserved_documental": {
+      "tested_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
+      "run": 42502405227,
+      "artifact": 13625479020,
+      "sha256": "aa14586205ad8f133c46e9e2e188c828b95e11f2e82bd9cbc321b6b8337bf8ba",
+      "scope": "DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL",
+      "global_complete": false,
+      "protected_sha256": {
+        "supabase/tests/p0_crud_global_browser.mjs": "6b8f052cd0a3084a145db5c9243e87d22bf1c6b1caf57eb07d701fa079bf74bc",
+        "supabase/tests/p0_crud_global_hml.py": "f337dd6857c0185c00b92e13f71641d1faf5d35c15a712404eb6b64d2c4ea055",
+        "supabase/tests/p0_crud_global_protocol.test.mjs": "1d16584f3a0571471d09ec71e924c9b21fb79b2a00b6b32682baa96b620b595a",
+        "supabase/functions/storage-sign-upload/index.ts": "f1653f2de4e7300f3e75c3427819c721a6453bfdd6f83f41af9475c33774f97c",
+        "supabase/functions/storage-sign-download/index.ts": "538f3a014316e05f44ecd47f113080ee6ab00a2aaad1b2cf3bf6c76b7c1cda9a"
+      }
+    },
+    "authorization": "Titular autoriza executar automaticamente plano único e correções, sem novas aprovações rotineiras; HML apenas, sem alterar frontend317/PROD, sem dispensar CI/segurança.",
+    "global_complete": false
   }
 }
