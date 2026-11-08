@@ -1117,7 +1117,13 @@
       "full_document_crud_v1_certification": false,
       "gate_pr": 141,
       "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
-      "state": "INTEGRADO_ANTES_BUILD"
+      "state": "INTEGRADO_ANTES_BUILD",
+      "build_state": "EM_VALIDACAO_CI_REAL",
+      "local_tdd": {
+        "red": "51PASS/1FAIL helper absent",
+        "green_protocol": 52,
+        "green_full": 258
+      }
     }
   },
   "auth_configuration_changes_allowed": false

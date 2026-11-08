@@ -64,3 +64,14 @@ Validar a política DENY conforme GATE140, corrigir qualquer falha real sem afro
 ## ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
 
 Impacto visual: N/A backend. Reutilizados runner e protocolos existentes; sem turno Lovable, workflow novo, redução de testes ou ampliação de escopo.
+
+
+## Complemento CSP: evidência e BUILD em validação
+
+O public-probe f945953, run42440477002/job128608523471, falhou em WORKER_DENY_DATA: START1/HTTP estrangeiro1, waiting1/Runtime.resume próprio0. Artefato13600703885 SHA256 be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a. As verificações HTTP/blob anteriores ao fechamento não certificam ausência de efeitos tardios.
+
+GATE separado #141 HEAD17954ba8996e606a4e6ccab9d53286a43a1a3d61 integrado7ecdf3bda151fb9956beab8cca390f5074548cf2: guard42441024842 SUCCESS, restore42441240654 reconstrução128610718308 e backup128610718471 SUCCESS; revisão normativa sem Critical/Important. Reancoragem normal #139 cd9cf5b9db2b4b6a1b659f32c75803a9df1f4423 preserva ambos os pais.
+
+RED CSP: 51PASS/1FAIL no protocolo por nativeDocumentWorkerPolicy ausente; commit d91801f8f51b573b195bea1dbf95d5ee48d96205. GREEN local: protocolo52/52 e suíte completa node --test258/258. A única alteração de headers autorizada é CSP adicional worker-src 'none' em Document próprio após hash, conservando array original/multiplicidade, status, phrase e corpo; nenhum routing Playwright, resposta sintética ou alteração de CORS. Audits worker-src enforced interrompe a aplicação com FAIL. Os contadores finais são reavaliados após context.close, drenagem TCP e observação explícita100ms, inclusive CORS permitido/negado. Não fechar sockets do servidor para fabricar zero.
+
+Estado: EM_VALIDACAO_CI_REAL. Nenhum PASS operacional CSP/CORS, credencial, deploy ou certificação integral decorre dos testes locais. Browser Workers, janela nativa e critérios integrais documentais/CRUD/V1 continuam pendentes; worker backend, cinco recibos e cleanup preservados.
