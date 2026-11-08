@@ -1184,6 +1184,14 @@
         "sha256": "6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2",
         "state": "FAIL_CHANGED_SCRIPT",
         "local_red": "failure latch false before awaited native abort; fixed synchronously"
+      },
+      "second_ci": {
+        "head": "49275f778cf2a5551e41be8a3f40dd55bf14f353",
+        "run": 42448737328,
+        "artifact": 13604452311,
+        "sha256": "809fbc88de08da0e2106dbd87b8ab8ebdf3122911de31f9b132148054f4da85f",
+        "state": "FAIL_BEFORE_FIRST_PAUSED_FIXTURE_EVIDENCE",
+        "local_reproduction": "Node inert fetch keeps1idleTCP after1100ms; original fixture server Connection:close drains0 naturally; no socket destroy"
       }
     }
   },

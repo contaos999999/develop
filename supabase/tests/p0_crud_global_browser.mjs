@@ -340,6 +340,8 @@ async function verifyPausedDocumentCDPFence(browser,analyzer,deny,onEvidence){
   const html=()=>'<\u0021doctype html><html><head><script>globalThis.ownVariant='+JSON.stringify(mode)+';fetch("/document-start");</script><script type="module" src="/assets/fixture.js"></script>'+(mode==='FOREIGN'?'<script src="'+foreign+'/effect.js"></script>':'')+'</head><body>Own paused Document fixture</body></html>';
   const other=createServer((request,response)=>{foreignEffects++;response.end('globalThis.unexpected=true;');});other.on('connection',()=>foreignTCP++);
   const server=createServer((request,response)=>{
+    // Real fixture HTTP close semantics drain the inert Node reader as well as Chromium.
+    response.setHeader('Connection','close');
     if(request.url==='/assets/fixture.js'){scriptReads++;response.setHeader('Content-Type','text/javascript');response.end(mode==='MISSING'?'globalThis.unexpected=true;':mode==='WRONG'?source.replaceAll(HML_ORIGIN,'https://foreign.supabase.co'):mode==='CHANGED'&&scriptReads>1?'fetch("/executed");':source);return;}
     if(request.url==='/document-start'){documentStarts++;response.end();return;}
     if(request.url==='/executed'){executed++;response.end();return;}
@@ -362,8 +364,9 @@ async function verifyPausedDocumentCDPFence(browser,analyzer,deny,onEvidence){
         else {for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Rejected Document/graph escaped');}
         assert.equal(inspections,1);
       }finally{
-        await context.close();for(let i=0;sockets.size&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));await new Promise(resolve=>setTimeout(resolve,100));assert.equal(sockets.size,0);assert.equal(foreignTCP,0);assert.equal(foreignEffects,0);assert.equal(executed,0);assert.equal(documentStarts,positive||variant==='CHANGED'?1:0);
-        onEvidence({phase:'PAUSED_DOCUMENT_'+variant,positive,inspections,fence_failed:fence?.snapshot().failed??null,foreign_tcp_connections:foreignTCP,foreign_http_requests:foreignEffects,unexpected_script_execution:executed,after_context_close_and_tcp_drain:true});
+        await context.close();for(let i=0;sockets.size&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));await new Promise(resolve=>setTimeout(resolve,100));
+        onEvidence({phase:'PAUSED_DOCUMENT_'+variant,positive,inspections,fence_failed:fence?.snapshot().failed??null,failure_code:fence?.snapshot().failure_code??null,tcp_connections:sockets.size,document_start_requests:documentStarts,script_requests:scriptReads,foreign_tcp_connections:foreignTCP,foreign_http_requests:foreignEffects,unexpected_script_execution:executed,after_context_close_and_tcp_drain:true});
+        assert.equal(sockets.size,0);assert.equal(foreignTCP,0);assert.equal(foreignEffects,0);assert.equal(executed,0);assert.equal(documentStarts,positive||variant==='CHANGED'?1:0);
       }
     }
   }finally{await Promise.all([new Promise(resolve=>server.close(resolve)),new Promise(resolve=>other.close(resolve))]);}
