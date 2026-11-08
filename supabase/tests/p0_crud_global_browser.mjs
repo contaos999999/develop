@@ -132,6 +132,7 @@ export async function boundedSignedDownload(fetcher,raw,ownPath,expectedSize){
   try{while(true){const next=await reader.read();if(next.done)break;size+=next.value.byteLength;assert(size<=expectedSize,'Signed download exceeds expected size');parts.push(Buffer.from(next.value));}}finally{await reader.cancel();}
   assert.equal(size,expectedSize);return Buffer.concat(parts);
 }
+export function webSocketDenyRules(){return {matchedNetworkConditions:['ws://*:*/*','wss://*:*/*'].map(urlPattern=>({urlPattern,offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1}))};}
 // Native Chromium interception preserves browser CORS, cookies and Origin semantics.
 // No request body/header is read, and no response is replaced or fulfilled by the harness.
 export async function installPublishedCDPFence(browser,context,page,proof,allowed,expectedPopup=()=>false){
@@ -192,6 +193,9 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
       if(session.contextId!==ownContext){await send(session,'Runtime.runIfWaitingForDebugger');return;}
       if(event.targetInfo.type==='page')await send(session,'Page.enable');
       await send(session,'Network.enable');await send(session,'Network.setBlockedURLs',{urls:['ws://*','wss://*']});
+      // Native network-service offline rules stop only WS/WSS handshakes;
+      // HTTP(S), navigator state and the real browser CORS path remain intact.
+      const denied=await send(session,'Network.emulateNetworkConditionsByRule',webSocketDenyRules());assert.equal(denied.ruleIds?.length,2);
       await send(session,'Fetch.enable',{patterns:[{urlPattern:'*',requestStage:'Response'}]});
       await send(session,'Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true,filter:targetFilter});
       await send(session,'Runtime.runIfWaitingForDebugger');
