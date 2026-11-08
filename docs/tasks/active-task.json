@@ -132,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão independente eguard destePLAN/GATE; integrar antesBUILD separado. BUILD apenas restaura pg_net jácanônico e preflightmetadata antesAuthfixtures, testaSQL/Node/public/Restore/backup mesmoHEAD. ReparoHML apósmergenormal; observarcron normal e sóentão reancorar148. SemnovasEdges/frontend/PROD/CRUD/V1/V2.",
+  "next_step": "Revisão independente eguard destePLAN/GATE; integrar antesBUILD separado. BUILD apenas restaura pg_net fora dopublic sob supersessão explícita daremoçãointencional e preflightmetadata antesAuthfixtures, testaSQL/Node/public/Restore/backup mesmoHEAD. ReparoHML apósmergenormal; observarcron normal e sóentão reancorar148. SemnovasEdges/frontend/PROD/CRUD/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1302,13 +1302,39 @@
       "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
       "supabase/tests/hml_acceptance.sql",
       "supabase/tests/p0_crud_global_hml.py",
-      "supabase/tests/p0_crud_global_protocol.test.mjs"
+      "supabase/tests/p0_crud_global_protocol.test.mjs",
+      "supabase/tests/queues_edge_auth.sql"
     ],
-    "migration_contract": "CREATE EXTENSION IF NOT EXISTS pg_net; only; no old migration edits",
+    "migration_contract": "CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; only; exact nonpublic metadata required",
     "material_pr": 148,
     "material_enabled": false,
     "prod": false,
     "no_manual_global_consumer": true,
-    "preserve_other_executor_fixture": "PR152 records remain owned by its executor; no cleanup or edits by this repair"
+    "preserve_other_executor_fixture": "PR152 records remain owned by its executor; no cleanup or edits by this repair",
+    "superseded_intentional_removal": "20261102101651_remove_unused_pg_net.sql retained; enable under current worker proof requirement without public-schema warning",
+    "runtime_effects": [
+      "documents",
+      "embeddings",
+      "ai",
+      "webhooks",
+      "finance",
+      "reports",
+      "notifications",
+      "ocr",
+      "historico"
+    ],
+    "readonly_backlog": {
+      "documents": 1,
+      "ocr": 0,
+      "ai": 0,
+      "embeddings": 0,
+      "finance_imports": 0,
+      "reports": 0,
+      "webhooks": 0,
+      "historico": 0,
+      "integrations": "RECHECK_BEFORE_APPLY",
+      "own_fixture_job_count": 0,
+      "other_executor_fixture_job_count": 1
+    }
   }
 }
