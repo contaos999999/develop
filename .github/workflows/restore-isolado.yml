@@ -101,6 +101,17 @@ jobs:
       - name: Recriar banco a partir das migrations versionadas
         run: bash scripts/isolated-db-network.sh run db reset --local --no-seed
 
+      - name: Export exact application catalog without user rows
+        shell: bash
+        env:
+          DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          set -euo pipefail
+          test "$DB_URL" = postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          psql "$DB_URL" -X -qAt -v ON_ERROR_STOP=1 -c 'begin read only;' -f supabase/tests/remaining_domains/catalog_parity.sql -c 'commit;' > restore-proof/catalog-parity.json
+          python3 -m json.tool restore-proof/catalog-parity.json > /dev/null
+          printf '%s\n' "$GITHUB_SHA" > restore-proof/catalog-parity-head.txt
+
       - name: Worker client privilege catalog
         shell: bash
         run: |
@@ -328,6 +339,15 @@ jobs:
           test "$DB_URL" = postgresql://postgres:postgres@127.0.0.1:54322/postgres
           psql "$DB_URL" -X -qAt -v ON_ERROR_STOP=1 -f supabase/tests/remaining_domains/metadata_append_local.sql | tee restore-proof/metadata-append-local.txt
           grep -Fxq 'METADATA_APPEND_LOCAL_SQL_PASS' restore-proof/metadata-append-local.txt
+
+      - name: Teste 23 - Quarentena historica local com corrida real
+        shell: bash
+        env:
+          CONTAOS_LOCAL_QUARANTINE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          set -euo pipefail
+          PYTHONPATH=supabase/tests python3 supabase/tests/remaining_domains/history_quarantine_local.py | tee restore-proof/history-quarantine-local.txt
+          grep -Fxq 'HISTORY_QUARANTINE_LOCAL_SQL_PASS' restore-proof/history-quarantine-local.txt
 
       - name: Registrar histórico reconstruído
         shell: bash

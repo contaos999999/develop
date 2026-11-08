@@ -100,14 +100,16 @@ jobs:
         domain: ${{ fromJSON(needs.scope.outputs.domains) }}
     runs-on: ubuntu-latest
     environment: hml
-    timeout-minutes: 20
+    timeout-minutes: ${{ matrix.domain == 'apresentacao' && 55 || 20 }}
     permissions:
       contents: read
       checks: read
+      actions: read
     env:
       TESTED_HEAD: ${{ github.event.workflow_run.head_sha }}
       FRONTEND_HEAD: 164b10b44eaf5b553efcc7ab4e053b86c4d3b269
       DOMAIN: ${{ matrix.domain }}
+      RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -170,6 +172,10 @@ jobs:
           remote=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c','select version from supabase_migrations.schema_migrations order by version'],capture_output=True,text=True)
           assert remote.returncode==0 and local==remote.stdout.splitlines() and len(local)==len(set(local))
           print('MIGRATION_VERSION_PARITY_EXACT',len(local))
+          import sys
+          sys.path.insert(0,'supabase/tests')
+          from remaining_domains.catalog_parity import prove
+          prove(os.environ)
           PY
           unset GH_TOKEN
           python3 supabase/tests/p0_crud_global_remaining_hml.py --domain "$DOMAIN"
@@ -187,6 +193,7 @@ jobs:
           path: |
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/report.json
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/cleanup.json
+            ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/catalog-parity-receipt.json
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/migration-receipt.json
           if-no-files-found: error
           retention-days: 30

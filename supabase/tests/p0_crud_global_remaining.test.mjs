@@ -38,7 +38,7 @@ print('TRANSPORT_FAIL_CLOSED_PASS')`);assert.equal(r.status,0,r.stderr);assert.m
 test('domain PASS requires actual positive operations, SQL checks and exact negative roles',()=>{
  const r=run(`import p0_crud_global_remaining_hml as m,copy
 for domain,required in m.REQUIRED.items():
- report={'domain':domain,'global_complete':False,'assertions':[{'name':n,'passed':True} for n in required['checks']],'receipts':[{'operation':n,'role':'administrador','http':200} for n in required['rpc']]+[{'role':role,'http':403} for role in ('leitor','usuario_b','anon')]}
+ report={'domain':domain,'global_complete':False,'assertions':[{'name':n,'passed':True} for n in required['checks']],'receipts':[{'operation':n,'role':'administrador','http':200} for n in (*required['rpc'],*required.get('edge',()))]+[{'operation':n,'role':'master','http':200} for n in required.get('master_rpc',())]+[{'role':role,'http':403} for role in ('leitor','usuario_b','anon')]}
  m.assert_complete(report,domain)
  for key in ('assertions','receipts'):
   bad={**report,key:[]}
@@ -168,4 +168,117 @@ assert 'obter_documentos_competencia_v115' in m.REQUIRED['documentos_competencia
 assert 'COMP_DOC_OFFICIAL_READ' in m.REQUIRED['documentos_competencia']['checks']
 assert 'DETAIL_SQL_VIGENCY' in m.REQUIRED['documento_detalhe']['checks']
 print('REVIEW_GAPS_REQUIRED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/REVIEW_GAPS_REQUIRED/);
+});
+test('historical cleanup drains only own pending queue and rejects foreign scope',()=>{
+ const r=run(`import json,uuid
+from remaining_domains.history_quarantine import remaining_quarantine_actions,quarantine_document_jobs
+org,contract,job=[str(uuid.uuid4()) for _ in range(3)]
+row={'id':job,'id_organizacao':org,'id_contrato':contract,'fila':'historico','status':'enfileirado','message_id':1}
+assert remaining_quarantine_actions([row],{org},{contract:org})['cancel']==[job]
+for change in [{'id_organizacao':str(uuid.uuid4())},{'fila':'foreign'},{'status':'unknown'},{'message_id':True}]:
+ try:remaining_quarantine_actions([{**row,**change}],{org},{contract:org})
+ except AssertionError:pass
+ else:raise AssertionError('Unsafe historical job accepted')
+class Fake:
+ def __init__(self):self.cancelled=False;self.commands=[]
+ def sql(self,q,readonly=False):
+  if 'DOCUMENT_OWN_SCOPE' in q:return json.dumps({'orgs':[org],'contracts':[{'id':contract,'id_organizacao':org}]})
+  if 'DOCUMENT_OWN_JOBS' in q:return json.dumps([{**row,'status':'cancelado' if self.cancelled else 'enfileirado'}])
+  if 'DOCUMENT_QUARANTINE_PENDING' in q:self.commands.append(q);self.cancelled=True;return None
+  return '0'
+r=Fake();result=quarantine_document_jobs(r,{'scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' '},max_wait_seconds=0)
+assert result['active_jobs']==0 and result['cancelled_jobs']==1
+assert len(r.commands)==5 and any('pgmq.q_historico' in c for c in r.commands)
+print('HISTORY_CLEANUP_CLOSED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/HISTORY_CLEANUP_CLOSED/);
+});
+test('final backend domains require actual Master receipts and complete flow coverage',()=>{
+ const r=run(`import p0_crud_global_remaining_hml as m
+for domain in ('historico','administracao','apresentacao'):assert domain in m.DOMAINS
+assert m.REQUIRED['apresentacao']['covers']==['parecer','apresentacao','protocolo']
+assert 'aprovar_parecer_interno' in m.REQUIRED['apresentacao']['master_rpc']
+assert 'atualizar_matriz_rbac_master' in m.REQUIRED['administracao']['master_rpc']
+print('FINAL_DOMAINS_CLOSED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/FINAL_DOMAINS_CLOSED/);
+});
+test('dependent presentation flow has bounded worker waits plus independent cleanup reserve',()=>{
+ const source=wf();assert.match(source,/timeout-minutes: \$\{\{ matrix.domain == 'apresentacao' && 55 \|\| 20 \}\}/);
+ assert(55*60>4*360+2*300+2*300+10*60);
+});
+test('full catalog parity refuses body, permission, RLS and duplicate drift',()=>{
+ const r=run(`import copy
+from remaining_domains.catalog_parity import compare_catalogs,HOSTED_HELPER,SECTIONS
+base={section:[{'name':section,'acl':[{'grantor':'postgres','grantee':'authenticated','privilege':'SELECT','grantable':False}],'rls':True,'body_sha256':'a'*64}] for section in SECTIONS}
+assert compare_catalogs(base,copy.deepcopy(base))['state']=='PASS_EXACT_APPLICATION_CATALOG'
+with_helper=copy.deepcopy(base);with_helper['functions'].append(HOSTED_HELPER)
+assert compare_catalogs(base,with_helper)['state']=='PASS_EXACT_APPLICATION_CATALOG'
+for section,field,value in [('functions','body_sha256','b'*64),('relations','rls',False),('policies','roles',['anon']),('functions','acl',[])]:
+ actual=copy.deepcopy(base);actual[section][0][field]=value
+ assert compare_catalogs(base,actual)['state']=='FAIL_APPLICATION_CATALOG_DRIFT'
+for actual in [dict(base,functions=[]),dict(base,functions=base['functions']*2),{}]:
+ try:compare_catalogs(base,actual)
+ except AssertionError:pass
+ else:raise AssertionError('Missing/duplicate catalog accepted')
+changed=copy.deepcopy(with_helper);changed['functions'][-1]['body_sha256']='0'*64
+assert compare_catalogs(base,changed)['state']=='FAIL_APPLICATION_CATALOG_DRIFT'
+print('FULL_CATALOG_FAIL_CLOSED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/FULL_CATALOG_FAIL_CLOSED/);
+});
+test('administrative existing-user Edge has exact target and required positive receipt',()=>{
+ const r=run(`import p0_crud_global_remaining_hml as m
+m.validate_target(m.URL+'/functions/v1/admin-invite-user')
+assert m.REQUIRED['administracao']['edge']==('admin-invite-user',)
+for url in [m.URL+'/functions/v1/admin-invite-user/extra',m.URL+'/functions/v1/admin-invite-other','https://foreign.invalid/functions/v1/admin-invite-user']:
+ try:m.validate_target(url)
+ except AssertionError:pass
+ else:raise AssertionError('Unknown admin target accepted')
+print('ADMIN_EDGE_EXACT_SCOPE')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/ADMIN_EDGE_EXACT_SCOPE/);
+});
+test('full permission parity includes schema and column ACL vectors',()=>{
+ const sql=readFileSync('supabase/tests/remaining_domains/catalog_parity.sql','utf8');assert.match(sql,/aclexplode\(a\.attacl\)/);assert.doesNotMatch(sql,/aclexplode\(coalesce\(a\.attacl/);assert.match(sql,/n\.nspacl/);
+ const r=run(`import copy
+from remaining_domains.catalog_parity import compare_catalogs,SECTIONS
+assert 'schemas' in SECTIONS and 'column_privileges' in SECTIONS
+base={s:[{'name':s,'acl':[{'grantor':'postgres','grantee':'authenticated','privilege':'USAGE','grantable':False}]}] for s in SECTIONS}
+for section in ('schemas','column_privileges'):
+ actual=copy.deepcopy(base);actual[section][0]['acl']=[]
+ assert compare_catalogs(base,actual)['state']=='FAIL_APPLICATION_CATALOG_DRIFT'
+print('COLUMN_SCHEMA_ACL_REQUIRED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/COLUMN_SCHEMA_ACL_REQUIRED/);
+});
+
+test('local historical queue fixture uses dedicated producer instead of generic closed enqueuer',()=>{
+ const code=String.raw`import ast,pathlib
+source=ast.parse(pathlib.Path('supabase/tests/remaining_domains/history_quarantine_local.py').read_text())
+main=next(n for n in source.body if isinstance(n,ast.FunctionDef) and n.name=='main')
+job=next(n for n in main.body if isinstance(n,ast.FunctionDef) and n.name=='job')
+class Local:
+ def __init__(self):self.calls=[]
+ def sql(self,query,fetch):self.calls.append(query);return 'own-id'
+r=Local();ns={'runner':r,'q':lambda x:"'"+x+"'",'version':'own-version'}
+exec(compile(ast.Module(body=[job],type_ignores=[]),'local-producer','exec'),ns)
+assert ns['job']('own-org','own-contract')=='own-id'
+assert "pgmq.send('historico'" in r.calls[-1] and 'insert into public.execucoes_assincronas' in r.calls[-1]
+assert 'privado.enfileirar_job' not in r.calls[-1]
+ns['job']('own-org','own-contract','ocr')
+assert "privado.enfileirar_job('ocr'" in r.calls[-1]
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);
+});
+
+test('historical race starts against the historical cancellation statement',()=>{
+ const code=readFileSync('supabase/tests/remaining_domains/history_quarantine_local.py','utf8');
+ assert.match(code,/if 'DOCUMENT_QUARANTINE_PENDING' in source and 'from pgmq\.q_historico message' in source and not started:/);
+});
+test('catalog normalizes only inherent owner grant option and exposes raw digests',()=>{
+ const code=String.raw`import sys,copy
+sys.path.insert(0,'supabase/tests')
+from remaining_domains.catalog_parity import compare_catalogs,SECTIONS
+base={s:[{'name':s}] for s in SECTIONS}
+base['relations']=[{'schema':'storage','name':'objects','owner':'storage_owner','acl':[{'grantee':'storage_owner','grantor':'storage_owner','privilege':'SELECT','grantable':False},{'grantee':'authenticated','grantor':'storage_owner','privilege':'SELECT','grantable':False}]}]
+actual=copy.deepcopy(base);actual['relations'][0]['acl'][0]['grantable']=True
+r=compare_catalogs(base,actual)
+assert r['state']=='PASS_EXACT_APPLICATION_CATALOG' and r['expected_sha256']==r['actual_sha256']
+assert r['raw_expected_sha256']!=r['raw_actual_sha256']
+for mutate in [lambda x:x['relations'][0]['acl'].pop(0),lambda x:x['relations'][0]['acl'][1].update(grantable=True),lambda x:x['relations'][0].update(owner='different'),lambda x:x['relations'][0]['acl'][0].update(grantor='other')]:
+ altered=copy.deepcopy(actual);mutate(altered)
+ assert compare_catalogs(base,altered)['state']=='FAIL_APPLICATION_CATALOG_DRIFT'
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);
 });
