@@ -283,3 +283,45 @@ Revisão normativa deste GATE e checks documentais precedem sua integração. De
 Preservar autenticação/RLS/RBAC, worker backend real, cinco recibos disjuntos, readiness SELECT restrita, negativos, auditoria, banimento/revogação e cleanup. UI Edge e GET assinado limitado continuam provas parciais; janela nativa e Browser Workers funcionais NÃO CERTIFICADOS. Critérios integrais documentais, CRUD global, identidade visual e V1 continuam pendentes. Deploy HML somente após fonte integrada e condições da seção9; PROD permanece proibido.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, dependências, workflows, novas funções ou ampliação material do sistema.
+
+
+## 14. GATE complementar: inspeção integral do mesmo Document pausado antes da execução
+
+Complemento documental separado, anterior ao BUILD. Exigir revisão normativa e guard/reconstrução/backup SUCCESS no mesmo HEAD antes de integrar; reancorar #139 por merge normal sem force. Não habilitar material, credenciais ou deploy por este documento. Permanecem os dez caminhos e as negações anteriores.
+
+### 14.1 Divergência comprovada e decisão delimitada
+
+O HEAD `6d1756b05cecf8ad63b6863749a5eec681797e53`, public-probe `42443722813`, job `128618152121`, artefato `13602483512` SHA256 `bcd99bf5c5c58330934e3648535a9fee08eb4735fcd5d576ec3b4d3e0a6dfe76`, falhou em Document próprio HTTP200 antes de qualquer script: hash esperado `7854b26a08e9d94ba56d6f3022b49f76678db57fe4d88467cf44fcdac6f073a9` e carregado `993944d60b72ba58ee6a39cdd7924dd6de63bf84601d0218783f221523566b01`. Nenhuma credencial foi preenchida.
+
+O diagnóstico `544026099abbe613b39f8ec0f6142ce47208653b`, run `42444107587`, job `128619313437`, artefato `13603076801` SHA256 `a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34`, confirmou diferença entre leitura Node inicial e navegador E entre duas leituras Node do mesmo /login. Ambos têm29296bytes e7scripts; primeira diferença no caractere9342 em script, sufixo comum5811; entradas executáveis diferem. Não atribuir a causa a nonce, token ou User-Agent sem prova. Não é alteração puramente não executável e não recebe PASS retroativo.
+
+As fixtures preventivas/CORS e inspeção preliminar114módulos passaram no HEAD dd75be7a48a6e311ac34d03e1e630ba5a8dedcb0, mas o probe inteiro continua NO-GO. Este complemento autoriza substituir somente a referência HTML de uma leitura HTTP separada pela inspeção integral do EXATO body da resposta pausada, conforme abaixo. Não autoriza aceitar apenas um hash calculado de conteúdo desconhecido.
+
+### 14.2 Ordem obrigatória no navegador
+
+1. Manter proxy nativo, target/URL guards, DENY popup/Worker inesperado, redirects negados e contexto sem sessão antes de abrir a origem. Inspeção preliminar somente leitura pode continuar, mas não libera credenciais nem substitui a prova do documento efetivamente recebido.
+2. Pausar a resposta Document da própria origem frontend ANTES de entregar bytes ao parser/executar qualquer script. Exigir resposta200, origem aprovada e URL sem credenciais/ambiguidade. Não ler resposta Auth/API/Edge como se fosse HTML público.
+3. Capturar o mesmo body real, limite262144bytes, em memória privada; exigir UTF-8 sem perda na conversão de ida e volta. Não publicar HTML, tokens, URLs ou paths. Não seguir redirects, copiar resposta por relay, alterar headers/status/corpo ou usar fulfill.
+4. Sobre ESSE body ainda pausado, executar o parse5 real completo e a inspeção de TODAS as entradas executáveis, inclusive inline, clássicas e módulos, sem descartar script auxiliar. Resolver imports pela URL real do documento, sem base ambígua, namespace legado ou import fora da origem. Inspecionar o grafo inteiro e provar pela AST completa a identidade do SDK2.118.0, compilador congelado e configuração do cliente efetivamente vinculado ao HML. Preservar os limites existentes: até16 entradas,128módulos,4MiB por script,8MiB de grafo e limites de transporte. Não executar JavaScript público para descobrir configuração.
+5. SOMENTE após análise completa e inequívoca, congelar o SHA256 do body capturado e os hashes de cada script do grafo analisado. Conferir novamente o mesmo buffer sem transformações; então permitir continuar a resposta original, sem substituir bytes. O hash HTML cobre também exatamente os scripts inline já analisados. Cada ScriptResponse externa deve corresponder ao hash do grafo inspecionado ANTES de ser liberada à execução.
+6. Qualquer novo Document próprio deve cumprir novamente essa sequência antes da entrega. Uma prova anterior não autoriza conteúdo novo. Falha de parser, SDK, configuração, import, origem, tamanho, conteúdo opaco ou hash mantém FAIL e cleanup, antes de preencher/submeter credenciais. Não permitir script que chegue enquanto a prova correspondente ainda não está pronta.
+
+Ficam substituídas apenas as exigências anteriores que tornavam obrigatório usar o hash HTML de outra resposta HTTP como referência. Permanecem integrais a inspeção ANTES da execução/credenciais e os hashes do body/grafo realmente inspecionados. Não normalizar HTML, apagar atributos/nonce, ignorar inline, aprender hash de ScriptResponse desconhecida, repetir até acertar ou aceitar apenas ocorrência textual HML. Nenhuma mudança na paridade: frontend_head publicado permanece null e source_parity=NAO_VERIFICADA.
+
+### 14.3 Provas exigidas antes de integrar BUILD
+
+TDD e fixtures reais do runner congelado devem demonstrar a ordem: Document pausado → parse5+grafo inteiro+AST/SDK/HML comprovados → hashes congelados → continue original → execução. Testar documento com conteúdo variável somente se cada variante passar integralmente pela inspeção; comparação/diagnóstico semântico não é autorização de execução.
+
+Negativos obrigatórios: HTML alterado que introduz script/import de origem não aprovada; HTML/grafo sem SDK conhecido, cliente desvinculado ou configuração divergente; script alterado entre inspeção e entrega. Exigir zero execução do conteúdo rejeitado e zero efeitos no destino não aprovado, com contadores finais após close/drenagem, sem mock/relay/fulfill. Preservar ChangedJS zero execução e os negativos reais anteriores. Um hash autoatribuído sem prova AST deve falhar nos testes.
+
+No HTML público operacional, exigir prova do mesmo body carregado e do grafo/SDK/HML antes da interação de login sem credenciais, e só depois permitir as etapas privadas já condicionadas. Manter as provas reais CORS positivo OPTIONS/POST/status e negativo OPTIONS/POST0 e toda a barreira §13. Nenhuma ampliação de origens ou exceção para fontes, analytics, preview ou outro Supabase.
+
+Não ampliar nem reiniciar silenciosamente timeout: preservados300segundos por arquivo e900segundos totais iniciados antes do smoke, limites de transporte e encerramento do guardião Python.
+
+### 14.4 Rito e resultado permitido
+
+Após revisão e checks deste GATE, integrar; reancorar BUILD por merge normal; executar RED→BUILD→GREEN, revisão independente completa, guard/restore/backup/public-probe SUCCESS no mesmo HEAD final. Sem checks ou com qualquer FAIL não integrar #139. Autorizações rotineiras já existentes, sem nova decisão humana material identificada.
+
+Preservar Edges/JWT/RBAC/RLS, worker backend real, cinco recibos disjuntos, readiness SELECT própria, negativos, auditoria, banimento/revogação e cleanup. O novo mecanismo prova somente configuração e integridade dos bytes inspecionados na origem operacional. Não certifica SHA publicado, Browser Workers/janelas nativas, documentos integrais, CRUD global, identidade visual ou V1. Deploy HML segue seção9 e fontes integradas; PROD proibido.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, dependências, workflows, novas funções ou expansão material.
