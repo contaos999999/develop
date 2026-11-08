@@ -2051,7 +2051,7 @@
     "state": "PLAN_ONLY_NO_IMPLEMENTATION",
     "build_enabled": false,
     "edge_dependency_pr": 180,
-    "edge_dependency_head": "0c3ad25a36dd1bb4bd62a5506e3b437451c21023",
+    "edge_dependency_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97",
     "blockers": [
       "USER_RLS_SOURCE_ELIGIBILITY_AND_FILE_SECURITY_BEFORE_SIMILARITY",
       "ATOMIC_ACTOR_TENANT_QUOTA",
@@ -2079,6 +2079,17 @@
       "supabase/tests/remaining_domains/ai_envelope.test.mjs",
       ".github/workflows/copilot-hml.yml",
       ".github/workflows/restore-isolado.yml"
-    ]
+    ],
+    "edge_dependency_ci": 42535446620,
+    "hml_operational_limits": {
+      "actor_per_minute": 6,
+      "actor_per_hour": 30,
+      "organization_per_hour": 120,
+      "actor_processing": 2,
+      "organization_processing": 8,
+      "request_deadline_seconds": 45,
+      "lease_seconds": 90,
+      "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
+    }
   }
 }
