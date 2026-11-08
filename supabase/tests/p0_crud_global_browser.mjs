@@ -211,6 +211,9 @@ async function loadPublishedAnalyzer(frontend){
   const bound=positive+';proofClient.rpc.call(proofClient,"obter_resumo_dashboard",{});';
   referenceName.prove(new Map([[name,bound]]),[name]);
   for(const source of [positive+';unboundClient.rpc.call(proofClient,"other",{});',positive+';proofClient.rpc.call(unboundClient,"other",{});'])assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
+  const aliased=positive+';const rpcClient=proofClient;rpcClient.rpc("fixture",{});';
+  referenceName.prove(new Map([[name,aliased]]),[name]);
+  for(const suffix of [';const a=proofClient;consume(a);',';const a=proofClient;a.rpc=unknown;',';const a=proofClient;a.rpc.call(unboundClient,"fixture",{});'])assert.throws(()=>referenceName.prove(new Map([[name,positive+suffix]]),[name]));
   const negatives=[append('https://foreign.supabase.co')+';const unused='+JSON.stringify(HML_ORIGIN)+';',positive+';const another=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");',positive.replace('new '+ctor+'(proofURL,','new '+ctor+'(unknownConfiguration,'),positive.replace('proofClient.auth.signInWithPassword','unboundClient.auth.signInWithPassword'),positive.replace('new '+ctor+'(proofURL,','misleadingCreateClient(proofURL,'),positive+';const escaped=proofClient;',positive+';proofClient.auth=unknown;'];
   for(const source of negatives)assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
   return analyzer;
