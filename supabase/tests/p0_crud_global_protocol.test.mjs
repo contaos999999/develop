@@ -643,3 +643,10 @@ test('signed download is bounded and cannot follow redirects or change owned des
   await assert.rejects(()=>boundedSignedDownload(async()=>new Response(null,{status:308,headers:{location:'https://foreign.invalid'}}),url,'own/fixture.txt',3));
   await assert.rejects(()=>boundedSignedDownload(async()=>new Response(Buffer.from('oversized'),{status:200}),url,'own/fixture.txt',3));
 });
+
+test('native websocket denial affects only ws and wss rules without global offline state',async()=>{
+  const {webSocketDenyRules}=await import('./p0_crud_global_browser.mjs');const rules=webSocketDenyRules();
+  assert.deepEqual(Object.keys(rules),['matchedNetworkConditions']);
+  assert.deepEqual(rules.matchedNetworkConditions.map(x=>x.urlPattern),['ws://*:*/*','wss://*:*/*']);
+  for(const rule of rules.matchedNetworkConditions)assert.deepEqual(rule,{urlPattern:rule.urlPattern,offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+});
