@@ -158,5 +158,40 @@ insert into public.transacoes_financeiras(id,id_organizacao,id_contrato,data,des
 values('aaaaaaaa-5100-4000-8000-000000000001','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','aaaaaaaa-1000-4000-8000-000000000001','2026-11-15','Transação nova pós-liberação',100.00,'debito',md5('tx-antidrift'));
 insert into contaos_testes select 'ANTIDRIFT','Dado financeiro invalida portão',situacao='em_reanalise' and percentual_conformidade=0 and liberada_para_reapresentacao_em is null,situacao||'/'||percentual_conformidade from public.competencias where id='aaaaaaaa-2000-4000-8000-000000000004';
 
+-- Regression executes the expression from the installed RPC, not a duplicate parser.
+do $upload_extension_test$
+declare
+ v_expression text;
+ v_actual text;
+ v_allowed text[];
+ v_case record;
+begin
+ v_expression := split_part(split_part(pg_get_functiondef('privado.confirmar_upload_arquivo(uuid,uuid,text,text,text,bigint,text,text)'::regprocedure),'v_ext := ',2),';',1);
+ if v_expression='' then raise exception 'Upload extension expression not found'; end if;
+ select extensoes_permitidas into strict v_allowed from public.configuracao_upload where id=true;
+ for v_case in select * from (values
+  ('FONTE_SINTETICA_AUDITORIA_HML.txt','txt',true),
+  ('ANEXO.PDF','pdf',true),
+  ('relatorio.final.v2.docx','docx',true),
+  ('planilha.xlsx','xlsx',true),
+  ('imagem.PNG','png',true),
+  ('anexo.txt.exe','exe',false),
+  ('anexo.exe.txt','txt',true),
+  ('semextensao','',false),
+  ('txt','',false),
+  ('anexo.','',false),
+  ('','',false)
+ ) as cases(nome,esperado,permitido)
+ loop
+  execute 'select '||replace(v_expression,'p_nome_original','$1') into v_actual using v_case.nome;
+  insert into contaos_testes values('UPLOAD_EXT',v_case.nome||' -> '||v_case.esperado,
+   v_actual is not distinct from v_case.esperado and
+   coalesce(v_actual=any(v_allowed),false)=v_case.permitido,
+   'extensao='||coalesce(v_actual,'NULL'));
+ end loop;
+ insert into contaos_testes values('UPLOAD_EXT','MIME divergente continua negado',not privado.mime_compativel_extensao('txt','application/pdf'),'txt/pdf');
+end;
+$upload_extension_test$;
+
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;

@@ -47,7 +47,10 @@
     "supabase/tests/p0_crud_global_browser.mjs",
     "supabase/tests/p0_crud_global_protocol.test.mjs",
     "supabase/tests/p0_crud_global_hml.py",
-    "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md"
+    "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
+    "supabase/migrations/20261108053000_fix_upload_extension_extraction.sql",
+    "supabase/tests/hml_acceptance.sql",
+    "supabase/tests/upload_extension.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -55,7 +58,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
@@ -1227,7 +1230,7 @@
     "gate_ci": 42449528794
   },
   "upload_extension_gate": {
-    "phase": "GATE",
+    "phase": "BUILD",
     "base": "b8003019fe937c8dad436fae3a0334aee23f2453",
     "reason": "Titular autorizou corrigir upload HML; reteste real comprova P0001 por extração incorreta da extensão",
     "future_build_paths": [
@@ -1237,7 +1240,10 @@
       "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
       "docs/tasks/active-task.json"
     ],
-    "database_changes_allowed": false,
-    "prod": false
+    "database_changes_allowed": true,
+    "prod": false,
+    "gate_pr": 146,
+    "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
+    "gate_ci": 42450339687
   }
 }
