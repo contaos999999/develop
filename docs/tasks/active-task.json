@@ -54,7 +54,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -140,8 +140,8 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Executar plano único por domínio, proteger PASS documental por hashes e evidências, CI/revisão independente, lote HML próprio, corrigir falhas e repetir domínio afetado e dependências.",
-  "database_change_scope": "One additive reviewed metadata function replacement; append version only, historical immutability trigger and RBAC preserved.",
+  "next_step": "Certify only historico, administracao and dependent parecer/apresentacao/protocolo after independent same-HEAD Restore catalog parity; preserve all previous documentary/domain receipts.",
+  "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -1816,12 +1816,11 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
-      "documento_detalhe"
+      "historico",
+      "administracao",
+      "apresentacao"
     ],
     "pending_domains": [
-      "regras_preventivas",
-      "documento_detalhe",
-      "documentos_competencia",
       "parecer",
       "apresentacao",
       "protocolo",
@@ -1868,6 +1867,50 @@
         "assertions": 39,
         "state": "PASS_DOMAIN",
         "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "orcamento",
+        "head": "f8f6b414e63761c21f95e6839ba757d49786b808",
+        "run": 42507974749,
+        "job": 128814675501,
+        "artifact": 13628630866,
+        "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26",
+        "assertions": 44,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "regras_preventivas",
+        "head": "d82d13c2bcd81474ae6cdcc00a12a84407d26bb6",
+        "run": 42508721712,
+        "job": 128816954505,
+        "artifact": 13627484987,
+        "sha256": "d610b22fc618fb01a53582f042c5b6079075d3ca673eaefe46b9629e19c0c603",
+        "assertions": 29,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "documentos_competencia",
+        "head": "d82d13c2bcd81474ae6cdcc00a12a84407d26bb6",
+        "run": 42508721712,
+        "job": 128816954467,
+        "artifact": 13628801647,
+        "sha256": "758062dc0e58c4d7b5d80fb7d42c88cfb1a4a115dbc948d1208cebc997345816",
+        "assertions": 47,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "documento_detalhe",
+        "head": "7c8fdb1644058831cc2a7d1bacd931eee18cd997",
+        "run": 42514704055,
+        "job": 128835084228,
+        "artifact": 13631305509,
+        "sha256": "856dfbb70d545fb08eab96cb24c1b92267493408712d45e1c1bee4027eb205cf",
+        "assertions": 59,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
       }
     ],
     "orcamento_retry": {
@@ -1880,12 +1923,29 @@
       "artifact": 13628630866,
       "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26"
     },
-    "approved_hml_migration": {
-      "file": "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql",
-      "version": "20261108184219",
-      "sha256": "7d5ea8651d9df4324f78ac029df3155cb71d6178c34866fb495965bfaff40323",
-      "scope": "REVIEWED_METADATA_APPEND_ONLY_NO_HISTORICAL_MUTATION",
-      "gate": "Exact approved HEAD, manifest, guard, Restore/rebuild/backup before official CLI; exact application catalog before and after; only this migration pending; before Auth fixtures"
-    }
+    "archived_reviewed_migrations": [
+      {
+        "proof": {
+          "file": "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql",
+          "version": "20261108184219",
+          "sha256": "7d5ea8651d9df4324f78ac029df3155cb71d6178c34866fb495965bfaff40323",
+          "scope": "REVIEWED_METADATA_APPEND_ONLY_NO_HISTORICAL_MUTATION",
+          "gate": "Exact approved HEAD, manifest, guard, Restore/rebuild/backup before official CLI; exact application catalog before and after; only this migration pending; before Auth fixtures"
+        },
+        "merge": "7c8fdb1644058831cc2a7d1bacd931eee18cd997",
+        "state": "APPLIED_AND_EXACT_PARITY",
+        "migration_count": 136,
+        "receipt_artifact": 13631305509,
+        "receipt_sha256": "856dfbb70d545fb08eab96cb24c1b92267493408712d45e1c1bee4027eb205cf",
+        "prior_catalog_sha256": "fa28ac5435af92f9a6b0f935688294be2f679077e612a8e16d7cafcf76152926",
+        "after_catalog_sha256": "fe277a2b54fba16f1b728e6217cb00a1787c6aa411a893dda133f2db532d5937"
+      }
+    ],
+    "remaining_domain_limits": [
+      "backend HML only; source UI parity and manual WCAG not certified",
+      "SMTP delivery not certified; own existing-user invitation lookup only",
+      "synthetic own scope is not real-party regulatory certification",
+      "global_complete stays false until all applicable evidence is verified"
+    ]
   }
 }

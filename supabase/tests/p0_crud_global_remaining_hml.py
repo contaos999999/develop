@@ -13,7 +13,7 @@ import urllib.parse
 import urllib.request
 from p0_crud_global_hml import Runner as FixtureRunner, URL, KEY, q, uid
 
-DOMAINS=('base_normativa','orcamento','competencias','regras_preventivas','documento_detalhe','documentos_competencia')
+DOMAINS=('base_normativa','orcamento','competencias','regras_preventivas','documento_detalhe','documentos_competencia','historico','administracao','apresentacao')
 PROTECTED=('supabase/tests/p0_crud_global_browser.mjs','supabase/tests/p0_crud_global_hml.py','supabase/tests/p0_crud_global_protocol.test.mjs','supabase/functions/storage-sign-upload/index.ts','supabase/functions/storage-sign-download/index.ts')
 REQUIRED={
  'base_normativa':{'rpc':('salvar_fonte_normativa_v107','registrar_versao_fonte_v107','aprovar_versao_fonte_v107','definir_aplicabilidade_fonte_v107'),'checks':('NORMATIVE_REPLAY_EXACT','NORMATIVE_CAS_RACE','NORMATIVE_SQL_PERSISTENCE','NORMATIVE_AUDIT_PRESENT','NORMATIVE_READER_READ','NORMATIVE_TENANT_ISOLATED','NORMATIVE_REVOKED_SESSION_DENIED')},
@@ -23,13 +23,18 @@ REQUIRED={
  'regras_preventivas':{'rpc':('salvar_fonte_normativa_v107','registrar_versao_fonte_v107','aprovar_versao_fonte_v107','aprovar_regra_preventiva'),'checks':('PREVENTIVE_DENIAL_UNCHANGED','PREVENTIVE_READER_READ','PREVENTIVE_TENANT_ISOLATED','PREVENTIVE_NO_DIRECT_PROMOTION','PREVENTIVE_SQL_APPROVAL','PREVENTIVE_AUDIT')},
  'documento_detalhe':{'rpc':('confirmar_upload_arquivo','criar_documento_contrato_completo','definir_vigencia_sugestao_extracao','revisar_sugestao_extracao'),'checks':('OWN_PHYSICAL_SOURCE_UPLOADED','OWN_PHYSICAL_SOURCE_SQL','OWN_DOCUMENT_WORKER_READY','DETAIL_SYNTHETIC_QUEUE_QUIESCED','DETAIL_METADATA_CONCURRENT_SINGLE_APPEND','DETAIL_METADATA_APPEND_RECEIPT','DETAIL_METADATA_OLD_ROW_IDENTICAL','DETAIL_METADATA_APPEND_ONLY','DETAIL_VIGENCY_NOOP','DETAIL_REVIEW_CLASSIFICACAO','DETAIL_REVIEW_METADADO','DETAIL_REVIEW_OBRIGACAO','DETAIL_REVIEW_PRAZO','DETAIL_READER_PAGES','DETAIL_TENANT_ISOLATED','DETAIL_SQL_REVIEW','DETAIL_SQL_VIGENCY','DETAIL_AUDIT')},
  'documentos_competencia':{'rpc':('criar_competencia','confirmar_upload_arquivo','criar_documento_competencia_v115','adicionar_versao_documento_competencia_v115','obter_documentos_competencia_v115'),'checks':('OWN_PHYSICAL_SOURCE_UPLOADED','OWN_PHYSICAL_SOURCE_SQL','OWN_DOCUMENT_WORKER_READY','COMP_DOC_CREATE_REPLAY','COMP_DOC_VERSION_REPLAY','COMP_DOC_READER_READ','COMP_DOC_TENANT_ISOLATED','COMP_DOC_SQL_HISTORY','COMP_DOC_OFFICIAL_READ','COMP_DOC_AUDIT')}
+,
+ 'historico':{'rpc':('confirmar_upload_arquivo','criar_documento_contrato_completo','registrar_relatorio_historico_hml','enfileirar_ingestao_historica_hml','vincular_tratamento_historico_hml'),'checks':('HISTORY_PHYSICAL_UPLOAD','HISTORY_PHYSICAL_SQL','OWN_DOCUMENT_WORKER_READY','HISTORY_REGISTRATION_REPLAY','HISTORY_QUEUE_REPLAY','HISTORY_REAL_MARKED_FINDING','HISTORY_READER_READ','HISTORY_TENANT_ISOLATED','HISTORY_SQL_TREATMENT','HISTORY_AUDIT')},
+ 'administracao':{'rpc':('salvar_vinculo_usuario_adm','listar_escopo_contratos_usuario_adm'),'master_rpc':('obter_matriz_rbac_master','atualizar_matriz_rbac_master'),'edge':('admin-invite-user',),'checks':('ADMIN_EXISTING_EDGE_NO_EMAIL','ADMIN_EXISTING_EDGE_REPLAY','ADMIN_EXISTING_EDGE_CONFLICT','ADMIN_SQL_EDGE_RECEIPT','ADMIN_BINDING_REPLAY','ADMIN_SCOPED_CONTRACT','ADMIN_READER_SCOPED_READ','ADMIN_SCOPE_REVOKED_REAL_JWT','ADMIN_MATRIX_REPLAY','ADMIN_MATRIX_NO_PERMISSION_DELTA','ADMIN_SQL_BINDING','ADMIN_SQL_MATRIX_RECEIPT','ADMIN_AUDIT')},
+ 'apresentacao':{'covers':['parecer','apresentacao','protocolo'],'rpc':('executar_comando_lista_v1','criar_competencia','confirmar_upload_arquivo','criar_documento_competencia_v115','adicionar_versao_documento_competencia_v115','solicitar_analise_competencia','obter_contexto_revisao_v117','registrar_revisao_requisito_v117','avaliar_portao_conformidade','solicitar_parecer_interno','aprovar_apresentacao','registrar_apresentacao'),'master_rpc':('aprovar_parecer_interno',),'checks':('FLOW_MANDATORY_REQUIREMENT','OWN_PHYSICAL_SOURCE_UPLOADED','OWN_PHYSICAL_SOURCE_SQL','OWN_DOCUMENT_WORKER_READY','FLOW_REAL_AI_ANALYSIS','FLOW_REVIEW_CONTEXT_CURRENT','FLOW_REAL_GATE_100','FLOW_REAL_AI_OPINION','FLOW_SQL_OPINION_APPROVAL','FLOW_STALE_CONTEXT_BLOCKED','FLOW_PROTOCOL_REPLAY','FLOW_READER_PROTOCOL','FLOW_TENANT_ISOLATED','FLOW_SQL_FROZEN_PACKAGE','FLOW_SQL_HISTORY_AUDIT')}
 }
 def assert_complete(report,domain):
     required=REQUIRED[domain];assert report['domain']==domain and report['global_complete'] is False
     checks=report['assertions'];receipts=report['receipts']
     assert checks and all(c.get('passed') is True for c in checks)
     assert all(any(c.get('name')==name and c.get('passed') is True for c in checks) for name in required['checks'])
-    assert all(any(r.get('operation')==name and r.get('http')==200 and r.get('role')=='administrador' for r in receipts) for name in required['rpc'])
+    assert all(any(r.get('operation')==name and r.get('http')==200 and r.get('role')=='administrador' for r in receipts) for name in (*required['rpc'],*required.get('edge',())))
+    assert all(any(r.get('operation')==name and r.get('http')==200 and r.get('role')=='master' for r in receipts) for name in required.get('master_rpc',()))
     for role in ('leitor','usuario_b','anon'):
         assert any(r.get('role')==role and r.get('http') in ((401,403) if role=='anon' else (403,)) for r in receipts)
 
@@ -63,7 +68,7 @@ def validate_target(url,upload=False,org=None,nonce=None):
         assert u.path.startswith(prefix) and '/crudg-'+nonce+'-' in u.path and '..' not in u.path and '%' not in u.path and chr(92) not in u.path
         assert set(urllib.parse.parse_qs(u.query))=={'token'}
     else:
-        assert u.path.startswith(('/auth/v1/','/rest/v1/')) or u.path in ('/functions/v1/storage-sign-upload','/functions/v1/storage-sign-download')
+        assert u.path.startswith(('/auth/v1/','/rest/v1/')) or u.path in ('/functions/v1/storage-sign-upload','/functions/v1/storage-sign-download','/functions/v1/admin-invite-user')
     return u
 
 class Runner(FixtureRunner):
@@ -98,7 +103,7 @@ class Runner(FixtureRunner):
             return error.code,body
         except Exception:raise RuntimeError('Bounded own HML transport failed') from None
     def setup(self):
-        names=sorted(set(REQUIRED[self.domain]['rpc'])|{'exigir_permissao_rbac','rbac_permite','sessao_usuario_ativa','usuario_tem_acesso_contrato','usuario_possui_perfil'})
+        names=sorted(set(REQUIRED[self.domain]['rpc'])|set(REQUIRED[self.domain].get('master_rpc',()))|{'exigir_permissao_rbac','rbac_permite','sessao_usuario_ativa','usuario_tem_acesso_contrato','usuario_possui_perfil'})
         metadata=self.sql("select coalesce(json_agg(x),'[]'::json) from (select n.nspname schema,p.proname name,pg_get_function_identity_arguments(p.oid) args,md5(p.prosrc) body_md5,p.prosecdef definer,p.proconfig config,pg_get_userbyid(p.proowner) owner,p.proacl::text acl from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname in ('public','privado') and p.proname in ("+','.join(q(n) for n in names)+') order by n.nspname,p.proname,pg_get_function_identity_arguments(p.oid)) x;',True)
         catalog=json.loads(metadata);assert catalog and all(any(c['name']==name for c in catalog) for name in names)
         self.report['dependency_catalog']=catalog
@@ -109,8 +114,10 @@ class Runner(FixtureRunner):
             self.check('JWT_LOGIN_'+user['profile'].upper(),st==200 and isinstance(data,dict) and isinstance(data.get('access_token'),str),st)
             self.tokens[user['profile']]=data['access_token']
         self.report['dependency_sha256']={p:hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in ['supabase/tests/p0_crud_global_remaining_hml.py','supabase/tests/remaining_domains/'+self.domain+'.py']}
-        if self.domain in ('documento_detalhe','documentos_competencia'):
+        if self.domain in ('documento_detalhe','documentos_competencia','historico','apresentacao'):
             p='supabase/tests/remaining_domains/document_fixture.py';self.report['dependency_sha256'][p]=hashlib.sha256(Path(p).read_bytes()).hexdigest()
+        if self.domain=='historico':
+            p='supabase/tests/remaining_domains/history_quarantine.py';self.report['dependency_sha256'][p]=hashlib.sha256(Path(p).read_bytes()).hexdigest()
         self.save('report.json',self.report)
     def operation(self,name,payload,role='administrador',status=200,code=None):
         assert re.fullmatch('[a-z][a-z0-9_]{1,90}',name)
@@ -156,6 +163,10 @@ class Runner(FixtureRunner):
         intent.update(file=file,state='CONFIRMED');self.save('fixture.json',f)
         self.sql_check('OWN_PHYSICAL_SOURCE_SQL',"select exists(select 1 from public.arquivos a join storage.objects o on o.bucket_id=a.bucket and o.name=a.path where a.id="+q(file)+' and a.id_organizacao='+q(f['org'])+' and a.id_contrato='+q(f['contract'])+' and a.sha256='+q(sha)+' and a.tamanho='+str(len(payload))+');')
         return file
+    def quarantine_document_jobs(self,f,max_wait_seconds=300):
+        if self.domain!='historico':return super().quarantine_document_jobs(f,max_wait_seconds)
+        from remaining_domains.history_quarantine import quarantine_document_jobs
+        return quarantine_document_jobs(self,f,max_wait_seconds)
     def recover_document_uploads(self,f):
         # Independent own upload recovery; source files need not be document versions.
         assert f['scope']=='P0-CRUD-GLOBAL-HML' and re.fullmatch('[0-9a-f]{32}',f['nonce'])
@@ -181,7 +192,7 @@ def main():
     try:
         runner.setup();importlib.import_module('remaining_domains.'+args.domain).run(runner)
         assert_complete(runner.report,args.domain)
-        runner.report['state']='PASS_DOMAIN';runner.report['completed_domains']=[args.domain]
+        runner.report['state']='PASS_DOMAIN';runner.report['completed_domains']=REQUIRED[args.domain].get('covers',[args.domain])
     except Exception as error:
         failed=True;runner.report['state']='FAIL';runner.report['failure_class']=type(error).__name__
     finally:
