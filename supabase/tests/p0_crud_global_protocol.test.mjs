@@ -141,9 +141,9 @@ test('actual prepare rejects unavailable or exposed worker runtime before any Au
  const code=String.raw`import importlib.util,json,tempfile
 from pathlib import Path
 s=importlib.util.spec_from_file_location('protocol','supabase/tests/p0_crud_global_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
-keys=('extension_ready','http_post_ready','client_logins_closed','scheduler_ready','destination_is_hml','client_attack_surface')
+keys=('extension_ready','http_post_ready','client_logins_closed','scheduler_ready','destination_is_hml','client_attack_surface','version_wrapper_ready')
 good=dict.fromkeys(keys,True)
-cases=[good,{},dict(good,unexpected=True),{k:v for k,v in good.items() if k!='client_attack_surface'}]+[{**good,k:v} for k in keys for v in (False,None,'true',1)]
+cases=[good,{},dict(good,unexpected=True),{k:v for k,v in good.items() if k!='client_attack_surface'},{k:v for k,v in good.items() if k!='version_wrapper_ready'}]+[{**good,k:v} for k in keys for v in (False,None,'true',1)]
 class StopFixture(Exception):pass
 for i,metadata in enumerate(cases):
  with tempfile.TemporaryDirectory() as d:
@@ -162,7 +162,7 @@ for i,metadata in enumerate(cases):
   assert r.report['assertions']==([{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':True,'http':None},{'name':'DOCUMENT_WORKER_API_SCHEMA_BLOCKED_ANON','passed':True,'http':406}] if i==0 else [{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':False,'http':None}])
 print('WORKER_RUNTIME_PRE_AUTH_PASS',len(cases))`;
  const r=spawnSync('python3',['-c',code],{env:{PATH:process.env.PATH},encoding:'utf8'});
- assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/WORKER_RUNTIME_PRE_AUTH_PASS 28/);
+ assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/WORKER_RUNTIME_PRE_AUTH_PASS 33/);
 });
 test('browser protocol exists before any privileged run',async()=>{
   assert(existsSync(browser),'CRUD browser protocol missing');

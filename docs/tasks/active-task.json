@@ -1,8 +1,8 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "GATE: corrigir delegação da RPC de nova versão documental",
+  "title": "BUILD: delegação segura da RPC de nova versão documental",
   "status": "ativa",
-  "phase": "GATE_DOCUMENT_VERSION_WRAPPER_HML",
+  "phase": "BUILD_DOCUMENT_VERSION_WRAPPER_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,7 +38,13 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md"
+    "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md",
+    "supabase/migrations/20261108122815_fix_document_version_wrapper.sql",
+    "supabase/tests/upload_document_version_wrapper.test.mjs",
+    "supabase/tests/history_catalog_compare.py",
+    "supabase/tests/hml_acceptance.sql",
+    "supabase/tests/p0_crud_global_hml.py",
+    "supabase/tests/p0_crud_global_protocol.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -46,7 +52,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -132,8 +138,8 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar este GATE após revisão/guard; BUILD aditivo exato wrapperversion, casosSQL positivos/negativos e catálogo restrito. CI/revisão mesmoHEAD antesmerge/deployHML; depoisretomar lotepróprio novo,semreusarfixture949b.",
-  "database_change_scope": "Somente checkpoint documental de implantação já concluída; nenhuma nova DDL ou alteração HML autorizada por este manifesto.",
+  "next_step": "Exigir revisão/guard/public/Restore/rebuild/backup SUCCESS neste HEAD BUILD; merge normalCAS e deploy_oneHMLCLI20261108122815/hashfixado,paridadeglobal; confirmarcorpos/ACL epreflight. SódepoisreativarNOVOlote1publicado+4locais. Fixture949bquarentenada não reutilizar.",
+  "database_change_scope": "GATE163: somente SECURITY DEFINER da assinatura pública adicionar_versao_documento_contrato(uuid,uuid,text,text), com precondições de catálogo; preservar todos corpos/owner/ACL/search_path, sem grants/roles/RLS/Edges/frontend/PROD.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -1719,7 +1725,7 @@
     }
   },
   "version_wrapper_guard": {
-    "state": "PLAN_GATE_NO_DDL",
+    "state": "BUILD_LOCAL_NO_DEPLOY",
     "signature": "public.adicionar_versao_documento_contrato(uuid,uuid,text,text)",
     "old_body_md5": "6d0c5926f4b25fd0e9562b0c010174ef",
     "private_body_md5": "10698cb96e7de1de5a88b25960b341e5",
@@ -1737,6 +1743,12 @@
     "only_product_delta": "SECURITY DEFINER on exact existing public wrapper; preserve body/owner/search_path/ACL/private RBAC",
     "no_prod": true,
     "no_frontend": true,
-    "no_edges": true
+    "no_edges": true,
+    "gate_pr": 163,
+    "gate_merge": "b7ea3d8e6605f5a4636c24ae36731f2efd471e5a",
+    "migration_sha256": "da346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f",
+    "local_tests": 343,
+    "pre_auth_cases": 33,
+    "real_rpc_sql_cases_pending": 13
   }
 }

@@ -12,6 +12,18 @@ def reconcile_document_upload_wrapper(expected,actual):
  result['functions'][result['functions'].index(prior)]=approved
  return result
 
+def reconcile_document_version_wrapper(expected,actual):
+ # GATE163: one exact attribute delta; never remove actual catalog records.
+ prior={'schema':'public','name':'adicionar_versao_documento_contrato',
+  'args':'p_id_documento uuid, p_id_arquivo uuid, p_motivo text, p_chave_idempotencia text',
+  'definer':False,'config':['search_path=""'],'auth_exec':True,'anon_exec':False}
+ approved={**prior,'definer':True}
+ if expected['functions'].count(prior)!=1 or actual['functions'].count(approved)!=1:
+  raise SystemExit('VERSION_WRAPPER_CATALOG_FAIL: exact unique prior/approved metadata required')
+ result={**expected,'functions':list(expected['functions'])}
+ result['functions'][result['functions'].index(prior)]=approved
+ return result
+
 root=pathlib.Path(__file__).parent
 db=os.environ['DB_URL']
 assert '@127.0.0.1:' in db or '@localhost:' in db,'Isolated restore required'
@@ -19,6 +31,7 @@ expected=json.loads((root/'history-catalog-before.json').read_text())
 query=(root/'history-catalog-query.sql').read_text()
 actual=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',query],text=True))
 expected=reconcile_document_upload_wrapper(expected,actual)
+expected=reconcile_document_version_wrapper(expected,actual)
 crud_expected=json.loads((root/'p0_crud_cadastros_catalog_expected.json').read_text())
 for record in crud_expected:
  if actual['functions'].count(record)!=1:
