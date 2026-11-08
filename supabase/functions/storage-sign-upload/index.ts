@@ -7,7 +7,7 @@ const SERVICE=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const B='contaos-documentos'
 const LIMITE_JSON=8*1024
 const admin=createClient(URL,SERVICE,{auth:{persistSession:false,autoRefreshToken:false}})
-const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app']
+const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app','https://contaos-41-hml.vercel.app']
 const HEADERS_CORS=['authorization','x-client-info','apikey','content-type']
 function cabecalhosCors(origem:string|null,preflight=false){
  return {'cache-control':'no-store','x-content-type-options':'nosniff','vary':preflight?'Origin, Access-Control-Request-Method, Access-Control-Request-Headers':'Origin',...(origem?{'access-control-allow-origin':origem}:{})}

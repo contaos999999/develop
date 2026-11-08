@@ -1208,7 +1208,7 @@
   },
   "auth_configuration_changes_allowed": false,
   "vercel_upload_origin_gate": {
-    "phase": "GATE_DOCUMENTAL",
+    "phase": "BUILD",
     "origin": "https://contaos-41-hml.vercel.app",
     "project": "gklhhhyosgasnyoxlrui",
     "authorization": "Titular determinou resolver upload e executar deploy/teste HML; autorização específica da origem Vercel já usada no HML",
@@ -1220,6 +1220,9 @@
     "pr139_prerequisite": "Reutilizar BUILD139 integrado e checks no mesmoHEAD, sem duplicar harness",
     "verify_jwt": true,
     "prod": false,
-    "material_certified": false
+    "material_certified": false,
+    "gate_pr": 144,
+    "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
+    "gate_ci": 42449528794
   }
 }
