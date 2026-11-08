@@ -120,7 +120,7 @@ async function connectNativeBrowserCDP(browser,identity){
   const socket=new WebSocket(endpoint.href);
   let serial=0,listener=()=>{},onClose=()=>{};const commands=new Map();
   await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',()=>reject(Object.assign(Error('Local Chromium interception unavailable'),{code:'CDP_SOCKET_CONNECT'})),{once:true});});
-  socket.addEventListener('message',event=>{const data=JSON.parse(event.data);if(data.id){const pending=commands.get(data.id);if(!pending)return;commands.delete(data.id);clearTimeout(pending.timer);if(data.error)pending.reject(Object.assign(Error('Chromium interception command rejected'),{code:'CDP_'+pending.method.replace(/[^a-zA-Z0-9]/g,'_').toUpperCase()}));else pending.resolve(data.result??{});}else listener(data);});
+  socket.addEventListener('message',event=>{const data=JSON.parse(event.data);if(data.id){const pending=commands.get(data.id);if(!pending)return;commands.delete(data.id);clearTimeout(pending.timer);if(data.error)pending.reject(Object.assign(Error('Chromium interception command rejected'),{code:'CDP_'+pending.method.replace(/[^a-zA-Z0-9]/g,'_').toUpperCase(),protocol_code:Number.isInteger(data.error.code)?data.error.code:null,protocol_reason:/not supported|not found|wasn't found|unknown method/i.test(data.error.message??'')?'UNSUPPORTED':(/closed|detached|no session/i.test(data.error.message??'')?'TARGET_CLOSED':'OTHER_CDP_ERROR')}));else pending.resolve(data.result??{});}else listener(data);});
   socket.addEventListener('close',()=>{onClose();for(const pending of commands.values()){clearTimeout(pending.timer);pending.reject(Error('Chromium interception connection closed'));}commands.clear();});
   const transport={send(method,params={},sessionId){const id=++serial;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{commands.delete(id);reject(Error('Chromium interception command timeout'));},10000);commands.set(id,{resolve,reject,timer,method});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});},onEvent(callback){listener=callback;},onClose(callback){onClose=callback;},close(){socket.close();}};
   try{const target=await transport.send('Target.getTargetInfo',{targetId:identity.targetId});assert.equal(target.targetInfo.browserContextId,identity.browserContextId);}catch(error){transport.close();throw error;}return transport;
@@ -144,9 +144,9 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   assert(proof?.modules instanceof Map&&proof.modules.size>0);assert.equal(typeof allowed,'function');
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
-  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0;
+  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,failureProtocol=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0;
   const active=new Set();
-  const fail=error=>{failed=true;if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
+  const fail=error=>{failed=true;if(!failureProtocol&&Number.isInteger(error?.protocol_code))failureProtocol={code:error.protocol_code,reason:error.protocol_reason};if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
   // Context routing covers the first popup request; Chromium's response pause
   // independently prevents redirects and releases only hash-verified executable bytes.
@@ -215,7 +215,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   for(let i=0;!configured.has(initialTarget)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
   assert(configured.has(initialTarget),'Initial published target was not intercepted');await configured.get(initialTarget);assert(!failed);
   context.on('close',()=>{closed=true;root.close();});
-  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,failure_code:failureCode,failed})};
+  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,protocol_failure:failureProtocol,failure_code:failureCode,failed})};
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=()=>{}){
@@ -239,7 +239,7 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=
     async function fixture(action,{permitForeign=false,changed=false,expectedPopup=false}={}){
       mode=changed?'changed':'normal';const context=await browser.newContext({serviceWorkers:'block'});const page=await context.newPage();
       let fence;try{fence=await installPublishedCDPFence(browser,context,page,proof,url=>{const origin=new URL(url).origin;return origin===own||(permitForeign&&origin===other);},()=>expectedPopup);await action({context,page,fence});}
-      catch(error){const code=fence?.snapshot().failure_code;if(code)error.code=code;throw error;}
+      catch(error){const code=fence?.snapshot().failure_code;if(code)error.code=code;const protocol=fence?.snapshot().protocol_failure;if(protocol)error.protocol_failure=protocol;throw error;}
       finally{await context.close().catch(()=>{});}
     }
     for(const status of [307,308]){onPhase('REDIRECT_'+status);await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.goto(own+'/redirect'+status).catch(()=>{});await new Promise(resolve=>setTimeout(resolve,100));assert.equal(counters.foreign,0,'Redirect transmitted to foreign endpoint');assert(fence.snapshot().failed);});}
@@ -916,7 +916,7 @@ async function main(){
       });
       report.ui_diagnostic=sanitizeUiDiagnostic({...flags,read_http:readHttp});
     }catch{report.ui_diagnostic_unavailable=true;}}
-    report.state='FAIL';if(report.stage==='PUBLISHED_BACKEND_READONLY_FENCE')report.failure_code='PUBLICADA_BACKEND_NAO_COMPROVADO';if(typeof e.code==='string'&&/^(?:CDP_[A-Z0-9_]{1,80}|FENCE_[A-Z0-9_]{1,80}|ENOENT)$/.test(e.code))report.failure_code=e.code;report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
+    report.state='FAIL';if(report.stage==='PUBLISHED_BACKEND_READONLY_FENCE')report.failure_code='PUBLICADA_BACKEND_NAO_COMPROVADO';if(typeof e.code==='string'&&/^(?:CDP_[A-Z0-9_]{1,80}|FENCE_[A-Z0-9_]{1,80}|ENOENT)$/.test(e.code))report.failure_code=e.code;if(e.protocol_failure&&Number.isInteger(e.protocol_failure.code)&&['UNSUPPORTED','TARGET_CLOSED','OTHER_CDP_ERROR'].includes(e.protocol_failure.reason))report.protocol_failure=e.protocol_failure;report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
   finally{save();await stop(server,browser);}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();
