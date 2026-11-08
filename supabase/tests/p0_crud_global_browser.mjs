@@ -20,7 +20,8 @@ export function createProofRecorder(local,saveLocal){
   let target=local,save=saveLocal;
   return {
     check(name,pass,http){target.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);},
-    fence(snapshot){target.published_fence=snapshot;save();},
+    fence(snapshot){target.published_fence=snapshot;finalizePublishedFence(target,snapshot);save();},
+    fenceRecorder(){const original=target,persist=save;return snapshot=>{original.published_fence=snapshot;finalizePublishedFence(original,snapshot);persist();};},
     async published(report,saveReport,operation){assert.equal(target,local);target=report;save=saveReport;try{return await operation();}finally{target=local;save=saveLocal;}}
   };
 }
@@ -165,6 +166,7 @@ export function validateNativeProxyWorkerProof(kind,results,proof){
   assert(['HTTP','BLOB','DATA'].includes(kind));const opaque=kind==='DATA';assert.deepEqual(results,[{status:opaque?null:200,rejected:opaque},true,true,opaque?'OPAQUE':'OWN']);
   assert.equal(proof.own_start_requests,1);assert.equal(proof.own_bootstrap_requests,kind==='HTTP'?1:0);for(const key of ['foreign_tcp_connections','foreign_http_requests','websocket_upgrades'])assert.equal(proof[key],0);assert(Number.isInteger(proof.deny_connections)&&proof.deny_connections>0);return true;
 }
+export function finalizePublishedFence(report,snapshot){if(!snapshot?.failed)return false;report.state='FAIL';report.failure_code='FENCE_LATE_PUBLISHED_FAILURE';return true;}
 export function finalizeUnexpectedBrowserWorker(report){if(!report.unexpected_browser_worker)return false;report.state='FAIL';report.failure_code='FENCE_UNEXPECTED_BROWSER_WORKER';return true;}
 // Native context proxy policy: approved origins stay DIRECT; all others reach
 // a loopback TCP deny endpoint that never reads, replies, or forwards data.
@@ -665,7 +667,7 @@ async function main(){
   function stage(s){assert(!finalizeUnexpectedBrowserWorker(report),'Unexpected browser Worker');assert(/^[A-Z0-9_]{1,100}$/.test(s));report.stage=s;save();}
   const recorder=createProofRecorder(report,save);const check=(name,pass,http)=>{assert(!finalizeUnexpectedBrowserWorker(report),'Unexpected browser Worker');return recorder.check(name,pass,http);};
   function created(name,id){assert(['organization','contractor','contract','list'].includes(name)&&/^[a-f0-9-]{36}$/.test(id));f.created[name]=id;writeFileSync(join(root,'fixture.json'),JSON.stringify(f,null,2)+'\n',{mode:0o600});}
-  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;let nativeDeny;let diagnosticPage;let publishedProof;let expectedPublishedDownload=null;let readHttp=null;
+  const base='http://127.0.0.1:4173';const server=spawn('npm',['run','dev','--','--host','127.0.0.1','--port','4173'],{cwd:frontend,detached:true,stdio:'ignore',env:browserEnvironment(process.env)});let browser;let nativeDeny;let diagnosticPage;let publishedProof;let expectedPublishedDownload=null;let readHttp=null;const publishedFinalizers=[];
   const documentNetwork=Object.fromEntries(['config','sign','storage','confirm','register'].map(k=>[k,{requests:0,http:null,failed:false}]));
   const documentConfig={config_loaded:false,txt_allowed:false,pdf_allowed:false};
   function documentEndpoint(raw){const u=new URL(raw);if(u.origin!=='https://gklhhhyosgasnyoxlrui.supabase.co')return null;const p=u.pathname;if(p==='/rest/v1/configuracao_upload')return 'config';if(p==='/functions/v1/storage-sign-upload')return 'sign';if(p.startsWith('/storage/v1/object/upload/sign/'))return 'storage';if(p==='/rest/v1/rpc/confirmar_upload_arquivo')return 'confirm';if(['/rest/v1/rpc/criar_documento_contrato_completo','/rest/v1/rpc/adicionar_versao_documento_contrato'].includes(p))return 'register';return null;}
@@ -678,6 +680,7 @@ async function main(){
       context.on('page',created=>created.on('worker',()=>{report.unexpected_browser_worker=true;finalizeUnexpectedBrowserWorker(report);save();void context.close().catch(()=>{});}));context.on('serviceworker',()=>{report.unexpected_browser_worker=true;finalizeUnexpectedBrowserWorker(report);save();void context.close().catch(()=>{});});
 
       const page=await context.newPage();const fence=origin===PUBLISHED_ORIGIN?await installPublishedCDPFence(browser,context,page,publishedProof,(url,navigation)=>publishedRequestAllowed(url,navigation,f?.uploads?.filter(u=>u.provenance==='PUBLISHED'&&u.path).map(u=>u.path)??[]),raw=>{if(!expectedPublishedDownload)return false;try{const url=new URL(raw);return url.origin===HML_ORIGIN&&!url.username&&!url.password&&url.pathname==='/storage/v1/object/sign/contaos-documentos/'+expectedPublishedDownload;}catch{return false;}}):null;page._publishedFenceSnapshot=()=>fence?{...fence.snapshot(),proxy_deny_connections:nativeDeny.snapshot().connections-beforeDeny}:null;page.setDefaultTimeout(30000);diagnosticPage=page;
+      if(fence){const record=recorder.fenceRecorder();publishedFinalizers.push(()=>{const snapshot=page._publishedFenceSnapshot();record(snapshot);return snapshot.failed;});context.on('close',()=>record(page._publishedFenceSnapshot()));}
       page.on('response',r=>{if(r.url().endsWith('/rpc/obter_lista_operacional_v1')&&r.request().method()==='POST')readHttp=r.status();});
       if(f?.batch==='DOCUMENTOS'){
         page.on('request',r=>{const key=documentEndpoint(r.url());if(key)documentNetwork[key].requests=Math.min(1000,documentNetwork[key].requests+1);});
@@ -1027,6 +1030,6 @@ async function main(){
       report.ui_diagnostic=sanitizeUiDiagnostic({...flags,read_http:readHttp});
     }catch{report.ui_diagnostic_unavailable=true;}}
     if(diagnosticPage?._publishedFenceSnapshot){const snapshot=diagnosticPage._publishedFenceSnapshot();if(snapshot)report.published_fence=snapshot;}report.state='FAIL';if(report.stage==='PUBLISHED_BACKEND_READONLY_FENCE')report.failure_code='PUBLICADA_BACKEND_NAO_COMPROVADO';if(typeof e.code==='string'&&/^(?:CDP_[A-Z0-9_]{1,80}|FENCE_[A-Z0-9_]{1,80}|ENOENT)$/.test(e.code))report.failure_code=e.code;if(e.protocol_failure&&Number.isInteger(e.protocol_failure.code)&&['UNSUPPORTED','TARGET_CLOSED','OTHER_CDP_ERROR'].includes(e.protocol_failure.reason))report.protocol_failure=e.protocol_failure;report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
-  finally{try{await stop(server,browser);}finally{try{if(nativeDeny)await nativeDeny.close();}finally{if(finalizeUnexpectedBrowserWorker(report))process.exitCode=1;save();}}}
+  finally{try{await stop(server,browser);}finally{try{if(nativeDeny)await nativeDeny.close();}finally{for(const finalize of publishedFinalizers){if(finalize()){finalizePublishedFence(report,{failed:true});process.exitCode=1;}}if(finalizeUnexpectedBrowserWorker(report))process.exitCode=1;save();}}}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();

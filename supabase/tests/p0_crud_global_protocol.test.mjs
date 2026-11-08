@@ -785,3 +785,14 @@ test('successful loaded-source hashes persist in the active provenance report on
   assert.deepEqual(published.published_fence,proof);assert.equal(local.published_fence,undefined);assert.equal(publishedSaves,1);assert.equal(localSaves,0);
   recorder.fence(proof);assert.deepEqual(local.published_fence,proof);assert.equal(localSaves,1);
 });
+
+test('late fence failure survives cleanup and is written to its original published provenance',async()=>{
+  const {createProofRecorder,finalizePublishedFence}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof finalizePublishedFence,'function');
+  const local={assertions:[],state:'PASS_BATCH'},smoke={assertions:[],state:'PASS_SMOKE'};let localSaves=0,smokeSaves=0,record;
+  const recorder=createProofRecorder(local,()=>localSaves++);
+  await recorder.published(smoke,()=>smokeSaves++,async()=>{record=recorder.fenceRecorder();});
+  const snapshot={failed:true,loaded_script_sha256:['a'.repeat(64)]};record(snapshot);
+  assert.equal(smoke.state,'FAIL');assert.equal(smoke.published_fence.failed,true);assert.equal(local.published_fence,undefined);assert.equal(localSaves,0);assert.equal(smokeSaves,1);
+  for(const state of ['PASS_BATCH','PASS_PUBLIC_PROBE','PASS_SMOKE']){const report={state};assert.equal(finalizePublishedFence(report,snapshot),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_LATE_PUBLISHED_FAILURE');}
+  assert.equal(finalizePublishedFence({state:'PASS_BATCH'},{failed:false}),false);
+});

@@ -1170,8 +1170,8 @@
     "paused_document_build": {
       "state": "EM_VALIDACAO_CI_REAL",
       "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
-      "local_protocol": 62,
-      "local_full_suite": 268,
+      "local_protocol": 63,
+      "local_full_suite": 269,
       "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
       "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
       "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
@@ -1192,7 +1192,18 @@
         "sha256": "809fbc88de08da0e2106dbd87b8ab8ebdf3122911de31f9b132148054f4da85f",
         "state": "FAIL_BEFORE_FIRST_PAUSED_FIXTURE_EVIDENCE",
         "local_reproduction": "Node inert fetch keeps1idleTCP after1100ms; original fixture server Connection:close drains0 naturally; no socket destroy"
-      }
+      },
+      "first_public_success": {
+        "head": "2b2bb2cf172d654966ec76d7764b215a37326d00",
+        "run": 42448929569,
+        "artifact": 13604249723,
+        "sha256": "e3bd0eb6e147afe93991596bfc70d07df39460ecfdf193124b4320b5b8be62e4",
+        "assertions": 12,
+        "document_modules": 114,
+        "loaded_script_hashes": 49,
+        "material_enabled": false
+      },
+      "late_fence_fix": "Finalizers capture original provenance and persist/reject failed snapshot after browser/deny close; RED helper absent then63/63protocol269/269suite"
     }
   },
   "auth_configuration_changes_allowed": false
