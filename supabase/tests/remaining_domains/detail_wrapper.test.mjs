@@ -62,3 +62,13 @@ for field,value in [('owner','other'),('body_md5','0'*32),('config',[]),('acl','
 `;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);
 });
+import {readdirSync} from 'node:fs';
+test('new local SQL fixtures do not collide with identities retained by earlier suites',()=>{
+ const own=fs.readFileSync('supabase/tests/remaining_domains/detail_wrapper_local.sql','utf8');
+ const prefixes=new Set([...own.matchAll(/'([0-9a-f]{8})-[0-9a-f]{4}-[0-9a-f]{4}-/g)].map(m=>m[1]));
+ assert(prefixes.size>0);
+ for(const name of readdirSync('supabase/tests').filter(n=>n.endsWith('.sql'))){
+  const prior=fs.readFileSync('supabase/tests/'+name,'utf8');
+  for(const prefix of prefixes)assert(!prior.includes(prefix+'-'),'fixture namespace collides with '+name);
+ }
+});
