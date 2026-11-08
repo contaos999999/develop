@@ -167,23 +167,39 @@ export function publishedAnalyzer(ts,referenceSource){
       for(const prop of options.properties){assert(ts.isPropertyAssignment(prop)&&prop.name.text==='auth'&&ts.isObjectLiteralExpression(prop.initializer));for(const field of prop.initializer.properties)assert(ts.isPropertyAssignment(field)&&['storage','persistSession','autoRefreshToken','detectSessionInUrl','storageKey','flowType'].includes(field.name.text));}
     }
     assert(ts.isVariableDeclaration(call.parent)&&ts.isIdentifier(call.parent.name));const instanceSymbol=symbol(call.parent.name);assert(instanceSymbol);
+    const configuredSymbols=new Set([instanceSymbol]),aliases=new Map();
+    // Bundlers lower const to var: prove a single initialized binding and reject every write.
+    // Every use is checked below; an unused alias or a value escaping as an argument fails closed.
+    let added=true;
+    while(added){added=false;for(const node of nodes){
+      if(!ts.isVariableDeclaration(node)||!ts.isIdentifier(node.name)||!node.initializer||!ts.isIdentifier(node.initializer))continue;
+      const source=symbol(node.initializer),target=symbol(node.name);
+      if(configuredSymbols.has(source)&&target&&target.declarations?.length===1&&!configuredSymbols.has(target)){configuredSymbols.add(target);aliases.set(target,{declaration:node,used:false});added=true;}
+    }}
+    const isConfigured=n=>configuredSymbols.has(symbol(n));
+    const mutationRoot=n=>{n=unwrap(n);while(ts.isPropertyAccessExpression(n)||ts.isElementAccessExpression(n))n=unwrap(n.expression);return n;};
     const usage=new Set();
     for(const node of nodes){
       if(ts.isStringLiteral(node)&&/^https?:\/\/[^/]+\.supabase\.(co|in)(?:\/|$)/.test(node.text))assert.equal(new URL(node.text).origin,HML_ORIGIN,'Foreign backend configuration');
-      const boundRpcCall=ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&node.expression.name.text==='call'&&ts.isPropertyAccessExpression(node.expression.expression)&&node.expression.expression.name.text==='rpc'&&symbol(node.expression.expression.expression)===instanceSymbol;
-      if(boundRpcCall)assert(node.arguments.length>=2&&ts.isIdentifier(node.arguments[0])&&symbol(node.arguments[0])===instanceSymbol,'RPC call receiver must be the configured client');
-      if(ts.isIdentifier(node)&&symbol(node)===instanceSymbol){
+      const boundRpcCall=ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&['call','bind'].includes(node.expression.name.text)&&ts.isPropertyAccessExpression(node.expression.expression)&&node.expression.expression.name.text==='rpc'&&isConfigured(node.expression.expression.expression);
+      if(boundRpcCall)assert((node.expression.name.text==='bind'?node.arguments.length===1:node.arguments.length>=2)&&ts.isIdentifier(node.arguments[0])&&isConfigured(node.arguments[0]),'RPC call receiver must be the configured client');
+      if(ts.isIdentifier(node)&&isConfigured(node)){
         const parent=node.parent;
-        const ownRpcReceiver=ts.isCallExpression(parent)&&parent.arguments[0]===node&&ts.isPropertyAccessExpression(parent.expression)&&parent.expression.name.text==='call'&&ts.isPropertyAccessExpression(parent.expression.expression)&&parent.expression.expression.name.text==='rpc'&&symbol(parent.expression.expression.expression)===instanceSymbol;
-        assert((ts.isVariableDeclaration(parent)&&parent.name===node)||(ts.isPropertyAccessExpression(parent)&&parent.expression===node)||ts.isImportSpecifier(parent)||ts.isExportSpecifier(parent)||ownRpcReceiver,'Unresolved configured client alias or escape');
+        const ownRpcReceiver=ts.isCallExpression(parent)&&parent.arguments[0]===node&&ts.isPropertyAccessExpression(parent.expression)&&['call','bind'].includes(parent.expression.name.text)&&ts.isPropertyAccessExpression(parent.expression.expression)&&parent.expression.expression.name.text==='rpc'&&isConfigured(parent.expression.expression.expression);
+        const aliasInitializer=ts.isVariableDeclaration(parent)&&parent.initializer===node&&aliases.get(symbol(parent.name))?.declaration===parent;
+        if(ts.isPropertyAccessExpression(parent)&&parent.expression===node&&aliases.has(symbol(node)))aliases.get(symbol(node)).used=true;
+        assert(aliasInitializer||(ts.isVariableDeclaration(parent)&&parent.name===node)||(ts.isPropertyAccessExpression(parent)&&parent.expression===node)||ts.isImportSpecifier(parent)||ts.isExportSpecifier(parent)||ownRpcReceiver,'Unresolved configured client alias or escape');
       }
       if(ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&ts.isPropertyAccessExpression(node.expression.expression)){
-        const member=node.expression.expression;if(symbol(member.expression)===instanceSymbol)usage.add(member.name.text+'.'+node.expression.name.text);
+        const member=node.expression.expression;if(isConfigured(member.expression))usage.add(member.name.text+'.'+node.expression.name.text);
       }
+      if(ts.isDeleteExpression(node)){const target=mutationRoot(node.expression);assert(!configuredSymbols.has(symbol(target)),'Configured client mutation is unsupported');}
+      if((ts.isPrefixUnaryExpression(node)||ts.isPostfixUnaryExpression(node))&&[ts.SyntaxKind.PlusPlusToken,ts.SyntaxKind.MinusMinusToken].includes(node.operator)){const target=mutationRoot(node.operand);assert(!configuredSymbols.has(symbol(target)),'Configured client mutation is unsupported');}
       if(ts.isBinaryExpression(node)&&node.operatorToken.kind>=ts.SyntaxKind.FirstAssignment&&node.operatorToken.kind<=ts.SyntaxKind.LastAssignment){
-        let target=node.left;while(ts.isPropertyAccessExpression(target)||ts.isElementAccessExpression(target))target=target.expression;assert(![instanceSymbol,clientSymbol,...factories.keys()].includes(symbol(target)),'Configured client mutation is unsupported');
+        const target=mutationRoot(node.left);assert(![...configuredSymbols,clientSymbol,...factories.keys()].includes(symbol(target)),'Configured client mutation is unsupported');
       }
     }
+    for(const alias of aliases.values())assert(alias.used,'Configured client alias is unused or unresolved');
     assert(usage.has('auth.signInWithPassword')&&usage.has('functions.invoke'),'Client is not bound to login and document flow');
     return {verified:true};
   }
@@ -211,9 +227,12 @@ async function loadPublishedAnalyzer(frontend){
   const bound=positive+';proofClient.rpc.call(proofClient,"obter_resumo_dashboard",{});';
   referenceName.prove(new Map([[name,bound]]),[name]);
   for(const source of [positive+';unboundClient.rpc.call(proofClient,"other",{});',positive+';proofClient.rpc.call(unboundClient,"other",{});'])assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
-  const aliased=positive+';const rpcClient=proofClient;rpcClient.rpc("fixture",{});';
-  referenceName.prove(new Map([[name,aliased]]),[name]);
-  for(const suffix of [';const a=proofClient;consume(a);',';const a=proofClient;a.rpc=unknown;',';const a=proofClient;a.rpc.call(unboundClient,"fixture",{});'])assert.throws(()=>referenceName.prove(new Map([[name,positive+suffix]]),[name]));
+  for(const declaration of ['const','var','let']){
+    const aliased=positive+';'+declaration+' proofAlias=proofClient;proofAlias.rpc("fixture",{});';
+    referenceName.prove(new Map([[name,aliased]]),[name]);
+  }
+  referenceName.prove(new Map([[name,positive+';const proofBound=proofClient.rpc.bind(proofClient);proofBound("fixture",{});']]),[name]);
+  for(const suffix of [';const proofAlias=proofClient;consume(proofAlias);',';const proofAlias=proofClient;proofAlias.rpc=unknown;',';let proofAlias=proofClient;proofAlias=unknown;proofAlias.rpc("fixture",{});',';let proofAlias=proofClient;proofAlias++;proofAlias.rpc("fixture",{});',';const proofAlias=proofClient;delete proofAlias.rpc;proofAlias.rpc("fixture",{});',';const proofAlias=proofClient;proofAlias.rpc.call(unboundClient,"fixture",{});',';const proofAlias=proofClient;(proofAlias.rpc)=unknown;', ';const proofAlias=proofClient;delete (proofAlias.rpc);',';const proofAlias=proofClient;(proofAlias.rpc)++;',';proofClient.rpc.bind(unboundClient);',';unboundClient.rpc.bind(proofClient);'])assert.throws(()=>referenceName.prove(new Map([[name,positive+suffix]]),[name]));
   const negatives=[append('https://foreign.supabase.co')+';const unused='+JSON.stringify(HML_ORIGIN)+';',positive+';const another=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");',positive.replace('new '+ctor+'(proofURL,','new '+ctor+'(unknownConfiguration,'),positive.replace('proofClient.auth.signInWithPassword','unboundClient.auth.signInWithPassword'),positive.replace('new '+ctor+'(proofURL,','misleadingCreateClient(proofURL,'),positive+';const escaped=proofClient;',positive+';proofClient.auth=unknown;'];
   for(const source of negatives)assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
   return analyzer;
