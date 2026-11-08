@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: subtarefa de transporte CORS documental HML",
+  "title": "Prova privada V1: GATE complementar de contenção nativa e CORS parcial",
   "status": "ativa",
   "phase": "BUILD_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
@@ -1041,7 +1041,7 @@
       "status": 405,
       "cleanup": "QUARENTENA_VERIFICADA"
     },
-    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT/interceptação/mock.",
+    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT ou interceptação/mock para converter FAIL em PASS. Contenção nativa DENY e CORS/GET parciais dependem do complemento documental e dos checks próprios.",
     "proof_partition": {
       "local_uploads": 4,
       "published_smoke_uploads": 1,
@@ -1081,7 +1081,20 @@
       ],
       "local_node_modules_not_pin": "2.119.0"
     },
-    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea"
+    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea",
+    "popup_safety_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "policy": "DENY_NEW_WEB_CONTENTS",
+      "material_enabled": false,
+      "source_head": "2454c855975fa2e5df4a4d6d97226975989504f8",
+      "source_run": 42436054090,
+      "popup_rendering": "NAO_CERTIFICADO",
+      "partial_proofs": [
+        "EDGE_CORS_UI_REAL",
+        "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
+      ],
+      "full_document_crud_v1_certification": false
+    }
   },
   "auth_configuration_changes_allowed": false
 }
