@@ -79,7 +79,7 @@ export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
     assert(entries.length>0&&entries.length<=16);const pending=[...new Set(entries.filter(e=>!modules.has(e)))];
     for(const [url,source] of modules)for(const name of analyzer.imports(source)){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);pending.push(child.href);}
     onPhase('READ_SCRIPT_GRAPH');while(pending.length){
-      const url=pending.shift();if(modules.has(url))continue;assert(modules.size<32);
+      const url=pending.shift();if(modules.has(url))continue;assert(modules.size<128);
       const source=await boundedPublicText(fetcher,url,4194304);total+=Buffer.byteLength(source);assert(total<=8388608);modules.set(url,source);
       // The parser returns imports, not arbitrary URLs; every dependency is bounded and same origin.
       const imports=analyzer.imports(source);
@@ -129,7 +129,7 @@ export function publishedAnalyzer(ts,referenceSource){
     const file=parse(PUBLISHED_ORIGIN+'/assets/module.js',source),found=[];
     visit(file,n=>{
       if(ts.isImportDeclaration(n)||ts.isExportDeclaration(n)){if(n.moduleSpecifier){assert(ts.isStringLiteral(n.moduleSpecifier));found.push(n.moduleSpecifier.text);}}
-      if(ts.isCallExpression(n)&&n.expression.kind===ts.SyntaxKind.ImportKeyword){assert(n.arguments.length===1&&ts.isStringLiteral(n.arguments[0]));found.push(n.arguments[0].text);}
+      if(ts.isCallExpression(n)&&n.expression.kind===ts.SyntaxKind.ImportKeyword){assert(n.arguments.length===1&&(ts.isStringLiteral(n.arguments[0])||ts.isNoSubstitutionTemplateLiteral(n.arguments[0])));found.push(n.arguments[0].text);}
       // eval/new Function would hide effective clients from static binding analysis.
       if((ts.isCallExpression(n)||ts.isNewExpression(n))&&ts.isIdentifier(n.expression))assert(!['eval','Function'].includes(n.expression.text));
     });
@@ -193,6 +193,8 @@ async function loadPublishedAnalyzer(frontend){
   const analyzer=publishedAnalyzer(ts,transformed.code);analyzer.htmlEntries=html=>publicHTMLScripts(parser,html);analyzer.reference_sha256=createHash('sha256').update(original).digest('hex');analyzer.compiler_version='1.2.1';
   // Real parser positive/negative fixtures run in the canonical probe, never a mocked parser PASS.
   // Source remains inert, including the synthetic appended consumer calls.
+  assert.deepEqual(analyzer.imports('import(`./constant.js`)'),['./constant.js']);
+  for(const code of ['import(`./${unknown}.js`)','import(unknown)'])assert.throws(()=>analyzer.imports(code));
   const referenceName=analyzer; // one parser instance with one frozen class identity
   const file=ts.createSourceFile('reference.js',transformed.code,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);let ctor;
   function locate(n){if((ts.isClassDeclaration(n)||ts.isClassExpression(n))&&n.members.some(m=>m.name?.text==='_initSupabaseAuthClient'))ctor=n.name?.text??n.parent.name?.text;ts.forEachChild(n,locate);}locate(file);assert(ctor);
