@@ -713,3 +713,63 @@ test('public HTML variant diagnostics reveal only hashes counts and closed class
   const analyzer={htmlEntries:html=>[{attributes:[['type','application/json']],source:html}]};const result=publicHTMLVariantSummary(analyzer,expected,actual),encoded=JSON.stringify(result);
   assert.equal(result.executable_entries_equal,true);assert.equal(result.all_script_entries_equal,false);assert.equal(result.first_difference_tag,'script');assert.equal(result.first_difference_attribute,'data-client-token');assert.equal(result.expected_script_count,1);assert.equal(result.actual_script_count,1);assert(!encoded.includes('CANARY_'));assert(!encoded.includes('private.invalid'));assert(!encoded.includes('https://'));
 });
+
+test('paused Document inspection proves its exact bytes without fetching a different HTML response',async()=>{
+  const {inspectPublishedDocument,PUBLISHED_ORIGIN,validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');
+  assert.equal(typeof inspectPublishedDocument,'function');
+  const {createHash}=await import('node:crypto');const seen=[];
+  const analyzer={version:'5.9.3',htmlEntries:html=>{seen.push(html);return [{attributes:[],source:html}];},imports:()=>[],prove:(modules)=>{assert.equal([...modules.values()][0],seen.at(-1));assert(!seen.at(-1).includes('REJECT'));return {verified:true};}};
+  const fetcher=()=>{throw Error('Paused inline document must not refetch HTML');};
+  for(const html of ['inline variant one','inline variant two']){
+    const body=Buffer.from(html);const result=await inspectPublishedDocument(fetcher,analyzer,body,PUBLISHED_ORIGIN+'/login');
+    assert.equal(result.runtimeProof.html_sha256,createHash('sha256').update(body).digest('hex'));
+    assert.equal(validatePublishedResponse(result.runtimeProof,{url:PUBLISHED_ORIGIN+'/login',resourceType:'Document',status:200,body}),true);
+    assert.equal(typeof result.runtimeProof.inspectDocument,'function');
+    assert(!JSON.stringify(result).includes(html));
+  }
+  for(const body of [Buffer.from('REJECT'),Buffer.from([255]),Buffer.alloc(262145)])await assert.rejects(()=>inspectPublishedDocument(fetcher,analyzer,body,PUBLISHED_ORIGIN+'/login'));
+  await assert.rejects(()=>inspectPublishedDocument(fetcher,analyzer,Buffer.from('inline'),'https://foreign.invalid/login'));
+});
+
+test('paused Document rejection never exposes a graph or trusts a self-assigned hash',async()=>{
+  const {inspectPublishedDocument,PUBLISHED_ORIGIN}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof inspectPublishedDocument,'function');
+  let fetched=0,proved=0;const analyzer={version:'5.9.3',htmlEntries:()=>[{attributes:[['src','https://foreign.invalid/a.js']],source:''}],imports:()=>[],prove:()=>{proved++;return {verified:true};}};
+  await assert.rejects(()=>inspectPublishedDocument(()=>{fetched++;},analyzer,Buffer.from('own'),PUBLISHED_ORIGIN+'/login'));assert.equal(fetched,0);assert.equal(proved,0);
+  analyzer.htmlEntries=()=>[{attributes:[],source:'unknown client'}];analyzer.prove=()=>({verified:false});
+  await assert.rejects(()=>inspectPublishedDocument(()=>{fetched++;},analyzer,Buffer.from('own'),PUBLISHED_ORIGIN+'/login'));assert.equal(fetched,0);
+});
+
+test('paused Document resolves relative executable sources and inline imports against its real path',async()=>{
+  const {inspectPublishedDocument,PUBLISHED_ORIGIN}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof inspectPublishedDocument,'function');const requests=[];
+  const analyzer={version:'5.9.3',htmlEntries:()=>[{attributes:[['src','./main.js']],source:''},{attributes:[['type','module']],source:'inline'}],imports:s=>s==='inline'?['./child.js']:[],prove:modules=>{assert(modules.has(PUBLISHED_ORIGIN+'/assets/nested/main.js'));assert(modules.has(PUBLISHED_ORIGIN+'/assets/nested/child.js'));return {verified:true};}};
+  const fetcher=async url=>{requests.push(url);return new Response('own',{status:200,headers:{}});};
+  const wrapped=async (...args)=>{const r=await fetcher(...args);Object.defineProperty(r,'url',{value:args[0]});return r;};
+  await inspectPublishedDocument(wrapped,analyzer,Buffer.from('own'),PUBLISHED_ORIGIN+'/assets/nested/login');
+  assert.deepEqual(requests.sort(),[PUBLISHED_ORIGIN+'/assets/nested/child.js',PUBLISHED_ORIGIN+'/assets/nested/main.js'].sort());
+});
+
+test('a late failure during asynchronous Document proof cannot continue the paused response',async()=>{
+  const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');const {createHash}=await import('node:crypto');
+  const source=readFileSync('supabase/tests/p0_crud_global_browser.mjs','utf8'),start=source.indexOf('  async function paused(session,event){'),end=source.indexOf('  function message(session,data){',start);assert(start>0&&end>start);
+  for(const latch of ['failed','closed']){
+    const result=await vm.runInNewContext(`(async()=>{
+      let failed=false,closed=false,documentInspection=false,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,failureHTML=null;
+      const documentProofs=[],loadedScriptHashes=new Set(),calls=[],initialTarget='own';
+      const body=Buffer.from('own'),origin='https://scope-and-approval-keeper.lovable.app';
+      let proof={origin,modules:new Map([[origin+'/assets/a.js','a'.repeat(64)]]),inspectDocument:async()=>{${latch}=true;return {state:'HML_CONFIG_CONFIRMED',module_count:1,asset_sha256:[],runtimeProof:{origin,html_sha256:createHash('sha256').update(body).digest('hex'),modules:new Map()}};}};
+      const allowed=()=>true,expectedPopup=()=>false,send=async(session,method)=>{calls.push(method);return {body:'own',base64Encoded:false};};
+      ${source.slice(start,end)}
+      try{await paused({type:'page',targetId:'own'},{requestId:'own',request:{url:origin+'/login'},resourceType:'Document',responseStatusCode:200});}catch{}
+      return calls;
+    })()`,{assert,Buffer,URL,createHash,validatePublishedResponse});
+    assert.deepEqual(Array.from(result),['Fetch.getResponseBody','Fetch.failRequest']);
+  }
+});
+
+test('successful loaded-source hashes persist in the active provenance report only',async()=>{
+  const {createProofRecorder}=await import('./p0_crud_global_browser.mjs');const local={assertions:[]},published={assertions:[]};let localSaves=0,publishedSaves=0;
+  const recorder=createProofRecorder(local,()=>localSaves++),proof={document_proofs:[{html_sha256:'a'.repeat(64)}],loaded_script_sha256:['b'.repeat(64)]};
+  await recorder.published(published,()=>publishedSaves++,async()=>recorder.fence(proof));
+  assert.deepEqual(published.published_fence,proof);assert.equal(local.published_fence,undefined);assert.equal(publishedSaves,1);assert.equal(localSaves,0);
+  recorder.fence(proof);assert.deepEqual(local.published_fence,proof);assert.equal(localSaves,1);
+});

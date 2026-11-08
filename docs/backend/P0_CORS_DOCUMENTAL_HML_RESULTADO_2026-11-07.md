@@ -97,3 +97,16 @@ HEAD9b9ad321/public42442958319/job128615896480 FAIL em NATIVE_PROXY_WORKER_DATA;
 Diagnóstico341111b9538fd446512149db35586dc0036fa282/public42443226070/job128616673183, artefato13602866198 SHA256caaf89c72fb24e02e80c474fb2773317788727aa0e359f6dc4582b90f75a444c: DATA ownSTART1/bootstrap0/DENY2 e foreignTCP0/HTTP0/WS0 após close/drain, mas own-fetch statusnull/rejectedtrue. A expectativa200 era incorreta: WHATWG HTML §10.2.6.2 atribui origem opaca ao Worker data; sem ACAO a leitura CORS deve falhar. Não alterar o endpoint, CORS, no-cors ou política proxy.
 
 Fix exige DATA self.origin==='null' classificado OPAQUE e statusnull/rejectedtrue, HTTP/BLOB origem própria efetivamente verificada e200, preservando START1/DENY>0/zero transporte estrangeiro. Novo validador TDD RED54PASS/1FAIL ausente→GREEN55/55protocolo e261/261suíte; revisão estática independente sem Critical/Important. A origem é medida dentro do Worker, não inferida do rótulo da fixture. CI operacional do novo HEAD continua pendente.
+
+
+## Execução independente: BUILD do GATE143, 08/11/2026
+
+Base comprovada846a256f485aa0f81c092e7b4f6e3bc6f0663dea. Guard42444723789 e Restore42444723828 SUCCESS; public42444723802/job128621135259 FAILURE. Artefato13601984914 baixado nesta execução e digest c34ad7e921a5a3e128527904acab8bd783ba5202f4fb40c4fa50db2cd219fe3d conferido. O HTML variável em entradas executáveis continua registrado como FAIL histórico, sem normalização.
+
+Delta desta execução: parse5/grafo/AST/SDK aplicados ao mesmo Document pausado, UTF-8 sem perda e resolução pela URL real; hashes congelados antes de continuar a resposta original. Inspeção assíncrona que termina após latch failed/closed não pode continuar. O snapshot positivo guarda hashes do documento/grafo e scripts efetivamente liberados no relatório da proveniência ativa, sem fonte/URL. Seis fixtures novas do runner usam SDK real bundlado pelo rolldown congelado, duas variantes positivas e negativas de origem estrangeira, SDK ausente, configuração divergente e ScriptResponse alterada; contadores finais após close/drain.
+
+TDD local:56PASS/2FAIL por inspector ausente; regressão adicional do path real falhou antes da correção. GREEN:61/61 protocolo e267/267 suíte Node completa; regressão VM confirma Fetch.failRequest sem continue após falha durante await. AST real local confirmou duas variantes e hashes diferentes com SDK2.118.0/rolldown1.2.1. O download local Chromium1.64.1 retornou ZIP inválido, portanto as fixtures reais permanecem PENDENTES do runner canônico, sem substituição de versão.
+
+Estado: EM VALIDAÇÃO CI REAL, condições técnicas ainda não cumpridas. Nenhum resultado material, deploy ou certificação CRUD/V1 decorre dos testes locais. Revisão independente apontou e levou à correção de resolução de URL, corrida de falha e persistência positiva; parecer final condicionado ao CI. Publicação por CAS no HEAD base, preservando trabalho concorrente; nenhum commit anterior é atribuído a esta execução.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A justificado, harness backend; frontend/issue317/PROD intactos. Ferramentas locais/GitHub, sem turnos Lovable, timeout ampliado ou controle afrouxado.

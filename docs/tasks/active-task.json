@@ -5,8 +5,8 @@
   "phase": "BUILD_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-07",
-  "context_read_by": "Codex; leitura integral do contexto raiz 00–20, P0, certificado e implementação afetada",
+  "context_read_acknowledged_at": "2026-11-08",
+  "context_read_by": "Codex executor independente Trilha B; contexto raiz00–20, P0, manifesto, certificado, PLAN/GATE138/140/141/142/143 e implementação afetada lidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -1166,6 +1166,17 @@
       "gate_pr": 143,
       "gate_merge": "f53304fbdab7570fa0f5167a9bcd0c76cded6be6",
       "state": "INTEGRADO_ANTES_BUILD"
+    },
+    "paused_document_build": {
+      "state": "EM_VALIDACAO_CI_REAL",
+      "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
+      "local_protocol": 61,
+      "local_full_suite": 267,
+      "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
+      "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
+      "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
+      "material_enabled": false,
+      "global_complete": false
     }
   },
   "auth_configuration_changes_allowed": false

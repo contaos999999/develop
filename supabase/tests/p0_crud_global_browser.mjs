@@ -20,6 +20,7 @@ export function createProofRecorder(local,saveLocal){
   let target=local,save=saveLocal;
   return {
     check(name,pass,http){target.assertions.push(publicRecord({name,pass,http}));save();assert(pass,name);},
+    fence(snapshot){target.published_fence=snapshot;save();},
     async published(report,saveReport,operation){assert.equal(target,local);target=report;save=saveReport;try{return await operation();}finally{target=local;save=saveLocal;}}
   };
 }
@@ -27,8 +28,8 @@ export async function runDocumentProvenances({proveBackend,published,local,now=D
   const deadline=now()+900000;let timer;
   try{await Promise.race([(async()=>{await proveBackend();assert(now()<deadline);await published(deadline);assert(now()<deadline);await local(deadline);assert(now()<deadline);})(),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DOCUMENT_BATCH_DEADLINE')),900000);})]);}finally{clearTimeout(timer);}
 }
-async function boundedPublicText(fetcher,url,maximum){
-  const target=new URL(url);assert.equal(target.origin,PUBLISHED_ORIGIN);assert(!target.username&&!target.password&&!target.hash);
+async function boundedPublicText(fetcher,url,maximum,expectedOrigin=PUBLISHED_ORIGIN){
+  const target=new URL(url);assert.equal(target.origin,expectedOrigin);assert(!target.username&&!target.password&&!target.hash);
   const response=await fetcher(target.href,{redirect:'error',credentials:'omit',signal:AbortSignal.timeout(15000)});
   assert(response.ok&&response.status===200&&new URL(response.url).href===target.href);
   const reader=response.body.getReader(),parts=[];let bytes=0;
@@ -66,8 +67,19 @@ export function publicHTMLVariantSummary(analyzer,expected,actual){
   return {all_html_bytes_equal:expected===actual,expected_bytes:Buffer.byteLength(expected),actual_bytes:Buffer.byteLength(actual),first_difference_character:prefix,common_suffix_characters:suffix,first_difference_tag:['script','meta','link','html','head','body','title','div','input'].includes(tag)?tag:'OTHER',first_difference_attribute:['nonce','content','src','href','value','data-token','data-client-token','data-project-token','integrity','crossorigin','lang','style','class','id','type'].includes(attribute)?attribute:'OTHER',expected_script_count:left.length,actual_script_count:right.length,all_script_entries_equal:JSON.stringify(left)===JSON.stringify(right),executable_entries_equal:JSON.stringify(executable(left))===JSON.stringify(executable(right)),expected_changed_region_sha256:hash(expected.slice(prefix,expected.length-suffix)),actual_changed_region_sha256:hash(actual.slice(prefix,actual.length-suffix))};
 }
 export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
+  try{onPhase('READ_HTML');const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);return await inspectPublishedHTML(fetcher,analyzer,html,onPhase,PUBLISHED_ORIGIN+'/login');}catch{throw Error('PUBLICADA_BACKEND_NAO_COMPROVADO');}
+}
+export async function inspectPublishedDocument(fetcher,analyzer,body,url,onPhase=()=>{}){
+  return inspectDocumentAtOrigin(fetcher,analyzer,body,url,onPhase,PUBLISHED_ORIGIN);
+}
+async function inspectDocumentAtOrigin(fetcher,analyzer,body,url,onPhase,expectedOrigin){
+  const target=new URL(url);assert.equal(target.origin,expectedOrigin);assert(!target.username&&!target.password&&!target.hash);
+  assert(Buffer.isBuffer(body)&&body.length<=262144);const html=body.toString('utf8');assert(Buffer.from(html,'utf8').equals(body),'Lossy Document UTF-8');
+  return inspectPublishedHTML(fetcher,analyzer,html,onPhase,target.href);
+}
+async function inspectPublishedHTML(fetcher,analyzer,html,onPhase,documentURL){
+  const documentOrigin=new URL(documentURL).origin;
   try{
-    onPhase('READ_HTML');const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
     onPhase('PARSE_SCRIPT_ENTRIES');
     // Every executable script participates in inert analysis; no auxiliary script is ignored.
     const entries=[],modules=new Map();let total=0;
@@ -79,25 +91,25 @@ export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
       assert(type===undefined||['module','text/javascript','application/javascript'].includes(type));
       if(values.has('src')){
         assert(!script.source.trim());const raw=values.get('src');assert(!/[&<>\s]/.test(raw));
-        const url=new URL(raw,PUBLISHED_ORIGIN+'/login');assert.equal(url.origin,PUBLISHED_ORIGIN);assert(allowedScriptPath(url.pathname)&&!url.username&&!url.password&&!url.search&&!url.hash);entries.push(url.href);
+        const url=new URL(raw,documentURL);assert.equal(url.origin,documentOrigin);assert(allowedScriptPath(url.pathname)&&!url.username&&!url.password&&!url.search&&!url.hash);entries.push(url.href);
       }else{
         const source=script.source;if(!source.trim())continue;
         assert(Buffer.byteLength(source)<=262144);total+=Buffer.byteLength(source);
-        const id=PUBLISHED_ORIGIN+'/__inline_'+createHash('sha256').update(source).digest('hex')+'.js';assert(!modules.has(id));modules.set(id,source);entries.push(id);
+        const id=new URL('./__inline_'+createHash('sha256').update(source).digest('hex')+'.js',documentURL).href;assert(!modules.has(id));modules.set(id,source);entries.push(id);
       }
     }
     assert(entries.length>0&&entries.length<=16);const pending=[...new Set(entries.filter(e=>!modules.has(e)))];
-    for(const [url,source] of modules)for(const name of analyzer.imports(source)){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);pending.push(child.href);}
+    for(const [url,source] of modules)for(const name of analyzer.imports(source)){const child=new URL(name,url);assert.equal(child.origin,documentOrigin);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);pending.push(child.href);}
     onPhase('READ_SCRIPT_GRAPH');while(pending.length){
       const url=pending.shift();if(modules.has(url))continue;assert(modules.size<128);
-      const source=await boundedPublicText(fetcher,url,4194304);total+=Buffer.byteLength(source);assert(total<=8388608);modules.set(url,source);
+      const source=await boundedPublicText(fetcher,url,4194304,documentOrigin);total+=Buffer.byteLength(source);assert(total<=8388608);modules.set(url,source);
       // The parser returns imports, not arbitrary URLs; every dependency is bounded and same origin.
       const imports=analyzer.imports(source);
-      for(const name of imports){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);if(!modules.has(child.href))pending.push(child.href);}
+      for(const name of imports){const child=new URL(name,url);assert.equal(child.origin,documentOrigin);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);if(!modules.has(child.href))pending.push(child.href);}
     }
     onPhase('PROVE_CONFIGURED_CLIENT');const binding=analyzer.prove(modules,entries);assert.equal(binding.verified,true);assert(/^\d+\.\d+\.\d+$/.test(analyzer.version));if(analyzer.reference_sha256){assert(/^[a-f0-9]{64}$/.test(analyzer.reference_sha256));assert.equal(analyzer.compiler_version,'1.2.1');}
     const result={state:'HML_CONFIG_CONFIRMED',frontend_head:null,source_parity:'NAO_VERIFICADA',module_count:modules.size,asset_sha256:[...modules.values()].map(s=>createHash('sha256').update(s).digest('hex')),parser_version:analyzer.version,sdk_version:'2.118.0',...(analyzer.reference_sha256?{sdk_source_sha256:analyzer.reference_sha256,compiler_version:analyzer.compiler_version}:{} )};
-    Object.defineProperty(result,'runtimeProof',{value:{origin:PUBLISHED_ORIGIN,html_sha256:createHash('sha256').update(html).digest('hex'),diagnoseHTML:async body=>{assert(Buffer.isBuffer(body)&&body.length<=262144);const repeat=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);return {available:true,initial_vs_browser:publicHTMLVariantSummary(analyzer,html,body.toString('utf8')),initial_vs_repeat:publicHTMLVariantSummary(analyzer,html,repeat)};},modules:new Map([...modules].filter(([url])=>!url.includes('/__inline_')).map(([url,source])=>[url,createHash('sha256').update(source).digest('hex')]))}});return result;
+    Object.defineProperty(result,'runtimeProof',{value:{origin:documentOrigin,html_sha256:createHash('sha256').update(html).digest('hex'),inspectDocument:(body,url)=>inspectDocumentAtOrigin(fetcher,analyzer,body,url,onPhase,documentOrigin),diagnoseHTML:async body=>{assert(Buffer.isBuffer(body)&&body.length<=262144);const repeat=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);return {available:true,initial_vs_browser:publicHTMLVariantSummary(analyzer,html,body.toString('utf8')),initial_vs_repeat:publicHTMLVariantSummary(analyzer,html,repeat)};},modules:new Map([...modules].filter(([url])=>!url.includes('/__inline_')).map(([url,source])=>[url,createHash('sha256').update(source).digest('hex')]))}});return result;
   }catch{throw Error('PUBLICADA_BACKEND_NAO_COMPROVADO');}
 }
 export function publishedRequestAllowed(raw,navigation=false,ownDownloads=[]){
@@ -173,7 +185,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
   const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,failureProtocol=null,failureRequest=null,failureHashes=null,failureHTML=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0,workerWaiting=0,workerRuntimeResumes=0;
-  const active=new Set();
+  const active=new Set();let documentInspection=false;const documentProofs=[],loadedScriptHashes=new Set();
   const fail=error=>{failed=true;if(!failureHashes&&/^[a-f0-9]{64}$/.test(error?.proof_hashes?.expected??'')&&/^[a-f0-9]{64}$/.test(error?.proof_hashes?.actual??''))failureHashes={expected:error.proof_hashes.expected,actual:error.proof_hashes.actual};if(!failureProtocol&&Number.isInteger(error?.protocol_code))failureProtocol={code:error.protocol_code,reason:error.protocol_reason};if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
   // No Playwright routing: its frozen implementation fabricates preflight 204.
@@ -191,9 +203,14 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
       if(resourceType==='Script'||(resourceType==='Document'&&new URL(url).origin===proof.origin)){
         const result=await send(session,'Fetch.getResponseBody',{requestId});body=Buffer.from(result.body,result.base64Encoded?'base64':'utf8');
       }
+      if(resourceType==='Document'&&new URL(url).origin===proof.origin&&typeof proof.inspectDocument==='function'){
+        assert.equal(event.responseStatusCode,200);assert(!documentInspection,'Overlapping Document inspection');documentInspection=true;
+        try{const inspected=await proof.inspectDocument(body,url);assert.equal(inspected.state,'HML_CONFIG_CONFIRMED');proof=inspected.runtimeProof;assert(proof?.modules instanceof Map);assert(documentProofs.length<128);documentProofs.push({html_sha256:proof.html_sha256,asset_sha256:inspected.asset_sha256,module_count:inspected.module_count,sdk_version:inspected.sdk_version,sdk_source_sha256:inspected.sdk_source_sha256,compiler_version:inspected.compiler_version,parser_version:inspected.parser_version});}finally{documentInspection=false;}
+      }
+      if(resourceType==='Script')assert(!documentInspection,'Script arrived before Document proof completed');
       validatePublishedResponse(proof,{url,resourceType,status:event.responseStatusCode,body});
-      if(resourceType==='Script')verifiedScripts++;if(resourceType==='Document'&&new URL(url).origin===proof.origin)verifiedDocuments++;
-      await send(session,'Fetch.continueResponse',{requestId});
+      if(resourceType==='Script'){verifiedScripts++;loadedScriptHashes.add(createHash('sha256').update(body).digest('hex'));}if(resourceType==='Document'&&new URL(url).origin===proof.origin)verifiedDocuments++;
+      assert(!failed&&!closed,'Fence failed while response was paused');await send(session,'Fetch.continueResponse',{requestId});
     }catch(error){if(error.code==='FENCE_DOCUMENT_HASH'&&typeof proof.diagnoseHTML==='function'){try{failureHTML=await proof.diagnoseHTML(body);}catch{failureHTML={available:false};}}if(!error.code)error.code=resourceType==='Document'?'FENCE_DOCUMENT_RESPONSE_REJECTED':resourceType==='Script'?'FENCE_SCRIPT_RESPONSE_REJECTED':'FENCE_OTHER_RESPONSE_REJECTED';await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
   }
   function message(session,data){
@@ -229,7 +246,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   for(let i=0;!configured.has(initialTarget)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
   assert(configured.has(initialTarget),'Initial published target was not intercepted');await configured.get(initialTarget);assert(!failed);
   context.on('close',()=>{closed=true;root.close();});
-  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,worker_waiting:workerWaiting,worker_runtime_resumes:workerRuntimeResumes,protocol_failure:failureProtocol,failure_code:failureCode,failure_request:failureRequest,failure_hashes:failureHashes,html_variant:failureHTML,failed})};
+  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({document_proofs:documentProofs,loaded_script_sha256:[...loadedScriptHashes],verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,worker_waiting:workerWaiting,worker_runtime_resumes:workerRuntimeResumes,protocol_failure:failureProtocol,failure_code:failureCode,failure_request:failureRequest,failure_hashes:failureHashes,html_variant:failureHTML,failed})};
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=()=>{},deny){
@@ -313,6 +330,43 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=
     onPhase('NATIVE_CORS');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const outcome=await page.evaluate(async url=>{try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"fixture":true}'});return {rejected:false,status:response.status};}catch{return {rejected:true,status:null};}},other+'/effect');onEvidence({phase:'NATIVE_CORS',browser_rejected:outcome.rejected,browser_status:outcome.status,preflight_requests:counters.preflight,post_effects:counters.post,foreign_http_requests:counters.foreign,fence_failed:fence.snapshot().failed});if(!outcome.rejected)throw Object.assign(Error('Native CORS enforcement was bypassed'),{code:'FENCE_NATIVE_CORS_NOT_REJECTED'});if(!(counters.preflight>0))throw Object.assign(Error('Native preflight did not run'),{code:'FENCE_NATIVE_CORS_PREFLIGHT_NOT_OBSERVED'});if(counters.post!==0)throw Object.assign(Error('Native CORS transmitted denied POST'),{code:'FENCE_NATIVE_CORS_POST_TRANSMITTED'});fence.assertSafe();},{permitForeign:true,cors:'denied'});
     return {native_proxy_exact_origins_verified:true,native_proxy_workers_no_foreign_destinations:true,native_proxy_unavailable_no_direct_fallback:true,redirect_307_blocked:true,redirect_308_blocked:true,native_popups_denied:true,popup_windows_certified:false,unexpected_popup_rejected:true,native_websocket_denied:true,iframe_blocked:true,unexpected_browser_workers_fail_closed:true,shared_worker_natively_disabled:true,browser_worker_execution_certified:false,changed_script_blocked:true,native_cors_positive_verified:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
   }finally{await Promise.all([close(local),close(foreign),close(ipv6)]);}
+}
+// Every variant runs through the real parse5/SDK analyzer while its native
+// Document response is paused. These loopback servers never receive credentials.
+async function verifyPausedDocumentCDPFence(browser,analyzer,deny,onEvidence){
+  let own,foreign,mode='ONE',scriptReads=0,foreignEffects=0,foreignTCP=0,executed=0,documentStarts=0;const sockets=new Set();
+  const hash=body=>createHash('sha256').update(body).digest('hex');
+  const source=analyzer.fixtureSource;assert.equal(typeof source,'string');
+  const html=()=>'<\u0021doctype html><html><head><script>globalThis.ownVariant='+JSON.stringify(mode)+';fetch("/document-start");</script><script type="module" src="/assets/fixture.js"></script>'+(mode==='FOREIGN'?'<script src="'+foreign+'/effect.js"></script>':'')+'</head><body>Own paused Document fixture</body></html>';
+  const other=createServer((request,response)=>{foreignEffects++;response.end('globalThis.unexpected=true;');});other.on('connection',()=>foreignTCP++);
+  const server=createServer((request,response)=>{
+    if(request.url==='/assets/fixture.js'){scriptReads++;response.setHeader('Content-Type','text/javascript');response.end(mode==='MISSING'?'globalThis.unexpected=true;':mode==='WRONG'?source.replaceAll(HML_ORIGIN,'https://foreign.supabase.co'):mode==='CHANGED'&&scriptReads>1?'fetch("/executed");':source);return;}
+    if(request.url==='/document-start'){documentStarts++;response.end();return;}
+    if(request.url==='/executed'){executed++;response.end();return;}
+    response.setHeader('Content-Type','text/html');response.end(html());
+  });
+  for(const s of [server,other])s.on('connection',socket=>{sockets.add(socket);socket.once('close',()=>sockets.delete(socket));});
+  const listen=s=>new Promise((resolve,reject)=>{s.once('error',reject);s.listen(0,'127.0.0.1',()=>resolve('http://127.0.0.1:'+s.address().port));});
+  try{own=await listen(server);foreign=await listen(other);
+    let previousHash;
+    for(const variant of ['ONE','TWO','FOREIGN','MISSING','WRONG','CHANGED']){
+      mode=variant;scriptReads=0;documentStarts=0;const positive=['ONE','TWO'].includes(variant),context=await browser.newContext({serviceWorkers:'block',proxy:nativeDestinationProxy([own],deny.port)}),page=await context.newPage();let fence,inspections=0;
+      try{
+        const proof={origin:own,modules:new Map([[own+'/assets/fixture.js',hash(source)]]),inspectDocument:async(body,url)=>{
+          inspections++;assert.equal(documentStarts,0,'Document executed before inspection');
+          const result=await inspectDocumentAtOrigin(fetch,analyzer,body,url,()=>{},own);assert.equal(result.runtimeProof.html_sha256,hash(body));return result;
+        }};
+        fence=await installPublishedCDPFence(browser,context,page,proof,url=>new URL(url).origin===own);
+        await page.goto(own+'/login').catch(error=>{if(positive)throw error;});
+        if(positive){await page.waitForFunction(()=>globalThis.nativeFenceFixture===true);fence.assertSafe();assert.equal(await page.evaluate(()=>globalThis.ownVariant),variant);const state=fence.snapshot();assert.equal(state.document_proofs.length,1);assert(state.loaded_script_sha256.includes(hash(source)));const digest=state.document_proofs[0].html_sha256;if(previousHash)assert.notEqual(digest,previousHash);previousHash=digest;}
+        else {for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Rejected Document/graph escaped');}
+        assert.equal(inspections,1);
+      }finally{
+        await context.close();for(let i=0;sockets.size&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));await new Promise(resolve=>setTimeout(resolve,100));assert.equal(sockets.size,0);assert.equal(foreignTCP,0);assert.equal(foreignEffects,0);assert.equal(executed,0);assert.equal(documentStarts,positive||variant==='CHANGED'?1:0);
+        onEvidence({phase:'PAUSED_DOCUMENT_'+variant,positive,inspections,fence_failed:fence?.snapshot().failed??null,foreign_tcp_connections:foreignTCP,foreign_http_requests:foreignEffects,unexpected_script_execution:executed,after_context_close_and_tcp_drain:true});
+      }
+    }
+  }finally{await Promise.all([new Promise(resolve=>server.close(resolve)),new Promise(resolve=>other.close(resolve))]);}
 }
 // Inert source analysis. Fetched modules are parsed, never imported or evaluated.
 // Client identity is a complete class AST match to the frozen installed SDK, not a name/string heuristic.
@@ -441,6 +495,9 @@ async function loadPublishedAnalyzer(frontend){
   function locate(n){if((ts.isClassDeclaration(n)||ts.isClassExpression(n))&&n.members.some(m=>m.name?.text==='_initSupabaseAuthClient'))ctor=n.name?.text??n.parent.name?.text;ts.forEachChild(n,locate);}locate(file);assert(ctor);
   const append=url=>transformed.code+';const proofURL='+JSON.stringify(url)+';const proofClient=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");proofClient.auth.signInWithPassword({});proofClient.functions.invoke("storage-sign-upload");';
   const name=PUBLISHED_ORIGIN+'/assets/fixture.js',positive=append(HML_ORIGIN);referenceName.prove(new Map([[name,positive]]),[name]);
+  const fixtureEntry='\0own-paused-document-fixture';
+  const bundled=await require('rolldown').build({cwd:frontend,input:fixtureEntry,write:false,platform:'browser',plugins:[{name:'own-paused-document-fixture',resolveId:id=>id===fixtureEntry?id:null,load:id=>id===fixtureEntry?'import {createClient} from '+JSON.stringify(candidate)+';export function ownInertFixtureConsumer(){const client=createClient('+JSON.stringify(HML_ORIGIN)+',"public_fixture_key_not_a_secret");client.auth.signInWithPassword({});client.functions.invoke("storage-sign-upload");}globalThis.nativeFenceFixture=true;':null}],output:{format:'esm',minify:true}});
+  assert.equal(bundled.output.length,1);assert.equal(bundled.output[0].type,'chunk');const fixtureSource=bundled.output[0].code;assert.deepEqual(analyzer.imports(fixtureSource),[]);referenceName.prove(new Map([[name,fixtureSource]]),[name]);Object.defineProperty(analyzer,'fixtureSource',{value:fixtureSource});
   const factory=positive.replace('const proofClient=new '+ctor+'(proofURL,','const proofFactory=(a,b)=>new '+ctor+'(a,b);const proofClient=proofFactory(proofURL,');referenceName.prove(new Map([[name,factory]]),[name]);
   // The real frontend RBAC adapter binds Function.call to the same client receiver.
   const bound=positive+';proofClient.rpc.call(proofClient,"obter_resumo_dashboard",{});';
@@ -627,8 +684,8 @@ async function main(){
 
       page.on('pageerror',e=>{report.runtime_errors.push({name:['Error','TypeError','SyntaxError','ReferenceError'].includes(e.name)?e.name:'Other'});save();});
       stage((origin===PUBLISHED_ORIGIN?'PUBLISHED_':'')+'LOGIN_'+role.toUpperCase());await page.goto(origin+'/login');await page.waitForFunction(loginFormIsInteractive);
-      if(origin===PUBLISHED_ORIGIN){await page.waitForLoadState('networkidle');assert.equal(new URL(page.url()).origin,PUBLISHED_ORIGIN);fence.assertSafe();}
-      page._publishedFence=()=>{if(origin===PUBLISHED_ORIGIN){fence.assertSafe();assert.equal(new URL(page.url()).origin,PUBLISHED_ORIGIN);}};
+      if(origin===PUBLISHED_ORIGIN){await page.waitForLoadState('networkidle');assert.equal(new URL(page.url()).origin,PUBLISHED_ORIGIN);fence.assertSafe();recorder.fence(page._publishedFenceSnapshot());}
+      page._publishedFence=()=>{if(origin===PUBLISHED_ORIGIN){fence.assertSafe();assert.equal(new URL(page.url()).origin,PUBLISHED_ORIGIN);recorder.fence(page._publishedFenceSnapshot());}};
       if(probe){await page.getByRole('button',{name:'Mostrar senha',exact:true}).click();await expect(page.getByLabel('Senha',{exact:true})).toHaveAttribute('type','text');check('PUBLIC_INTERACTIVITY',true);return{context,page};}
       const u=f.users.find(x=>x.profile===role);assert(u?.id&&u.creation_state==='created');await page.getByLabel('E-mail',{exact:true}).fill(u.email);await page.getByLabel('Senha',{exact:true}).fill(u.password);
       page._publishedFence();const received=page.waitForResponse(r=>r.url().startsWith(HML_ORIGIN+'/auth/v1/token?')&&r.request().method()==='POST');await page.getByRole('button',{name:'Entrar',exact:true}).click();const login=await received;check('LOGIN_'+role.toUpperCase(),login.status()===200,login.status());await page.waitForURL(u=>!u.pathname.includes('/login'));page._publishedFence();return{context,page};
@@ -650,7 +707,7 @@ async function main(){
     async function stateCadastro(page,region,kind,state,code){await expect(region.getByLabel('Nova situação',{exact:true})).toBeEnabled();await region.getByLabel('Motivo',{exact:true}).fill('Own synthetic lifecycle verification');await region.getByLabel('Nova situação',{exact:true}).selectOption(state);await region.getByRole('button',{name:'Revisar situação',exact:true}).click();await rpc(page,code,kind==='org'?'alterar_situacao_organizacao_v1':'alterar_situacao_contrato_v1',()=>region.getByRole('button',{name:'Confirmar mudança de situação',exact:true}).click());}
     if(probe){
       stage('PREVENTIVE_NETWORK_FENCE_FIXTURES');report.preventive_network_fence=await verifyPublishedCDPFence(browser,phase=>{report.fence_fixture_phase=phase;save();},evidence=>{report.fence_fixture_evidence=evidence;report.fence_fixture_evidences??=[];assert(report.fence_fixture_evidences.length<128);report.fence_fixture_evidences.push(evidence);save();},nativeDeny);check('NATIVE_PREVENTIVE_FENCE_FIXTURES',true);
-      stage('PUBLISHED_BACKEND_READONLY_FENCE');const analyzer=await loadPublishedAnalyzer(frontend);report.published_backend=await inspectPublishedBackend(fetch,analyzer,phase=>{report.backend_inspection_phase=phase;save();});publishedProof=report.published_backend.runtimeProof;check('PUBLISHED_REAL_PARSER_FIXTURES',true);check('PUBLISHED_BACKEND_CONFIGURATION',true);
+      stage('PUBLISHED_BACKEND_READONLY_FENCE');const analyzer=await loadPublishedAnalyzer(frontend);await verifyPausedDocumentCDPFence(browser,analyzer,nativeDeny,evidence=>{report.paused_document_evidence??=[];report.paused_document_evidence.push(evidence);save();});report.published_backend=await inspectPublishedBackend(fetch,analyzer,phase=>{report.backend_inspection_phase=phase;save();});publishedProof=report.published_backend.runtimeProof;check('PUBLISHED_REAL_PARSER_FIXTURES',true);check('PUBLISHED_BACKEND_CONFIGURATION',true);
       const published=await open('master',PUBLISHED_ORIGIN);published.page._publishedFence();check('PUBLISHED_NATIVE_FENCE_AND_LOADED_HASHES',true);await published.context.close();
       const x=await open('master');const sample=await x.context.newPage();
       await sample.setContent('<select aria-label="Filtro externo"><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select><form><h3>Alterar situação</h3><label><span>Situação</span><select><option value="ativa">Ativa</option><option value="inativa">Inativa</option></select></label></form>');
