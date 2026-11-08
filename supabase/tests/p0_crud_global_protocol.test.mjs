@@ -523,7 +523,7 @@ else:raise AssertionError('Foreign recovery accepted')
 test('public artifact traversal is bounded same-origin and reports only hashes and closed metadata',async()=>{
  const m=await import('./p0_crud_global_browser.mjs'),calls=[],origin=m.PUBLISHED_ORIGIN;
  const bodies=new Map([[origin+'/login','<script type="module" src="/assets/current.js"></script>'],[origin+'/assets/current.js','PRIVATE_CANARY_TOKEN_URL_PATH_FILENAME_BYTES_HTML_ERROR']]);
- const out=await m.inspectPublishedBackend(async(url,options)=>{calls.push(url);assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');return {status:200,ok:true,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})};},{version:'5.9.3',imports:()=>[],prove:(modules,entries)=>{assert.equal(modules.size,1);assert.equal(entries[0],origin+'/assets/current.js');return {verified:true,token:'PRIVATE_CANARY'};}});
+ const out=await m.inspectPublishedBackend(async(url,options)=>{calls.push(url);assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');return {status:200,ok:true,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})};},{version:'5.9.3',htmlEntries:()=>[{attributes:[['type','module'],['src','/assets/current.js']],source:''}],imports:()=>[],prove:(modules,entries)=>{assert.equal(modules.size,1);assert.equal(entries[0],origin+'/assets/current.js');return {verified:true,token:'PRIVATE_CANARY'};}});
  assert.equal(out.state,'HML_CONFIG_CONFIRMED');assert.equal(out.frontend_head,null);assert.equal(out.source_parity,'NAO_VERIFICADA');assert.equal(out.module_count,1);assert.match(out.asset_sha256[0],/^[a-f0-9]{64}$/);assert.equal(calls.length,2);
  for(const forbidden of ['PRIVATE_CANARY','current.js','https://','<script'])assert(!JSON.stringify(out).includes(forbidden));
 });
@@ -599,12 +599,12 @@ test('public inspection parses same-origin classic and inline scripts rather tha
  const m=await import('./p0_crud_global_browser.mjs'),o=m.PUBLISHED_ORIGIN;
  const html='<script defer src="/~flock.js"></script><script>const bootstrap=1;</script><script type="module" src="/assets/main.js"></script>';
  const bodies=new Map([[o+'/login',html],[o+'/~flock.js','const telemetry=1;'],[o+'/assets/main.js','const app=1;']]);let inspected=0;
- const result=await m.inspectPublishedBackend(async url=>({ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})}),{version:'5.9.3',imports:()=>[],prove(modules,entries){assert.equal(modules.size,3);assert.equal(entries.length,3);assert([...modules.values()].includes('const bootstrap=1;'));assert([...modules.values()].includes('const telemetry=1;'));inspected++;return {verified:true};}});
+ const result=await m.inspectPublishedBackend(async url=>({ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})}),{version:'5.9.3',htmlEntries:()=>[{attributes:[['src','/~flock.js']],source:''},{attributes:[],source:'const bootstrap=1;'},{attributes:[['type','module'],['src','/assets/main.js']],source:''}],imports:()=>[],prove(modules,entries){assert.equal(modules.size,3);assert.equal(entries.length,3);assert([...modules.values()].includes('const bootstrap=1;'));assert([...modules.values()].includes('const telemetry=1;'));inspected++;return {verified:true};}});
  assert.equal(inspected,1);assert.equal(result.module_count,3);assert(!JSON.stringify(result).includes('bootstrap'));
 });
 
 
-test('public inspector rejects unquoted and mixed duplicate attributes before fetching scripts',async()=>{
+test('public inspector refuses HTML without a supplied inert parser',async()=>{
  const m=await import('./p0_crud_global_browser.mjs'),o=m.PUBLISHED_ORIGIN;
  for(const attrs of ['src=https://foreign.invalid/a.js src="/assets/main.js"','src="/assets/main.js" SRC=https://foreign.invalid/a.js','type=module src="/assets/main.js"']){
   let reads=0;

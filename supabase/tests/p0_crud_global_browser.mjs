@@ -33,30 +33,45 @@ async function boundedPublicText(fetcher,url,maximum){
   finally{await reader.cancel();}
   return Buffer.concat(parts).toString('utf8');
 }
+export function publicHTMLScripts(parser,html){
+  assert(parser&&typeof parser.parse==='function');const scripts=[];
+  const document=parser.parse(html,{scriptingEnabled:true,onParseError:error=>{assert(['missing-doctype','unexpected-null-character'].includes(error.code),'Ambiguous public HTML');}});
+  function walk(node){
+    if(node.tagName==='base')throw Error('Public base URL is unsupported');
+    if(node.tagName==='template')return;
+    if(node.tagName==='script'){
+      assert.equal(node.namespaceURI,'http://www.w3.org/1999/xhtml');assert(!node.attrs.some(a=>a.name==='nomodule'),'Legacy-only client is unsupported');
+      scripts.push({attributes:node.attrs.map(a=>[a.name,a.value]),source:(node.childNodes??[]).map(n=>{assert.equal(n.nodeName,'#text');return n.value;}).join('')});
+    }
+    for(const child of node.childNodes??[])walk(child);
+  }
+  walk(document);return scripts;
+}
+export function validateHTMLParserFixtures(parser){
+  for(const html of ['<!-- <script src="/assets/decoy.js"></script> -->','<template><script src="/assets/decoy.js"></script></template>','<textarea><script src="/assets/decoy.js"></script></textarea>'])assert.equal(publicHTMLScripts(parser,html).length,0);
+  assert.throws(()=>publicHTMLScripts(parser,'<script nomodule src="/assets/legacy-hml-client.js"></script>'));
+  for(const html of ['<script src=https://foreign.invalid/a.js src="/assets/main.js"></script>','<script src="/assets/main.js" SRC=https://foreign.invalid/a.js></script>'])assert.throws(()=>publicHTMLScripts(parser,html));
+  assert(publicHTMLScripts(parser,'<script>const payload="\0";</script>')[0].source.includes('\ufffd'));
+  const scripts=publicHTMLScripts(parser,'<script defer src="/~flock.js"></script><script>const bootstrap=1;</script><script type=module src="/assets/main.js"></script>');
+  assert.equal(scripts.length,3);assert.equal(scripts[1].source,'const bootstrap=1;');assert.equal(new Map(scripts[2].attributes).get('src'),'/assets/main.js');
+}
 export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
   try{
     onPhase('READ_HTML');const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
     onPhase('PARSE_SCRIPT_ENTRIES');
     // Every executable script participates in inert analysis; no auxiliary script is ignored.
-    assert(!/<base\b/i.test(html));const entries=[],modules=new Map();let total=0;
+    const entries=[],modules=new Map();let total=0;
     const allowedScriptPath=p=>p.startsWith('/assets/')||p==='/~flock.js'||/^\/__l5e\/events\.[a-f0-9]+\.js$/.test(p);
-    for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)){
-      // Only a fully consumed, quoted/boolean attribute grammar is accepted.
-      // Reject unquoted values rather than interpreting them differently from the browser.
-      const values=new Map();let rest=match[1];
-      while(rest.trim()){
-        const attr=/^\s+([A-Za-z_:][A-Za-z0-9_:.-]*)(?:\s*=\s*("[^"<>]*"|'[^'<>]*'))?(?=\s|$)/.exec(rest);assert(attr,'Ambiguous script attributes');
-        const key=attr[1].toLowerCase();assert(!values.has(key));
-        assert(attr[2]!==undefined||['async','defer','nomodule'].includes(key),'Unsupported boolean script attribute');
-        values.set(key,attr[2]===undefined?'':attr[2].slice(1,-1));rest=rest.slice(attr[0].length);
-      }
+    assert.equal(typeof analyzer.htmlEntries,'function');
+    for(const script of analyzer.htmlEntries(html)){
+      const values=new Map(script.attributes);assert.equal(values.size,script.attributes.length);
       const type=values.get('type');if(['application/json','application/ld+json'].includes(type))continue;
       assert(type===undefined||['module','text/javascript','application/javascript'].includes(type));
       if(values.has('src')){
-        assert(!match[2].trim());const raw=values.get('src');assert(!/[&<>\s]/.test(raw));
+        assert(!script.source.trim());const raw=values.get('src');assert(!/[&<>\s]/.test(raw));
         const url=new URL(raw,PUBLISHED_ORIGIN+'/login');assert.equal(url.origin,PUBLISHED_ORIGIN);assert(allowedScriptPath(url.pathname)&&!url.username&&!url.password&&!url.search&&!url.hash);entries.push(url.href);
       }else{
-        assert(!/\bsrc\b/i.test(match[1]),'Ambiguous script source');const source=match[2];if(!source.trim())continue;
+        const source=script.source;if(!source.trim())continue;
         assert(Buffer.byteLength(source)<=262144);total+=Buffer.byteLength(source);
         const id=PUBLISHED_ORIGIN+'/__inline_'+createHash('sha256').update(source).digest('hex')+'.js';assert(!modules.has(id));modules.set(id,source);entries.push(id);
       }
@@ -174,7 +189,8 @@ async function loadPublishedAnalyzer(frontend){
   assert.equal(require('@supabase/supabase-js/package.json').version,'2.118.0','Frozen frontend SDK required');
   const entry=require.resolve('@supabase/supabase-js');const candidate=entry.replace(/index\.cjs$/, 'index.mjs');
   const original=readFileSync(candidate,'utf8');const transformed=compiler.minifySync('sdk-reference.js',original);assert(!transformed.errors?.length);
-  const analyzer=publishedAnalyzer(ts,transformed.code);analyzer.reference_sha256=createHash('sha256').update(original).digest('hex');analyzer.compiler_version='1.2.1';
+  const parser=createRequire(require.resolve('jsdom/package.json'))('parse5');validateHTMLParserFixtures(parser);
+  const analyzer=publishedAnalyzer(ts,transformed.code);analyzer.htmlEntries=html=>publicHTMLScripts(parser,html);analyzer.reference_sha256=createHash('sha256').update(original).digest('hex');analyzer.compiler_version='1.2.1';
   // Real parser positive/negative fixtures run in the canonical probe, never a mocked parser PASS.
   // Source remains inert, including the synthetic appended consumer calls.
   const referenceName=analyzer; // one parser instance with one frozen class identity
