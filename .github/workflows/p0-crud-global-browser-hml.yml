@@ -116,6 +116,12 @@ jobs:
           for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
               checks=api(be+'/commits/'+sha+'/check-runs')['check_runs']
               assert any(x['name']==name and x['head_sha']==sha and x['conclusion']=='success' for x in checks),name
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==sha,'Checkout HEAD mismatch'
+          auth=t['document_head_authorization']
+          assert (auth['task'],auth['phase'],auth['project'],auth['mode'])==(t['id'],t['phase'],'gklhhhyosgasnyoxlrui','EXACT_CHECKED_OUT_HEAD_AND_LIVE_MAIN'),'Manifest authorization mismatch'
+          assert auth['fixture_scope']=='OWN_NEW_NONCE_ONLY'
+          assert t['database_test_fixtures_allowed'] is True and t['storage_test_fixtures_allowed'] is True
+          assert auth['required_checks']==['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']
           front=t['crud_global_proof']['frontend_head'];assert len(front)==40
           # Public read, no cross-repository private token or privileged secret transfer.
           import urllib.request
@@ -150,14 +156,30 @@ jobs:
           env -u DATABASE_URL -u AUTH_ADMIN_KEY -u GH_TOKEN node supabase/tests/p0_crud_global_browser.mjs --public-probe
       - name: Real synthetic Auth browser and persisted effect
         env:
+          GH_TOKEN: ${{ github.token }}
           DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
           AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY || secrets.CONTAOS_HML_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           python3 - <<'PY'
-          import os,subprocess
-          p=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c',"select count(*) from supabase_migrations.schema_migrations where version='20261107094443'"],capture_output=True,text=True)
-          assert p.returncode==0 and p.stdout.strip()=='1','Migration parity gate failed'
+          import os,subprocess,pathlib,re,urllib.parse,json
+          sha=os.environ['TESTED_HEAD']
+          def api(path):
+              return json.loads(subprocess.check_output(['gh','api','repos/contaos999999/develop/'+path],text=True))
+          assert api('commits/main')['sha']==sha,'Live main changed before Auth'
+          checks=api('commits/'+sha+'/check-runs')['check_runs']
+          for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
+              assert any(x['name']==name and x['head_sha']==sha and x['conclusion']=='success' for x in checks),name
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==os.environ['TESTED_HEAD'],'Checkout HEAD mismatch'
+          url=urllib.parse.urlsplit(os.environ['DATABASE_URL'])
+          assert url.username=='postgres.gklhhhyosgasnyoxlrui' and url.hostname.endswith('.pooler.supabase.com'),'HML project mismatch'
+          local=[p.name.split('_',1)[0] for p in pathlib.Path('supabase/migrations').glob('*.sql')]
+          assert local and all(re.fullmatch('[0-9]{14}',v) for v in local) and len(local)==len(set(local)),'Invalid local migration versions'
+          p=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c','select version from supabase_migrations.schema_migrations order by version'],capture_output=True,text=True)
+          remote=p.stdout.splitlines()
+          assert p.returncode==0 and sorted(local)==remote and len(remote)==len(set(remote)),'Migration parity gate failed'
+          print('MIGRATION_VERSION_PARITY_EXACT',len(local))
           PY
+          unset GH_TOKEN
           python3 supabase/tests/p0_crud_global_hml.py
       - name: Independent own fixture quarantine retry
         if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''

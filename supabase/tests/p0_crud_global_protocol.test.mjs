@@ -1005,3 +1005,37 @@ test('concurrent Script stays paused until the real Document proof settles',asyn
     if(outcome!=='VALID')assert.equal(result.failed,true,outcome);
   }
 });
+
+test('material authorization binds current checkout, live HEAD and exact manifest before credentials',()=>{
+ const s=workflow(cases[0]);const gate=runs(job(s,'private-browser'))[0];
+ assert.match(gate,/git','rev-parse','HEAD/);
+ assert.match(gate,/document_head_authorization/);
+ assert.match(gate,/database_test_fixtures_allowed/);
+ assert.match(gate,/storage_test_fixtures_allowed/);
+ assert.match(s,/MIGRATION_VERSION_PARITY_EXACT/);
+ assert.match(s,/supabase\/migrations/);
+});
+test('material authorization executes exact HEAD, fixture and manifest negative cases before Auth',()=>fixture(dir=>{
+ const sha='a'.repeat(40);const names=['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias'];
+ const auth={task:cases[0].task,phase:cases[0].phase,project:'gklhhhyosgasnyoxlrui',mode:'EXACT_CHECKED_OUT_HEAD_AND_LIVE_MAIN',fixture_scope:'OWN_NEW_NONCE_ONLY',required_checks:names};
+ const base={id:cases[0].task,phase:cases[0].phase,database_test_fixtures_allowed:true,storage_test_fixtures_allowed:true,document_head_authorization:auth};
+ writeFileSync(join(dir,'bin/git'),'#!/bin/sh\nprintf "%s\\n" "$CHECKOUT_HEAD"\n');chmodSync(join(dir,'bin/git'),0o700);
+ writeFileSync(join(dir,'bin/gh'),`#!/usr/bin/env python3
+import os,json,sys
+print(json.dumps({'sha':os.environ['LIVE_HEAD']} if '/commits/main' in sys.argv[-1] else {'check_runs':[{'name':n,'head_sha':os.environ['CHECK_HEAD'],'conclusion':'success'} for n in ${JSON.stringify(names)}]}))
+`);chmodSync(join(dir,'bin/gh'),0o700);
+ const source=runs(job(workflow(cases[0]),'private-browser'))[0];const script=source.slice(0,source.indexOf("front=t['crud_global_proof']"))+"print('HEAD_AUTHORIZATION_PASS')\nPY\n";
+ const valid={TESTED_HEAD:sha,CHECKOUT_HEAD:sha,LIVE_HEAD:sha,CHECK_HEAD:sha};
+ for(const [delta,env,want] of [[{}, {},true],[{}, {CHECKOUT_HEAD:'b'.repeat(40)},false],[{}, {LIVE_HEAD:'b'.repeat(40)},false],[{}, {CHECK_HEAD:'b'.repeat(40)},false],[{database_test_fixtures_allowed:false},{},false],[{storage_test_fixtures_allowed:false},{},false],[{document_head_authorization:{...auth,project:'foreign'}},{},false],[{document_head_authorization:{...auth,required_checks:[]}},{},false],[{document_head_authorization:{...auth,fixture_scope:'FOREIGN'}},{},false]]){
+  taskfile(dir,{...base,...delta});const r=run(script,dir,{...valid,...env});assert.equal(r.status===0,want,r.stderr);assert.equal(r.stdout.includes('HEAD_AUTHORIZATION_PASS'),want);
+ }
+}));
+
+test('live HEAD and checks are revalidated after dependency install and public probe before Auth',()=>{
+ const material=job(workflow(cases[0]),'private-browser');
+ const proof=material.slice(material.indexOf('- name: Real synthetic Auth'));
+ assert.match(proof,/Live main changed before Auth/);
+ assert.match(proof,/commits\/main/);
+ assert.match(proof,/check-runs/);
+ assert.match(proof,/unset GH_TOKEN\n          python3 supabase\/tests\/p0_crud_global_hml.py/);
+});
