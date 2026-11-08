@@ -13,6 +13,11 @@ const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY') ?? ''
 const OPENAI_CHAT_MODEL = Deno.env.get('OPENAI_CHAT_MODEL') ?? 'gpt-4.1-mini'
 const MAX_FONTE_CHARS = 600
 const MAX_FONTE_COUNT = 8
+const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app','https://contaos-41-hml.vercel.app']
+const HEADERS_CORS=['authorization','x-client-info','apikey','content-type']
+function cabecalhosCors(origem:string|null,preflight=false){
+  return {'cache-control':'no-store','x-content-type-options':'nosniff','vary':preflight?'Origin, Access-Control-Request-Method, Access-Control-Request-Headers':'Origin',...(origem?{'access-control-allow-origin':origem}:{})}
+}
 
 // O modelo nunca recebe credenciais, UUIDs internos nem autoridade para alterar dados.
 async function sintetizarComOpenAI(pergunta:string, fontes:Array<{fonte_tipo:string;trecho:string;pagina:number|null}>, resumo:string):Promise<string|null>{
@@ -51,9 +56,14 @@ async function sintetizarComOpenAI(pergunta:string, fontes:Array<{fonte_tipo:str
     })
     if(!resp.ok) return null
     const json=await resp.json()
-    const saida=(json.output??[]).flatMap((item:any)=>item.type==='message'?(item.content??[]):[])
+    if(json.status!=='completed' || !Array.isArray(json.output)) return null
+    const mensagens=json.output.filter((item:any)=>item.type==='message')
+    if(mensagens.length===0 || mensagens.some((item:any)=>item.status!=='completed' || !Array.isArray(item.content) || item.content.some((part:any)=>part.type==='refusal'))) return null
+    const saida=json.output.flatMap((item:any)=>item.type==='message'?(item.content??[]):[])
       .filter((part:any)=>part.type==='output_text').map((part:any)=>String(part.text??'')).join('\n').trim()
     if(!saida || saida.length>6000) return null
+    const referencias=Array.from(saida.matchAll(/\bF(\d+)\b/g),m=>Number(m[1]))
+    if(referencias.length===0 || referencias.some(n=>!Number.isInteger(n)||n<1||n>evidencias.length)) return null
     return saida
   }catch{
     return null // fallback determinístico, sem afetar transações nem exposição de erro interno
@@ -61,9 +71,6 @@ async function sintetizarComOpenAI(pergunta:string, fontes:Array<{fonte_tipo:str
 }
 
 
-function respostaErro(status:number,codigo:string,titulo:string,mensagem:string,orientacao?:string){
-  return Response.json({ok:false,codigo,titulo,mensagem,orientacao:orientacao??null},{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
-}
 function dataBR(v:string|null|undefined){ if(!v) return null; const d=v.slice(0,10).split('-'); return d.length===3?`${d[2]}/${d[1]}/${d[0]}`:v }
 function classeDesfecho(v:string|null|undefined){ const s=(v??'').toLowerCase(); if(/aprov|aceit|favor|procedente para a organização|defer/.test(s)) return 'favoravel'; if(/rejeit|glosa|desfavor|improcedente|indefer/.test(s)) return 'desfavoravel'; return 'neutro' }
 async function lerJsonLimitado(req:Request,limite:number){
@@ -85,7 +92,20 @@ async function lerJsonLimitado(req:Request,limite:number){
 }
 
 Deno.serve(async(req:Request)=>{
+  const origem=req.headers.get('origin')
+  const origemPermitida=ORIGENS_CORS.includes(origem??'')
+  function respostaErro(status:number,codigo:string,titulo:string,mensagem:string,orientacao?:string){
+  return Response.json({ok:false,codigo,titulo,mensagem,orientacao:orientacao??null},{status,headers:{'content-type':'application/json; charset=utf-8',...cabecalhosCors(origemPermitida?origem:null)}})
+}
+  if(req.method==='OPTIONS'&&origem!==null){
+    const solicitados=req.headers.get('access-control-request-headers')
+    const headersPermitidos=solicitados===null||solicitados.split(',').every(h=>HEADERS_CORS.includes(h.trim().toLowerCase()))
+    const valido=origemPermitida&&req.headers.get('access-control-request-method')==='POST'&&headersPermitidos
+    return new Response(null,{status:valido?204:403,headers:{...cabecalhosCors(valido?origem:null,true),...(valido?{'access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':HEADERS_CORS.join(', ')}:{})}})
+  }
+
   if(req.method!=='POST') return respostaErro(405,'METODO_INVALIDO','Ação não permitida','Use uma solicitação POST para consultar o copiloto.')
+  if(origem!==null&&!origemPermitida) return respostaErro(403,'AUTH_ACESSO_NEGADO','Acesso não permitido','A origem da solicitação não é permitida.')
   const auth=req.headers.get('authorization')??''
   if(!auth) return respostaErro(401,'AUTH_ACESSO_NEGADO','Acesso não permitido','Sua sessão não foi identificada.','Entre novamente no ContaOS e repita a consulta.')
   const userClient=createClient(URL,ANON,{global:{headers:{Authorization:auth}},auth:{persistSession:false,autoRefreshToken:false}})
@@ -151,16 +171,17 @@ Deno.serve(async(req:Request)=>{
     for(const p of precedentes.slice(0,10)) fontes.push({fonte_tipo:'precedente',fonte_id:p.id,id_versao_documento:null,pagina:null,trecho:`Problema: ${p.problema}\nSolução: ${p.solucao??''}\nDesfecho: ${p.desfecho??''}`.slice(0,1200),score:Number(p.score_final??0),metadados:{escopo:p.escopo_resultado,id_contrato_origem:p.id_contrato_origem,competencia_origem:dataBR(p.competencia_origem),similaridade:p.similaridade,forca:p.forca_score,confirmacoes:p.confirmacoes,hierarquia_normativa:p.hierarquia_normativa}})
 
     const respostaIA=await sintetizarComOpenAI(pergunta, fontes, resumoDeterministico)
-    const conteudo=respostaIA ? `${respostaIA}\n\nResposta informativa, sujeita à revisão humana.` : resumoDeterministico
+    const conteudo=respostaIA ? `${resumoDeterministico}\n\n${respostaIA}\n\nResposta informativa, sujeita à revisão humana.` : resumoDeterministico
     const {data:ret,error:er}=await admin.from('retornos_modelo').insert({id_organizacao:contrato.id_organizacao,id_contrato:idContrato,id_consulta:consulta.id,provedor:respostaIA?'openai':'supabase',modelo:respostaIA?OPENAI_CHAT_MODEL:'gte-small-384+ranking-v4',prompt_versao:respostaIA?'copiloto-openai-rag-v1':'copiloto-temporal-pt-BR-v2',resposta:{conteudo,incerteza:incerta,conflito_historico:conflito,baixa_confianca:baixaConfianca,data_referencia:dataReferencia},uso_tokens:{},status:'concluido',fontes}).select('id').single()
     if(er||!ret) throw new Error(er?.message??'Falha ao registrar a resposta.')
     const {data:msg,error:em}=await admin.from('mensagens_copiloto').insert({id_organizacao:contrato.id_organizacao,id_contrato:idContrato,id_sessao:idSessao,papel:'assistente',conteudo,id_consulta_semantica:consulta.id,id_retorno_modelo:ret.id}).select('id').single()
     if(em||!msg) throw new Error(em?.message??'Falha ao registrar a mensagem.')
     if(fontes.length) await admin.from('fontes_resposta_copiloto').insert(fontes.map((f:any)=>({id_organizacao:contrato.id_organizacao,id_contrato:idContrato,id_mensagem:msg.id,...f})))
     await admin.from('consultas_semanticas').update({status:'concluida'}).eq('id',consulta.id)
-    return Response.json({ok:true,id_sessao:idSessao,id_consulta:consulta.id,id_mensagem:msg.id,resposta:conteudo,incerteza:incerta,conflito_historico:conflito,baixa_confianca:baixaConfianca,data_referencia:dataReferencia?dataBR(dataReferencia):null,fontes},{headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}})
+    return Response.json({ok:true,id_sessao:idSessao,id_consulta:consulta.id,id_mensagem:msg.id,resposta:conteudo,incerteza:incerta,conflito_historico:conflito,baixa_confianca:baixaConfianca,data_referencia:dataReferencia?dataBR(dataReferencia):null,fontes},{headers:{'content-type':'application/json; charset=utf-8',...cabecalhosCors(origemPermitida?origem:null)}})
   }catch(e){
     await admin.from('consultas_semanticas').update({status:'falhou'}).eq('id',consulta.id)
     return respostaErro(500,'COPILOTO_FALHOU','Não foi possível concluir a consulta','O copiloto encontrou um problema durante a recuperação das fontes. Nenhuma conclusão foi inventada.','Tente novamente ou encaminhe a análise para revisão humana.')
   }
 })
+

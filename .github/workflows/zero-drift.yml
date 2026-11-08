@@ -36,7 +36,7 @@ jobs:
         run: node scripts/ai-context-gate.mjs
       - name: Zero-Drift
         run: node scripts/zero-drift-check.mjs
-      - name: Trilha C — contrato estático OpenAI Edge
+      - name: Trilha C — contrato e runtime OpenAI Edge
         run: node --test supabase/tests/copilot_openai_contract.test.mjs
       - name: Prompt Crosswalk — regular 00–99 x atômico 000–096
         run: node scripts/prompt-crosswalk-gate.mjs

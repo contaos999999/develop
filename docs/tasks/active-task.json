@@ -6,7 +6,7 @@
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex Trilha B, contexto canônico integral e checkpoint165/HEAD87c18599; correção solicitada expressamente pelo titular",
+  "context_read_by": "Codex Trilha C: 25 canônicos00-20, AGENTS, prioridade P0, manifesto/fingerprint e PLAN179 integralmente lidos em08/11/2026",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -2046,5 +2046,23 @@
     "archive": "docs/tasks/archive/C-CHAT-001-PLAN-20261108_snapshot.json",
     "source_pr": 179,
     "source_merge": "7d83f046c282051baeeeab6b4f61e0ad8bd0cef6"
+  },
+  "copilot_runtime_validation": {
+    "state": "PASS_LOCAL_HML_NOT_CERTIFIED",
+    "red": {
+      "tests": 34,
+      "passed": 15,
+      "failed": 19
+    },
+    "green": {
+      "tests": 34,
+      "passed": 34,
+      "failed": 0
+    },
+    "runtime": "Node24.22.1 stripTypeScriptTypes, handler real, fronteiras externas substituídas; sem dependências novas",
+    "no_deploy": true,
+    "verify_jwt_unchanged": true,
+    "material_rag_security": "IMPORTANT_BLOQUEIA_CERTIFICACAO_E_DEPLOY_OPENAI: RPC0033 sem filtro segurança/processamento arquivo; gate documental obrigatório",
+    "hml_authenticated_proof": "PENDENTE_PLAN_GATE_RUNNER_SEPARADO"
   }
 }
