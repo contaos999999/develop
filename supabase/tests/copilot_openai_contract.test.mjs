@@ -40,7 +40,7 @@ const evil='https://untrusted.invalid';
 function runtime(options={}) {
   const calls=[]; let handler;
   const fragment={id:'fragment',id_versao_documento:'version',pagina_inicio:2,pagina_fim:2,texto:'Obrigação documental válida.',similaridade:0.8,fonte_temporal:'documento_contratual_ou_evidencia'};
-  const precedent={id:'precedent',id_contrato_origem:'contract',competencia_origem:'2026-10-01',problema:'Documentação',solucao:'Apresentada',desfecho:'rejeitado',score_final:0.8,similaridade:0.8,escopo_resultado:'MESMO CONTRATO'};
+  const precedent={id:'precedent',id_contrato_origem:'contract',competencia_origem:'2026-10-01',problema:'Documentação',solucao:'Apresentada',desfecho:options.conflictNegative??'rejeitado',score_final:0.8,similaridade:0.8,escopo_resultado:'MESMO CONTRATO'};
   function client(admin=false) {
     return {
       auth:{getUser:async()=>{calls.push(['auth']);if(options.pauseAuth) await options.pauseAuth;return {data:{user:options.invalidAuth?null:{id:'synthetic-user'}},error:options.invalidAuth?{}:null};}},
@@ -97,3 +97,5 @@ for(const output of [
 ]) test(`runtime saída insegura usa fallback ${JSON.stringify(output).slice(0,95)}`,async()=>{const r=runtime({output});const response=await r.handler(r.request());assert.equal(response.status,200);const body=await response.json();assert.match(body.resposta,/Pergunta analisada no contrato/);assert.doesNotMatch(body.resposta,/interrompida|inexistente|sem qualquer citação/);});
 test('runtime síntese não oculta conflito determinístico',async()=>{const r=runtime({conflict:true});const response=await r.handler(r.request());const body=await response.json();assert.equal(body.conflito_historico,true);assert.match(body.resposta,/desfechos divergentes/);assert.match(body.resposta,/revisão humana/);});
 test('runtime requisições concorrentes não compartilham origem CORS',async()=>{let release;const paused=new Promise(resolve=>{release=resolve;});const r=runtime({pauseAuth:paused});const allowed=r.handler(r.request());const pendingDenied=r.handler(r.request('POST',evil));release();const denied=await pendingDenied;const response=await allowed;assert.equal(denied.headers.get('access-control-allow-origin'),null);cors(response,ORIGINS[2]);});
+
+for(const desfecho of ['desfavorável','desfavoravel','indeferido','improcedente']) test(`runtime conflito com aprovado e ${desfecho} exige revisão humana`,async()=>{const r=runtime({conflict:true,conflictNegative:desfecho});const response=await r.handler(r.request());const body=await response.json();assert.equal(body.conflito_historico,true);assert.equal(body.incerteza,true);assert.match(body.resposta,/desfechos divergentes/);assert.match(body.resposta,/revisão humana/);});

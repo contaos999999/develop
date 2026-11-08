@@ -72,7 +72,13 @@ async function sintetizarComOpenAI(pergunta:string, fontes:Array<{fonte_tipo:str
 
 
 function dataBR(v:string|null|undefined){ if(!v) return null; const d=v.slice(0,10).split('-'); return d.length===3?`${d[2]}/${d[1]}/${d[0]}`:v }
-function classeDesfecho(v:string|null|undefined){ const s=(v??'').toLowerCase(); if(/aprov|aceit|favor|procedente para a organização|defer/.test(s)) return 'favoravel'; if(/rejeit|glosa|desfavor|improcedente|indefer/.test(s)) return 'desfavoravel'; return 'neutro' }
+function classeDesfecho(v:string|null|undefined){
+  const s=(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+  if(/\b(?:rejeitado|rejeitada|glosa|glosado|glosada|desfavoravel|desfavoraveis|improcedente|improcedentes|indeferido|indeferida)\b/.test(s)) return 'desfavoravel'
+  if(/\bnao\s+(?:aprovado|aprovada|aceito|aceita|deferido|deferida)\b/.test(s)) return 'desfavoravel'
+  if(/\b(?:aprovado|aprovada|aceito|aceita|favoravel|favoraveis|deferido|deferida)\b|\bprocedente para a organizacao\b/.test(s)) return 'favoravel'
+  return 'neutro'
+}
 async function lerJsonLimitado(req:Request,limite:number){
   const informado=Number(req.headers.get('content-length')??0)
   if(Number.isFinite(informado)&&informado>limite) throw new Error('PAYLOAD_GRANDE')
