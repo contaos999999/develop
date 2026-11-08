@@ -74,6 +74,11 @@ def no_ipv6_route():
             row=line.split();address=ipaddress.IPv6Address(int(row[0],16))
             if filename=='if_inet6':require(address.is_loopback or address.is_link_local,'Global IPv6 address forbidden')
             elif row[-1]!='lo':require(int(row[1],16)>0 and (address.is_link_local or address.is_multicast),'Global/default IPv6 route forbidden')
+def validate_tcp_controls(positive_code,negative_code,drop_packets,receiver_connections):
+    return all(type(v) is int for v in (positive_code,negative_code,drop_packets,receiver_connections)) and positive_code==0 and negative_code==2 and drop_packets>0 and receiver_connections==0
+def tcp_probe(address,port):
+    # PQping/pg_isready sends no password. Clear inherited connection credentials.
+    return capture(['docker','exec','-e','PGUSER=contaos_native_probe','-e','PGDATABASE=contaos_native_probe','-e','PGPASSWORD=','-e','PGPASSFILE=/dev/null','-e','PGSERVICE=',container,'pg_isready','-h',address,'-p',str(port),'-t','3','-q'])
 def native_proof(subnets):
     c=existing_container();require(c is not None,'Local Postgres container required');sole_network(c)
     firewall(subnets);no_ipv6_route()
@@ -101,15 +106,14 @@ def native_proof(subnets):
         before_tcp=dropped()
         database_port=local_sql('show port;')
         require(re.fullmatch(r'[0-9]+',database_port) and 1<=int(database_port)<=65535,'Actual local Postgres TCP port required')
-        script='''command -v timeout >/dev/null || exit 90
-timeout 3 bash -c 'exec 3<>/dev/tcp/127.0.0.1/"$1"' proof "$3" >/dev/null 2>&1 || exit 91
-timeout 3 bash -c 'exec 3<>/dev/tcp/"$1"/"$2"' proof "$1" "$2" >/dev/null 2>&1
-code=$?
-case "$code" in 1|124) exit 0;; *) exit 92;; esac'''
-        p=capture(['docker','exec',container,'bash','-c',script,'proof',address,str(port),database_port])
-        diagnostic={'class':{0:'NATIVE_TCP_CONTROLS_OK',90:'TIMEOUT_TOOL_MISSING',91:'LOCAL_POSTGRES_TCP_POSITIVE_FAILED',92:'EXTERNAL_TCP_NOT_DENIED'}.get(p.returncode,'DOCKER_OR_UNKNOWN_FAILURE'),'drop_packets_delta':dropped()-before_tcp,'controlled_receiver_connections':len(accepted)-1}
+        positive_tcp=tcp_probe('127.0.0.1',database_port)
+        require(positive_tcp.returncode==0,'Local Postgres pg_isready positive or tool failed')
+        p=tcp_probe(address,port)
+        delta=dropped()-before_tcp;received=len(accepted)-1
+        valid=validate_tcp_controls(positive_tcp.returncode,p.returncode,delta,received)
+        diagnostic={'class':'NATIVE_TCP_CONTROLS_OK' if valid else 'NATIVE_TCP_STATUS_OR_EVIDENCE_INVALID','positive_status':positive_tcp.returncode,'negative_status':p.returncode,'drop_packets_delta':delta,'controlled_receiver_connections':received}
         print('LOCAL_TCP_CONTROL_DIAGNOSTIC '+json.dumps(diagnostic),flush=True)
-        require(p.returncode==0,'Native TCP control failed: '+diagnostic['class'])
+        require(valid,'Native TCP control failed: '+diagnostic['class'])
         tcp_delta=dropped()-before_tcp;require(tcp_delta>0,'TCP failure without native DROP is not proof')
         pg_net_state='NOT_INSTALLED_BEFORE_RESET';pg_net_delta=None
         installed=local_sql("select exists(select 1 from pg_extension where extname='pg_net');")=='t'

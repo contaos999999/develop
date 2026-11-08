@@ -1383,8 +1383,8 @@
     },
     "build_validation": {
       "state": "PENDENTE_REVISAO_CI_REANCORADO_G156",
-      "local_node_tests": 327,
-      "local_protocol_tests": 68,
+      "local_node_tests": 328,
+      "local_protocol_tests": 69,
       "red_before_runtime_implementation": "63PASS2FAIL",
       "native_helper_baseline_red": "1FAIL missing helper against GATE source",
       "preflight_live_hml_original": {
@@ -1399,7 +1399,9 @@
       "material_fixtures_created": 0,
       "backup_post_start_cleanup_red": "1FAIL STARTED without CLEANUP_ATTEMPT; flag moved before both starts, GREEN real orchestration regression",
       "firewall_bootstrap_red": "1FAIL no KERNEL -S INPUT on 0f36a helper; valid native-policy bootstrap reaches CLI only after rule checks; divergent policy rejected",
-      "tcp_control_port": "READ_ACTUAL_LOCAL_POSTGRES_SHOW_PORT_STRICT_INTEGER"
+      "tcp_control_port": "READ_ACTUAL_LOCAL_POSTGRES_SHOW_PORT_STRICT_INTEGER",
+      "native_tcp_tool": "Postgres pg_isready/PQping: local0,negative2 only plus DROPdelta>0/receiver0, no password; all other statuses fail",
+      "status_guard_red": "1FAIL missing actual validator then green; rejects ambiguous/tool statuses and missing packet/receiver proof"
     },
     "first_build_failure": {
       "head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
@@ -1420,6 +1422,17 @@
       "sha256": "db9a2be04c4e0ba829c931d438c89bbc29350e2e6cfca9f9c3f66916e5253a09",
       "no_hml_mutation": true,
       "exact_cause": "UNCLASSIFIED_NOT_PRESUMED"
+    },
+    "third_build_failure": {
+      "head": "3fa747ab35911b298d7cad6dfea4ed4c04a3aba2",
+      "restore": 42454969255,
+      "state": "FAIL_NATIVE_TCP_WRAPPER_UNRECOGNIZED_STATUS",
+      "drop_packets_delta": 3,
+      "controlled_receiver_connections": 0,
+      "exact_inner_status": "NOT_EXPOSED_NOT_PRESUMED",
+      "backup_artifact": 13607665188,
+      "sha256": "5d51599618f0ca52d2cf943403c0deb0fa844e5966aefde2916ad58de2a36a03",
+      "no_hml_mutation": true
     }
   }
 }

@@ -89,6 +89,15 @@ json.dump(state,open(path,'w'))
   const bad=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env,encoding:'utf8',timeout:10000});assert.notEqual(bad.status,0);assert(!readFileSync(join(dir,'lifecycle'),'utf8').includes('SUPABASE_START'),'divergent existing policy cannot be overwritten or bypassed');
  }finally{rmSync(dir,{recursive:true,force:true});}
 });
+test('native TCP control rejects tool errors, ambiguous status and missing packet or receiver proof',()=>{
+ const source=String.raw`import ast,pathlib
+s=pathlib.Path('scripts/isolated-db-network.sh').read_text().split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0]
+tree=ast.parse(s);f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='validate_tcp_controls');ns={};exec(compile(ast.Module(body=[f],type_ignores=[]),'<real-native-validator>','exec'),ns);v=ns['validate_tcp_controls']
+assert v(0,2,3,0) is True
+for args in [(2,2,3,0),(0,0,3,0),(0,1,3,0),(0,3,3,0),(0,127,3,0),(0,143,3,0),(0,2,0,0),(0,2,3,1),(False,2,3,0),(0,'2',3,0)]:assert v(*args) is False,args
+print('NATIVE_TCP_STATUS_GUARD_PASS')`;
+ const r=spawnSync('python3',['-c',source],{env:{PATH:process.env.PATH},encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/NATIVE_TCP_STATUS_GUARD_PASS/);
+});
 test('actual backup cleanup covers a helper failure after the local database starts',()=>{
  const dir=mkdtempSync(join(tmpdir(),'contaos-backup-start-fail-'));
  try{
