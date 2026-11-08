@@ -1045,3 +1045,69 @@ test('document filter submits draft through exact own form before checking two l
  await m.applyDocumentTitleFilter({getByRole(role,opt){assert.equal(role,'form');assert.deepEqual(opt,{name:'Filtros',exact:true});return form;}},'Own local ');
  assert.deepEqual(calls,[['draft','Own local '],['submit']]);
 });
+test('independent visual record keeps FAIL assertion without aborting backend isolation',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.recordDocumentVisualAssertion,'function');
+ const report={assertions:[]};m.recordDocumentVisualAssertion(report,'DOCUMENT_ACCESSIBILITY_1440_DARK',false);
+ assert.deepEqual(report.assertions,[{name:'DOCUMENT_ACCESSIBILITY_1440_DARK',pass:false}]);assert.deepEqual(report.document_visual_failures,['DOCUMENT_ACCESSIBILITY_1440_DARK']);
+ assert.throws(()=>m.recordDocumentVisualAssertion(report,'DOCUMENT_REVOKED_MUTATION_DENIED',false));
+ const s=readFileSync(browser,'utf8');assert(s.indexOf("report.document_backend_state='PASS_BROWSER_PENDING_SQL'")>s.indexOf("check('DOCUMENT_OTHER_TENANT_READ_DOWNLOAD_DENIED'"));assert.match(s,/DOCUMENT_VISUAL_AUDIT_FAILED/);
+});
+test('SQL confirmation accepts only complete backend receipt and retains nonzero visual failure',()=>{
+ const code=`import importlib.util
+s=importlib.util.spec_from_file_location('proof','supabase/tests/p0_crud_global_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+assert hasattr(m,'document_backend_receipt_ready')
+names={'DOCUMENT_REVOKED_SESSION_STILL_AUTHENTICATED','DOCUMENT_REVOKED_MUTATION_DENIED','DOCUMENT_REVOKED_DOWNLOAD_DENIED','DOCUMENT_REVOKED_READ_DENIED','DOCUMENT_MASTER_READ','DOCUMENT_LEITOR_VERSION_DENIED','DOCUMENT_LEITOR_UPLOAD_DENIED','DOCUMENT_READER_READ_ALLOWED','DOCUMENT_USUARIO_B_VERSION_DENIED','DOCUMENT_USUARIO_B_UPLOAD_DENIED','DOCUMENT_OTHER_TENANT_READ_DOWNLOAD_DENIED','NO_RUNTIME_ERRORS'}
+r={'backend_head':'a'*40,'state':'FAIL','failure_code':'DOCUMENT_VISUAL_AUDIT_FAILED','document_backend_state':'PASS_BROWSER_PENDING_SQL','browser_finalization':'CLOSED_AND_DRAINED','runtime_errors':[],'assertions':[{'name':n,'pass':True} for n in names]+[{'name':'DOCUMENT_ACCESSIBILITY_1440_DARK','pass':False}]}
+assert m.document_backend_receipt_ready(r,'a'*40)
+for key,value in [('backend_head','b'*40),('failure_code','FENCE_LATE_PUBLISHED_FAILURE'),('document_backend_state','RUNNING'),('runtime_errors',[{'name':'Error'}]),('state','PASS_BATCH'),('browser_finalization',None),('browser_finalization','RUNNING')]:
+ bad={**r,key:value};assert not m.document_backend_receipt_ready(bad,'a'*40),key
+for name in names:
+ bad={**r,'assertions':[a for a in r['assertions'] if a['name']!=name]};assert not m.document_backend_receipt_ready(bad,'a'*40),name
+bad={**r,'assertions':r['assertions']+[{'name':'DOCUMENT_TRANSFER_STAGE_0','pass':False}]};assert not m.document_backend_receipt_ready(bad,'a'*40)
+print('INDEPENDENT_BACKEND_RECEIPT_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/INDEPENDENT_BACKEND_RECEIPT_PASS/);
+ const source=readFileSync('supabase/tests/p0_crud_global_hml.py','utf8');assert(source.indexOf("r.report['backend_state']='PASS_SCOPE_SQL_CONFIRMED'")<source.indexOf("r.check('REAL_BROWSER_BATCH',returncode==0)"));
+});
+test('main independently verifies SQL on visual-only failure yet returns failure and cleans up',()=>{
+ const code=`import importlib.util,tempfile,pathlib,json,sys
+s=importlib.util.spec_from_file_location('proof','supabase/tests/p0_crud_global_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+names={'DOCUMENT_REVOKED_SESSION_STILL_AUTHENTICATED','DOCUMENT_REVOKED_MUTATION_DENIED','DOCUMENT_REVOKED_DOWNLOAD_DENIED','DOCUMENT_REVOKED_READ_DENIED','DOCUMENT_MASTER_READ','DOCUMENT_LEITOR_VERSION_DENIED','DOCUMENT_LEITOR_UPLOAD_DENIED','DOCUMENT_READER_READ_ALLOWED','DOCUMENT_USUARIO_B_VERSION_DENIED','DOCUMENT_USUARIO_B_UPLOAD_DENIED','DOCUMENT_OTHER_TENANT_READ_DOWNLOAD_DENIED','NO_RUNTIME_ERRORS'}
+with tempfile.TemporaryDirectory() as d:
+ root=pathlib.Path(d);(root/'public-browser').mkdir()
+ receipt={'backend_head':'a'*40,'state':'FAIL','failure_code':'DOCUMENT_VISUAL_AUDIT_FAILED','document_backend_state':'PASS_BROWSER_PENDING_SQL','browser_finalization':'CLOSED_AND_DRAINED','runtime_errors':[],'assertions':[{'name':n,'pass':True} for n in names]+[{'name':'DOCUMENT_ACCESSIBILITY_1440_DARK','pass':False}]}
+ class Fake:
+  def __init__(self,env):self.root=root;self.batch='DOCUMENTOS';self.env={'TESTED_HEAD':'a'*40};self.report={};self.calls=[];instances.append(self)
+  def prepare(self):self.calls.append('prepare')
+  def run_browser(self):return 1
+  def verify(self):self.calls.append('verify')
+  def check(self,name,passed):
+   self.calls.append(name)
+   if not passed:raise RuntimeError('Expected visual failure')
+  def cleanup(self):self.calls.append('cleanup')
+  def save(self,*a):pass
+ m.Runner=Fake;sys.argv=['proof'];instances=[]
+ for failure in ['DOCUMENT_VISUAL_AUDIT_FAILED','FENCE_LATE_PUBLISHED_FAILURE']:
+  receipt['failure_code']=failure;(root/'public-browser/report.json').write_text(json.dumps(receipt))
+  assert m.main()==1
+  r=instances[-1];assert r.report['state']=='FAIL' and r.calls[-1]=='cleanup'
+  assert ('verify' in r.calls)==(failure=='DOCUMENT_VISUAL_AUDIT_FAILED')
+  assert (r.report.get('backend_state')=='PASS_SCOPE_SQL_CONFIRMED')==(failure=='DOCUMENT_VISUAL_AUDIT_FAILED')
+print('VISUAL_FAILURE_NEVER_GLOBAL_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/VISUAL_FAILURE_NEVER_GLOBAL_PASS/);
+});
+test('real browser finalization marks receipt only after close, proxy drain and finalizers',async()=>{
+ const source=readFileSync(browser,'utf8');const start=source.indexOf('finally{let closed=false,drained=false;');assert(start>=0);const end=source.indexOf('\n}\nif(process.argv[1]',start);assert(end>start);const final=source.slice(start,end);
+ for(const fail of [null,'stop','drain','finalize']){
+  const report={},order=[],saved=[];const context={report,browser:{},server:{},process:{exitCode:0},stop:async()=>{order.push('stop');if(fail==='stop')throw Error('close failed');},nativeDeny:{close:async()=>{order.push('drain');if(fail==='drain')throw Error('drain failed');}},publishedFinalizers:[()=>{order.push('finalize');if(fail==='finalize')throw Error('finalizer failed');return false;}],finalizeUnexpectedBrowserWorker:()=>false,save:()=>saved.push({...report}),finalizePublishedFence:()=>{throw Error('Unexpected late failure');}};
+  const p=vm.runInNewContext('(async()=>{try{}'+final+'})()',context);
+  if(fail)await assert.rejects(p);else await p;
+  assert.equal(report.browser_finalization==='CLOSED_AND_DRAINED',fail===null);
+  assert.deepEqual(order,['stop','drain','finalize']);
+  if(saved.length)assert.equal(saved.at(-1).browser_finalization==='CLOSED_AND_DRAINED',fail===null);
+ }
+});
+test('document visual sampling waits finite transitions without disabling animations or axe',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.waitForDocumentVisualStability,'function');let calls=0;
+ await m.waitForDocumentVisualStability({waitForFunction:async(fn,arg,options)=>{calls++;assert.equal(options.timeout,5000);const source=fn.toString();assert.match(source,/getAnimations/);const predicate=vm.runInNewContext('('+source+')',{document:{getAnimations:()=>[{playState:'running',effect:{getTiming:()=>({iterations:1})}}]}});assert.equal(predicate(),false);const done=vm.runInNewContext('('+source+')',{document:{getAnimations:()=>[{playState:'finished',effect:{getTiming:()=>({iterations:1})}}]}});assert.equal(done(),true);}});assert.equal(calls,1);
+ const s=readFileSync(browser,'utf8');const start=s.indexOf("stage('DOCUMENT_VISUAL_'");assert(start>=0);const end=s.indexOf("stage('DOCUMENT_REVOKE_AUTHORIZED_SESSION')",start);const loop=s.slice(start,end);assert(loop.indexOf('await waitForDocumentVisualStability(ap)')<loop.indexOf('window.axe.run'));
+});

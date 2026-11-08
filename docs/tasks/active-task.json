@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Corrigir submissão do filtro documental após cinco uploads reais",
+  "title": "Concluir provas backend independentes preservando FAIL visual",
   "status": "ativa",
   "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
@@ -40,6 +40,7 @@
     "docs/tasks/active-task.json",
     "docs/backend/P0_DOCUMENT_HEAD_AUTHORIZATION_2026-11-08.md",
     "supabase/tests/p0_crud_global_browser.mjs",
+    "supabase/tests/p0_crud_global_hml.py",
     "supabase/tests/p0_crud_global_protocol.test.mjs"
   ],
   "forbidden_paths": [
@@ -1791,6 +1792,18 @@
       "nonce": "7a98911bd10743a09536af3cb684b86b",
       "cleanup": "QUARENTENA_VERIFICADA",
       "root_cause": "Harness filled draft filter without submitting Aplicar filtros; expected2 local rows while all3 documents remain visible"
+    },
+    "visual_blocker": {
+      "run": 42500742625,
+      "head": "6121798c961a91df8c8e9275966ff3b439766a55",
+      "artifact": 13624574567,
+      "sha256": "c52ddb36bccbdc435d9f46545759bef0251208d9e884feba828d278757ebe140",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "nodes": 3,
+      "stage": "DOCUMENT_VISUAL_1440_DARK",
+      "global_pass": false,
+      "frontend_changes_forbidden": true
     }
   }
 }
