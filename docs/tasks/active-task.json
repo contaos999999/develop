@@ -50,7 +50,9 @@
     "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
     "supabase/migrations/20261108053000_fix_upload_extension_extraction.sql",
     "supabase/tests/hml_acceptance.sql",
-    "supabase/tests/upload_extension.test.mjs"
+    "supabase/tests/upload_extension.test.mjs",
+    "supabase/migrations/20261108054500_fix_document_upload_wrapper.sql",
+    "supabase/tests/upload_document_wrapper.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -58,7 +60,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
@@ -1247,7 +1249,7 @@
     "gate_ci": 42450339687
   },
   "upload_document_wrapper_gate": {
-    "phase": "GATE",
+    "phase": "BUILD",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
     "authorization": "Titular determinou resolver upload e autorizou correções necessárias no HML; preservar autorização material backend",
     "future_build_paths": [
@@ -1257,9 +1259,12 @@
       "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
       "docs/tasks/active-task.json"
     ],
-    "database_changes_allowed": false,
+    "database_changes_allowed": true,
     "rls_changes_allowed": false,
     "auth_configuration_changes_allowed": false,
-    "prod": false
+    "prod": false,
+    "gate_pr": 149,
+    "gate_merge": "7406e9c187ddb9c788e0b80258d470ec5451ce50",
+    "gate_ci": 42450959313
   }
 }
