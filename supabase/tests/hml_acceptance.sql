@@ -193,5 +193,59 @@ begin
 end;
 $upload_extension_test$;
 
+-- Verify the public delegate without opening private EXECUTE or bypassing RBAC.
+insert into contaos_testes
+select 'UPLOAD_WRAPPER','Entrada pública delega com owner/search_path/corpo preservados',
+ p.prosecdef and pg_get_userbyid(p.proowner)='postgres' and p.proconfig=array['search_path=""']::text[]
+ and md5(p.prosrc)='76a15744ab7c8e4e2fb11f3e6477e661'
+ and has_function_privilege('authenticated',p.oid,'EXECUTE')
+ and not has_function_privilege('anon',p.oid,'EXECUTE'),'catálogo público'
+from pg_proc p where p.oid='public.criar_documento_contrato_completo(uuid,text,text,text,date,date,text,uuid,text)'::regprocedure;
+insert into contaos_testes
+select 'UPLOAD_WRAPPER','Privada permanece fechada com corpo preservado',
+ p.prosecdef and pg_get_userbyid(p.proowner)='postgres' and p.proconfig=array['search_path=""']::text[]
+ and md5(p.prosrc)='4bd3d0edebe2522b9ced4e1d6c482e9d'
+ and not has_function_privilege('authenticated',p.oid,'EXECUTE')
+ and not has_function_privilege('anon',p.oid,'EXECUTE'),'catálogo privado'
+from pg_proc p where p.oid='privado.criar_documento_contrato_v111(uuid,text,text,text,date,date,text,uuid,text)'::regprocedure;
+create temporary table wrapper_counts as select array[
+ (select count(*) from public.documentos_contrato),
+ (select count(*) from public.versoes_documento),
+ (select count(*) from public.comandos_idempotentes),
+ (select count(*) from public.execucoes_assincronas),
+ (select count(*) from public.eventos_auditoria)] as counts;
+create or replace function pg_temp.wrapper_upload_negado()
+returns boolean language plpgsql security invoker set search_path='' as $$
+begin
+ perform public.criar_documento_contrato_completo('aaaaaaaa-1000-4000-8000-000000000001','outro','Teste negativo',null,null,null,null,null,'upload-wrapper-negative');
+ return false;
+exception when others then
+ return sqlstate='42501' and sqlerrm='Você não tem permissão para realizar esta operação.';
+end;$$;
+grant execute on function pg_temp.wrapper_upload_negado() to authenticated;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','',true);
+select set_config('request.jwt.claims','{}',true);
+insert into contaos_testes values('UPLOAD_WRAPPER','Sem sessão chega à recusa RBAC',pg_temp.wrapper_upload_negado(),'negação material exata');
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"00000000-0000-4000-8000-000000000000","aal":"aal1"}',true);
+insert into contaos_testes values('UPLOAD_WRAPPER','Sessão inexistente negada',pg_temp.wrapper_upload_negado(),'negação material exata');
+select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated","session_id":"bbbbbbbb-2222-4222-8222-222222222222","aal":"aal1"}',true);
+insert into contaos_testes values('UPLOAD_WRAPPER','Organização B não cria em A',pg_temp.wrapper_upload_negado(),'negação material exata');
+select set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
+select set_config('request.jwt.claims','{"sub":"33333333-3333-4333-8333-333333333333","role":"authenticated","session_id":"cccccccc-3333-4333-8333-333333333333","aal":"aal1"}',true);
+insert into contaos_testes values('UPLOAD_WRAPPER','Leitor não cria documentos',pg_temp.wrapper_upload_negado(),'negação material exata');
+reset role;
+select set_config('request.jwt.claim.sub','',true);
+select set_config('request.jwt.claims','{}',true);
+insert into contaos_testes
+select 'UPLOAD_WRAPPER','Negativas sem efeitos persistidos',counts=array[
+ (select count(*) from public.documentos_contrato),
+ (select count(*) from public.versoes_documento),
+ (select count(*) from public.comandos_idempotentes),
+ (select count(*) from public.execucoes_assincronas),
+ (select count(*) from public.eventos_auditoria)],'cinco tabelas sem delta' from wrapper_counts;
+
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;
