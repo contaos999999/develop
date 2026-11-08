@@ -156,7 +156,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   assert(proof?.modules instanceof Map&&proof.modules.size>0);assert.equal(typeof allowed,'function');
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
-  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,failureProtocol=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0,workerWaiting=0,workerRuntimeResumes=0;
+  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,failureProtocol=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0,workerWaiting=0,workerRuntimeResumes=0,cspDocumentsContinued=0,cspDocumentsObserved=0;
   const active=new Set();
   const fail=error=>{failed=true;if(!failureProtocol&&Number.isInteger(error?.protocol_code))failureProtocol={code:error.protocol_code,reason:error.protocol_reason};if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
@@ -177,11 +177,12 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
       }
       validatePublishedResponse(proof,{url,resourceType,status:event.responseStatusCode,body});
       if(resourceType==='Script')verifiedScripts++;if(resourceType==='Document'&&new URL(url).origin===proof.origin)verifiedDocuments++;
-      await send(session,'Fetch.continueResponse',nativeDocumentWorkerPolicy(event,proof.origin)??{requestId});
+      const documentPolicy=nativeDocumentWorkerPolicy(event,proof.origin);await send(session,'Fetch.continueResponse',documentPolicy??{requestId});if(documentPolicy)cspDocumentsContinued++;
     }catch(error){await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
   }
   function message(session,data){
-    if(data.method==='Page.windowOpen'){if(!expectedPopup(data.params.url))fail({code:'FENCE_UNEXPECTED_POPUP'});}
+    if(data.method==='Network.responseReceived'&&data.params.type==='Document'&&new URL(data.params.response.url).origin===proof.origin){if(Object.entries(data.params.response.headers).some(([name,value])=>name.toLowerCase()==='content-security-policy'&&String(value).split('\n').some(policy=>policy.trim()==="worker-src 'none'")))cspDocumentsObserved++;}
+    else if(data.method==='Page.windowOpen'){if(!expectedPopup(data.params.url))fail({code:'FENCE_UNEXPECTED_POPUP'});}
     else if(data.method==='Audits.issueAdded'&&data.params.issue?.code==='ContentSecurityPolicyIssue'){const detail=data.params.issue.details?.contentSecurityPolicyIssueDetails;if(detail?.violatedDirective?.split(/\s/)[0]==='worker-src'&&detail.isReportOnly===false)fail({code:'FENCE_BROWSER_WORKER_CSP_VIOLATION'});}
     else if(data.method==='Fetch.requestPaused')track(paused(session,data.params));
     else if(data.method==='Target.attachedToTarget')attach(session,data.params);
@@ -213,7 +214,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   for(let i=0;!configured.has(initialTarget)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
   assert(configured.has(initialTarget),'Initial published target was not intercepted');await configured.get(initialTarget);assert(!failed);
   context.on('close',()=>{closed=true;root.close();});
-  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,worker_waiting:workerWaiting,worker_runtime_resumes:workerRuntimeResumes,protocol_failure:failureProtocol,failure_code:failureCode,failed})};
+  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,worker_waiting:workerWaiting,worker_runtime_resumes:workerRuntimeResumes,csp_documents_continued:cspDocumentsContinued,csp_documents_observed:cspDocumentsObserved,protocol_failure:failureProtocol,failure_code:failureCode,failed})};
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=()=>{}){
@@ -263,7 +264,7 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=
     for(const kind of ['HTTP','BLOB','DATA']){onPhase('WORKER_DENY_'+kind);await fixture(async({page,fence})=>{
       await page.goto(own+'/login');fence.assertSafe();const before=counters.worker_scripts;
       const start=await page.evaluate(({kind,source})=>{try{const url=kind==='HTTP'?'/worker.js':(kind==='BLOB'?URL.createObjectURL(new Blob([source],{type:'text/javascript'})):'data:text/javascript;charset=utf-8,'+encodeURIComponent(source));globalThis.ownFenceWorker=new Worker(url);return {created:true,error:null};}catch(error){return {created:false,error:['SecurityError','TypeError','SyntaxError','ReferenceError'].includes(error.name)?error.name:'Other'};}},{kind,source:workerPayload}).catch(()=>({created:null,error:'CONTEXT_CLOSED'}));
-      for(let i=0;!fence.snapshot().failed&&start.created!==false&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));const state=fence.snapshot();onEvidence({phase:'WORKER_DENY_'+kind,worker_created:start.created,worker_error:start.error,worker_waiting:state.worker_waiting,worker_runtime_resumes:state.worker_runtime_resumes,bootstrap_requests:counters.worker_scripts-before,worker_start_requests:counters.worker_starts,foreign_http_requests:counters.foreign,websocket_upgrades:counters.upgrades,fence_failed:state.failed});
+      for(let i=0;!fence.snapshot().failed&&start.created!==false&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));const state=fence.snapshot();onEvidence({phase:'WORKER_DENY_'+kind,worker_created:start.created,worker_error:start.error,worker_waiting:state.worker_waiting,worker_runtime_resumes:state.worker_runtime_resumes,bootstrap_requests:counters.worker_scripts-before,worker_start_requests:counters.worker_starts,foreign_http_requests:counters.foreign,websocket_upgrades:counters.upgrades,fence_failed:state.failed,failure_code:state.failure_code,csp_documents_continued:state.csp_documents_continued,csp_documents_observed:state.csp_documents_observed});
       if(start.created===false)assert.equal(start.error,'SecurityError','Fixture did not exercise a supported or natively denied Worker');else assert(state.failed&&state.failure_code==='FENCE_BROWSER_WORKER_CSP_VIOLATION','Worker attempt was not rejected by native CSP');
       assert.equal(state.worker_runtime_resumes,0);assert.equal(counters.worker_starts,0);assert.equal(counters.foreign,0);assert.equal(counters.upgrades,0);
     });}
