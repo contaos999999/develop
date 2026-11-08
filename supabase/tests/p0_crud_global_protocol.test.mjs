@@ -650,3 +650,10 @@ test('native websocket denial affects only ws and wss rules without global offli
   assert.deepEqual(rules.matchedNetworkConditions.map(x=>x.urlPattern),['ws://*:*/*','wss://*:*/*']);
   for(const rule of rules.matchedNetworkConditions)assert.deepEqual(rule,{urlPattern:rule.urlPattern,offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
 });
+
+test('page request barrier cannot wait for worker bootstrap that depends on that request',async()=>{
+  const {nativePageBarrier}=await import('./p0_crud_global_browser.mjs');
+  const targets=[{targetId:'main',type:'page',browserContextId:'own'},{targetId:'frame',type:'iframe',browserContextId:'own'},{targetId:'bootstrap',type:'worker',browserContextId:'own'},{targetId:'shared',type:'shared_worker',browserContextId:'own'},{targetId:'third',type:'page',browserContextId:'other'}];
+  assert.deepEqual([...nativePageBarrier(targets,[{targetId:'worker-child',type:'worker',contextId:'own'}],'own','main')],['main','frame']);
+  assert.throws(()=>nativePageBarrier(targets,[],'other','main'));
+});
