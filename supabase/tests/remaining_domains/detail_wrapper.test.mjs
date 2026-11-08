@@ -72,3 +72,10 @@ test('new local SQL fixtures do not collide with identities retained by earlier 
   for(const prefix of prefixes)assert(!prior.includes(prefix+'-'),'fixture namespace collides with '+name);
  }
 });
+test('new local Auth emails have their own namespace as well as UUIDs',()=>{
+ const own=fs.readFileSync('supabase/tests/remaining_domains/detail_wrapper_local.sql','utf8');
+ const email=own.match(/'([a-z0-9-]+-)'\|\|n\|\|'@example\.invalid'/);assert(email,'explicit local email namespace required');
+ for(const name of readdirSync('supabase/tests').filter(n=>n.endsWith('.sql'))){
+  assert(!fs.readFileSync('supabase/tests/'+name,'utf8').includes(email[1]),'Auth email namespace collides with '+name);
+ }
+});

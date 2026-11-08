@@ -16,7 +16,7 @@ begin
   perform set_config('request.jwt.claims',jsonb_build_object('sub','d3710000-0000-4000-8000-'||lpad(n::text,12,'0'),'role','authenticated','session_id','d3710000-0000-4000-9000-'||lpad(n::text,12,'0'),'user_metadata',jsonb_build_object('master',true))::text,true);
 end $$;
 insert into auth.users(id,aud,role,email,created_at,updated_at)
-select ('d3710000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'authenticated','authenticated','rbac-isolated-'||n||'@example.invalid',now(),now() from generate_series(1,12)n;
+select ('d3710000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'authenticated','authenticated','detail-vigency-local-'||n||'@example.invalid',now(),now() from generate_series(1,12)n;
 insert into auth.sessions(id,user_id,created_at,updated_at,aal,not_after)
 select ('d3710000-0000-4000-9000-'||lpad(n::text,12,'0'))::uuid,('d3710000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,now(),now(),'aal1',now()+interval '1 hour' from generate_series(1,12)n;
 insert into public.organizacoes(id,razao_social) values('d3710000-aaaa-4000-8000-000000000001','RBAC isolated A'),('d3710000-bbbb-4000-8000-000000000001','RBAC isolated B');
