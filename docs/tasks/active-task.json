@@ -1,8 +1,8 @@
 {
-  "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Plano único de certificação dos domínios restantes com proteção de regressão",
+  "id": "C-CHAT-001-PLAN-20261108",
+  "title": "Trilha C — copiloto conversacional PLAN canônico e handoff preservado",
   "status": "ativa",
-  "phase": "BUILD_CERTIFICACAO_DOMINIOS_RESTANTES",
+  "phase": "PLAN",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -35,20 +35,11 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
+  "objective": "Integrar plano canônico do copiloto e iniciar BUILD posterior sem alterar código certificado das Trilhas A/B, mantendo Zero-Drift, RLS, JWT e gates.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_CERTIFICACAO_DOMINIOS_RESTANTES_2026-11-08.md",
-    "supabase/tests/p0_crud_global_remaining_hml.py",
-    "supabase/tests/p0_crud_global_remaining.test.mjs",
-    "supabase/tests/remaining_domains/**",
-    ".github/workflows/p0-crud-remaining-hml.yml",
-    ".github/workflows/restore-isolado.yml",
-    "supabase/migrations/20261108183000_fix_document_vigency_wrapper.sql",
-    "supabase/tests/history_catalog_compare.py",
-    "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql",
-    "supabase/functions/queue-worker-ai/index.ts",
-    "supabase/functions/queue-worker-ai/job-envelope.mjs"
+    "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
+    "docs/TRILHA_C_COPILOTO_CANONICO_PLAN.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -63,8 +54,8 @@
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
-    "date": "2026-11-07",
-    "scope": "Autorizado: investigação somente leitura; após resultado e proposta de correção canônica no backend + integração frontend + testes reais, titular determinou Execute. HML apenas, sem PROD; fixture Auth exclusivamente API administrativa nos testes. Testes reais incluem fixtures Auth próprias via API administrativa e limpeza; não alteram configuração Auth."
+    "date": "2026-11-08",
+    "scope": "Handoff imediato autorizado expressamente para arquivar manifesto anterior, ativar PLAN Trilha C, reexecutar Zero-Drift e integrar PR #179 apenas com controles aprovados; sem PROD, sem alterar código ou certificações B."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -129,8 +120,8 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "previous_task_id": "P0-CRUD-CADASTROS-20261106",
-  "previous_task_snapshot_commit": "a6399adc39e984293c14d7adcf106b00ab76ce50",
+  "previous_task_id": "P0-CRUD-GLOBAL-HML-20261107",
+  "previous_task_snapshot_commit": "1d444e17467993bdf6a2c150184058196029f446",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -142,7 +133,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Retry only dependent presentation proof with exact void-approval 204 plus SQL state, after fresh current-HEAD runtime readback and origin-linked receipt; no redeploy or repetition of detail/documentary/other domains.",
+  "next_step": "Concluir CI do PLAN PR #179, integrar somente se gates verdes; abrir BUILD separado para Edge OpenAI + frontend e testes HML. Escopo certificado da Trilha B permanece imutável.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2046,5 +2037,15 @@
       }
     ]
   },
-  "edge_function_change_scope": "No Edge code/deploy delta. Management read-only revalidation of already approved worker v5 and unchanged two source hashes after current HEAD checks. Storage Edges/JWT true preserved."
+  "edge_function_change_scope": "No Edge code/deploy delta. Management read-only revalidation of already approved worker v5 and unchanged two source hashes after current HEAD checks. Storage Edges/JWT true preserved.",
+  "handoff": {
+    "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
+    "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
+    "source_status_at_snapshot": "ativa",
+    "source_phase_at_snapshot": "BUILD_CERTIFICACAO_DOMINIOS_RESTANTES",
+    "source_v1_certified_flag": false,
+    "closure_scope": "Encerramento do controle ativo da tarefa anterior, sem afirmar certificação integral da V1 ou eliminar pendências registradas",
+    "checkpoint_pr": 138,
+    "plan_pr": 179
+  }
 }
