@@ -73,3 +73,6 @@ PASS exige todas fases autorizadas integradas e verificadas, sem Important/Criti
 
 ## ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
 Marca ContaOS Brand v1.0; assets, tokens, Design System e telas certificadas preservados. Backend impacto_visual N/A por não alterar UI. Prova frontend exige1440/1280/768/390 claro/escuro, acessibilidade e estados reais; sem imagem não declararPASSvisual. GitHub/Supabase/Node diretamente, sem turnoLovable desnecessário. Menor diff, reutilizar testes/receipts válidos e preservar TDD, CI, Restore/backup, revisão independente e TesteC separado. Economia nunca substitui segurança ou prova.
+
+## Ledger BUILD SQL
+Base integrada f25f654f; ativação BUILD_SQL sem Edge/harness neste PR. RED governança preexistente reproduzido em ebe4:24/26; fixturesB isoladas corrigidas sem modificar routingB. Teste SQL começa por função de reserva inexistente, antes de qualquer fixture. Ambiente local não possui psql/Docker; prova SQL real será executada pelo Restore CI, semHMLremoto. CLI2.122.0 gerou arquivo20261108232731 comhashvazio registrado.

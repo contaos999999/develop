@@ -252,6 +252,13 @@ jobs:
           python3 supabase/tests/history_catalog_compare.py | tee restore-proof/history-catalog.txt
           grep -Fq 'HISTORY_CATALOG_PASS' restore-proof/history-catalog.txt
 
+      - name: Trilha C - RAG elegível e quota SQL isolada
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/copilot_scope_quota.sql | tee restore-proof/copilot-scope-quota.txt
+          grep -Fxq 'COPILOT_SCOPE_QUOTA_SQL_PASS' restore-proof/copilot-scope-quota.txt
+
       - name: Teste 12 - Matriz RBAC V1
         shell: bash
         run: |
@@ -401,4 +408,3 @@ jobs:
           path: restore-proof-synthetic/
           if-no-files-found: warn
           retention-days: 30
-

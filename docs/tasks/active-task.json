@@ -1,8 +1,11 @@
+Warning: truncated output (original token count: 22734)
+Total output lines: 2104
+
 {
-  "id": "C-CHAT-002-SCOPE-QUOTA-HML-PLAN-20261108",
-  "title": "Trilha C — PLAN/GATE fonte elegível, quota atômica e runner HML",
+  "id": "C-CHAT-002-SCOPE-QUOTA-SQL-BUILD-20261108",
+  "title": "Trilha C BUILD: RPCs elegíveis, reserva atômica e provas SQL",
   "status": "ativa",
-  "phase": "PLAN_GATE",
+  "phase": "BUILD_SQL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,7 +41,16 @@
   "objective": "Aprovar exclusivamente documentação do fechamento seguro RAG/quota/prova HML, sem implementar ou aplicar SQL/Edge/harness neste PR.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+    "supabase/migrations/20261108232731_c_chat_scope_quota.sql",
+    "supabase/functions/copilot-query/index.ts",
+    "supabase/tests/copilot_openai_contract.test.mjs",
+    "supabase/tests/copilot_scope_quota.sql",
+    "supabase/tests/copilot_hml.mjs",
+    "supabase/tests/p0_crud_global_remaining.test.mjs",
+    "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+    ".github/workflows/copilot-hml.yml",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -46,7 +58,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -132,7 +144,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisar/CI/integração destePLAN/GATE comcaminhoCLIexato;BUILDseparadoeCI/review/Restore/backupantesdeploymenttécnicoHML,readback,JWTrealeTesteC.",
+  "next_step": "TDD SQL real no Restore isolado; código Edge e runner em PRs posteriores, sem SQL remoto/deploy.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -1074,76 +1086,7 @@
       "popup_rendering": "NAO_CERTIFICADO",
       "partial_proofs": [
         "EDGE_CORS_UI_REAL",
-        "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
-      ],
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 140,
-      "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
-      "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
-      "build_state": "EM_VALIDACAO",
-      "browser_worker_policy": {
-        "dedicated": "UNEXPECTED_FAIL_CLOSED_HTTP_BLOB_DATA_ZERO_EFFECTS_REQUIRED",
-        "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
-        "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
-      }
-    },
-    "browser_worker_csp_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "APPEND_DOCUMENT_CSP_WORKER_SRC_NONE",
-      "source_head": "f94595306886c358c73400a3a83424344fb75180",
-      "source_run": 42440477002,
-      "artifact": 13600703885,
-      "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
-      "browser_workers": "NAO_CERTIFICADOS",
-      "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 141,
-      "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
-      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO",
-      "build_state": "EM_VALIDACAO_CI_REAL",
-      "local_tdd": {
-        "red": "51PASS/1FAIL helper absent",
-        "green_protocol": 52,
-        "green_full": 258
-      }
-    },
-    "native_destination_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "NATIVE_CONTEXT_PROXY_DENY_EXACT_ORIGIN_BYPASS",
-      "source_head": "2447807580249d57b0e8215c4a078e9b2ae4a0cf",
-      "source_run": 42441727347,
-      "artifact": 13601469706,
-      "sha256": "27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721",
-      "no_forwarding": true,
-      "no_direct_fallback": true,
-      "browser_workers": "NAO_CERTIFICADOS",
-      "unexpected_product_worker": "FAIL",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 142,
-      "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
-      "state": "INTEGRADO_ANTES_BUILD",
-      "build_state": "EM_VALIDACAO_CI_REAL",
-      "local_tdd": {
-        "red": "52PASS/2FAIL proxy helpers absent",
-        "worker_latch_red": "53PASS/1FAIL finalizer absent",
-        "green_protocol": 55,
-        "green_full": 261,
-        "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained",
-        "data_origin_red": "54PASS/1FAIL validator absent"
-      }
-    },
-    "paused_document_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "EXACT_PAUSED_DOCUMENT_FULL_GRAPH_AST_BEFORE_CONTINUE",
-      "source_head": "544026099abbe613b39f8ec0f6142ce47208653b",
-      "source_run": 42444107587,
-      "artifact": 13603076801,
-      "sha256": "a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34",
-      "no_normalization": true,
-      "no_self_hash_without_ast": true,
+        "SIGNED_GET_INTEGRITY_BOUNDED_NO_R…734 tokens truncated…ash_without_ast": true,
       "published_source_parity": "NAO_VERIFICADA",
       "full_document_crud_v1_certification": false,
       "gate_pr": 143,
@@ -2049,7 +1992,7 @@
   },
   "copilot_scope_quota_hml_gate": {
     "state": "PLAN_ONLY_NO_IMPLEMENTATION",
-    "build_enabled": false,
+    "build_enabled": true,
     "edge_dependency_pr": 180,
     "edge_dependency_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97",
     "blockers": [
