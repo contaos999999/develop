@@ -9,6 +9,19 @@ const root=resolve('.');
 
 import {spawnSync} from 'node:child_process';
 const browser='supabase/tests/p0_crud_global_browser.mjs';
+test('NULL pagination correction preserves entire approved RPC definitions except two exact guards',()=>{
+ const prior=readFileSync('supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql','utf8');
+ const actual=readFileSync('supabase/migrations/20261108114652_p0_null_pagination_guard.sql','utf8');
+ const rules=[
+  ['privado.obter_documentos_competencia_v115','if p_documentos_offset < 0','if p_documentos_offset is null or p_requisitos_offset is null or p_documentos_limite is null or p_requisitos_limite is null or p_documentos_offset < 0'],
+  ['public.obter_analise_competencia_v116','if p_resultados_offset<0','if p_resultados_offset is null or p_execucoes_offset is null or p_apontamentos_offset is null or p_resultados_limite is null or p_execucoes_limite is null or p_apontamentos_limite is null or p_resultados_offset<0']
+ ];
+ const definition=(source,name)=>{const start=source.indexOf('CREATE OR REPLACE FUNCTION '+name+'(');assert(start>=0,'required exact RPC');const body=source.indexOf('AS $function$',start);const end=source.indexOf('$function$',body+'AS $function$'.length);assert(end>body);const semicolon=source.indexOf(';',end);return source.slice(start,semicolon+1);};
+ for(const [name,before,after] of rules){const original=definition(prior,name);assert(original.includes(before));assert.equal(definition(actual,name),original.replace(before,after));}
+ assert.equal((actual.match(/CREATE OR REPLACE FUNCTION/g)||[]).length,2);
+ assert(!/\bGRANT\b|\bREVOKE\b|\bDROP\b|\bALTER\s+(?:ROLE|TABLE|POLICY)/i.test(actual));
+ assert(actual.includes('76611a9a23e0d9bebf09aa1e0aa44093')&&actual.includes('84aaf91cce67651a5cbb3ecd16f8eaa2'));
+});
 test('worker runtime migration uses only the explicitly approved managed extension contract',()=>{
  const file='supabase/migrations/20261108060000_restore_document_worker_pg_net.sql';
  assert(existsSync(file),'approved worker runtime migration required');

@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Defesa adicional: impedir elevação de roles e exposição indireta de segredos antes de Auth/DDL",
+  "title": "BUILD segurança: rejeitar NULL em paginação documental/análise",
   "status": "ativa",
-  "phase": "BUILD_WORKER_CLIENT_ATTACK_SURFACE_GUARD",
+  "phase": "BUILD_NULL_PAGINATION_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex Trilha B desta execução,25canônicos/fingerprint/P0 lidos e bytes preservados; GATE158 e HEAD15539cb9ef relidos",
+  "context_read_by": "Codex Trilha B; contexto25canônicos/fingerprint/P0 preservados; maina9abcdf161 integrado, revisão independente10RPCs e catálogoHML lidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -38,13 +38,11 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
-    "supabase/tests/worker_api_boundary_hml.py",
-    "supabase/tests/worker_api_boundary.test.mjs",
-    "supabase/tests/worker_client_privileges.postgres.mjs",
-    ".github/workflows/restore-isolado.yml",
-    "supabase/tests/p0_crud_global_hml.py",
-    "supabase/tests/p0_crud_global_protocol.test.mjs"
+    "docs/backend/P0_NULL_PAGINATION_HML_2026-11-08.md",
+    "supabase/migrations/20261108114652_p0_null_pagination_guard.sql",
+    "supabase/tests/hml_acceptance.sql",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    "supabase/tests/null_pagination_guard.postgres.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -52,7 +50,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -1552,5 +1550,19 @@
     "no_secrets_or_queue_rows_read": true,
     "integrated_base": "79aec0002712df1a2262bdee9185cc406ba21eb2",
     "checkpoint_preserved": "a1ecb48546e1298d1d35e4f4e4d8b76d4eb59e57"
+  },
+  "null_pagination_guard": {
+    "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
+    "cli": "2.81.3",
+    "generated_version": "20261108114652",
+    "old_body_md5": {
+      "privado.obter_documentos_competencia_v115": "76611a9a23e0d9bebf09aa1e0aa44093",
+      "public.obter_analise_competencia_v116": "84aaf91cce67651a5cbb3ecd16f8eaa2"
+    },
+    "scope": "Somente rejeitar NULL nos10argumentosinteiros mantendoRBAC/tenant/owner/ACL/assinaturas/payloads",
+    "prod": false,
+    "new_edges": false,
+    "password_leak_protection": "EXCLUDED_BY_USER",
+    "hml_apply_only_after_same_head_checks": true
   }
 }
