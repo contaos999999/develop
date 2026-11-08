@@ -13,10 +13,18 @@ def normalize(catalog):
         records=catalog[section];assert isinstance(records,list) and records and all(isinstance(x,dict) for x in records)
         values=[]
         for source in records:
+            # Match the hosted exception against RAW metadata before any
+            # semantic owner normalization; altered helpers still fail closed.
+            if section=='functions' and {**source,'acl':sorted(source.get('acl',[]),key=canonical)}=={**HOSTED_HELPER,'acl':sorted(HOSTED_HELPER['acl'],key=canonical)}:
+                continue
             record={**source}
             if 'acl' in record:
                 assert isinstance(record['acl'],list)
-                record['acl']=sorted(record['acl'],key=canonical)
+                assert all(isinstance(g,dict) and set(g)=={'grantor','grantee','privilege','grantable'} and type(g['grantable']) is bool and all(isinstance(g[k],str) and g[k] for k in ('grantor','grantee','privilege')) for g in record['acl']),'Malformed ACL metadata'
+                # PostgreSQL object owners implicitly hold every grant option,
+                # regardless of the redundant raw ACL bit. Do not synthesize a
+                # missing ordinary privilege, owner, grantee or grantor.
+                record['acl']=sorted([{**grant,'grantable':True} if grant.get('grantee')==record.get('owner') and record.get('owner') is not None else dict(grant) for grant in record['acl']],key=canonical)
             if section=='policies' and 'roles' in record:record['roles']=sorted(record['roles'])
             values.append(record)
         serialized=[canonical(x) for x in values];assert len(serialized)==len(set(serialized)),'Duplicate catalog record'
@@ -32,7 +40,7 @@ def compare_catalogs(expected,actual):
     for section in SECTIONS:
         a={canonical(x) for x in left[section]};b={canonical(x) for x in right[section]}
         if a!=b:differences[section]={'missing_count':len(a-b),'unexpected_count':len(b-a),'missing_sha256':sorted(hashlib.sha256(v.encode()).hexdigest() for v in a-b),'unexpected_sha256':sorted(hashlib.sha256(v.encode()).hexdigest() for v in b-a)}
-    return {'state':'FAIL_APPLICATION_CATALOG_DRIFT' if differences else 'PASS_EXACT_APPLICATION_CATALOG','expected_sha256':hashlib.sha256(canonical(left).encode()).hexdigest(),'actual_sha256':hashlib.sha256(canonical(right).encode()).hexdigest(),'counts':{s:len(right[s]) for s in SECTIONS},'differences':differences}
+    return {'state':'FAIL_APPLICATION_CATALOG_DRIFT' if differences else 'PASS_EXACT_APPLICATION_CATALOG','raw_expected_sha256':hashlib.sha256(canonical(expected).encode()).hexdigest(),'raw_actual_sha256':hashlib.sha256(canonical(actual).encode()).hexdigest(),'equivalence_rules':['POSTGRES_OWNER_IMPLICIT_GRANT_OPTION','EXACT_HOSTED_DDL_HELPER'],'expected_sha256':hashlib.sha256(canonical(left).encode()).hexdigest(),'actual_sha256':hashlib.sha256(canonical(right).encode()).hexdigest(),'counts':{s:len(right[s]) for s in SECTIONS},'differences':differences}
 
 def prove(env):
     sha=env['TESTED_HEAD'];assert re.fullmatch('[0-9a-f]{40}',sha)

@@ -47,7 +47,7 @@ def main():
     racing=job(org,contract);original_sql=runner.sql;started=False;worker=None;blocked=0
     def race_sql(source,fetch=False):
         nonlocal started,worker,blocked
-        if 'DOCUMENT_QUARANTINE_PENDING' in source and not started:
+        if 'DOCUMENT_QUARANTINE_PENDING' in source and 'from pgmq.q_historico message' in source and not started:
             started=True;app='local_document_race_'+nonce
             worker_sql="set application_name="+q(app)+";begin;do $worker$ begin perform 1 from pgmq.q_historico message join public.execucoes_assincronas e on e.message_id=message.msg_id where e.id="+q(racing)+" for update of message,e;update public.execucoes_assincronas set status='processando' where id="+q(racing)+";end $worker$;select pg_sleep(1);commit;"
             worker=subprocess.Popen(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',worker_sql],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)

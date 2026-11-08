@@ -261,3 +261,24 @@ assert "privado.enfileirar_job('ocr'" in r.calls[-1]
 `;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);
 });
+
+test('historical race starts against the historical cancellation statement',()=>{
+ const code=readFileSync('supabase/tests/remaining_domains/history_quarantine_local.py','utf8');
+ assert.match(code,/if 'DOCUMENT_QUARANTINE_PENDING' in source and 'from pgmq\.q_historico message' in source and not started:/);
+});
+test('catalog normalizes only inherent owner grant option and exposes raw digests',()=>{
+ const code=String.raw`import sys,copy
+sys.path.insert(0,'supabase/tests')
+from remaining_domains.catalog_parity import compare_catalogs,SECTIONS
+base={s:[{'name':s}] for s in SECTIONS}
+base['relations']=[{'schema':'storage','name':'objects','owner':'storage_owner','acl':[{'grantee':'storage_owner','grantor':'storage_owner','privilege':'SELECT','grantable':False},{'grantee':'authenticated','grantor':'storage_owner','privilege':'SELECT','grantable':False}]}]
+actual=copy.deepcopy(base);actual['relations'][0]['acl'][0]['grantable']=True
+r=compare_catalogs(base,actual)
+assert r['state']=='PASS_EXACT_APPLICATION_CATALOG' and r['expected_sha256']==r['actual_sha256']
+assert r['raw_expected_sha256']!=r['raw_actual_sha256']
+for mutate in [lambda x:x['relations'][0]['acl'].pop(0),lambda x:x['relations'][0]['acl'][1].update(grantable=True),lambda x:x['relations'][0].update(owner='different'),lambda x:x['relations'][0]['acl'][0].update(grantor='other')]:
+ altered=copy.deepcopy(actual);mutate(altered)
+ assert compare_catalogs(base,altered)['state']=='FAIL_APPLICATION_CATALOG_DRIFT'
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);
+});
