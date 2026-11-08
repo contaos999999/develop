@@ -8,6 +8,7 @@ import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
 export const PUBLISHED_ORIGIN='https://scope-and-approval-keeper.lovable.app';
 const HML_ORIGIN='https://gklhhhyosgasnyoxlrui.supabase.co';
+const browserDebugPorts=new WeakMap();
 const FRONTEND_PIN='164b10b44eaf5b553efcc7ab4e053b86c4d3b269';
 export function persistBrowserFixture(path,fixture){
   const current=JSON.parse(readFileSync(path,'utf8'));assert.equal(current.nonce,fixture.nonce);
@@ -112,18 +113,17 @@ export function validatePublishedResponse(proof,{url,resourceType,status,body}){
 }
 // Browser-scoped auto-attach requires flattened CDP sessions. Use the native Node
 // WebSocket transport because Playwright's CDPSession.send omits envelope sessionId.
-async function connectNativeBrowserCDP(browser){
-  const metadata=await browser.newBrowserCDPSession();let args;
-  try{args=(await metadata.send('Browser.getBrowserCommandLine')).arguments;}catch{throw Object.assign(Error('Chromium command metadata unavailable'),{code:'CDP_BROWSER_METADATA'});}finally{await metadata.detach();}
-  const directory=args.find(value=>value.startsWith('--user-data-dir='))?.slice('--user-data-dir='.length);assert(directory&&resolve(directory)===directory);
-  let endpoint;try{endpoint=readFileSync(join(directory,'DevToolsActivePort'),'utf8');}catch{throw Object.assign(Error('Chromium endpoint metadata unavailable'),{code:'CDP_ENDPOINT_READ'});}
-  const lines=endpoint.trim().split('\n');assert(lines.length===2&&/^\d{1,5}$/.test(lines[0])&&/^\/devtools\/browser\/[a-f0-9-]+$/i.test(lines[1]));
-  const port=Number(lines[0]);assert(port>0&&port<=65535);const socket=new WebSocket('ws://127.0.0.1:'+port+lines[1]);
+async function connectNativeBrowserCDP(browser,identity){
+  const port=browserDebugPorts.get(browser);assert(Number.isInteger(port)&&port>0&&port<=65535);
+  const response=await fetch('http://127.0.0.1:'+port+'/json/version',{redirect:'error',signal:AbortSignal.timeout(10000)});assert(response.ok);const metadata=await response.text();assert(Buffer.byteLength(metadata)<=16384);
+  const endpoint=new URL(JSON.parse(metadata).webSocketDebuggerUrl);assert(endpoint.protocol==='ws:'&&endpoint.hostname==='127.0.0.1'&&Number(endpoint.port)===port&&!endpoint.username&&!endpoint.password&&!endpoint.search&&!endpoint.hash&&/^\/devtools\/browser\/[a-f0-9-]+$/i.test(endpoint.pathname));
+  const socket=new WebSocket(endpoint.href);
   let serial=0,listener=()=>{},onClose=()=>{};const commands=new Map();
   await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',()=>reject(Object.assign(Error('Local Chromium interception unavailable'),{code:'CDP_SOCKET_CONNECT'})),{once:true});});
   socket.addEventListener('message',event=>{const data=JSON.parse(event.data);if(data.id){const pending=commands.get(data.id);if(!pending)return;commands.delete(data.id);clearTimeout(pending.timer);if(data.error)pending.reject(Object.assign(Error('Chromium interception command rejected'),{code:'CDP_'+pending.method.replace(/[^a-zA-Z0-9]/g,'_').toUpperCase()}));else pending.resolve(data.result??{});}else listener(data);});
   socket.addEventListener('close',()=>{onClose();for(const pending of commands.values()){clearTimeout(pending.timer);pending.reject(Error('Chromium interception connection closed'));}commands.clear();});
-  return {send(method,params={},sessionId){const id=++serial;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{commands.delete(id);reject(Error('Chromium interception command timeout'));},10000);commands.set(id,{resolve,reject,timer,method});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});},onEvent(callback){listener=callback;},onClose(callback){onClose=callback;},close(){socket.close();}};
+  const transport={send(method,params={},sessionId){const id=++serial;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{commands.delete(id);reject(Error('Chromium interception command timeout'));},10000);commands.set(id,{resolve,reject,timer,method});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});},onEvent(callback){listener=callback;},onClose(callback){onClose=callback;},close(){socket.close();}};
+  try{const target=await transport.send('Target.getTargetInfo',{targetId:identity.targetId});assert.equal(target.targetInfo.browserContextId,identity.browserContextId);}catch(error){transport.close();throw error;}return transport;
 }
 // Native Chromium interception preserves browser CORS, cookies and Origin semantics.
 // No request body/header is read, and no response is replaced or fulfilled by the harness.
@@ -131,7 +131,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   assert(proof?.modules instanceof Map&&proof.modules.size>0);assert.equal(typeof allowed,'function');
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
-  const root=await connectNativeBrowserCDP(browser),sessions=new Map(),configured=new Map();let failed=false,closed=false,verifiedScripts=0,verifiedDocuments=0;
+  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,verifiedScripts=0,verifiedDocuments=0;
   const active=new Set();
   const fail=()=>{failed=true;void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail();});
@@ -509,7 +509,8 @@ async function main(){
   function documentEndpoint(raw){const u=new URL(raw);if(u.origin!=='https://gklhhhyosgasnyoxlrui.supabase.co')return null;const p=u.pathname;if(p==='/rest/v1/configuracao_upload')return 'config';if(p==='/functions/v1/storage-sign-upload')return 'sign';if(p.startsWith('/storage/v1/object/upload/sign/'))return 'storage';if(p==='/rest/v1/rpc/confirmar_upload_arquivo')return 'confirm';if(['/rest/v1/rpc/criar_documento_contrato_completo','/rest/v1/rpc/adicionar_versao_documento_contrato'].includes(p))return 'register';return null;}
   try{
     stage('SERVER_READY');for(let i=0;i<120;i++){try{if((await fetch(base+'/login')).ok)break;}catch{}if(i===119)throw Error('Frontend unavailable');await new Promise(r=>setTimeout(r,1000));}
-    browser=await chromium.launch({headless:true,args:['--remote-debugging-port=0','--remote-debugging-address=127.0.0.1'],env:browserEnvironment(process.env)});
+    const reservation=createServer();await new Promise((resolve,reject)=>{reservation.once('error',reject);reservation.listen(0,'127.0.0.1',resolve);});const debugPort=reservation.address().port;await new Promise(resolve=>reservation.close(resolve));
+    browser=await chromium.launch({headless:true,args:['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1'],env:browserEnvironment(process.env)});browserDebugPorts.set(browser,debugPort);
     async function open(role,origin=base){
       const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'light',locale:'pt-BR',serviceWorkers:'block'});
 
