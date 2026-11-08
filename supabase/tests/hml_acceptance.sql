@@ -247,6 +247,16 @@ select 'UPLOAD_WRAPPER','Negativas sem efeitos persistidos',counts=array[
  (select count(*) from public.execucoes_assincronas),
  (select count(*) from public.eventos_auditoria)],'cinco tabelas sem delta' from wrapper_counts;
 
+-- Read-only metadata diagnostics: never inspect queue rows or headers.
+select 'NET_ACL_DIAGNOSTIC_ROLES',jsonb_build_object('role',rolname,'superuser',rolsuper,'inherit',rolinherit,'postgres_member',pg_has_role(rolname,'postgres','MEMBER'))
+from pg_roles where rolname in ('anon','authenticated','postgres');
+select 'NET_ACL_DIAGNOSTIC_SCHEMA',jsonb_build_object('owner',pg_get_userbyid(nspowner),'acl',nspacl::text)
+from pg_namespace where nspname='net';
+select 'NET_ACL_DIAGNOSTIC_OBJECT',jsonb_build_object('kind',c.relkind,'name',c.relname,'owner',pg_get_userbyid(c.relowner),'acl',c.relacl::text)
+from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net' and c.relkind in ('r','S');
+select 'NET_ACL_DIAGNOSTIC_FUNCTION',jsonb_build_object('name',p.proname,'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text)
+from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='net';
+
 -- GATE153: the actual extension is nonpublic and its inherited privileges are closed.
 insert into contaos_testes
 select 'WORKER_RUNTIME','pg_net fora de public com assinatura oficial',

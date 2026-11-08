@@ -107,3 +107,9 @@ HEAD28e157e/Restore42455364024falhou no controle positivo local de pg_isready, a
 O processo agora usa `env -i`, preservando somente PATH e PGPASSFILE=/dev/null. Serviço e senha herdados são removidos, em vez de passados como opções vazias. Host, porta e usuário/database benignos são parâmetros explícitos. O status do controle positivo e sua classe fechada são registrados antes de qualquer recusa, sem stderr ou dados privados. Nenhuma exigência0/2/DROP/receptor/pg_net/IPv6 é relaxada.
 
 Regressão extrai a função tcp_probe real, emula apenas Dockerexec e executa o shell/processo reais com canários herdados: RED1FAIL na versão anterior; GREEN comprova ausência de serviço, senha e qualquer canário no processo final. Protocolo70/70 e suítecompleta329/329PASS. Revisão independente favorável, mas contenção e pg_net reais ainda precisam passar no novo CI; sem material/CRUD/V1/V2.
+
+## Diagnóstico ACL do último CI, continuação autorizada do titular
+
+HEAD4deade48a165d4df2d0643643b778cf283b46b09: guard42455696954, histórico42455696922, public42455696932 e backup128654108357SUCCESS. Reconstrução128654108585/restore42455696916FAIL em Teste1: oito verificações de privilégio efetivo net retornaramfalse; presençaextensions eownerpostgres passaram. Provas nativasTCP/HTTP passaram antes/depoisreset. Causa da ACL ainda NÃO determinada. Não afrouxar teste, instalarHML, liberararquivo manualmente ou alegar conclusão.
+
+Delta somente de diagnóstico noSQLjápermitido: SELECTcatálogo dosroles/superuser/herança e ACLs/owners de schema/tabelas/sequências/funçõesnet, semler filas,headers,segredos oucriarobjetos. Mantidas todasassertions bloqueantes. O titular nesta conversa determinou resolverworker e verificações dafixture152; reutilizar155 semduplicação. HMLcontinua intacto e arquivo152 pendente/enfileirado.
