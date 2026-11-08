@@ -1,8 +1,8 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "BUILD: delegação segura da RPC de nova versão documental",
+  "title": "Retomada material documental após delegação de versões",
   "status": "ativa",
-  "phase": "BUILD_DOCUMENT_VERSION_WRAPPER_HML",
+  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -138,7 +138,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Exigir revisão/guard/public/Restore/rebuild/backup SUCCESS neste HEAD BUILD; merge normalCAS e deploy_oneHMLCLI20261108122815/hashfixado,paridadeglobal; confirmarcorpos/ACL epreflight. SódepoisreativarNOVOlote1publicado+4locais. Fixture949bquarentenada não reutilizar.",
+  "next_step": "DRAFT dependente: só ready/merge após164revisado/CI/integradonormal/aplicadoHML/verificadocom7booleansTrue eapóscheckscompletos desteHEAD. ThenRestorepushmainMESMOmergeHEAD/currentmainliberarNOVOlote1TXTpublicadoPRIMEIRO+4locais,5/3/5/5recibos/worker/cleanuppróprio. Nunca usar949b nemfixture152/160. NenhumaDDLnovafora164/PROD/V1/V2.",
   "database_change_scope": "GATE163: somente SECURITY DEFINER da assinatura pública adicionar_versao_documento_contrato(uuid,uuid,text,text), com precondições de catálogo; preservar todos corpos/owner/ACL/search_path, sem grants/roles/RLS/Edges/frontend/PROD.",
   "evidence": {
     "test_pr": 52,
@@ -657,7 +657,7 @@
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -670,7 +670,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "FAIL_LOCAL_TXT_V2_RPC403_QUARANTINE_CONFIRMED",
+    "state": "RETRY_PENDING_164_HML_AND_OWN_HEAD_CI",
     "frontend_merge": "b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -979,7 +979,7 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "BUILD",
@@ -1012,7 +1012,7 @@
     ],
     "verify_jwt_must_remain": true,
     "hml_project": "gklhhhyosgasnyoxlrui",
-    "material_crud_disabled": true,
+    "material_crud_disabled": false,
     "independent_review": "Sem Critical/Important para PLAN; completed_scopes condicionado a PASS real; reancorar HEAD antes de publicar",
     "baseline_local_tests": "node --test:60/60 PASS em a672f44",
     "authorization": "Continuidade expressa do titular para correções HML por PLAN/GATE/BUILD; sem PROD ou ampliação de permissão",
@@ -1595,7 +1595,7 @@
     }
   },
   "document_material_resume": {
-    "state": "PENDENTE_CI_CHECKPOINT_REANCORADO_APOS_162",
+    "state": "PENDENTE_DEPENDENCIA_164_HML_E_CI_PROPRIO",
     "backend_source": "601922fbf59accc7606b8ce4c697b6ece961f23e",
     "pr139": {
       "head": "2fcd7bae534e070607410689e5b582c2a142e581",
@@ -1722,10 +1722,21 @@
       "active_jobs": 0,
       "sql_independently_confirmed": true,
       "global_complete": false
+    },
+    "retry_dependency": {
+      "pr": 164,
+      "head": "4705cd45bf8f7f9fba23c0fa066f0c5da938b14b",
+      "migration": "20261108122815",
+      "migration_sha256": "da346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f",
+      "must_be_integrated_applied_verified_before_this_merge": true,
+      "new_nonce_only": true,
+      "forbidden_reuse_nonce": "949b267631c24181b8edb34b8563f9fa",
+      "no_backend_product_delta_vs_164": true,
+      "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
   "version_wrapper_guard": {
-    "state": "BUILD_LOCAL_NO_DEPLOY",
+    "state": "RESUME_PENDING_VERIFIED_HML",
     "signature": "public.adicionar_versao_documento_contrato(uuid,uuid,text,text)",
     "old_body_md5": "6d0c5926f4b25fd0e9562b0c010174ef",
     "private_body_md5": "10698cb96e7de1de5a88b25960b341e5",
