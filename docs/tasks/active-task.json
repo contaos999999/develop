@@ -47,7 +47,9 @@
     "supabase/tests/p0_crud_global_remaining.test.mjs",
     "supabase/tests/remaining_domains/ai_envelope.test.mjs",
     ".github/workflows/copilot-hml.yml",
-    ".github/workflows/restore-isolado.yml"
+    ".github/workflows/restore-isolado.yml",
+    "supabase/tests/history_catalog_compare.py",
+    "supabase/tests/copilot_catalog.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -2100,5 +2102,266 @@
       "lease_seconds": 90,
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
+  },
+  "copilot_catalog_gate": {
+    "state": "BUILD_NATIVE_PROOF_PENDING",
+    "build_enabled": false,
+    "additional_future_build_paths": [
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/copilot_catalog.test.mjs"
+    ],
+    "migration_sha256": "9015181ae955d334274a3981ab0337cf6ecf29868cbc1b3b54ef310523a33f15",
+    "functions": [
+      {
+        "schema": "privado",
+        "name": "copilot_versao_elegivel",
+        "args": "p_versao uuid, p_org uuid, p_contrato uuid, p_data date",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "sql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": false,
+        "public_exec": false,
+        "body_md5": "802dccbc6b41c244ea7dd57b3719feac",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "privado",
+        "name": "copilot_precedente_elegivel",
+        "args": "p_id uuid, p_org uuid, p_contratante uuid",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "sql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": false,
+        "public_exec": false,
+        "body_md5": "d2bcc6291453a42f96bfb4ffc664b7d8",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "public",
+        "name": "worker_buscar_fragmentos_copiloto",
+        "args": "p_id_organizacao uuid, p_id_contrato uuid, p_ids_fragmentos uuid[], p_embedding extensions.vector, p_data_referencia date, p_limite integer",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "TABLE(id uuid, id_versao_documento uuid, pagina_inicio integer, pagina_fim integer, texto text, similaridade double precision, fonte_temporal text, inicio_vigencia date, fim_vigencia date)",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "58268b61ee1b83a0e9ac8693ebee4ed8",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "public",
+        "name": "worker_buscar_precedentes_copiloto",
+        "args": "p_id_organizacao uuid, p_id_contratante uuid, p_id_contrato uuid, p_ids_precedentes uuid[], p_embedding extensions.vector, p_limite integer",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "TABLE(id uuid, id_contrato_origem uuid, competencia_origem date, problema text, solucao text, desfecho text, escopo_resultado text, similaridade double precision, forca_score numeric, score_final numeric, confirmacoes integer, hierarquia_normativa integer, confianca numeric)",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "67a23d26ebc9608da48d576d33bf6ec6",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "privado",
+        "name": "copilot_ator_permite",
+        "args": "p_org uuid, p_contrato uuid, p_ator uuid, p_sessao uuid",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": false,
+        "public_exec": false,
+        "body_md5": "364955d7b3eee1325d8691dde52dc3db",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "public",
+        "name": "worker_reservar_consulta_copiloto",
+        "args": "p_id_organizacao uuid, p_id_contrato uuid, p_id_usuario uuid, p_texto text, p_filtros jsonb, p_modelo text",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "jsonb",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "b68f1ad83a5b68d6bd13d4782fdd1e4b",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "public",
+        "name": "worker_falhar_consulta_copiloto",
+        "args": "p_id_consulta uuid, p_token uuid, p_codigo text",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "679b4fc3ab8a03d2f11f3b5b694c32d4",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "public",
+        "name": "worker_validar_lease_copiloto",
+        "args": "p_id_consulta uuid, p_token uuid",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "boolean",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "12a3a6349ed40ad9452473bc3c96b7d8",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      },
+      {
+        "schema": "public",
+        "name": "worker_concluir_consulta_copiloto",
+        "args": "p_id_consulta uuid, p_token uuid, p_id_sessao uuid, p_retorno jsonb, p_fontes jsonb",
+        "owner": "postgres",
+        "definer": true,
+        "config": [
+          "search_path=\"\""
+        ],
+        "language": "plpgsql",
+        "returns": "jsonb",
+        "auth_exec": false,
+        "anon_exec": false,
+        "service_exec": true,
+        "public_exec": false,
+        "body_md5": "eaab7197409f1eed625dbd7e626ab81c",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
+      }
+    ],
+    "owner_privilege": "postgres EXECUTE owner-only, no grant option; public worker RPCs additionally service_role EXECUTE without grant option; no PUBLIC/anon/authenticated or unknown role grants",
+    "comparison": "Append exact nine approved contract records to expected baseline; retain all actual records; independently compare native owner/result/language/definer/config/body_md5/effective EXECUTE and raw ACL rows. Every original comparison remains unchanged.",
+    "gate_pr": 183,
+    "merge": "4bda8189de1e3b3d18ffe74e1db5574d8405284c"
   }
 }
