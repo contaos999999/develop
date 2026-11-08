@@ -706,3 +706,10 @@ test('opaque DATA Worker proof expects native own CORS denial while still requir
   }
   assert.throws(()=>validateNativeProxyWorkerProof('DATA',[{status:200,rejected:false},true,true,'OPAQUE'],{own_start_requests:1,own_bootstrap_requests:0,foreign_tcp_connections:0,foreign_http_requests:0,websocket_upgrades:0,deny_connections:2}));
 });
+
+test('public HTML variant diagnostics reveal only hashes counts and closed classes, never raw token or URL values',async()=>{
+  const {publicHTMLVariantSummary}=await import('./p0_crud_global_browser.mjs');
+  const expected='<script data-client-token="CANARY_ALPHA">https://private.invalid/token</script>',actual='<script data-client-token="CANARY_BRAVO">https://private.invalid/token</script>';
+  const analyzer={htmlEntries:html=>[{attributes:[['type','application/json']],source:html}]};const result=publicHTMLVariantSummary(analyzer,expected,actual),encoded=JSON.stringify(result);
+  assert.equal(result.executable_entries_equal,true);assert.equal(result.all_script_entries_equal,false);assert.equal(result.first_difference_tag,'script');assert.equal(result.first_difference_attribute,'data-client-token');assert.equal(result.expected_script_count,1);assert.equal(result.actual_script_count,1);assert(!encoded.includes('CANARY_'));assert(!encoded.includes('private.invalid'));assert(!encoded.includes('https://'));
+});

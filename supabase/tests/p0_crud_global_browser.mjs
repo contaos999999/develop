@@ -58,6 +58,13 @@ export function validateHTMLParserFixtures(parser){
   const scripts=publicHTMLScripts(parser,'<script defer src="/~flock.js"></script><script>const bootstrap=1;</script><script type=module src="/assets/main.js"></script>');
   assert.equal(scripts.length,3);assert.equal(scripts[1].source,'const bootstrap=1;');assert.equal(new Map(scripts[2].attributes).get('src'),'/assets/main.js');
 }
+export function publicHTMLVariantSummary(analyzer,expected,actual){
+  assert.equal(typeof expected,'string');assert.equal(typeof actual,'string');assert(Buffer.byteLength(expected)<=262144&&Buffer.byteLength(actual)<=262144);
+  let prefix=0;while(prefix<expected.length&&prefix<actual.length&&expected[prefix]===actual[prefix])prefix++;let suffix=0;while(suffix<expected.length-prefix&&suffix<actual.length-prefix&&expected[expected.length-1-suffix]===actual[actual.length-1-suffix])suffix++;
+  const before=expected.slice(expected.lastIndexOf('<',prefix),prefix),tag=/^<\/?([a-z0-9:-]+)/i.exec(before)?.[1]?.toLowerCase(),attribute=/([a-z0-9:_-]+)\s*=\s*["'][^"']*$/i.exec(before)?.[1]?.toLowerCase();
+  const left=analyzer.htmlEntries(expected),right=analyzer.htmlEntries(actual),executable=entries=>entries.filter(script=>!['application/json','application/ld+json'].includes(new Map(script.attributes).get('type'))),hash=value=>createHash('sha256').update(value).digest('hex');
+  return {all_html_bytes_equal:expected===actual,expected_bytes:Buffer.byteLength(expected),actual_bytes:Buffer.byteLength(actual),first_difference_character:prefix,common_suffix_characters:suffix,first_difference_tag:['script','meta','link','html','head','body','title','div','input'].includes(tag)?tag:'OTHER',first_difference_attribute:['nonce','content','src','href','value','data-token','data-client-token','data-project-token','integrity','crossorigin','lang','style','class','id','type'].includes(attribute)?attribute:'OTHER',expected_script_count:left.length,actual_script_count:right.length,all_script_entries_equal:JSON.stringify(left)===JSON.stringify(right),executable_entries_equal:JSON.stringify(executable(left))===JSON.stringify(executable(right)),expected_changed_region_sha256:hash(expected.slice(prefix,expected.length-suffix)),actual_changed_region_sha256:hash(actual.slice(prefix,actual.length-suffix))};
+}
 export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
   try{
     onPhase('READ_HTML');const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
@@ -90,7 +97,7 @@ export async function inspectPublishedBackend(fetcher,analyzer,onPhase=()=>{}){
     }
     onPhase('PROVE_CONFIGURED_CLIENT');const binding=analyzer.prove(modules,entries);assert.equal(binding.verified,true);assert(/^\d+\.\d+\.\d+$/.test(analyzer.version));if(analyzer.reference_sha256){assert(/^[a-f0-9]{64}$/.test(analyzer.reference_sha256));assert.equal(analyzer.compiler_version,'1.2.1');}
     const result={state:'HML_CONFIG_CONFIRMED',frontend_head:null,source_parity:'NAO_VERIFICADA',module_count:modules.size,asset_sha256:[...modules.values()].map(s=>createHash('sha256').update(s).digest('hex')),parser_version:analyzer.version,sdk_version:'2.118.0',...(analyzer.reference_sha256?{sdk_source_sha256:analyzer.reference_sha256,compiler_version:analyzer.compiler_version}:{} )};
-    Object.defineProperty(result,'runtimeProof',{value:{origin:PUBLISHED_ORIGIN,html_sha256:createHash('sha256').update(html).digest('hex'),modules:new Map([...modules].filter(([url])=>!url.includes('/__inline_')).map(([url,source])=>[url,createHash('sha256').update(source).digest('hex')]))}});return result;
+    Object.defineProperty(result,'runtimeProof',{value:{origin:PUBLISHED_ORIGIN,html_sha256:createHash('sha256').update(html).digest('hex'),diagnoseHTML:async body=>{assert(Buffer.isBuffer(body)&&body.length<=262144);const repeat=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);return {available:true,initial_vs_browser:publicHTMLVariantSummary(analyzer,html,body.toString('utf8')),initial_vs_repeat:publicHTMLVariantSummary(analyzer,html,repeat)};},modules:new Map([...modules].filter(([url])=>!url.includes('/__inline_')).map(([url,source])=>[url,createHash('sha256').update(source).digest('hex')]))}});return result;
   }catch{throw Error('PUBLICADA_BACKEND_NAO_COMPROVADO');}
 }
 export function publishedRequestAllowed(raw,navigation=false,ownDownloads=[]){
@@ -165,7 +172,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   assert(proof?.modules instanceof Map&&proof.modules.size>0);assert.equal(typeof allowed,'function');
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
-  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,failureProtocol=null,failureRequest=null,failureHashes=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0,workerWaiting=0,workerRuntimeResumes=0;
+  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,failureProtocol=null,failureRequest=null,failureHashes=null,failureHTML=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,workerTargets=0,workerReady=0,workerWaiting=0,workerRuntimeResumes=0;
   const active=new Set();
   const fail=error=>{failed=true;if(!failureHashes&&/^[a-f0-9]{64}$/.test(error?.proof_hashes?.expected??'')&&/^[a-f0-9]{64}$/.test(error?.proof_hashes?.actual??''))failureHashes={expected:error.proof_hashes.expected,actual:error.proof_hashes.actual};if(!failureProtocol&&Number.isInteger(error?.protocol_code))failureProtocol={code:error.protocol_code,reason:error.protocol_reason};if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
@@ -179,15 +186,15 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
     if(failed||!allowed(url,resourceType==='Document')){await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'});throw Object.assign(Error('Published request blocked before transmission'),{code:'FENCE_UNAPPROVED_REQUEST'});}
     const response=event.responseStatusCode!==undefined||event.responseErrorReason!==undefined;
     if(!response){await send(session,'Fetch.continueRequest',{requestId});return;}
-    try{
-      if(event.responseErrorReason)throw Object.assign(Error('Published response transport failed'),{code:'FENCE_RESPONSE_TRANSPORT'});if(event.responseStatusCode>=300&&event.responseStatusCode<400){redirectBlocks++;throw Object.assign(Error('Published redirects are blocked before following'),{code:'FENCE_RESPONSE_REDIRECT'});}let body;
+    let body;try{
+      if(event.responseErrorReason)throw Object.assign(Error('Published response transport failed'),{code:'FENCE_RESPONSE_TRANSPORT'});if(event.responseStatusCode>=300&&event.responseStatusCode<400){redirectBlocks++;throw Object.assign(Error('Published redirects are blocked before following'),{code:'FENCE_RESPONSE_REDIRECT'});}
       if(resourceType==='Script'||(resourceType==='Document'&&new URL(url).origin===proof.origin)){
         const result=await send(session,'Fetch.getResponseBody',{requestId});body=Buffer.from(result.body,result.base64Encoded?'base64':'utf8');
       }
       validatePublishedResponse(proof,{url,resourceType,status:event.responseStatusCode,body});
       if(resourceType==='Script')verifiedScripts++;if(resourceType==='Document'&&new URL(url).origin===proof.origin)verifiedDocuments++;
       await send(session,'Fetch.continueResponse',{requestId});
-    }catch(error){if(!error.code)error.code=resourceType==='Document'?'FENCE_DOCUMENT_RESPONSE_REJECTED':resourceType==='Script'?'FENCE_SCRIPT_RESPONSE_REJECTED':'FENCE_OTHER_RESPONSE_REJECTED';await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
+    }catch(error){if(error.code==='FENCE_DOCUMENT_HASH'&&typeof proof.diagnoseHTML==='function'){try{failureHTML=await proof.diagnoseHTML(body);}catch{failureHTML={available:false};}}if(!error.code)error.code=resourceType==='Document'?'FENCE_DOCUMENT_RESPONSE_REJECTED':resourceType==='Script'?'FENCE_SCRIPT_RESPONSE_REJECTED':'FENCE_OTHER_RESPONSE_REJECTED';await send(session,'Fetch.failRequest',{requestId,errorReason:'BlockedByClient'}).catch(()=>{});throw error;}
   }
   function message(session,data){
     if(data.method==='Page.windowOpen'){if(!expectedPopup(data.params.url))fail({code:'FENCE_UNEXPECTED_POPUP'});}
@@ -222,7 +229,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   for(let i=0;!configured.has(initialTarget)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
   assert(configured.has(initialTarget),'Initial published target was not intercepted');await configured.get(initialTarget);assert(!failed);
   context.on('close',()=>{closed=true;root.close();});
-  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,worker_waiting:workerWaiting,worker_runtime_resumes:workerRuntimeResumes,protocol_failure:failureProtocol,failure_code:failureCode,failure_request:failureRequest,failure_hashes:failureHashes,failed})};
+  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,worker_targets:workerTargets,worker_ready:workerReady,worker_waiting:workerWaiting,worker_runtime_resumes:workerRuntimeResumes,protocol_failure:failureProtocol,failure_code:failureCode,failure_request:failureRequest,failure_hashes:failureHashes,html_variant:failureHTML,failed})};
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{},onEvidence=()=>{},deny){
