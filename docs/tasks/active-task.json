@@ -46,7 +46,9 @@
     ".github/workflows/restore-isolado.yml",
     "supabase/migrations/20261108183000_fix_document_vigency_wrapper.sql",
     "supabase/tests/history_catalog_compare.py",
-    "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql"
+    "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql",
+    "supabase/functions/queue-worker-ai/index.ts",
+    "supabase/functions/queue-worker-ai/job-envelope.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -56,7 +58,7 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -140,7 +142,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Retry only dependent parecer/apresentacao/protocolo with an approved, activated, applicable formal source created through official RPCs; preserve eight passed backend domains and documentary batch.",
+  "next_step": "Govern reviewed AI worker envelope correction; hold automatic material jobs until HML deploy and exact source readback receipt; then dispatch detail regression and dependent presentation proof only.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -1816,6 +1818,7 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
+      "documento_detalhe",
       "apresentacao"
     ],
     "pending_domains": [
@@ -1980,6 +1983,29 @@
       "raw_expected_sha256": "0cdd256da69c2b24c8b012233b7a775e9601d33239307c3918283b5a161bc48f",
       "raw_actual_sha256": "fd207fd0020dc5c1520c2708a2a980668c714fc25dc2ae9d11f4ad7115b03f9e",
       "physical_raw_acl_identity_claimed": false
-    }
-  }
+    },
+    "affected_domain_regression": [
+      "documento_detalhe"
+    ],
+    "approved_ai_worker_deploy": {
+      "project": "gklhhhyosgasnyoxlrui",
+      "function_slug": "queue-worker-ai",
+      "from_version": 4,
+      "expected_version": 5,
+      "verify_jwt": false,
+      "prior_source_sha256": "4dcd7031ee37747fa5aa42a78616ffb682149edafd9a435efff6b009c7b9da14",
+      "prior_bundle_sha256": "7025f81502cd2cda045a8d2149a22d6a543123721bf3796edfdbe2774e6e3b00",
+      "rollback_source_commit": "7f91937419ff4f9ddb1642f5cb4e6f2aaff98ac1",
+      "source_sha256": {
+        "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
+        "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
+      },
+      "gate": "Review, guard, Restore/rebuild/backup and public probe at approved HEAD; normal merge; main checks; zero active AI queue before and after HML-only deployment; management source readback exact; receipt in GATE138 bound to live main; manual workflow_dispatch exact HEAD/Restore/comment id before Auth. Automatic workflow_run held."
+    },
+    "uncertified_ai_consumers": [
+      "consulta_semantica (no handler, fail closed)",
+      "extrair_diligencia/revalidar_apontamento/minuta_contestacao/aprendizado_desfecho (contract tests only, material proofs not claimed)"
+    ]
+  },
+  "edge_function_change_scope": "Only queue-worker-ai HML: canonical nested envelope adapter and failed result persistence must not be called success. Preserve internal-token auth and current verify_jwt=false; both storage Edges/JWT true remain byte-identical. No frontend or PROD."
 }

@@ -5,6 +5,20 @@ on:
       - 'supabase/tests/p0_crud_global_remaining*'
       - 'supabase/tests/remaining_domains/**'
       - '.github/workflows/p0-crud-remaining-hml.yml'
+  workflow_dispatch:
+    inputs:
+      tested_head:
+        description: Exact live main HEAD after approved deployment
+        required: true
+        type: string
+      restore_run_id:
+        description: Successful push main Restore run for this HEAD
+        required: true
+        type: string
+      deploy_receipt_comment_id:
+        description: Verified source readback receipt in GATE 138
+        required: true
+        type: string
   workflow_run:
     workflows: ['ContaOS Restore Isolado']
     types: [completed]
@@ -16,22 +30,27 @@ concurrency:
   cancel-in-progress: false
 jobs:
   scope:
-    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository
+    if: (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.head_repository.full_name == github.repository) || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     outputs:
       applicable: ${{ steps.route.outputs.applicable }}
       domains: ${{ steps.route.outputs.domains }}
+      tested_head: ${{ steps.route.outputs.tested_head }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
           persist-credentials: false
       - name: Read-only exact task routing
         id: route
+        env:
+          REQUESTED_HEAD: ${{ inputs.tested_head }}
+          RESTORE_RUN_ID: ${{ inputs.restore_run_id || github.event.workflow_run.id }}
+          DEPLOY_RECEIPT_COMMENT_ID: ${{ inputs.deploy_receipt_comment_id }}
         run: |
           python3 - <<'PY'
-          import json,os,pathlib,sys
+          import json,os,pathlib,sys,re,subprocess
           task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
           assert isinstance(task.get('id'),str) and isinstance(task.get('phase'),str)
           applicable=(task['id'],task['phase'])==('P0-CRUD-GLOBAL-HML-20261107','BUILD_CERTIFICACAO_DOMINIOS_RESTANTES')
@@ -39,9 +58,15 @@ jobs:
           if applicable:
               sys.path.insert(0,'supabase/tests')
               from p0_crud_global_remaining_hml import selected_domains,assert_preserved
-              domains=selected_domains(task);assert_preserved(pathlib.Path('.'),task)
+              from remaining_domains.ai_deploy_gate import runtime_route
+              applicable=runtime_route(task,os.environ['GITHUB_EVENT_NAME'])
+              if os.environ['GITHUB_EVENT_NAME']=='workflow_dispatch':
+                  assert os.environ['GITHUB_REF']=='refs/heads/main'
+                  assert os.environ['REQUESTED_HEAD']==os.environ['GITHUB_SHA']==subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+                  assert re.fullmatch('[1-9][0-9]{1,20}',os.environ['RESTORE_RUN_ID']) and re.fullmatch('[1-9][0-9]{1,20}',os.environ['DEPLOY_RECEIPT_COMMENT_ID'])
+              if applicable:domains=selected_domains(task);assert_preserved(pathlib.Path('.'),task)
           with open(os.environ['GITHUB_OUTPUT'],'a') as out:
-              out.write('applicable='+str(applicable).lower()+'\n'+'domains='+json.dumps(domains)+'\n')
+              out.write('applicable='+str(applicable).lower()+'\n'+'domains='+json.dumps(domains)+'\n'+'tested_head='+subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()+'\n')
           print('APPLICABLE_OWN_DOMAINS' if applicable else 'NOT_APPLICABLE_NO_HML_ACCESS')
           PY
   public-probe:
@@ -105,15 +130,17 @@ jobs:
       contents: read
       checks: read
       actions: read
+      issues: read
     env:
-      TESTED_HEAD: ${{ github.event.workflow_run.head_sha }}
+      TESTED_HEAD: ${{ needs.scope.outputs.tested_head }}
       FRONTEND_HEAD: 164b10b44eaf5b553efcc7ab4e053b86c4d3b269
       DOMAIN: ${{ matrix.domain }}
-      RESTORE_RUN_ID: ${{ github.event.workflow_run.id }}
+      RESTORE_RUN_ID: ${{ inputs.restore_run_id || github.event.workflow_run.id }}
+      DEPLOY_RECEIPT_COMMENT_ID: ${{ inputs.deploy_receipt_comment_id }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ needs.scope.outputs.tested_head }}
           fetch-depth: 0
           persist-credentials: false
       - name: Install pinned official CLI for single approved detail migration
@@ -140,6 +167,17 @@ jobs:
           for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
               assert any(c['name']==name and c['head_sha']==sha and c['conclusion']=='success' for c in checks),name
           private=pathlib.Path(os.environ['RUNNER_TEMP'])/('contaos-remaining-'+os.environ['DOMAIN'])
+          if task.get('remaining_certification',{}).get('approved_ai_worker_deploy'):
+              import re
+              from remaining_domains.ai_deploy_gate import validate_receipt
+              assert os.environ['GITHUB_EVENT_NAME']=='workflow_dispatch'
+              comment_id=os.environ['DEPLOY_RECEIPT_COMMENT_ID'];assert re.fullmatch('[1-9][0-9]{1,20}',comment_id)
+              comment=api('issues/comments/'+comment_id)
+              assert comment['user']['login']=='contaos999999' or comment['user']['login']=='contaos9999'
+              assert comment['issue_url']=='https://api.github.com/repos/contaos999999/develop/issues/138'
+              receipt=validate_receipt(task,sha,json.loads(comment['body']))
+              private.mkdir(mode=0o700,parents=True,exist_ok=True)
+              path=private/'ai-deploy-receipt.json';path.write_text(json.dumps(receipt,indent=2)+'\n');path.chmod(0o600)
           with open(os.environ['GITHUB_ENV'],'a') as out:out.write('CONTAOS_TEST_PRIVATE_DIR='+str(private)+'\n')
           print('HEAD_MANIFEST_PRESERVED_PROOF_CHECKS_SUCCESS')
           PY
@@ -194,6 +232,7 @@ jobs:
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/report.json
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/cleanup.json
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/catalog-parity-receipt.json
+            ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/ai-deploy-receipt.json
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/migration-receipt.json
           if-no-files-found: error
           retention-days: 30

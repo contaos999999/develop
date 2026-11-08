@@ -76,7 +76,7 @@ test('real gate rejects missing check, failed check and advanced HEAD before Aut
  try{
   const task=JSON.parse(readFileSync('docs/tasks/active-task.json','utf8'));const protectedPaths=Object.keys(task.remaining_certification.preserved_documental.protected_sha256);
   for(const p of [...protectedPaths,'supabase/tests/p0_crud_global_remaining_hml.py','docs/tasks/active-task.json']){mkdirSync(join(dir,p,'..'),{recursive:true});copyFileSync(p,join(dir,p));}
-  task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
+  delete task.remaining_certification.approved_ai_worker_deploy;task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
   mkdirSync(join(dir,'bin'));
   writeFileSync(join(dir,'bin/git'),`#!/usr/bin/env python3
 import sys,os
