@@ -1398,7 +1398,8 @@
       "hml_mutations": false,
       "material_fixtures_created": 0,
       "backup_post_start_cleanup_red": "1FAIL STARTED without CLEANUP_ATTEMPT; flag moved before both starts, GREEN real orchestration regression",
-      "firewall_bootstrap_red": "1FAIL no KERNEL -S INPUT on 0f36a helper; valid native-policy bootstrap reaches CLI only after rule checks; divergent policy rejected"
+      "firewall_bootstrap_red": "1FAIL no KERNEL -S INPUT on 0f36a helper; valid native-policy bootstrap reaches CLI only after rule checks; divergent policy rejected",
+      "tcp_control_port": "READ_ACTUAL_LOCAL_POSTGRES_SHOW_PORT_STRICT_INTEGER"
     },
     "first_build_failure": {
       "head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
@@ -1409,6 +1410,16 @@
       "backup_artifact": 13607001525,
       "sha256": "9fbee7cca5163b8aa0a7571505ccb863cb1a5144c120c66a517412751e6864ee",
       "no_hml_mutation": true
+    },
+    "second_build_failure": {
+      "head": "e2e069a0eee88d45efe4af7a405584cd8b88c5a3",
+      "restore": 42454681892,
+      "public_probe": 42454681852,
+      "state": "FAIL_NATIVE_TCP_CONTROL_AFTER_DBSTART_BEFORE_RESET",
+      "backup_artifact": 13606742586,
+      "sha256": "db9a2be04c4e0ba829c931d438c89bbc29350e2e6cfca9f9c3f66916e5253a09",
+      "no_hml_mutation": true,
+      "exact_cause": "UNCLASSIFIED_NOT_PRESUMED"
     }
   }
 }

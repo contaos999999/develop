@@ -99,13 +99,17 @@ def native_proof(subnets):
     try:
         positive(1)
         before_tcp=dropped()
+        database_port=local_sql('show port;')
+        require(re.fullmatch(r'[0-9]+',database_port) and 1<=int(database_port)<=65535,'Actual local Postgres TCP port required')
         script='''command -v timeout >/dev/null || exit 90
-timeout 3 bash -c 'exec 3<>/dev/tcp/127.0.0.1/5432' >/dev/null 2>&1 || exit 91
+timeout 3 bash -c 'exec 3<>/dev/tcp/127.0.0.1/"$1"' proof "$3" >/dev/null 2>&1 || exit 91
 timeout 3 bash -c 'exec 3<>/dev/tcp/"$1"/"$2"' proof "$1" "$2" >/dev/null 2>&1
 code=$?
 case "$code" in 1|124) exit 0;; *) exit 92;; esac'''
-        p=capture(['docker','exec',container,'bash','-c',script,'proof',address,str(port)])
-        require(p.returncode==0,'Native isolated TCP denial or local positive failed')
+        p=capture(['docker','exec',container,'bash','-c',script,'proof',address,str(port),database_port])
+        diagnostic={'class':{0:'NATIVE_TCP_CONTROLS_OK',90:'TIMEOUT_TOOL_MISSING',91:'LOCAL_POSTGRES_TCP_POSITIVE_FAILED',92:'EXTERNAL_TCP_NOT_DENIED'}.get(p.returncode,'DOCKER_OR_UNKNOWN_FAILURE'),'drop_packets_delta':dropped()-before_tcp,'controlled_receiver_connections':len(accepted)-1}
+        print('LOCAL_TCP_CONTROL_DIAGNOSTIC '+json.dumps(diagnostic),flush=True)
+        require(p.returncode==0,'Native TCP control failed: '+diagnostic['class'])
         tcp_delta=dropped()-before_tcp;require(tcp_delta>0,'TCP failure without native DROP is not proof')
         pg_net_state='NOT_INSTALLED_BEFORE_RESET';pg_net_delta=None
         installed=local_sql("select exists(select 1 from pg_extension where extname='pg_net');")=='t'
