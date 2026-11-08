@@ -593,3 +593,12 @@ assert r.report.get('published_smoke',{}).get('state')!='PASS_SQL_CONFIRMED','Pr
 print('NO_PREMATURE_SQL_PASS')`;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/NO_PREMATURE_SQL_PASS/);
 });
+
+
+test('public inspection parses same-origin classic and inline scripts rather than ignoring them',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),o=m.PUBLISHED_ORIGIN;
+ const html='<script defer src="/~flock.js"></script><script>const bootstrap=1;</script><script type="module" src="/assets/main.js"></script>';
+ const bodies=new Map([[o+'/login',html],[o+'/~flock.js','const telemetry=1;'],[o+'/assets/main.js','const app=1;']]);let inspected=0;
+ const result=await m.inspectPublishedBackend(async url=>({ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})}),{version:'5.9.3',imports:()=>[],prove(modules,entries){assert.equal(modules.size,3);assert.equal(entries.length,3);assert([...modules.values()].includes('const bootstrap=1;'));assert([...modules.values()].includes('const telemetry=1;'));inspected++;return {verified:true};}});
+ assert.equal(inspected,1);assert.equal(result.module_count,3);assert(!JSON.stringify(result).includes('bootstrap'));
+});
