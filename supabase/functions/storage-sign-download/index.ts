@@ -3,7 +3,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 const URL=Deno.env.get('SUPABASE_URL')!
 const ANON=Deno.env.get('SUPABASE_ANON_KEY')!
 const LIMITE_JSON=8*1024
-const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app']
+const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app','https://contaos-41-hml.vercel.app']
 const HEADERS_CORS=['authorization','x-client-info','apikey','content-type']
 function cabecalhosCors(origem:string|null,preflight=false){
  return {'cache-control':'no-store','x-content-type-options':'nosniff','vary':preflight?'Origin, Access-Control-Request-Method, Access-Control-Request-Headers':'Origin',...(origem?{'access-control-allow-origin':origem}:{})}

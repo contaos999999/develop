@@ -127,3 +127,12 @@ HEAD49275f778cf2a5551e41be8a3f40dd55bf14f353/public42448737328 chegou a PUBLISHE
 HEAD2b2bb2cf172d654966ec76d7764b215a37326d00/public42448929569 SUCCESS, artefato13604249723 SHA256e3bd0eb6e147afe93991596bfc70d07df39460ecfdf193124b4320b5b8be62e4 baixado/conferido:12assertions PASS, seis variantes de Document,114módulos e49hashes de scripts efetivamente carregados; SDK2.118.0 fonte5ff2a352cefac11d3e93e29d3c8396e7bea471323cb3cd42fe612adb604aa228. Todos negativos com foreignTCP/HTTP/execução rejeitada0 após close/drain. Não é prova material nem paridade SHA publicada.
 
 Teste C independente do harness completo(Node/Python/Edges/CORS/GATE1–14/manifesto) reexecutou268/268, confirmou5arquivos/3documentos/5versões, publicado primeiro, quatro locais, SQLreadiness restrita e quarentena preservando running. Encontrou Important de falha CDP tardia não revalidada no relatório final. Corrigido após RED helper ausente: finalizadores capturam sink original da proveniência e revalidam/persistem snapshot.failed após browser.close/deny.close; qualquer falha força FAIL e exitCode1, inclusive smoke separado. GREEN63/63protocolo269/269suíte. Novo HEAD exige CI inteiro novamente; SUCCESS anterior não o libera. Sem deploy, credenciais materiais ou certificação.
+
+
+## Origem Vercel HML: BUILD separado, 08/11/2026
+
+PR139 integrado em a58689e1cd0d414abd503e674832aa4a1e4b2c37 após guard42449196158, restore42449196348 e public42449196146 SUCCESS noHEAD2fcd7bae. Artefato13604378113 SHA256ef57f6f10fbc9754f9c44e8646cf906a1cf24379ef3188421c0f5a6a32b38366 conferido:12assertionsPASS, sem upload material. GATE144 reconciliado mantendo manifesto139 e integrado ea48a5350cfc1ca031cb69ed60cd7e11f3300138 após guard42449528794SUCCESS e revisão independente semCritical/Important.
+
+TDD desta continuação: suíteCORS com origemVercel e oito variações maliciosas/preview retornou152PASS/74FAIL contra funções antigas, total226. O único delta de produto adiciona literalmente https://contaos-41-hml.vercel.app às listas de upload e download. Preservados JWTtrue,POST/OPTIONS,quatroheaders,RBAC/RLS,no-store,Vary,semcookies ouwildcard. Testes positivos/negativos ampliados sem remoção de assertions. GREEN e CI final requeridos antes do merge/deploy. Nenhum deploy ou upload material é alegado por este registro.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; funções existentes reutilizadas; sem mudanças frontend, SDK, Auth, schema, Storageconfig, workflows ou PROD.

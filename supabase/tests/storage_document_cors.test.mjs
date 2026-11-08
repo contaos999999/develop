@@ -5,7 +5,7 @@ import { webcrypto } from 'node:crypto';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-const origins = ['http://127.0.0.1:4173', 'https://scope-and-approval-keeper.lovable.app'];
+const origins = ['http://127.0.0.1:4173', 'https://scope-and-approval-keeper.lovable.app', 'https://contaos-41-hml.vercel.app'];
 const requestHeaders = ['authorization', 'x-client-info', 'apikey', 'content-type'];
 const endpoints = ['upload', 'download'];
 const uploadBody = { id_organizacao: 'org-fixture', id_contrato: 'contract-fixture', nome_arquivo: 'Relatório final.pdf', mime: 'application/pdf', tamanho: 12 };
@@ -105,6 +105,10 @@ async function jsonError(response, status, code, origin) {
   return body;
 }
 const invalidOrigins = [
+  'http://contaos-41-hml.vercel.app', 'https://contaos-41-hml.vercel.app:444',
+  'https://contaos-41-hml.vercel.app.evil.invalid', 'https://contaos-41-hml.vercel.app/',
+  'https://contaos-41-hml.vercel.app/path', 'https://user@contaos-41-hml.vercel.app',
+  'https://CONTAOS-41-HML.vercel.app', 'https://contaos-41-gracjjtr1-contaos9999.vercel.app',
   '', 'null', 'undefined', '*', 'http://localhost:4173', 'http://127.0.0.1:4174', 'https://127.0.0.1:4173',
   'http://127.0.0.1:4173/', 'http://127.0.0.1:4173/path', 'http://user@127.0.0.1:4173',
   'http://scope-and-approval-keeper.lovable.app', 'https://scope-and-approval-keeper.lovable.app:444',
