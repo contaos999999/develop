@@ -136,17 +136,8 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "BUILD156: contençãoTCP/HTTPnativaantesstartcompatívelcomSQLlocal,semcertificarDNS;provaREALnet.http_postlocal+DROP/receptor0/positivos+326regressões. Revisão/CIguard/public/Restore/backupnomesmoHEAD,mergenormal eapplycanônicoHMLsóapósPASS. PreservarFAIL0f36a,152/148DRAFT,semPROD/novasEdges/V1/V2.",
-  "database_change_scope": {
-    "migration": "20261107094443_p0_v117_revisao_humana.sql",
-    "new_public_functions": [
-      "obter_contexto_revisao_v117",
-      "registrar_revisao_requisito_v117"
-    ],
-    "legacy": "privado.registrar_resultado_requisito seis argumentos passa a falhar fechado exigindo fluxo protegido; assinatura e ACL preservadas",
-    "business_tables_changed": [],
-    "triggers": "impedir DML direto authenticated em resultados/evidências; operações internas autorizadas preservadas"
-  },
+  "next_step": "Não repetir upload152, BUILD155 ou migration20261108060000: integrados e comprovados. Retomar requisitos pendentes da Trilha A no planejamento vigente, sem declarar auditoria global concluída. Executor Trilha B deve reancorar seu PR148 e executar sua prova material própria ainda pendente; não reutilizar nem limpar fixture152. Qualquer novo código/DDL exige escopo próprio e CI/revisão.",
+  "database_change_scope": "Somente checkpoint documental de implantação já concluída; nenhuma nova DDL ou alteração HML autorizada por este manifesto.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -1288,13 +1279,19 @@
     "versions": 1,
     "list_after_reload": true,
     "detail_verified": true,
-    "security_status": "pendente",
-    "processing": "na_fila",
+    "security_status": "aprovado",
+    "processing": "concluido",
     "full_v1_certification": false,
-    "prod": false
+    "prod": false,
+    "before_worker_repair": {
+      "security_status": "pendente",
+      "processing": "na_fila"
+    },
+    "worker_build_pr": 155,
+    "worker_deploy": 42475332474
   },
   "document_worker_runtime_gate": {
-    "phase": "BUILD",
+    "phase": "VERIFICADO_HML",
     "owner": "EXECUTOR_INDEPENDENTE_TRILHA_B",
     "base": "9af2c6a6b42ec175126d1bd2b2f33905742d8ad7",
     "project": "gklhhhyosgasnyoxlrui",
@@ -1492,7 +1489,58 @@
       "gate_merge": "eedf922cdf3fab0673438fb4627c327411819bd2",
       "gate_ci": 42473235121
     },
-    "raw_acl_requirement_superseded_by": 158
+    "raw_acl_requirement_superseded_by": 158,
+    "failure_resolved": true,
+    "verified_fixture152": true,
+    "verified_receipt": {
+      "date": "2026-11-08",
+      "project": "gklhhhyosgasnyoxlrui",
+      "build_pr": 155,
+      "tested_head": "39cb9ef93f319056be4161f344d705ecd5a7ec1f",
+      "merge": "79aec0002712df1a2262bdee9185cc406ba21eb2",
+      "guard": 42475021499,
+      "historical_source": 42475021428,
+      "public_probe": 42475021264,
+      "restore": 42475021266,
+      "rebuild_job": 128714305872,
+      "backup_job": 128714305654,
+      "local_node_tests": 336,
+      "deploy": 42475332474,
+      "deploy_job": 128715271347,
+      "migration_version": "20261108060000",
+      "migration_sha256": "b9eaba3e21f4d811f1d20a90bf9269ea2ab32825cbcc110618778fcc6b26a191",
+      "extension_version": "0.20.4",
+      "extension_schema": "extensions",
+      "api_preinstall": "PASS",
+      "api_postinstall": "PASS",
+      "auth_cleanup_both": "OWN_AUTH_ABSENT_CONFIRMED",
+      "api_assertions_per_stage": 9,
+      "artifact_id": 13614902486,
+      "artifact_sha256": "ba7d49fd5921faada31db7042d33133757b0424802414200771e302863a77292",
+      "document": "525e54fc-feec-4dc0-b540-1510a3c52485",
+      "file": "8cc6ac08-7f5b-469c-ab50-7b33d5a12379",
+      "version": "2ea42a44-db27-4c4e-801f-9fc5227c2458",
+      "job": "431c5c89-812e-4d7e-99be-5550a55bafcf",
+      "job_attempts": 1,
+      "job_status": "concluido",
+      "job_started_utc": "2026-11-08T11:21:16.353468Z",
+      "job_finished_utc": "2026-11-08T11:21:17.529059Z",
+      "security_status": "aprovado",
+      "security_validation": "integridade_e_assinatura",
+      "processing_status": "concluido",
+      "pages": 1,
+      "fragments": 1,
+      "bytes": 285,
+      "file_sha256": "773eb577ba88a260247803d37dced4f5469e8c39347dd3fe7c58c4d9f4681103",
+      "page_hash_matches_file": true,
+      "authenticated_ui_after_reload": true,
+      "screenshot_sha256": "ece23efad5f4478fcb94ee898296668e7736d0bcc77ce8a35fea89b8ef7dbf7a",
+      "normal_cron_only": true,
+      "manual_security_approval": false,
+      "full_v1_certification": false,
+      "universal_antivirus_certification": false,
+      "prod": false
+    }
   },
   "worker_client_attack_surface": {
     "base": "39cb9ef93f319056be4161f344d705ecd5a7ec1f",
@@ -1500,6 +1548,7 @@
     "hml_mutations": false,
     "additional_edges": false,
     "no_secrets_or_queue_rows_read": true,
-    "integrated_base": "79aec0002712df1a2262bdee9185cc406ba21eb2"
+    "integrated_base": "79aec0002712df1a2262bdee9185cc406ba21eb2",
+    "checkpoint_preserved": "a1ecb48546e1298d1d35e4f4e4d8b76d4eb59e57"
   }
 }

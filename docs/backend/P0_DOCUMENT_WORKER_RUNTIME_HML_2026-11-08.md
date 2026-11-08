@@ -207,6 +207,48 @@ HEADd21fb055: guard42474670270/histórico42474670303/public42474670278SUCCESS. R
 Delta mínimo de hipótese temporal: polling do MESMO request até45s, mantendo exigências resposta statusnull com timeout/error, DROPpositivo e receptor0, sem restart/pausa de worker/cron, sem apagar filas, sem trocar destino nem relaxar firewall. Deadline vencida continua FAIL. Teste extrai funçãoREAL: REDausente; GREENresposta só após12s e caso sem resposta recusa até45s. Suíte336/336PASS. NovoCIreal ainda obrigatório para confirmar hipótese; HML intacto.
 
 
+## Checkpoint oficial: duas pendências resolvidas no HML em 08/11/2026
+
+Este registro substitui o estado pendente dos checkpoints152/157 para a fixture152, preservando os diagnósticos anteriores como histórico. **Worker documental e verificação de segurança desta fixture foram executados e comprovados.** Não repetir upload, instalação da extensão ou processamento já concluídos. A auditoria global da Trilha A e a prova material própria do PR148 continuam dependentes de seus requisitos específicos.
+
+### Fonte, revisão, CI e implantação
+
+- PR155 integrado normalmente em `79aec0002712df1a2262bdee9185cc406ba21eb2`; HEAD testado `39cb9ef93f319056be4161f344d705ecd5a7ec1f`, ancestral do merge com bytes da migration idênticos, verificados por git. Local336/336Node, zero falhas/skips. Revisão independente do conjunto e das correções sem Critical/Important pendente.
+- Guard42475021499, histórico42475021428, public-probe42475021264 e Restore42475021266: **SUCCESS** no mesmo HEAD. Reconstrução128714305872 e backup128714305654: **SUCCESS**, incluindo controles nativosTCP/HTTP com respostas negativas dos próprios requests, DROPpositivo e receptor0. A última prova da reconstrução precisou mais de10s e terminou com deniedtrue/DROP82, confirmando a espera assíncrona sem afrouxar isolamento.
+- [Implantação42475332474](https://github.com/contaos999999/develop/actions/runs/42475332474), job128715271347: **SUCCESS**. Inputs: deploy_one, versão20261108060000, HEAD39cb9ef93 completo e SHA256 `b9eaba3e21f4d811f1d20a90bf9269ea2ab32825cbcc110618778fcc6b26a191`. CLI2.81.3 aplicou uma única migration, confirmou uma linha de histórico e paridade global. Nenhum replay de SQL histórico.
+- SQL pós-deploy confirmou pg_net0.20.4 emextensions e a versão20261108060000 presente uma única vez. Mantido o contrato gerenciado expressamente autorizado no GATE158, inclusive risco residual de leitura administrativa SQL dos headers internos. Sem alteração de workers, RLS, configuração Auth ou PROD.
+
+### Prova real da fronteira API antes e depois
+
+Artefato13614902486 `contaos-worker-api-boundary`, ZIP SHA256 `ba7d49fd5921faada31db7042d33133757b0424802414200771e302863a77292`, baixado e conferido. Os dois JSONs apontam o HEAD39cb9ef93 completo, estadoPASS, nove assertions true e limpeza `OWN_AUTH_ABSENT_CONFIRMED`. Não contêm senhas, JWT, chave administrativa, headers internos ou bodies HTTP. Artefato expira em08/12/2026; os resultados essenciais ficam persistidos neste checkpoint e no manifesto.
+
+| Controle real | Preinstall | Postinstall |
+|---|---|---|
+| Extensão no estado esperado, clientes sem LOGIN, inventário SQL nominal, destino e cron HML | PASS | PASS |
+| Auth/settings anônimo, sem credencial administrativa | 200 | 200 |
+| DataAPI net anônimo | 406/PGRST106 | 406/PGRST106 |
+| Criação de identidade própria, login e /auth/v1/user | 200, identidade confirmada | 200, identidade confirmada |
+| JWT emitido pelo Auth com roleauthenticated e sub próprio | PASS | PASS |
+| DataAPI pública com JWTnormal, seleção id/limit0 | 200 | 200 |
+| DataAPI net com o mesmo JWTnormal | 406/PGRST106 | 406/PGRST106 |
+| Exclusão da própria identidade e ausência confirmada | PASS | PASS |
+
+### Resultado material da fixture152 preservada
+
+Contrato `be89ef7e-d839-46c0-9cfb-4da81edf8b74` / AUD-A-VERCEL-20261108, organização ContaOS HML Teste. Arquivo `8cc6ac08-7f5b-469c-ab50-7b33d5a12379`, documento `525e54fc-feec-4dc0-b540-1510a3c52485`, versão1 `2ea42a44-db27-4c4e-801f-9fc5227c2458`, job `431c5c89-812e-4d7e-99be-5550a55bafcf`.
+
+O cron normal5 succeeded em11:21:14UTC. O job iniciou em11:21:16.353468UTC e concluiu em11:21:17.529059UTC, **uma tentativa, sem erro**. Não houve chamada manual ao consumidor global nem UPDATE manual de aprovação. O worker aprovou o arquivo por `integridade_e_assinatura` e gravou `DOCUMENTO_PROCESSADO`, documentsconcluido, uma página e um fragmento. O TXT permaneceu285bytes com SHA256 `773eb577ba88a260247803d37dced4f5469e8c39347dd3fe7c58c4d9f4681103`; hash do texto da página coincide com o arquivo. Contagem de execucoes_assincronas é1tentativa; processamentos_documento/UI exibe tentativas0 em seu contador próprio, sem confundir os dois campos.
+
+Às11:22UTC, crons5/6/9 succeeded após implantação; consulta somente de status confirmou21 respostasHTTP200 semtimeout, sem ler headers/body. A interface autenticada Vercel, após reload, mostrou **Aprovado**, **Concluído**, **Página1** e **Fragmento1** com o texto sintético preservado. Captura `contaos-worker-approved-20261108.png`, SHA256 `ece23efad5f4478fcb94ee898296668e7736d0bcc77ce8a35fea89b8ef7dbf7a`, registra organização, nome/hash/285bytes, aprovação e processamento concluído.
+
+Tentativa adicional de download não gerou recibo de conclusão no navegador automatizado antes de um timeout da ferramenta. Não contabilizar esse download como PASS nem como falha funcional comprovada do produto. A prova destas duas pendências é processamento/segurança por SQL e interface autenticada, não transferência de download.
+
+### Continuidade sem repetir trabalho
+
+Última etapa comprovada: upload152 preservado, runtime155 integrado/aplicado e aprovação/processamento da sua fixture concluídos, com provasAPI reais e cleanup. As duas pendências específicas desta execução estão encerradas. Próxima tarefa: retomar a matriz de requisitos ainda pendentes no planejamento da Trilha A; a prova material do executor Trilha B/PR148 deve ser própria, reancorada e validada no HEAD correspondente. Este checkpoint não autoriza limpar/reutilizar a fixture152 nem incorporar prova alheia.
+
+Não declarar antivírus universal, todos os formatos, CRUD global ou V1 certificados com este TXT. Nenhum V2 ou PROD. Qualquer novo código/DDL exige novo escopo e validação; este PR de checkpoint altera somente estes dois documentos. ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: resultado reaproveita frontend e workers existentes, sem alteração visual ou novo turno Lovable; evidências preservadas e trabalho concluído não repetido.
+
 ## Defesa adicional contra elevação e exposição indireta, proposta independente
 
 Titular pediu buscar/implementar solução segura preservando arquitetura. Reancoragem155/39cb9ef e main/eedf922, sem avançar branch nem sobrescreverWIP do outro executor. O GATE158 existente permanece fonte canônica; este delta acrescenta controles de catálogo somenteleitura ao preflight antes de qualquerAuth/DDL.
@@ -235,3 +277,6 @@ Revisor confirmou Importantresolvido porinspeção. Observação menor: timeout/
 Acrescentado sexto caminho .github/workflows/restore-isolado.yml: disparosPR/push para os testes novos e passo Workerclientprivilegecatalog apósreset antesaceitação. Executa MESMAconsulta emBEGINREADONLY/ROLLBACKnoPostgresLOCALreal eexigesomente t comexit0. Não remove/skiptestes ouproteções; as provaslegadas decontenção/backup/material permanecem. O scriptPGliteé suplementolocalcomdependênciatemporária fixada, nãodependênciadeproduto nemcertificaçãoHTTP/HML.
 
 Estado: código eprovaslocaisconcluídos; CIremoto/revisãofinal/integraçãodestedeltacontinuamobrigatórios. Não declara segurançauniversal, resoluçãodequalquerSQLdinâmico/análisetransitivacompleta,5provasmateriais,CRUDouV1. NenhumanovaEdge/DDL/grant/role/Authconfig/Storage/frontend/PROD alterados.
+
+
+Reancoragem concorrente: checkpoint160/main a1ecb48546e1298d1d35e4f4e4d8b76d4eb59e57 preservado integralmente antes desta seção. Manifesto mantém verified_receipt e todas as evidências alheias; merge normal de b7a9e6d+a1ecb48, sem force/CAS sobre branches alheias. Novos checks precisam corresponder ao HEAD reancorado.
