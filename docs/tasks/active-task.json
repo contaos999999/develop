@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Retomada documental com autorização vinculada ao HEAD verificado",
+  "title": "Corrigir submissão do filtro documental após cinco uploads reais",
   "status": "ativa",
   "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
@@ -38,9 +38,9 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    ".github/workflows/p0-crud-global-browser-hml.yml",
-    "supabase/tests/p0_crud_global_protocol.test.mjs",
-    "docs/backend/P0_DOCUMENT_HEAD_AUTHORIZATION_2026-11-08.md"
+    "docs/backend/P0_DOCUMENT_HEAD_AUTHORIZATION_2026-11-08.md",
+    "supabase/tests/p0_crud_global_browser.mjs",
+    "supabase/tests/p0_crud_global_protocol.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -1781,6 +1781,16 @@
       "prova-backup-dados-sinteticos-duas-instancias"
     ],
     "authorization": "Titular autoriza retomada integral HML e correção automática, preservando checks, manifesto e CAS",
-    "global_complete": false
+    "global_complete": false,
+    "last_attempt": {
+      "head": "9c35f6f62f295a628d2e8444a9e8da1dc0448411",
+      "run": 42499476089,
+      "artifact": 13624619281,
+      "sha256": "3c7eb23dafc7b5aca6dd6bc596a5857ad9c00cf5b892c3ff4a710d65bdf003be",
+      "state": "FAIL_AFTER_FIVE_UPLOADS_BEFORE_ISOLATION",
+      "nonce": "7a98911bd10743a09536af3cb684b86b",
+      "cleanup": "QUARENTENA_VERIFICADA",
+      "root_cause": "Harness filled draft filter without submitting Aplicar filtros; expected2 local rows while all3 documents remain visible"
+    }
   }
 }
