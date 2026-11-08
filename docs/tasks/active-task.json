@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "PLAN/GATE: restaurar dependência pg_net dos workers HML",
   "status": "ativa",
-  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_HML",
+  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_ISOLATED_CI",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -132,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão independente eguard destePLAN/GATE; integrar antesBUILD separado. BUILD apenas habilita pg_net fora dopublic sob supersessão explícita daremoçãointencional e preflightmetadata antesAuthfixtures, testaSQL/Node/public/Restore/backup mesmoHEAD. ReparoHML apósmergenormal; observarcron normal e sóentão reancorar148. SemnovasEdges/frontend/PROD/CRUD/V1/V2.",
+  "next_step": "Revisãoindependente+guarddoccomplemento;mergenormalantesBUILD10caminhos. PreservarGATE153/histórico152/148DRAFT. ImplementarisolamentoCIantesDDL,RED/GREEN eCIpublic/restore/backupmesmoHEAD; somenteentãoHMLcanônico. SemPROD/novasEdges/CRUD/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1337,6 +1337,20 @@
       "other_executor_fixture_job_count": 1
     },
     "net_acl_hardening_required": true,
-    "net_acl_before_first_commit": true
+    "net_acl_before_first_commit": true,
+    "gate_pr": 153,
+    "gate_head": "f51c3be18e9ee879fe535798def1a8f3eda405ee",
+    "gate_merge": "4a5bd7c08141400822230cfbeb3601ad13abdff2",
+    "gate_guard": 42452599376,
+    "isolated_ci_complement": {
+      "phase": "GATE",
+      "reason": "migration0019 local Vault URL points HML; installing pg_net must not allow local cron HTTP egress",
+      "future_build_paths": [
+        ".github/workflows/restore-isolado.yml",
+        "scripts/p0-v1-synthetic-data-restore.sh",
+        "scripts/isolated-db-network.sh"
+      ],
+      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain"
+    }
   }
 }
