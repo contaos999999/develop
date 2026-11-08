@@ -132,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão independente eguard destePLAN/GATE; integrar antesBUILD separado. BUILD apenas restaura pg_net fora dopublic sob supersessão explícita daremoçãointencional e preflightmetadata antesAuthfixtures, testaSQL/Node/public/Restore/backup mesmoHEAD. ReparoHML apósmergenormal; observarcron normal e sóentão reancorar148. SemnovasEdges/frontend/PROD/CRUD/V1/V2.",
+  "next_step": "Revisão independente eguard destePLAN/GATE; integrar antesBUILD separado. BUILD apenas habilita pg_net fora dopublic sob supersessão explícita daremoçãointencional e preflightmetadata antesAuthfixtures, testaSQL/Node/public/Restore/backup mesmoHEAD. ReparoHML apósmergenormal; observarcron normal e sóentão reancorar148. SemnovasEdges/frontend/PROD/CRUD/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1305,7 +1305,7 @@
       "supabase/tests/p0_crud_global_protocol.test.mjs",
       "supabase/tests/queues_edge_auth.sql"
     ],
-    "migration_contract": "CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; only; exact nonpublic metadata required",
+    "migration_contract": "BEGIN; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; REVOKE ALL PRIVILEGES ON SCHEMA net, ALL TABLES/SEQUENCES/FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated (four exact statements); COMMIT; no application ACL change",
     "material_pr": 148,
     "material_enabled": false,
     "prod": false,
@@ -1332,9 +1332,11 @@
       "reports": 0,
       "webhooks": 0,
       "historico": 0,
-      "integrations": "RECHECK_BEFORE_APPLY",
+      "integrations": 0,
       "own_fixture_job_count": 0,
       "other_executor_fixture_job_count": 1
-    }
+    },
+    "net_acl_hardening_required": true,
+    "net_acl_before_first_commit": true
   }
 }
