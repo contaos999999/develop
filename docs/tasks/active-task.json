@@ -1260,6 +1260,13 @@
     "database_changes_allowed": false,
     "rls_changes_allowed": false,
     "auth_configuration_changes_allowed": false,
-    "prod": false
+    "prod": false,
+    "catalog_complement": {
+      "phase": "GATE",
+      "ci_failure_head": "d8d368aceb513ae80c3c86dd0976e7c40905c223",
+      "restore": 42451142640,
+      "future_build_path": "supabase/tests/history_catalog_compare.py",
+      "policy": "Assert exact full prior/approved wrapper metadata records once; substitute only definer False→True in expected copy; retain actual and compare every other field/object without exclusion"
+    }
   }
 }
