@@ -1097,7 +1097,12 @@
       "gate_pr": 140,
       "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
       "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
-      "build_state": "EM_VALIDACAO"
+      "build_state": "EM_VALIDACAO",
+      "browser_worker_policy": {
+        "dedicated": "UNEXPECTED_FAIL_CLOSED_HTTP_BLOB_DATA_ZERO_EFFECTS_REQUIRED",
+        "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
+        "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
+      }
     }
   },
   "auth_configuration_changes_allowed": false
