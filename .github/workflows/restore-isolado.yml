@@ -10,6 +10,8 @@ on:
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
       - 'supabase/tests/p0_crud_global*'
+      - 'supabase/tests/remaining_domains/**'
+      - '.github/workflows/p0-crud-remaining-hml.yml'
       - '.github/workflows/p0-crud-global-browser-hml.yml'
       - 'supabase/tests/p0_workflow_routing.test.mjs'
       - '.github/workflows/p0-v117-revisao-hml.yml'
@@ -31,6 +33,8 @@ on:
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
       - 'supabase/tests/p0_crud_global*'
+      - 'supabase/tests/remaining_domains/**'
+      - '.github/workflows/p0-crud-remaining-hml.yml'
       - '.github/workflows/p0-crud-global-browser-hml.yml'
       - 'supabase/tests/p0_workflow_routing.test.mjs'
       - '.github/workflows/p0-v117-revisao-hml.yml'
@@ -62,12 +66,15 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Workflow routing contract without HML access
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo CRUD global sem rede ou credenciais
-        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs supabase/tests/p0_crud_global_remaining.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |
@@ -329,6 +336,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - name: Instalar Supabase CLI fixada
         uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
         with:
