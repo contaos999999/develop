@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: subtarefa de transporte CORS documental HML",
+  "title": "Prova privada V1: GATE complementar de contenção nativa e CORS parcial",
   "status": "ativa",
   "phase": "GATE_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
@@ -135,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Integrar GATE após guard/restore/backup SUCCESS no mesmo HEAD. Só depois habilitar BUILD dos dez caminhos e duas Edges; nenhum deploy antes da integração e checks do BUILD.",
+  "next_step": "Integrar GATE complementar documental após revisão e guard/restore/backup SUCCESS no mesmo HEAD. Reancorar BUILD139 sem force push; só depois validar DENY nativo e GET limitado. Material e deploy continuam desabilitados nesta fase.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -989,7 +989,7 @@
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "GATE",
-    "state": "GATE_DOCUMENTAL_EM_VALIDACAO",
+    "state": "GATE_COMPLEMENTAR_POPUP_DENY_EM_VALIDACAO",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1036,7 +1036,7 @@
       "status": 405,
       "cleanup": "QUARENTENA_VERIFICADA"
     },
-    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT/interceptação/mock.",
+    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT ou interceptação/mock para converter FAIL em PASS. Contenção nativa DENY e CORS/GET parciais dependem do complemento documental e dos checks próprios.",
     "proof_partition": {
       "local_uploads": 4,
       "published_smoke_uploads": 1,
@@ -1075,6 +1075,19 @@
         "8c194c8cb6489db78ed8cd9f98c5c48639e8e69c"
       ],
       "local_node_modules_not_pin": "2.119.0"
+    },
+    "popup_safety_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "policy": "DENY_NEW_WEB_CONTENTS",
+      "material_enabled": false,
+      "source_head": "2454c855975fa2e5df4a4d6d97226975989504f8",
+      "source_run": 42436054090,
+      "popup_rendering": "NAO_CERTIFICADO",
+      "partial_proofs": [
+        "EDGE_CORS_UI_REAL",
+        "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
+      ],
+      "full_document_crud_v1_certification": false
     }
   },
   "auth_configuration_changes_allowed": false
