@@ -1,8 +1,8 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova material documental HML: publicado primeiro e quatro provas locais",
+  "title": "GATE: corrigir delegação da RPC de nova versão documental",
   "status": "ativa",
-  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
+  "phase": "GATE_DOCUMENT_VERSION_WRAPPER_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,8 +38,7 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
-    "supabase/tests/p0_crud_global_protocol.test.mjs"
+    "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -133,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Após revisão e CI deste HEAD, merge normal CAS148. Restore push/main+guard/rebuild/backup no MESMO mergeHEAD antes runner próprio1TXTpublicado PRIMEIRO+4locais;5arquivos/3docs/5versões,worker normal,recibosdisjuntos ecleanup. Não alterar fase/main enquanto runner ativo; não limparfixtures152/160 alheias. SQL162jáaplicadoHML/paridadecomprovada. SemCRUDglobal/V1/V2/PROD.",
+  "next_step": "Integrar este GATE após revisão/guard; BUILD aditivo exato wrapperversion, casosSQL positivos/negativos e catálogo restrito. CI/revisão mesmoHEAD antesmerge/deployHML; depoisretomar lotepróprio novo,semreusarfixture949b.",
   "database_change_scope": "Somente checkpoint documental de implantação já concluída; nenhuma nova DDL ou alteração HML autorizada por este manifesto.",
   "evidence": {
     "test_pr": 52,
@@ -652,7 +651,7 @@
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
   },
-  "database_test_fixtures_allowed": true,
+  "database_test_fixtures_allowed": false,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -665,7 +664,7 @@
     "no_prod": true,
     "no_auth_sql_provisioning": true,
     "no_service_role_in_browser": true,
-    "state": "PENDENTE_PROVA_MATERIAL_DOCUMENTAL_POS_CORS",
+    "state": "FAIL_LOCAL_TXT_V2_RPC403_QUARANTINE_CONFIRMED",
     "frontend_merge": "b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5",
     "plan_pr": 120,
     "plan_merge": "f19e3e6375574994cc17fcdc9a9d72d13d89f252",
@@ -974,7 +973,7 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": true,
+  "storage_test_fixtures_allowed": false,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "BUILD",
@@ -1007,7 +1006,7 @@
     ],
     "verify_jwt_must_remain": true,
     "hml_project": "gklhhhyosgasnyoxlrui",
-    "material_crud_disabled": false,
+    "material_crud_disabled": true,
     "independent_review": "Sem Critical/Important para PLAN; completed_scopes condicionado a PASS real; reancorar HEAD antes de publicar",
     "baseline_local_tests": "node --test:60/60 PASS em a672f44",
     "authorization": "Continuidade expressa do titular para correções HML por PLAN/GATE/BUILD; sem PROD ou ampliação de permissão",
@@ -1697,6 +1696,47 @@
       "material_proof": "PENDENTE"
     },
     "previous_local_tests": 323,
-    "independent_review": "341/341 Node,10 guards,diff PASS; sem Critical/Important no HEAD reancorado; nova CI obrigatória"
+    "independent_review": "341/341 Node,10 guards,diff PASS; sem Critical/Important no HEAD reancorado; nova CI obrigatória",
+    "latest_actual_receipt": {
+      "head": "ce30d485518b2b077575fc967746ea2000a9da92",
+      "run": 42479943135,
+      "job": 128729514650,
+      "state": "FAIL",
+      "artifact": 13616839267,
+      "artifact_sha256": "1119397b14c337aacf5add6bf011f256c113a7f006ef1d97d4a85fa49196e9b9",
+      "published_smoke": "PASS_SMOKE",
+      "published_modules": 114,
+      "published_frontend_head": null,
+      "published_source_parity": "NAO_VERIFICADA",
+      "local_stage": "DOCUMENT_LOCAL_TXT_V2_WAIT_REGISTER_DOCUMENT",
+      "version_register_http": 403,
+      "cleanup": "QUARENTENA_VERIFICADA",
+      "own_users": 4,
+      "preserved_files": 3,
+      "active_jobs": 0,
+      "sql_independently_confirmed": true,
+      "global_complete": false
+    }
+  },
+  "version_wrapper_guard": {
+    "state": "PLAN_GATE_NO_DDL",
+    "signature": "public.adicionar_versao_documento_contrato(uuid,uuid,text,text)",
+    "old_body_md5": "6d0c5926f4b25fd0e9562b0c010174ef",
+    "private_body_md5": "10698cb96e7de1de5a88b25960b341e5",
+    "migration": "20261108122815_fix_document_version_wrapper.sql",
+    "planned_build_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md",
+      "supabase/migrations/20261108122815_fix_document_version_wrapper.sql",
+      "supabase/tests/upload_document_version_wrapper.test.mjs",
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/hml_acceptance.sql",
+      "supabase/tests/p0_crud_global_hml.py",
+      "supabase/tests/p0_crud_global_protocol.test.mjs"
+    ],
+    "only_product_delta": "SECURITY DEFINER on exact existing public wrapper; preserve body/owner/search_path/ACL/private RBAC",
+    "no_prod": true,
+    "no_frontend": true,
+    "no_edges": true
   }
 }
