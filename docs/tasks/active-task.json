@@ -132,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisar estePLAN/CI; gerar caminho CLI e fechar GATE exato antes deBUILD SQL/Edge/runner, sem merge/deploy automático.",
+  "next_step": "Revisar/CI/integração destePLAN/GATE comcaminhoCLIexato;BUILDseparadoeCI/review/Restore/backupantesdeploymenttécnicoHML,readback,JWTrealeTesteC.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2057,12 +2057,28 @@
       "ATOMIC_ACTOR_TENANT_QUOTA",
       "REAL_JWT_HML_PROOF_AND_CLEANUP"
     ],
-    "migration_path": null,
-    "migration_gate_required": true,
+    "migration_path": "supabase/migrations/20261108232731_c_chat_scope_quota.sql",
+    "migration_gate_required": false,
     "prod": false,
     "verify_jwt": true,
     "frontend_dependency_head": "9bc106ce8322e2ed55ee4946e2a6e71d6d752dfd",
     "lease_required": true,
-    "deployment_sequence": "CONTROLS_REVIEW_CI_RESTORE_BACKUP_THEN_TECHNICAL_HML_DEPLOY_READBACK_THEN_REAL_JWT_FRONTEND_THEN_CERTIFICATION"
+    "deployment_sequence": "CONTROLS_REVIEW_CI_RESTORE_BACKUP_THEN_TECHNICAL_HML_DEPLOY_READBACK_THEN_REAL_JWT_FRONTEND_THEN_CERTIFICATION",
+    "migration_cli_version": "2.122.0",
+    "migration_empty_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final_sql_hash_and_restore_required": true,
+    "future_build_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+      "supabase/migrations/20261108232731_c_chat_scope_quota.sql",
+      "supabase/functions/copilot-query/index.ts",
+      "supabase/tests/copilot_openai_contract.test.mjs",
+      "supabase/tests/copilot_scope_quota.sql",
+      "supabase/tests/copilot_hml.mjs",
+      "supabase/tests/p0_crud_global_remaining.test.mjs",
+      "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+      ".github/workflows/copilot-hml.yml",
+      ".github/workflows/restore-isolado.yml"
+    ]
   }
 }
