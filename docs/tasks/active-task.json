@@ -1,8 +1,8 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Diagnóstico e correção da fence assíncrona sem credenciais",
+  "title": "Retomada documental com autorização vinculada ao HEAD verificado",
   "status": "ativa",
-  "phase": "BUILD_FENCE_DOCUMENT_BARRIER",
+  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,9 +38,9 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_FENCE_DOCUMENT_BARRIER_2026-11-08.md",
-    "supabase/tests/p0_crud_global_browser.mjs",
-    "supabase/tests/p0_crud_global_protocol.test.mjs"
+    ".github/workflows/p0-crud-global-browser-hml.yml",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    "docs/backend/P0_DOCUMENT_HEAD_AUTHORIZATION_2026-11-08.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -134,7 +134,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Reproduzir concorrência Document/Script sem credenciais; TDD; corrigir barreira mantendo prova antes de continue; revisão independente e CI no mesmo HEAD. Material suspenso até novo rito de retomada.",
+  "next_step": "CI e revisão independente no mesmo HEAD; merge CAS; novo lote publicado PRIMEIRO e quatro locais; recibos e cleanup independentes. Nenhuma certificação antecipada.",
   "database_change_scope": "GATE163: somente SECURITY DEFINER da assinatura pública adicionar_versao_documento_contrato(uuid,uuid,text,text), com precondições de catálogo; preservar todos corpos/owner/ACL/search_path, sem grants/roles/RLS/Edges/frontend/PROD.",
   "evidence": {
     "test_pr": 52,
@@ -653,7 +653,7 @@
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -975,7 +975,7 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "BUILD",
@@ -1767,6 +1767,20 @@
     "scope": "Somente harness/manifesto/plano; sem backend produto, migrations, Edges, frontend317, Auth, dados HML ou PROD",
     "material_enabled": false,
     "incident_root_cause": "PENDENTE_DIAGNOSTICO_FECHADO",
+    "global_complete": false
+  },
+  "document_head_authorization": {
+    "mode": "EXACT_CHECKED_OUT_HEAD_AND_LIVE_MAIN",
+    "task": "P0-CRUD-GLOBAL-HML-20261107",
+    "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
+    "project": "gklhhhyosgasnyoxlrui",
+    "fixture_scope": "OWN_NEW_NONCE_ONLY",
+    "required_checks": [
+      "guard",
+      "reconstruir-banco-do-zero",
+      "prova-backup-dados-sinteticos-duas-instancias"
+    ],
+    "authorization": "Titular autoriza retomada integral HML e correção automática, preservando checks, manifesto e CAS",
     "global_complete": false
   }
 }
