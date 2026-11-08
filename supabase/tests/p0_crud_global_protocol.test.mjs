@@ -363,7 +363,7 @@ print('DOCUMENT_CLOSED_CONTROL_PASS')`;
 
 test('document completion retains whole domain as unverified and refuses expired-session revocation proof',async()=>{
  const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.documentCoverage,'function');
- assert.deepEqual(m.documentCoverage(),{completed_scopes:['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false});
+ assert.deepEqual(m.documentCoverage(),{completed_scopes:['DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL'],remaining_domains:['documentos_contrato','documento_detalhe'],global_complete:false});
  for(const status of [401,500]){assert.throws(()=>m.validateDocumentDenial({status,code:'42501'},'mutation'));assert.throws(()=>m.validateDocumentDenial({status,code:'REGISTRO_NAO_ENCONTRADO'},'download'));}
 });
 
@@ -412,4 +412,387 @@ test('document failure diagnostics allow only fixed flags and bounded endpoint c
  const network=Object.fromEntries(['config','sign','storage','confirm','register'].map(k=>[k,{requests:0,http:null,failed:false,raw:'PRIVATE_CANARY'}]));
  const value=m.sanitizeDocumentDiagnostic({...flags,network,html:'PRIVATE_CANARY',signed_url:'PRIVATE_CANARY'});assert(!JSON.stringify(value).includes('PRIVATE_CANARY'));assert.deepEqual(value.network.sign,{requests:0,http:null,failed:false});
  assert.throws(()=>m.sanitizeDocumentDiagnostic({...flags,network:{...network,sign:{requests:0,http:'PRIVATE_CANARY',failed:false}}}));assert.throws(()=>m.sanitizeDocumentDiagnostic({...flags,dialog_open:'PRIVATE_CANARY',network}));
+});
+
+// GATE138: the published smoke is additional evidence, never a pinned-code receipt.
+test('published proof rejects redirects, foreign assets, oversized data and ambiguous client before login',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.inspectPublishedBackend,'function');
+ const origin='https://scope-and-approval-keeper.lovable.app';let credentials=0,calls=[];
+ const response=(body,url=origin+'/login',status=200)=>({ok:status===200,status,url,headers:new Headers({'content-type':'text/html'}),body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(body));c.close();}})});
+ for(const html of ['<script type="module" src="https://foreign.invalid/x.js"></script>','<script type="module" src="/assets/x.js"></script>','x'.repeat(262145)]){
+  calls=[];await assert.rejects(()=>m.runDocumentProvenances({proveBackend:()=>m.inspectPublishedBackend(async(url,options)=>{calls.push(url);assert.equal(options.redirect,'error');return response(html);},()=>{throw Error('ambiguous');}),published:async()=>{credentials++;},local:async()=>{credentials++;}}));assert.equal(credentials,0);assert(calls.every(x=>new URL(x).origin===origin));
+ }
+ await assert.rejects(()=>m.inspectPublishedBackend(async()=>response('', 'https://foreign.invalid/login'),()=>({verified:true})));assert.equal(credentials,0);
+});
+
+test('published then local share one deadline; published failure never enters local',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.runDocumentProvenances,'function');
+ const order=[];let deadline;
+ await m.runDocumentProvenances({now:()=>100,proveBackend:async()=>order.push('proof'),published:async d=>{order.push('published');deadline=d;},local:async d=>{order.push('local');assert.equal(d,deadline);}});
+ assert.deepEqual(order,['proof','published','local']);assert.equal(deadline,900100);
+ let local=false;await assert.rejects(()=>m.runDocumentProvenances({proveBackend:async()=>{},published:async()=>{throw Error('worker');},local:async()=>{local=true;}}));assert.equal(local,false);
+});
+
+test('stale browser fixture cannot overwrite Python revocation or readiness state',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.persistBrowserFixture,'function');
+ const d=mkdtempSync(join(tmpdir(),'fixture-state-'));try{
+  const p=join(d,'fixture.json'),f={nonce:'a'.repeat(32),uploads:[]};writeFileSync(p,JSON.stringify({...f,permission_control:{state:'REVOKED'},readiness_control:{sequence:1,state:'READY'}}));
+  m.persistBrowserFixture(p,{...f,uploads:[{state:'INTENT'}]});const out=JSON.parse(readFileSync(p));assert.equal(out.permission_control.state,'REVOKED');assert.equal(out.readiness_control.sequence,1);assert.equal(out.uploads.length,1);
+  assert.throws(()=>m.persistBrowserFixture(p,{...f,nonce:'b'.repeat(32)}));
+ }finally{rmSync(d,{recursive:true,force:true});}
+});
+
+function pythonProtocol(code){const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);return r.stdout;}
+const partitionSetup=`import runpy,json,tempfile,copy
+from pathlib import Path
+m=runpy.run_path('supabase/tests/p0_crud_global_hml.py')
+nonce='a'*32;org='11111111-1111-4111-8111-111111111111';contract='22222222-2222-4222-8222-222222222222'
+f=dict(batch='DOCUMENTOS',scope='P0-CRUD-GLOBAL-HML',nonce=nonce,prefix='0000 CRUDG '+nonce+' ',org=org,contract=contract,users=[],uploads=[])
+for i,(source,fmt,version,doc) in enumerate([('PUBLISHED','txt',1,1),('LOCAL','txt',1,2),('LOCAL','txt',2,2),('LOCAL','pdf',1,3),('LOCAL','pdf',2,3)]):
+ ident=lambda n:'00000000-0000-4000-8000-'+str(n).zfill(12)
+ f['uploads'].append(dict(provenance=source,frontend_head=None if source=='PUBLISHED' else '164b10b44eaf5b553efcc7ab4e053b86c4d3b269',source_parity='NAO_VERIFICADA' if source=='PUBLISHED' else 'PINNED',intent_nonce=nonce+'-'+source.lower()+'-'+fmt+'-'+str(version),org=org,contract=contract,name='crudg-'+nonce+'-'+source.lower()+'-'+fmt+'-v'+str(version)+'.'+fmt,file=ident(i+10),document=ident(doc),id_version=ident(i+20),path=org+'/uploads/'+ident(i+30)+'/crudg-'+nonce+'-'+source.lower()+'-'+fmt+'-v'+str(version)+'.'+fmt,version=version,mime='text/plain' if fmt=='txt' else 'application/pdf',sha256=str(i)*64,size=42,state='PROCESSED',download_verified=True,download_proof_kind='UI_EDGE_AND_SIGNED_GET',popup_rendering='NAO_CERTIFICADO'))
+f['recovered_uploads']=[{k:u[k] for k in ('file','document','id_version','path','version','sha256','size','name')} for u in f['uploads']]
+f['recovered_objects']=[{'name':u['path']} for u in f['uploads']]
+`;
+test('five receipts require two disjoint provenance sets and exact recovered union',()=>{
+ pythonProtocol(partitionSetup+`
+fn=m.get('validate_document_partition');assert callable(fn),'Missing provenance partition validator'
+assert fn(f)=={'published':1,'local':4,'files':5,'documents':3,'versions':5}
+for change in ['drop','duplicate','cross','head','orphan','missing_object','ambiguous_download','popup_claim']:
+ bad=copy.deepcopy(f)
+ if change=='ambiguous_download':bad['uploads'][0].pop('download_proof_kind')
+ if change=='popup_claim':bad['uploads'][0]['popup_rendering']='PASS'
+ if change=='drop':bad['uploads'].pop()
+ if change=='duplicate':bad['uploads'][4]['file']=bad['uploads'][0]['file']
+ if change=='cross':bad['uploads'][1]['document']=bad['uploads'][0]['document']
+ if change=='head':bad['uploads'][0]['frontend_head']='164b10b44eaf5b553efcc7ab4e053b86c4d3b269'
+ if change=='orphan':bad['recovered_objects'].append({'name':'orphan'})
+ if change=='missing_object':bad['recovered_objects'].pop()
+ try:fn(bad)
+ except (AssertionError,ValueError):pass
+ else:raise AssertionError('Invalid partition accepted: '+change)
+`);
+});
+test('readonly readiness validates nonce, owned IDs, fixed action and monotonic sequence',()=>{
+ pythonProtocol(partitionSetup+`
+fn=m.get('validate_readiness_control');assert callable(fn),'Missing readonly readiness control'
+u=f['uploads'][0];request={k:u[k] for k in ('file','document','id_version','intent_nonce')};request.update(action='PUBLISHED_READINESS',nonce=nonce,sequence=1)
+assert fn(request,f)==u
+for change in [dict(nonce='b'*32),dict(file=contract),dict(document=contract),dict(id_version=contract),dict(action='SQL'),dict(sql='select 1'),dict(sequence=0)]:
+ try:fn(dict(request,**change),f)
+ except (AssertionError,ValueError):pass
+ else:raise AssertionError('Unsafe readiness accepted')
+f['readiness_control']={'sequence':1,'state':'READY'}
+try:fn(request,f)
+except AssertionError:pass
+else:raise AssertionError('Readiness replay accepted')
+`);
+});
+test('readonly watcher persists intent, issues only own SELECT, and returns closed flags',()=>{
+ pythonProtocol(partitionSetup+`
+R=m['Runner'];assert callable(getattr(R,'handle_document_readiness',None)),'Missing readonly watcher'
+with tempfile.TemporaryDirectory() as d:
+ r=object.__new__(R);r.root=Path(d);r.batch='DOCUMENTOS';r.report={};r.save('fixture.json',f);u=f['uploads'][0]
+ request={k:u[k] for k in ('file','document','id_version','intent_nonce')};request.update(action='PUBLISHED_READINESS',nonce=nonce,sequence=1)
+ p=r.root/'document-readiness-request.json';p.write_text(json.dumps(request));calls=[]
+ def sql(source,fetch=False):
+  calls.append(source);assert json.loads((r.root/'fixture.json').read_text())['readiness_control']['state']=='INTENT'
+  assert source.lstrip().startswith('select ') and ';' not in source[:-1]
+  for word in [' update ',' insert ',' delete ','pgmq.read','pgmq.pop','http']:assert word not in source.lower()
+  for value in [nonce,org,contract,u['file'],u['document'],u['id_version']]:assert value in source
+  return json.dumps({'owned':True,'ready':True,'failed':False})
+ r.sql=sql;r.handle_document_readiness();assert len(calls)==1 and not p.exists()
+ ack=json.loads((r.root/'document-readiness-response.json').read_text());assert ack==dict(action='PUBLISHED_READINESS',nonce=nonce,sequence=1,state='READY')
+ assert 'PRIVATE_CANARY' not in json.dumps(r.report)
+`);
+});
+test('recovery restores both receipt provenances from durable intents, never assigns the published head',()=>{
+ pythonProtocol(partitionSetup+`
+fn=m.get('reconcile_document_receipts');assert callable(fn),'Missing partition-aware recovery'
+for index in [0,3]:
+ bad=copy.deepcopy(f);expected=bad['uploads'][index].copy()
+ for key in ['file','document','id_version','path']:bad['uploads'][index].pop(key)
+ bad['uploads'][index]['state']='INTENT';fn(bad)
+ for key in ['file','document','id_version','path','provenance','frontend_head']:assert bad['uploads'][index][key]==expected[key]
+ assert bad['uploads'][index]['state']=='RECOVERED' # recovery is cleanup evidence, never fake UI/worker success
+bad=copy.deepcopy(f);bad['recovered_uploads'][0]['name']='foreign';
+try:fn(bad)
+except AssertionError:pass
+else:raise AssertionError('Foreign recovery accepted')
+`);
+});
+
+test('public artifact traversal is bounded same-origin and reports only hashes and closed metadata',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),calls=[],origin=m.PUBLISHED_ORIGIN;
+ const bodies=new Map([[origin+'/login','<script type="module" src="/assets/current.js"></script>'],[origin+'/assets/current.js','PRIVATE_CANARY_TOKEN_URL_PATH_FILENAME_BYTES_HTML_ERROR']]);
+ const out=await m.inspectPublishedBackend(async(url,options)=>{calls.push(url);assert.equal(options.credentials,'omit');assert.equal(options.redirect,'error');return {status:200,ok:true,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})};},{version:'5.9.3',htmlEntries:()=>[{attributes:[['type','module'],['src','/assets/current.js']],source:''}],imports:()=>[],prove:(modules,entries)=>{assert.equal(modules.size,1);assert.equal(entries[0],origin+'/assets/current.js');return {verified:true,token:'PRIVATE_CANARY'};}});
+ assert.equal(out.state,'HML_CONFIG_CONFIRMED');assert.equal(out.frontend_head,null);assert.equal(out.source_parity,'NAO_VERIFICADA');assert.equal(out.module_count,1);assert.match(out.asset_sha256[0],/^[a-f0-9]{64}$/);assert.equal(calls.length,2);
+ for(const forbidden of ['PRIVATE_CANARY','current.js','https://','<script'])assert(!JSON.stringify(out).includes(forbidden));
+});
+test('published navigation and backend fence rejects foreign projects and non-approved redirects',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');
+ assert(m.publishedRequestAllowed(m.PUBLISHED_ORIGIN+'/login',true));assert(m.publishedRequestAllowed('https://gklhhhyosgasnyoxlrui.supabase.co/auth/v1/token',false));
+ for(const raw of ['https://foreign.supabase.co/auth/v1/token','https://gklhhhyosgasnyoxlrui.supabase.co.evil.invalid/auth/v1/token','http://gklhhhyosgasnyoxlrui.supabase.co/auth/v1/token','https://scope-and-approval-keeper.lovable.app.evil.invalid/login','https://preview.lovable.app/login'])assert.equal(m.publishedRequestAllowed(raw,true),false);
+ const path='own/uploads/object/own.txt',url='https://gklhhhyosgasnyoxlrui.supabase.co/storage/v1/object/sign/contaos-documentos/'+path+'?token=PRIVATE_CANARY';
+ assert.equal(m.publishedRequestAllowed(url,true),false);assert.equal(m.publishedRequestAllowed(url,true,[path]),true);assert.equal(m.publishedRequestAllowed(url+'x',true,[]),false);
+});
+
+test('published assertions never enter persisted local report, including interrupted smoke',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs');assert.equal(typeof m.createProofRecorder,'function');
+ const local={assertions:[]},published={assertions:[]},saved=[];
+ const recorder=m.createProofRecorder(local,()=>saved.push(JSON.stringify(local)));
+ recorder.check('LOCAL_BEGIN',true);
+ await assert.rejects(()=>recorder.published(published,()=>{},async()=>{recorder.check('PUBLISHED_RECEIPT',true,200);throw Error('watcher interrupted');}));
+ recorder.check('LOCAL_AFTER',true);
+ assert.deepEqual(local.assertions.map(x=>x.name),['LOCAL_BEGIN','LOCAL_AFTER']);assert.deepEqual(published.assertions.map(x=>x.name),['PUBLISHED_RECEIPT']);assert(saved.every(x=>!x.includes('PUBLISHED_RECEIPT')));
+});
+
+
+test('cleanup still attempts own job quarantine when receipt reconciliation fails',()=>{
+ const code=`import runpy,json,tempfile
+from pathlib import Path
+R=runpy.run_path('supabase/tests/p0_crud_global_hml.py')['Runner']
+for pending in [False,True]:
+ r=object.__new__(R);r.report={};calls=[]
+ with tempfile.TemporaryDirectory() as d:
+  r.root=Path(d);f={'batch':'DOCUMENTOS','scope':'P0-CRUD-GLOBAL-HML','nonce':'a'*32,'prefix':'0000 CRUDG '+'a'*32+' ','users':[{'intent_id':'intent','creation_state':'created'}]};r.save('fixture.json',f)
+  def sql(source,fetch=False):
+   calls.append(source)
+   if source.startswith('select id from auth.users'):return '11111111-1111-4111-8111-111111111111'
+   if source.startswith('select id from public.organizacoes'):return '22222222-2222-4222-8222-222222222222'
+   return 't' if fetch else None
+  def recover(f):raise AssertionError('Ambiguous receipt PRIVATE_CANARY')
+  def quarantine(f):
+   calls.append('DOCUMENTS')
+   assert 'BAN' in calls and any('delete from auth.sessions' in x for x in calls)
+   if pending:raise RuntimeError('Own worker active')
+   return {'active_jobs':0,'cancelled_jobs':1}
+  r.sql=sql;r.request=lambda *a,**k:(calls.append('BAN') or (200,{}));r.recover_document_uploads=recover;r.quarantine_document_jobs=quarantine
+  try:r.cleanup()
+  except RuntimeError:pass
+  else:raise AssertionError('Ambiguous receipt cannot certify cleanup')
+  assert 'DOCUMENTS' in calls,'Reconciliation failure skipped own job quarantine'
+  assert not any("set situacao='inativa'" in x for x in calls)
+  result=json.loads((r.root/'cleanup.json').read_text());assert result['state']=='QUARENTENA_PENDENTE';assert r.report['state']=='CLEANUP_FAILED'
+  assert 'PRIVATE_CANARY' not in json.dumps(r.report)
+print('DOCUMENT_RECOVERY_FAILURE_QUARANTINE_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/DOCUMENT_RECOVERY_FAILURE_QUARANTINE_PASS/);
+});
+
+
+test('published SQL confirmation is not marked PASS before all database proofs',()=>{
+ const code=`import runpy
+R=runpy.run_path('supabase/tests/p0_crud_global_hml.py')['Runner']
+g=R.verify_documents.__globals__;g['validate_document_partition']=lambda f:{}
+r=object.__new__(R);r.report={'assertions':[]};r.save=lambda *a:None;r.recover_document_uploads=lambda f:{}
+u={'org':'a','contract':'b','state':'PROCESSED','download_verified':True,'file':'11111111-1111-4111-8111-111111111111','document':'22222222-2222-4222-8222-222222222222','id_version':'33333333-3333-4333-8333-333333333333','version':1,'sha256':'a'*64,'size':10}
+f={'permission_control':{'state':'REVOKED'},'users':[{'profile':'administrador','id':'44444444-4444-4444-8444-444444444444'}],'org':'a','contract':'b','uploads':[u]}
+r.sql=lambda s,fetch=False:'t' if s.startswith('select count(*)=1') else 'f'
+try:r.verify_documents(f)
+except RuntimeError:pass
+else:raise AssertionError('SQL failure accepted')
+assert r.report.get('published_smoke',{}).get('state')!='PASS_SQL_CONFIRMED','Premature SQL PASS'
+print('NO_PREMATURE_SQL_PASS')`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8',env:{PATH:process.env.PATH}});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/NO_PREMATURE_SQL_PASS/);
+});
+
+
+test('public inspection parses same-origin classic and inline scripts rather than ignoring them',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),o=m.PUBLISHED_ORIGIN;
+ const html='<script defer src="/~flock.js"></script><script>const bootstrap=1;</script><script type="module" src="/assets/main.js"></script>';
+ const bodies=new Map([[o+'/login',html],[o+'/~flock.js','const telemetry=1;'],[o+'/assets/main.js','const app=1;']]);let inspected=0;
+ const result=await m.inspectPublishedBackend(async url=>({ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(bodies.get(url)));c.close();}})}),{version:'5.9.3',htmlEntries:()=>[{attributes:[['src','/~flock.js']],source:''},{attributes:[],source:'const bootstrap=1;'},{attributes:[['type','module'],['src','/assets/main.js']],source:''}],imports:()=>[],prove(modules,entries){assert.equal(modules.size,3);assert.equal(entries.length,3);assert([...modules.values()].includes('const bootstrap=1;'));assert([...modules.values()].includes('const telemetry=1;'));inspected++;return {verified:true};}});
+ assert.equal(inspected,1);assert.equal(result.module_count,3);assert(!JSON.stringify(result).includes('bootstrap'));
+});
+
+
+test('public inspector refuses HTML without a supplied inert parser',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),o=m.PUBLISHED_ORIGIN;
+ for(const attrs of ['src=https://foreign.invalid/a.js src="/assets/main.js"','src="/assets/main.js" SRC=https://foreign.invalid/a.js','type=module src="/assets/main.js"']){
+  let reads=0;
+  await assert.rejects(()=>m.inspectPublishedBackend(async url=>{reads++;return {ok:true,status:200,url,body:new ReadableStream({start(c){c.enqueue(new TextEncoder().encode(reads===1?'<script '+attrs+'></script>':'const app=1;'));c.close();}})};},{version:'5.9.3',imports:()=>[],prove:()=>({verified:true})}),/PUBLICADA_BACKEND_NAO_COMPROVADO/);
+  assert.equal(reads,1);
+ }
+});
+
+
+test('backend inspection progress exposes only closed phase labels on failure',async()=>{
+ const m=await import('./p0_crud_global_browser.mjs'),phases=[];
+ await assert.rejects(()=>m.inspectPublishedBackend(async()=>{throw Error('PRIVATE_CANARY_URL_TOKEN_STACK')},{},phase=>phases.push(phase)),/PUBLICADA_BACKEND_NAO_COMPROVADO/);
+ assert.deepEqual(phases,['READ_HTML']);assert(!JSON.stringify(phases).includes('PRIVATE_CANARY'));
+});
+
+test('published response fence rejects redirects and changed executable bytes before resume',async()=>{
+  const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');
+  const {createHash}=await import('node:crypto');const url='https://scope-and-approval-keeper.lovable.app/assets/proof.js',body=Buffer.from('globalThis.proof=1;');
+  const proof={origin:'https://scope-and-approval-keeper.lovable.app',modules:new Map([[url,createHash('sha256').update(body).digest('hex')]]),html_sha256:createHash('sha256').update('<!doctype html>').digest('hex')};
+  assert.equal(validatePublishedResponse(proof,{url,resourceType:'Script',status:200,body}),true);
+  for(const status of [301,302,303,307,308])assert.throws(()=>validatePublishedResponse(proof,{url,resourceType:'Script',status,body}));
+  assert.throws(()=>validatePublishedResponse(proof,{url,resourceType:'Script',status:200,body:Buffer.from('changed')}));
+  assert.throws(()=>validatePublishedResponse(proof,{url:url+'other',resourceType:'Script',status:200,body}));
+  assert.throws(()=>validatePublishedResponse(proof,{url:url.replace('/assets/proof.js','/login'),resourceType:'Document',status:200,body:Buffer.from('changed')}));
+});
+
+test('signed download is bounded and cannot follow redirects or change owned destination',async()=>{
+  const {boundedSignedDownload}=await import('./p0_crud_global_browser.mjs');let calls=0;
+  const url='https://gklhhhyosgasnyoxlrui.supabase.co/storage/v1/object/sign/contaos-documentos/own/fixture.txt?token=synthetic';
+  const transport=async(raw,options)=>{calls++;assert.equal(raw,url);assert.equal(options.redirect,'error');assert.equal(options.credentials,'omit');assert.equal(options.headers,undefined);return new Response(Buffer.from('own'),{status:200});};
+  assert.deepEqual(await boundedSignedDownload(transport,url,'own/fixture.txt',3),Buffer.from('own'));
+  for(const raw of [url.replace('gklhhhyosgasnyoxlrui','foreign'),url.replace('own/fixture.txt','third/fixture.txt')])await assert.rejects(()=>boundedSignedDownload(transport,raw,'own/fixture.txt',3));
+  assert.equal(calls,1);
+  await assert.rejects(()=>boundedSignedDownload(async()=>new Response(null,{status:308,headers:{location:'https://foreign.invalid'}}),url,'own/fixture.txt',3));
+  await assert.rejects(()=>boundedSignedDownload(async()=>new Response(Buffer.from('oversized'),{status:200}),url,'own/fixture.txt',3));
+});
+
+test('native websocket denial affects only ws and wss rules without global offline state',async()=>{
+  const {webSocketDenyRules}=await import('./p0_crud_global_browser.mjs');const rules=webSocketDenyRules();
+  assert.deepEqual(Object.keys(rules),['matchedNetworkConditions']);
+  assert.deepEqual(rules.matchedNetworkConditions.map(x=>x.urlPattern),['ws://*:*/*','wss://*:*/*']);
+  for(const rule of rules.matchedNetworkConditions)assert.deepEqual(rule,{urlPattern:rule.urlPattern,offline:true,latency:0,downloadThroughput:-1,uploadThroughput:-1});
+});
+
+test('page request barrier cannot wait for worker bootstrap that depends on that request',async()=>{
+  const {nativePageBarrier}=await import('./p0_crud_global_browser.mjs');
+  const targets=[{targetId:'main',type:'page',browserContextId:'own'},{targetId:'frame',type:'iframe',browserContextId:'own'},{targetId:'bootstrap',type:'worker',browserContextId:'own'},{targetId:'shared',type:'shared_worker',browserContextId:'own'},{targetId:'third',type:'page',browserContextId:'other'}];
+  assert.deepEqual([...nativePageBarrier(targets,[{targetId:'worker-child',type:'worker',contextId:'own'}],'own','main')],['main','frame']);
+  assert.throws(()=>nativePageBarrier(targets,[],'other','main'));
+});
+
+test('unsupported browser workers are denied while paused instead of being resumed',async()=>{
+  const {unexpectedWorkerDeny}=await import('./p0_crud_global_browser.mjs');
+  for(const type of ['worker','shared_worker']){
+    assert.deepEqual(unexpectedWorkerDeny({type,contextId:'own',waitingForDebugger:true},'own'),{code:'FENCE_UNEXPECTED_WORKER_PAUSED',paused:true});
+    assert.deepEqual(unexpectedWorkerDeny({type,contextId:'own',waitingForDebugger:false},'own'),{code:'FENCE_UNEXPECTED_WORKER_RUNNING',paused:false});
+    assert.equal(unexpectedWorkerDeny({type,contextId:'other',waitingForDebugger:true},'own'),null);
+  }
+  assert.equal(unexpectedWorkerDeny({type:'page',contextId:'own'},'own'),null);
+});
+
+test('native fence cannot activate Playwright preflight auto-fulfillment',async()=>{
+  const {installPublishedCDPFence}=await import('./p0_crud_global_browser.mjs');const source=installPublishedCDPFence.toString();
+  assert.equal(/context\.route\s*\(/.test(source),false,'Playwright routing fabricates OPTIONS success in the frozen runtime');
+  assert.equal(/Fetch\.fulfillRequest|route\.fulfill|routeWebSocket/.test(readFileSync(browser,'utf8')),false);
+  assert.ok(/requestStage:'Request'/.test(source));assert.ok(/requestStage:'Response'/.test(source));
+  assert.ok(/Fetch\.continueRequest',\{requestId\}/.test(source));
+  assert.equal(readFileSync(browser,'utf8').includes('--disable-blink-features=SharedWorker'),true,'SharedWorker must be disabled by the verified native feature');
+});
+
+test('native proxy bypass contains only exact canonical scheme host and port after implicit-loopback subtraction',async()=>{
+  const {nativeDestinationProxy}=await import('./p0_crud_global_browser.mjs');
+  assert.deepEqual(nativeDestinationProxy(['http://127.0.0.1:4173','https://gklhhhyosgasnyoxlrui.supabase.co'],23456),{server:'http://127.0.0.1:23456',bypass:'<-loopback>,http://127.0.0.1:4173,https://gklhhhyosgasnyoxlrui.supabase.co:443'});
+  assert.equal(nativeDestinationProxy(['https://scope-and-approval-keeper.lovable.app'],23456).bypass,'<-loopback>,https://scope-and-approval-keeper.lovable.app:443');
+  for(const origin of ['http://*.invalid','https://.invalid','http://user:pass@own.invalid','http://own.invalid/path','http://own.invalid?query','http://own.invalid#hash','ws://own.invalid','http://own.invalid.','http://127.1','http://own.invalid,direct://','http://own.invalid;DIRECT'])assert.throws(()=>nativeDestinationProxy([origin],23456));
+  for(const port of [0,-1,65536,'23456',NaN])assert.throws(()=>nativeDestinationProxy(['http://127.0.0.1:4173'],port));
+  assert.throws(()=>nativeDestinationProxy([],23456));assert.throws(()=>nativeDestinationProxy(['http://127.0.0.1:4173','http://127.0.0.1:4173'],23456));
+});
+
+test('native destination deny closes real TCP without response or forwarding and remains bounded on close',async()=>{
+  const {startNativeDestinationDeny}=await import('./p0_crud_global_browser.mjs');const {createConnection}=await import('node:net');const deny=await startNativeDestinationDeny();
+  try{let bytes=0;await new Promise((resolve,reject)=>{const socket=createConnection({host:'127.0.0.1',port:deny.port});socket.setTimeout(1000,()=>{socket.destroy();reject(Error('Deny did not close'));});socket.on('data',chunk=>bytes+=chunk.length);socket.on('error',()=>{});socket.on('close',resolve);});assert.equal(bytes,0);assert.equal(deny.snapshot().connections,1);}finally{await deny.close();}
+  assert.equal(deny.snapshot().closed,true);
+});
+
+test('late unexpected browser Worker irreversibly overrides a provisional successful report after cleanup',async()=>{
+  const {finalizeUnexpectedBrowserWorker}=await import('./p0_crud_global_browser.mjs');
+  for(const state of ['PASS_PUBLIC_PROBE','PASS_BATCH','PASS_SMOKE']){const report={state,unexpected_browser_worker:true,global_complete:false};assert.equal(finalizeUnexpectedBrowserWorker(report),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_UNEXPECTED_BROWSER_WORKER');report.state='PASS_BATCH';assert.equal(finalizeUnexpectedBrowserWorker(report),true);assert.equal(report.state,'FAIL');}
+  const normal={state:'PASS_BATCH'};assert.equal(finalizeUnexpectedBrowserWorker(normal),false);assert.equal(normal.state,'PASS_BATCH');
+});
+
+test('opaque DATA Worker proof expects native own CORS denial while still requiring execution and zero foreign transport',async()=>{
+  const {validateNativeProxyWorkerProof}=await import('./p0_crud_global_browser.mjs');
+  for(const kind of ['HTTP','BLOB','DATA']){const results=[{status:kind==='DATA'?null:200,rejected:kind==='DATA'},true,true,kind==='DATA'?'OPAQUE':'OWN'];const proof={own_start_requests:1,own_bootstrap_requests:kind==='HTTP'?1:0,foreign_tcp_connections:0,foreign_http_requests:0,websocket_upgrades:0,deny_connections:2};assert.equal(validateNativeProxyWorkerProof(kind,results,proof),true);
+    for(const [key,value] of [['own_start_requests',0],['foreign_tcp_connections',1],['foreign_http_requests',1],['websocket_upgrades',1],['deny_connections',0]])assert.throws(()=>validateNativeProxyWorkerProof(kind,results,{...proof,[key]:value}));
+    assert.throws(()=>validateNativeProxyWorkerProof(kind,[results[0],false,true,results[3]],proof));assert.throws(()=>validateNativeProxyWorkerProof(kind,[results[0],true,true,'UNEXPECTED'],proof));
+  }
+  assert.throws(()=>validateNativeProxyWorkerProof('DATA',[{status:200,rejected:false},true,true,'OPAQUE'],{own_start_requests:1,own_bootstrap_requests:0,foreign_tcp_connections:0,foreign_http_requests:0,websocket_upgrades:0,deny_connections:2}));
+});
+
+test('public HTML variant diagnostics reveal only hashes counts and closed classes, never raw token or URL values',async()=>{
+  const {publicHTMLVariantSummary}=await import('./p0_crud_global_browser.mjs');
+  const expected='<script data-client-token="CANARY_ALPHA">https://private.invalid/token</script>',actual='<script data-client-token="CANARY_BRAVO">https://private.invalid/token</script>';
+  const analyzer={htmlEntries:html=>[{attributes:[['type','application/json']],source:html}]};const result=publicHTMLVariantSummary(analyzer,expected,actual),encoded=JSON.stringify(result);
+  assert.equal(result.executable_entries_equal,true);assert.equal(result.all_script_entries_equal,false);assert.equal(result.first_difference_tag,'script');assert.equal(result.first_difference_attribute,'data-client-token');assert.equal(result.expected_script_count,1);assert.equal(result.actual_script_count,1);assert(!encoded.includes('CANARY_'));assert(!encoded.includes('private.invalid'));assert(!encoded.includes('https://'));
+});
+
+test('paused Document inspection proves its exact bytes without fetching a different HTML response',async()=>{
+  const {inspectPublishedDocument,PUBLISHED_ORIGIN,validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');
+  assert.equal(typeof inspectPublishedDocument,'function');
+  const {createHash}=await import('node:crypto');const seen=[];
+  const analyzer={version:'5.9.3',htmlEntries:html=>{seen.push(html);return [{attributes:[],source:html}];},imports:()=>[],prove:(modules)=>{assert.equal([...modules.values()][0],seen.at(-1));assert(!seen.at(-1).includes('REJECT'));return {verified:true};}};
+  const fetcher=()=>{throw Error('Paused inline document must not refetch HTML');};
+  for(const html of ['inline variant one','inline variant two']){
+    const body=Buffer.from(html);const result=await inspectPublishedDocument(fetcher,analyzer,body,PUBLISHED_ORIGIN+'/login');
+    assert.equal(result.runtimeProof.html_sha256,createHash('sha256').update(body).digest('hex'));
+    assert.equal(validatePublishedResponse(result.runtimeProof,{url:PUBLISHED_ORIGIN+'/login',resourceType:'Document',status:200,body}),true);
+    assert.equal(typeof result.runtimeProof.inspectDocument,'function');
+    assert(!JSON.stringify(result).includes(html));
+  }
+  for(const body of [Buffer.from('REJECT'),Buffer.from([255]),Buffer.alloc(262145)])await assert.rejects(()=>inspectPublishedDocument(fetcher,analyzer,body,PUBLISHED_ORIGIN+'/login'));
+  await assert.rejects(()=>inspectPublishedDocument(fetcher,analyzer,Buffer.from('inline'),'https://foreign.invalid/login'));
+});
+
+test('paused Document rejection never exposes a graph or trusts a self-assigned hash',async()=>{
+  const {inspectPublishedDocument,PUBLISHED_ORIGIN}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof inspectPublishedDocument,'function');
+  let fetched=0,proved=0;const analyzer={version:'5.9.3',htmlEntries:()=>[{attributes:[['src','https://foreign.invalid/a.js']],source:''}],imports:()=>[],prove:()=>{proved++;return {verified:true};}};
+  await assert.rejects(()=>inspectPublishedDocument(()=>{fetched++;},analyzer,Buffer.from('own'),PUBLISHED_ORIGIN+'/login'));assert.equal(fetched,0);assert.equal(proved,0);
+  analyzer.htmlEntries=()=>[{attributes:[],source:'unknown client'}];analyzer.prove=()=>({verified:false});
+  await assert.rejects(()=>inspectPublishedDocument(()=>{fetched++;},analyzer,Buffer.from('own'),PUBLISHED_ORIGIN+'/login'));assert.equal(fetched,0);
+});
+
+test('paused Document resolves relative executable sources and inline imports against its real path',async()=>{
+  const {inspectPublishedDocument,PUBLISHED_ORIGIN}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof inspectPublishedDocument,'function');const requests=[];
+  const analyzer={version:'5.9.3',htmlEntries:()=>[{attributes:[['src','./main.js']],source:''},{attributes:[['type','module']],source:'inline'}],imports:s=>s==='inline'?['./child.js']:[],prove:modules=>{assert(modules.has(PUBLISHED_ORIGIN+'/assets/nested/main.js'));assert(modules.has(PUBLISHED_ORIGIN+'/assets/nested/child.js'));return {verified:true};}};
+  const fetcher=async url=>{requests.push(url);return new Response('own',{status:200,headers:{}});};
+  const wrapped=async (...args)=>{const r=await fetcher(...args);Object.defineProperty(r,'url',{value:args[0]});return r;};
+  await inspectPublishedDocument(wrapped,analyzer,Buffer.from('own'),PUBLISHED_ORIGIN+'/assets/nested/login');
+  assert.deepEqual(requests.sort(),[PUBLISHED_ORIGIN+'/assets/nested/child.js',PUBLISHED_ORIGIN+'/assets/nested/main.js'].sort());
+});
+
+test('a late failure during asynchronous Document proof cannot continue the paused response',async()=>{
+  const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');const {createHash}=await import('node:crypto');
+  const source=readFileSync('supabase/tests/p0_crud_global_browser.mjs','utf8'),start=source.indexOf('  async function paused(session,event){'),end=source.indexOf('  function message(session,data){',start);assert(start>0&&end>start);
+  for(const latch of ['failed','closed']){
+    const result=await vm.runInNewContext(`(async()=>{
+      let failed=false,closed=false,documentInspection=false,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,failureHTML=null;
+      const documentProofs=[],loadedScriptHashes=new Set(),calls=[],initialTarget='own';
+      const body=Buffer.from('own'),origin='https://scope-and-approval-keeper.lovable.app';
+      let proof={origin,modules:new Map([[origin+'/assets/a.js','a'.repeat(64)]]),inspectDocument:async()=>{${latch}=true;return {state:'HML_CONFIG_CONFIRMED',module_count:1,asset_sha256:[],runtimeProof:{origin,html_sha256:createHash('sha256').update(body).digest('hex'),modules:new Map()}};}};
+      const allowed=()=>true,expectedPopup=()=>false,fail=()=>{failed=true;},send=async(session,method)=>{calls.push(method);return {body:'own',base64Encoded:false};};
+      ${source.slice(start,end)}
+      try{await paused({type:'page',targetId:'own'},{requestId:'own',request:{url:origin+'/login'},resourceType:'Document',responseStatusCode:200});}catch{}
+      return calls;
+    })()`,{assert,Buffer,URL,createHash,validatePublishedResponse});
+    assert.deepEqual(Array.from(result),['Fetch.getResponseBody','Fetch.failRequest']);
+  }
+});
+
+test('response rejection latches failure before awaiting the native abort command',async()=>{
+  const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');const {createHash}=await import('node:crypto');const source=readFileSync('supabase/tests/p0_crud_global_browser.mjs','utf8'),start=source.indexOf('  async function paused(session,event){'),end=source.indexOf('  function message(session,data){',start);
+  const result=await vm.runInNewContext(`(async()=>{
+    let failed=false,closed=false,documentInspection=false,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,failureHTML=null;const documentProofs=[],loadedScriptHashes=new Set(),initialTarget='own',origin='https://scope-and-approval-keeper.lovable.app';
+    let proof={origin,modules:new Map([[origin+'/assets/a.js','a'.repeat(64)]])};const allowed=()=>true,expectedPopup=()=>false,fail=()=>{failed=true;};let latchedBeforeAbort;
+    const send=async(session,method)=>{if(method==='Fetch.failRequest')latchedBeforeAbort=failed;return {body:'changed',base64Encoded:false};};
+    ${source.slice(start,end)}
+    try{await paused({type:'page',targetId:'own'},{requestId:'own',request:{url:origin+'/assets/a.js'},resourceType:'Script',responseStatusCode:200});}catch{}
+    return latchedBeforeAbort;
+  })()`,{assert,Buffer,URL,createHash,validatePublishedResponse});assert.equal(result,true);
+});
+
+test('successful loaded-source hashes persist in the active provenance report only',async()=>{
+  const {createProofRecorder}=await import('./p0_crud_global_browser.mjs');const local={assertions:[]},published={assertions:[]};let localSaves=0,publishedSaves=0;
+  const recorder=createProofRecorder(local,()=>localSaves++),proof={document_proofs:[{html_sha256:'a'.repeat(64)}],loaded_script_sha256:['b'.repeat(64)]};
+  await recorder.published(published,()=>publishedSaves++,async()=>recorder.fence(proof));
+  assert.deepEqual(published.published_fence,proof);assert.equal(local.published_fence,undefined);assert.equal(publishedSaves,1);assert.equal(localSaves,0);
+  recorder.fence(proof);assert.deepEqual(local.published_fence,proof);assert.equal(localSaves,1);
+});
+
+test('late fence failure survives cleanup and is written to its original published provenance',async()=>{
+  const {createProofRecorder,finalizePublishedFence}=await import('./p0_crud_global_browser.mjs');assert.equal(typeof finalizePublishedFence,'function');
+  const local={assertions:[],state:'PASS_BATCH'},smoke={assertions:[],state:'PASS_SMOKE'};let localSaves=0,smokeSaves=0,record;
+  const recorder=createProofRecorder(local,()=>localSaves++);
+  await recorder.published(smoke,()=>smokeSaves++,async()=>{record=recorder.fenceRecorder();});
+  const snapshot={failed:true,loaded_script_sha256:['a'.repeat(64)]};record(snapshot);
+  assert.equal(smoke.state,'FAIL');assert.equal(smoke.published_fence.failed,true);assert.equal(local.published_fence,undefined);assert.equal(localSaves,0);assert.equal(smokeSaves,1);
+  for(const state of ['PASS_BATCH','PASS_PUBLIC_PROBE','PASS_SMOKE']){const report={state};assert.equal(finalizePublishedFence(report,snapshot),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_LATE_PUBLISHED_FAILURE');}
+  assert.equal(finalizePublishedFence({state:'PASS_BATCH'},{failed:false}),false);
 });
