@@ -52,7 +52,8 @@
     "supabase/tests/hml_acceptance.sql",
     "supabase/tests/upload_extension.test.mjs",
     "supabase/migrations/20261108054500_fix_document_upload_wrapper.sql",
-    "supabase/tests/upload_document_wrapper.test.mjs"
+    "supabase/tests/upload_document_wrapper.test.mjs",
+    "supabase/tests/history_catalog_compare.py"
   ],
   "forbidden_paths": [
     "src/**",
@@ -1265,6 +1266,16 @@
     "prod": false,
     "gate_pr": 149,
     "gate_merge": "7406e9c187ddb9c788e0b80258d470ec5451ce50",
-    "gate_ci": 42450959313
+    "gate_ci": 42450959313,
+    "catalog_complement": {
+      "phase": "BUILD",
+      "ci_failure_head": "d8d368aceb513ae80c3c86dd0976e7c40905c223",
+      "restore": 42451142640,
+      "future_build_path": "supabase/tests/history_catalog_compare.py",
+      "policy": "Assert exact full prior/approved wrapper metadata records once; substitute only definer False→True in expected copy; retain actual and compare every other field/object without exclusion",
+      "gate_pr": 151,
+      "gate_merge": "ff090938de5a2cd7d8dec856e965a49f2db2ce09",
+      "gate_ci": 42451366023
+    }
   }
 }

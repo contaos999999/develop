@@ -1,11 +1,24 @@
 """Compare metadata only; no user rows, no secrets, isolated PostgreSQL only."""
 import os,json,pathlib,subprocess
+def reconcile_document_upload_wrapper(expected,actual):
+ # GATE149/151: one exact attribute delta; never remove actual catalog records.
+ prior={'schema':'public','name':'criar_documento_contrato_completo',
+  'args':'p_id_contrato uuid, p_tipo text, p_titulo text, p_categoria text, p_vigencia_inicio date, p_vigencia_fim date, p_observacoes text, p_id_arquivo uuid, p_chave_idempotencia text',
+  'definer':False,'config':['search_path=""'],'auth_exec':True,'anon_exec':False}
+ approved={**prior,'definer':True}
+ if expected['functions'].count(prior)!=1 or actual['functions'].count(approved)!=1:
+  raise SystemExit('UPLOAD_WRAPPER_CATALOG_FAIL: exact unique prior/approved metadata required')
+ result={**expected,'functions':list(expected['functions'])}
+ result['functions'][result['functions'].index(prior)]=approved
+ return result
+
 root=pathlib.Path(__file__).parent
 db=os.environ['DB_URL']
 assert '@127.0.0.1:' in db or '@localhost:' in db,'Isolated restore required'
 expected=json.loads((root/'history-catalog-before.json').read_text())
 query=(root/'history-catalog-query.sql').read_text()
 actual=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',query],text=True))
+expected=reconcile_document_upload_wrapper(expected,actual)
 crud_expected=json.loads((root/'p0_crud_cadastros_catalog_expected.json').read_text())
 for record in crud_expected:
  if actual['functions'].count(record)!=1:
