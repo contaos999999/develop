@@ -1364,6 +1364,25 @@
       "all_protocols_certified": false,
       "real_pg_net_probe_required_after_reset": true,
       "no_new_build_paths": true
+    },
+    "platform_constraint": {
+      "state": "BLOCKED_PENDING_SECURITY_DECISION",
+      "diagnostic_head": "d5d79b626a8236f3ed0a618d2ae5d733f311aac7",
+      "diagnostic_run": 42456946721,
+      "rebuild_job": 128657901129,
+      "cause": "Supabase owns pg_net objects as supabase_admin; postgres REVOKE has no effect and leaves PUBLIC/client grants",
+      "official_source": "https://supabase.com/kb/troubleshooting/revoking-access-to-pg_net-objects-has-no-effect-0bbc16",
+      "hml_changed": false,
+      "worker_file_security": "pendente",
+      "worker_attempts": 0,
+      "candidate": "Keep Supabase worker/cron and default managed pg_net grants, prove net not exposed in Data API, deny API access for anon/authenticated, restrict direct DB logins to trusted services; requires explicit decision before superseding GATE153 raw-ACL requirement",
+      "public_api_negative": {
+        "status": 406,
+        "code": "PGRST106",
+        "message": "Invalid schema: net"
+      },
+      "authenticated_api_negative": "NOT_EXECUTED",
+      "new_build_authorized": false
     }
   }
 }

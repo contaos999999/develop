@@ -63,3 +63,29 @@ Provanativaobrigatória: listenerTCPoriginalcontroladonohost/IPforasub-redeown,c
 NegativosdohelperREALdevemrejeitarorigem/credentials/ownership/regras/nome/NIC/IPv6inválidosantesSupabase,comprovarcleanupemfalhapósstart. Casosunitáriosnãoatestamfirewallreal. CIprecisaexecutartodassuítes/Restore/backup/public/guardnomesmoHEADnovoeindependentreviewsemCritical/Importantantesmergenormal. DDLHML153permaneceCREATEextensions+4REVOKEsatômicos,semalterarcronHML/Vault/queues/Edges/frontend/PROD.148DRAFTatéworkerreal,semCRUDglobal/V1/V2.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual;compatibilidadeCLI+contençãoTCPnativa,semrelaxarCI/proteçõesouusarLovable.
+
+## Checkpoint: impedimento comprovado da plataforma e decisão necessária
+
+Em 08/11/2026, a continuação autorizada pelo titular investigou worker e verificação de segurança do arquivo do checkpoint #152. Ambos dependem do worker documental. O HML continua com o arquivo `8cc6ac08-7f5b-469c-ab50-7b33d5a12379` em segurança pendente e o job `431c5c89-812e-4d7e-99be-5550a55bafcf` enfileirado, zero tentativas. Nenhum status foi aprovado manualmente. Nenhuma extensão foi instalada no HML nesta execução.
+
+### Evidência e causa definitiva do bloqueio atual
+
+- PR #155, HEAD `4deade48a165d4df2d0643643b778cf283b46b09`: guard/public/histórico e backup passaram; a reconstrução bloqueou em oito testes de privilégio efetivo do schema net. Os testes nativos de contenção TCP/HTTP passaram.
+- Diagnóstico somente de catálogo `40323f2c30d0891144a7c44be05abefadd540af7`: owners e grantors dos objetos net são `supabase_admin`; grants a PUBLIC e aos clientes continuam presentes. anon/authenticated não são superusers nem membros de postgres.
+- Diagnóstico isolado em savepoint `d5d79b626a8236f3ed0a618d2ae5d733f311aac7`, run `42456946721`, job `128657901129`: os quatro REVOKEs originais emitiram **WARNING: no privileges could be revoked**. O catálogo imediatamente posterior continuou com anon_usage=true, auth_usage=true e anon_http=true. O rollback foi executado antes das oito assertions originais, que continuaram falhando. Não se trata de simplesmente afrouxar teste ou reaplicar uma revogação após o reset.
+
+A [documentação oficial do Supabase, atualizada em 04/11/2026](https://supabase.com/kb/troubleshooting/revoking-access-to-pg_net-objects-has-no-effect-0bbc16) confirma que postgres não concedeu esses privilégios e não possui grant option. A plataforma não suporta alterar os grants de pg_net por projeto. Remover os grants de PUBLIC também quebraria workers que dependem deles. Portanto, o contrato literal de quatro REVOKEs eficazes do GATE #153 não é executável neste ambiente. Não tentar SET ROLE privilegiado, alterar ownership, editar catálogos, fabricar PASS ou acessar credenciais de administrador da plataforma.
+
+### Alternativa concreta, ainda NÃO autorizada como BUILD
+
+Preservar frontend e backend Supabase, os workers e crons existentes, usando a fronteira suportada pelo provedor: pg_net em namespace interno, net fora dos schemas expostos pela Data API, anon/authenticated sem LOGIN direto e acesso SQL direto somente por serviços confiáveis. Isso substituiria explicitamente a exigência de ACL interna fechada do GATE #153; não seria uma alegação falsa de revogação.
+
+**Consequência material:** qualquer papel com acesso SQL direto pode ler headers de requisições pg_net enquanto estão na fila, inclusive o token interno enviado pelo cron. Esses acessos devem ser considerados administrativos e confiáveis. Esta mudança de condição de segurança exige decisão expressa do titular antes de habilitar a extensão, alterar testes ou integrar/aplicar o BUILD #155.
+
+Provas preparatórias somente de leitura: HML inventariou apenas roles de infraestrutura/Supabase com LOGIN. A requisição anônima à Data API com Accept-Profile net, seleção apenas de id e limite zero, retornou **406/PGRST106, Invalid schema: net**. Isso prova somente a recusa dessa chamada; não substitui inventário completo da configuração gerenciada, prova autenticada ou verificação posterior à ativação. Nenhuma linha de fila, header ou segredo foi lido. A consulta de configuração da sessão não retornou db_schemas e não foi usada para alegar configuração global confirmada.
+
+Se o titular aprovar esta alternativa, um GATE complementar deve fechar os caminhos e exigir: configuração gerenciada exata, negativos reais anon e authenticated para net, revisão dos logins diretos, preservação de JWT/token interno/RBAC/RLS, instalação versionada sem REVOKE ineficaz nem escalada, contenção TCP/HTTP real do Restore/backup, testes completos e revisão independente no mesmo HEAD, merge normal e deploy canônico. Depois, observar os crons normais processarem o mesmo arquivo #152 e comprovar segurança aprovada, extração real, páginas/fragmentos e estado de processamento, sem consumidor global manual ou liberação artificial.
+
+**Estado:** diagnóstico concluído; duas pendências de produto ainda NÃO resolvidas; PR #155 bloqueado; nenhum deploy HML autorizado por este checkpoint. A prova de upload #152 permanece válida e não deve ser repetida ou apagada. V1/global/CRUD continuam sem certificação integral. Não iniciar V2 ou alterar PROD.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A; diagnóstico e planejamento sem turno Lovable, sem alteração do backend HML, sem reduzir teste ou proteção silenciosamente.
