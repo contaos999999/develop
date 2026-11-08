@@ -88,3 +88,12 @@ RED proxy20d156717f8f05384b0c4444e19ea643e0f009d0: protocolo52PASS/2FAIL, helper
 A implementação configura proxy nativo por contexto antes de criar página: bypass exato das origens aprovadas e <-loopback> explícito. O endpoint loopback TCP fecha sem ler/responder/encaminhar; nenhum fallback DIRECT. A alteração de header CSP foi retirada. Fixtures isoladas sem CDP guard avaliam bypass com HTML/status reais, destinos não aprovados HTTP/HTTPS/WS/WSS/IPv4/IPv6/aliases/porta e proxy indisponível. Workers HTTP/blob/data próprios devem realmente executar START1 e produzir tentativas DENY, sem conexões no destino estrangeiro depois de close/drain. Isso não certifica execução Worker de produto. Worker inesperado na aplicação marca FAIL persistente, inclusive tardio.
 
 Estado EM_VALIDACAO_CI_REAL: eficácia da barreira e CORS nativo positivo/negativo ainda dependem do Chromium congelado. Preservados hashes/SDK antes de credenciais, redirects, popup DENY, Auth/RLS/RBAC, cinco recibos, worker backend e cleanup. Nenhum material HML, deploy, credencial ou certificação integral foi executado por esta correção.
+
+
+### Provas de proxy e correção da expectativa DATA
+
+HEAD9b9ad321/public42442958319/job128615896480 FAIL em NATIVE_PROXY_WORKER_DATA; artefato13602427213 SHA256978f3d6779b1677079738abdd1ac20eef795cbc6ab7f6f0211b74b5c9cb41705. Positivo DIRECT com HTML/status reais, nove negativos de origem e WS/WSS, Worker HTTP e BLOB passaram suas respectivas asserções e contadores finais; não constituem PASS do probe inteiro.
+
+Diagnóstico341111b9538fd446512149db35586dc0036fa282/public42443226070/job128616673183, artefato13602866198 SHA256caaf89c72fb24e02e80c474fb2773317788727aa0e359f6dc4582b90f75a444c: DATA ownSTART1/bootstrap0/DENY2 e foreignTCP0/HTTP0/WS0 após close/drain, mas own-fetch statusnull/rejectedtrue. A expectativa200 era incorreta: WHATWG HTML §10.2.6.2 atribui origem opaca ao Worker data; sem ACAO a leitura CORS deve falhar. Não alterar o endpoint, CORS, no-cors ou política proxy.
+
+Fix exige DATA self.origin==='null' classificado OPAQUE e statusnull/rejectedtrue, HTTP/BLOB origem própria efetivamente verificada e200, preservando START1/DENY>0/zero transporte estrangeiro. Novo validador TDD RED54PASS/1FAIL ausente→GREEN55/55protocolo e261/261suíte; revisão estática independente sem Critical/Important. A origem é medida dentro do Worker, não inferida do rótulo da fixture. CI operacional do novo HEAD continua pendente.

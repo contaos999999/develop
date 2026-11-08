@@ -697,3 +697,12 @@ test('late unexpected browser Worker irreversibly overrides a provisional succes
   for(const state of ['PASS_PUBLIC_PROBE','PASS_BATCH','PASS_SMOKE']){const report={state,unexpected_browser_worker:true,global_complete:false};assert.equal(finalizeUnexpectedBrowserWorker(report),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_UNEXPECTED_BROWSER_WORKER');report.state='PASS_BATCH';assert.equal(finalizeUnexpectedBrowserWorker(report),true);assert.equal(report.state,'FAIL');}
   const normal={state:'PASS_BATCH'};assert.equal(finalizeUnexpectedBrowserWorker(normal),false);assert.equal(normal.state,'PASS_BATCH');
 });
+
+test('opaque DATA Worker proof expects native own CORS denial while still requiring execution and zero foreign transport',async()=>{
+  const {validateNativeProxyWorkerProof}=await import('./p0_crud_global_browser.mjs');
+  for(const kind of ['HTTP','BLOB','DATA']){const results=[{status:kind==='DATA'?null:200,rejected:kind==='DATA'},true,true,kind==='DATA'?'OPAQUE':'OWN'];const proof={own_start_requests:1,own_bootstrap_requests:kind==='HTTP'?1:0,foreign_tcp_connections:0,foreign_http_requests:0,websocket_upgrades:0,deny_connections:2};assert.equal(validateNativeProxyWorkerProof(kind,results,proof),true);
+    for(const [key,value] of [['own_start_requests',0],['foreign_tcp_connections',1],['foreign_http_requests',1],['websocket_upgrades',1],['deny_connections',0]])assert.throws(()=>validateNativeProxyWorkerProof(kind,results,{...proof,[key]:value}));
+    assert.throws(()=>validateNativeProxyWorkerProof(kind,[results[0],false,true,results[3]],proof));assert.throws(()=>validateNativeProxyWorkerProof(kind,[results[0],true,true,'UNEXPECTED'],proof));
+  }
+  assert.throws(()=>validateNativeProxyWorkerProof('DATA',[{status:200,rejected:false},true,true,'OPAQUE'],{own_start_requests:1,own_bootstrap_requests:0,foreign_tcp_connections:0,foreign_http_requests:0,websocket_upgrades:0,deny_connections:2}));
+});
