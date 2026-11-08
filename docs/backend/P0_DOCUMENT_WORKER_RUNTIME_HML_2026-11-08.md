@@ -205,3 +205,33 @@ Preservado integralmente9c263374 e seu diagnóstico pg_net, manifesto e correç�
 HEADd21fb055: guard42474670270/histórico42474670303/public42474670278SUCCESS. Restore42474670328: reconstrução128713192747 concluiu suites SQL masFAIL no canário da etapa Registrar histórico (queuedtrue/deniedfalse/DROP37/receptor0); backup128713192615FAIL no último canárioHTTP. Diagnóstico exato: própria resposta ausente e request ainda na fila após10s, worker visível, DROPdelta46 e receptor0. As três provasHTTP anteriores confirmaram resposta negada e DROP2. Não é conexão externa permitida nem PASS do backup. Crons existentes têm timeout10000ms por request, executam em lotes e permanecem ativos no banco reconstruído;10s não cobrem necessariamente a espera do lote anterior mais o próprio request.
 
 Delta mínimo de hipótese temporal: polling do MESMO request até45s, mantendo exigências resposta statusnull com timeout/error, DROPpositivo e receptor0, sem restart/pausa de worker/cron, sem apagar filas, sem trocar destino nem relaxar firewall. Deadline vencida continua FAIL. Teste extrai funçãoREAL: REDausente; GREENresposta só após12s e caso sem resposta recusa até45s. Suíte336/336PASS. NovoCIreal ainda obrigatório para confirmar hipótese; HML intacto.
+
+
+## Defesa adicional contra elevação e exposição indireta, proposta independente
+
+Titular pediu buscar/implementar solução segura preservando arquitetura. Reancoragem155/39cb9ef e main/eedf922, sem avançar branch nem sobrescreverWIP do outro executor. O GATE158 existente permanece fonte canônica; este delta acrescenta controles de catálogo somenteleitura ao preflight antes de qualquerAuth/DDL.
+
+HipótesealternativaHTTPprivado descartada sem publicar/executarDDL: fonteprimária pramsey/pgsql-http SHAee52345b5929f63a3871685f85974f34b5fa8508/http.c linhas1278–1281 força FOLLOWLOCATION1/MAXREDIRS5 emPOST; a listaSQL de opções não permite desligá-lo. Não trocar persistência de token por risco de transmissão emredirects. Testes locais da pesquisa não contamcomo solução operacional.
+
+Plano mínimo desta defesa: acrescentar um booleano estrito client_attack_surface ao metadataSQL existente. Deve exigir duas rolescliente presentes, semLOGIN/SUPERUSER/CREATEROLE/CREATEDB/REPLICATION/BYPASSRLS, semmembership emrolesSQL/administrativas; semUSAGE/CREATE deVault ouCREATEpúblico, seteassinaturas exatas de transporte/token/worker fechadas ao cliente, nenhumaexposição direta pública deVault/net porviews/materializedviews ourotinas executáveis. O teste inclui permissões decoluna para evitar fuga porSELECTparcial. A aplicação destes controles não lê tokens, bodies oulinhas de net, não altera qualquergrant ourole e não representaosserviçosadministrativoscomo usuárioscomuns.
+
+Critérios: novoRED aceitaausência/nãoaplicação da guarda; GREENrecusacatálogo inseguro antesdequalquerrequestAuth; consultasSQLreais HML somenteleitura; casosnegativosSQLemPostgreSQLlocal comACLs sintéticas; suítetotal/guards/revisãoindependente. Guard/public/Restore/backupnomesmoHEAD continuamobrigatórios; nenhuma conclusãoPASSmaterialouzerorisco. O conjunto não é análise transitiva completa de qualquerSQLdinâmico nem substitui scannerSQL/RLS/negativosAPIautenticados.
+
+Arquitetura preservada: frontendContaOS, API/RPC/Edges/Auth/RBAC/RLS, PostgreSQL/Storage/Auditoria noSupabase. NenhumaEdge extra oualteraçãofrontend317/PROD. Trabalhodohelperdecontenção ecorreçõesJWT/positivoAPI pertencemaosoutrosexecutores e são reutilizadossematribuiçãoindevida.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual, deltacatálogo/readiness comdoisarquivosjáGATE158, semLovable, semschema/migration/roles/Authconfig/Edges/fixturesalheias.
+
+
+### Evidências próprias e reancoragem pós-integração155
+
+Base agora79aec0002712df1a2262bdee9185cc406ba21eb2, árvore idêntica ao39cb9ef testado, avançada localmente porFF puro sem tocarbranch155. Integração155 e deployHML42475332474 pertencem a outroexecutor. LeituraGitHub confirma passos WorkerAPIboundarybefore/afterdeploySUCCESS e artefato13614902486/digestba7d49fd5921faada31db7042d33133757b0424802414200771e302863a77292. SELECTs próprios somenteleitura confirmaram pg_net emextensions e fixture152 jobconcluído/tentativas1; essafixture não é prova própria nemlote5/3/5.
+
+Neste delta: REDausênciaguarda client_attack_surface eREDausência deexecuçãoSQLnoRestore reproduzidos; implementaçãoGREEN9/9testesdirigidos e339/339Nodecompletos,semSKIP. SQLHMLreal antes/depois da instalação executado somenteleitura retornou client_attack_surface=true,semexportarsecretoulinha dafila.
+
+A revisãoindependente encontrou Important no primeiro scanner(prosrc não cobre corposSQLpadrão). ReproduzidoRED real com funçãoSQL RETURN diretamente referenciando tabelaVault sintética; corrigido por pg_get_functiondef comCASEprokindf/p/w, evitandoaggregates. RegressãoPostgreSQLlocal PGlite0.3.14:16/16 cenáriosPASS,incluindoLOGIN/SUPERUSER/CREATEROLE/BYPASSRLS,membershipadministrativa,VaultUSAGE,CREATEpublic,endpointausente/aberto/overload,viewcomgrantdetabela/coluna,funçãoponte/corpoSQLpadrão eviewsegura. Nenhumcanário ouobjeto dessesfoicriado emHML.
+
+Revisor confirmou Importantresolvido porinspeção. Observação menor: timeout/psqlausente deveria produzir recibosanitizado. Corrigida comrecusafechada deOSError/TimeoutExpired; RED retirando a captura, GREENexecutandocódigo REALextraído do stepCI com dependênciaSQLindisponível. Nemstdout/stderrSQL nemtracebackpublicados, JSONcontémsomentestate/head/catalog_only.
+
+Acrescentado sexto caminho .github/workflows/restore-isolado.yml: disparosPR/push para os testes novos e passo Workerclientprivilegecatalog apósreset antesaceitação. Executa MESMAconsulta emBEGINREADONLY/ROLLBACKnoPostgresLOCALreal eexigesomente t comexit0. Não remove/skiptestes ouproteções; as provaslegadas decontenção/backup/material permanecem. O scriptPGliteé suplementolocalcomdependênciatemporária fixada, nãodependênciadeproduto nemcertificaçãoHTTP/HML.
+
+Estado: código eprovaslocaisconcluídos; CIremoto/revisãofinal/integraçãodestedeltacontinuamobrigatórios. Não declara segurançauniversal, resoluçãodequalquerSQLdinâmico/análisetransitivacompleta,5provasmateriais,CRUDouV1. NenhumanovaEdge/DDL/grant/role/Authconfig/Storage/frontend/PROD alterados.

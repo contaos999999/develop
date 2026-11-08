@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'supabase/tests/worker_api_boundary*'
+      - 'supabase/tests/worker_client_privileges*'
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
@@ -22,6 +24,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'supabase/tests/worker_api_boundary*'
+      - 'supabase/tests/worker_client_privileges*'
       - 'supabase/config.toml'
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
@@ -85,6 +89,25 @@ jobs:
 
       - name: Recriar banco a partir das migrations versionadas
         run: bash scripts/isolated-db-network.sh run db reset --local --no-seed
+
+      - name: Worker client privilege catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import importlib.util,json,os,subprocess
+          from pathlib import Path
+          spec=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py')
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          try:
+            result=subprocess.run(['psql','postgresql://postgres:postgres@127.0.0.1:54322/postgres','-X','-qAt','-v','ON_ERROR_STOP=1'],input='BEGIN READ ONLY;'+module.client_attack_surface_sql()+';ROLLBACK;',text=True,capture_output=True,timeout=20)
+            passed=result.returncode==0 and result.stdout.strip()=='t'
+          except (OSError,subprocess.TimeoutExpired):
+            passed=False
+          Path('restore-proof/worker-client-privileges.json').write_text(json.dumps({'state':'PASS' if passed else 'FAIL','head':os.environ['GITHUB_SHA'],'catalog_only':True})+'\n')
+          print('WORKER_CLIENT_PRIVILEGES_'+('PASS' if passed else 'FAIL'))
+          if not passed:raise SystemExit(1)
+          PY
 
       - name: Teste 1 - Aceitação HML
         shell: bash

@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "BUILD: runtime documental HML com pg_net isolado e Restore sem egress",
+  "title": "Defesa adicional: impedir elevação de roles e exposição indireta de segredos antes de Auth/DDL",
   "status": "ativa",
-  "phase": "BUILD_DOCUMENT_WORKER_RUNTIME_HML",
+  "phase": "BUILD_WORKER_CLIENT_ATTACK_SURFACE_GUARD",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos; Codex continuidade P0: 25 fontes canônicas e manifesto relidos, pacote ZIP/manual original conferidos, GATE158 e HEAD94667da verificados; delta JWT próprio com RED/GREEN/revisão e diagnóstico pg_net sem afrouxar prova",
+  "context_read_by": "Codex Trilha B desta execução,25canônicos/fingerprint/P0 lidos e bytes preservados; GATE158 e HEAD15539cb9ef relidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -39,17 +39,10 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
-    "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
-    "supabase/tests/hml_acceptance.sql",
-    "supabase/tests/p0_crud_global_hml.py",
-    "supabase/tests/p0_crud_global_protocol.test.mjs",
-    "supabase/tests/queues_edge_auth.sql",
-    ".github/workflows/restore-isolado.yml",
-    "scripts/p0-v1-synthetic-data-restore.sh",
-    "scripts/isolated-db-network.sh",
-    ".github/workflows/p0-hml-migration-version-parity.yml",
     "supabase/tests/worker_api_boundary_hml.py",
-    "supabase/tests/worker_api_boundary.test.mjs"
+    "supabase/tests/worker_api_boundary.test.mjs",
+    "supabase/tests/worker_client_privileges.postgres.mjs",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -57,7 +50,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -1500,5 +1493,13 @@
       "gate_ci": 42473235121
     },
     "raw_acl_requirement_superseded_by": 158
+  },
+  "worker_client_attack_surface": {
+    "base": "39cb9ef93f319056be4161f344d705ecd5a7ec1f",
+    "scope": "Adicionar catálogo read-only ao preflight existente antes de qualquer Auth ou DDL; preserve GATE158, sem modificar branch155",
+    "hml_mutations": false,
+    "additional_edges": false,
+    "no_secrets_or_queue_rows_read": true,
+    "integrated_base": "79aec0002712df1a2262bdee9185cc406ba21eb2"
   }
 }

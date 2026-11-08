@@ -19,7 +19,7 @@ def issued_authenticated_token_matches(token,expected_subject):
     except (ValueError,UnicodeError):return False
     return isinstance(payload,dict) and payload.get('role')=='authenticated' and payload.get('sub')==expected_subject
 def metadata_valid(data,stage):
-    base={'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+    base={'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True,'client_attack_surface':True}
     if stage not in ('preinstall','postinstall'):return False
     ready=stage=='postinstall';expected={**base,'extension_present':ready,'extension_ready':ready,'scheduler_access':ready}
     return isinstance(data,dict) and set(data)==set(expected) and all(type(data[k]) is bool and data[k] is v for k,v in expected.items())
@@ -30,9 +30,50 @@ def own_record(user,nonce,intent,email,expected_id=None):
     meta=user.get('app_metadata')
     return valid_id and (expected_id is None or user['id']==expected_id) and user.get('email')==email and isinstance(meta,dict) and meta.get('scope')==SCOPE and meta.get('boundary_nonce')==nonce and meta.get('fixture_request_id')==intent
 
+def client_attack_surface_sql():
+    # Catalog only: no token values, queue rows, HTTP requests or privilege changes.
+    return """select
+      (select count(*)=2 and bool_and(not (rolcanlogin or rolsuper or rolcreaterole or rolcreatedb or rolreplication or rolbypassrls))
+       from pg_roles where rolname in ('anon','authenticated'))
+      and not exists (
+        select 1 from pg_roles client cross join pg_roles elevated
+        where client.rolname in ('anon','authenticated') and elevated.oid<>client.oid
+          and (elevated.rolcanlogin or elevated.rolsuper or elevated.rolcreaterole or elevated.rolcreatedb or elevated.rolreplication or elevated.rolbypassrls)
+          and pg_has_role(client.oid,elevated.oid,'MEMBER'))
+      and to_regnamespace('vault') is not null
+      and not exists (
+        select 1 from pg_roles client where client.rolname in ('anon','authenticated')
+          and (has_schema_privilege(client.oid,'vault','USAGE,CREATE') or has_schema_privilege(client.oid,'public','CREATE')))
+      and (select count(*)=7 and bool_and(to_regprocedure(signature) is not null) from (values
+        ('privado.invocar_contaos_worker(text,integer)'),('privado.invocar_edge_oficial(text,integer)'),
+        ('public.validar_token_interno(text)'),('public.worker_pull_job(text,integer)'),
+        ('public.worker_finalizar_job(text,bigint,boolean,text,text,integer)'),
+        ('public.worker_enfileirar_job(text,uuid,uuid,text,uuid,jsonb,text)'),('public.worker_obter_webhook(uuid)')) expected(signature))
+      and not exists (
+        select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+        where n.nspname in ('public','privado') and p.proname in
+          ('invocar_contaos_worker','invocar_edge_oficial','validar_token_interno','worker_pull_job','worker_finalizar_job','worker_enfileirar_job','worker_obter_webhook')
+          and (has_function_privilege('anon',p.oid,'EXECUTE') or has_function_privilege('authenticated',p.oid,'EXECUTE')))
+      and not exists (
+        select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
+        where n.nspname='public' and case when c.relkind in ('v','m') then
+          regexp_replace(pg_get_viewdef(c.oid,true),'[[:space:]\"]','','g') ~* '(net|vault)[.]|http_request_queue|decrypted_secrets'
+          and (has_table_privilege('anon',c.oid,'SELECT') or has_table_privilege('authenticated',c.oid,'SELECT')
+               or has_any_column_privilege('anon',c.oid,'SELECT') or has_any_column_privilege('authenticated',c.oid,'SELECT'))
+          else false end)
+      and not exists (
+        select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+        where n.nspname='public'
+          and case when p.prokind in ('f','p','w') then
+            regexp_replace(pg_get_functiondef(p.oid),'[[:space:]\"]','','g') ~* '(net|vault)[.]|http_request_queue|decrypted_secrets|invocar_edge_oficial|invocar_contaos_worker|validar_token_interno|worker_pull_job|worker_obter_webhook'
+            else false end
+          and (has_function_privilege('anon',p.oid,'EXECUTE') or has_function_privilege('authenticated',p.oid,'EXECUTE')))
+      as client_attack_surface"""
+
 def metadata_sql():
     allowed=','.join("'"+x+"'" for x in TRUSTED_LOGINS)
     return """select json_build_object(
+      'client_attack_surface',("""+client_attack_surface_sql()+"""),
       'extension_present',exists(select 1 from pg_extension where extname='pg_net'),
       'extension_ready',exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions'),
       'scheduler_access',coalesce(has_schema_privilege('postgres',(select oid from pg_namespace where nspname='net'),'USAGE') and has_function_privilege('postgres',to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)'),'EXECUTE'),false),
