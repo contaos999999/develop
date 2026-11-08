@@ -203,3 +203,40 @@ Permanecem obrigatórios o TXT publicado adicional antes dos quatro uploads loca
 Após os checks e revisão documental deste PR, integrar o complemento; reancorar o BUILD #139 com merge normal de main; implementar/testar DENY e GET limitado; Teste C independente do harness completo; obter guard/restore/backup/public-probe SUCCESS no mesmo HEAD final; somente então integrar BUILD. Deploy HML e retomada material continuam sujeitos à seção 9 e a checkpoint próprio. Nenhuma nova aprovação humana rotineira é necessária; preservam-se as autorizações e negações da seção 10.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, dependências, workflows, novas origens, funções ou escopo de produto.
+
+
+## 12. GATE complementar: CSP nativa restritiva contra execução de Browser Workers
+
+Complemento documental separado, anterior ao BUILD. Guard, reconstrução e backup devem concluir SUCCESS no mesmo HEAD, com revisão independente, antes de integrar este GATE. Não habilita CRUD material, deploy, credenciais, novas origens, dependências ou workflows.
+
+### 12.1 Evidência e limite da contenção anterior
+
+O HEAD `f94595306886c358c73400a3a83424344fb75180`, public-probe run `42440477002`, job `128608523471`, falhou em WORKER_DENY_DATA: waitingForDebugger=1 e zero Runtime.resume do harness não impediram um START e um request HTTP estrangeiro. Artefato `13600703885`, SHA256 `be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a`. Não declarar Worker contido pela mera observação de pausa ou encerramento posterior. As medições anteriores a context.close não certificam ausência de efeitos tardios.
+
+### 12.2 Exceção estrita de transporte no harness
+
+Autoriza-se exclusivamente acrescentar um campo independente `Content-Security-Policy: worker-src 'none'` às respostas Document da própria origem em teste, na pausa nativa Fetch de resposta e antes da entrega/execução do documento. Primeiro conferir status não redirecionado, identidade de origem e hash dos bytes HTML contra o grafo previamente inspecionado. Manter a conferência dos scripts reais.
+
+Usar somente Fetch.continueResponse nativo. Preservar a sequência integral de campos originais, seus nomes, valores e multiplicidade, inclusive múltiplos Set-Cookie e CSP já existente; acrescentar o novo campo ao final. Não substituir, remover, normalizar ou registrar headers. Preservar status/phrase e os bytes do corpo sem fulfill, relay ou mock. Se o contrato exigir reenviar status e todos os headers quando se altera um campo, reenviar seus valores originais integralmente. Esta é a única exceção à imutabilidade de headers das seções anteriores.
+
+A exceção nunca se aplica a Fetch/XHR, OPTIONS, Auth, API, Storage ou resposta Edge. Nenhuma alteração de CORS, Origin, cookies, autorização, payload ou SDK é permitida. Não usar Playwright route/fulfill, APIs internas ou handshake WebSocket fabricado. Documento opaco, hash divergente, protocolo não suportado ou impossibilidade de preservar os campos encerra FAIL antes de credenciais.
+
+Fontes primárias: W3C CSP3, worker-src e seu pre-request check (https://www.w3.org/TR/CSP3/#directive-worker-src), além da imposição cumulativa de políticas; contrato CDP Fetch.continueResponse (https://chromedevtools.github.io/devtools-protocol/tot/Fetch/#method-continueResponse). O comportamento deve ser comprovado no Chromium congelado do runner, sem presumir sucesso pela presença do header.
+
+### 12.3 Provas obrigatórias e medição final
+
+TDD deve provar preservação exata do array original, CSP existente, Set-Cookie múltiplo, status e corpo; rejeitar uso da exceção fora de Document próprio. Fixtures reais sem credenciais devem tentar Worker dedicado HTTP, blob e data, SharedWorker e seus efeitos START, HTTP estrangeiro e upgrade WebSocket. Exigir zero efeitos, inclusive bootstrap HTTP quando bloqueado por worker-src. Manter popup DENY, WebSocket nativo, redirects negados, ChangedJS sem execução e hashes reais.
+
+A execução real da aplicação deve falhar ao observar tentativa/violação worker-src inesperada. Observação passiva de diagnóstico CSP pode classificar somente diretiva e estado de enforcement, sem publicar URLs, headers ou fontes. Não suprimir erro para permitir fluxo funcional. Browser Worker necessário ao produto e bloqueado permanece pendência funcional e FAIL, sem alegar certificação desse recurso.
+
+Todos os contadores finais das fixtures devem ser conferidos somente após aguardar context.close e drenar eventos/requisições e conexões TCP do servidor de teste. Verificar efeitos tardios antes de encerrar servidores; não destruir conexões antes de contabilizar requests para fabricar zero. Registrar a janela de observação final e reprovar qualquer efeito tardio.
+
+CORS deve ser comprovado pela rede real: negativo com OPTIONS real maior que zero e POST negado igual a zero; positivo com OPTIONS real e POST permitido/status esperado. Nenhuma resposta sintética de preflight é admissível. A CSP não substitui essa prova.
+
+### 12.4 Sequência, escopo e resultado
+
+Após revisão e checks documentais, integrar este GATE; reancorar #139 por merge normal de main, preservando os pais e sem force push; publicar RED, BUILD e GREEN nos dez caminhos já autorizados; executar Teste C independente do harness completo e CI guard/restore/backup/public-probe no mesmo HEAD final. Não integrar BUILD com Critical/Important ou qualquer check ausente/falho.
+
+Este complemento restringe somente o navegador de prova. Preserva o worker real de documentos no backend, cinco recibos disjuntos, readiness, negativos, auditoria e cleanup obrigatórios. Não altera o produto nem autoriza aceitar Worker funcional bloqueado. Continuam NÃO CERTIFICADOS Browser Workers e janela/download nativo, e pendentes os critérios integrais documentais, CRUD global e V1. UI Edge CORS e GET assinado limitado continuam provas parciais separadas.
+
+Deploy HML permanece condicionado à seção 9 e às fontes integradas aprovadas; PROD proibido. A autorização de continuidade existente dispensa nova aprovação humana rotineira. ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, novas funções, configurações, permissões ou escopo de produto.
