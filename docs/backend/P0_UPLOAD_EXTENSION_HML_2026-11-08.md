@@ -19,3 +19,7 @@ TDD SQL real em transação descartável: extrair a expressão da função insta
 Rollback por nova migration/PR restaurando a definição anterior da função, sem apagar evidências/objetos ou reescrever histórico. A correção não amplia formatos aceitos nem autoriza limpar dados. Qualquer falha mantém NÃO CONCLUÍDO e exige diagnóstico. Não alegar cobertura232/72, CRUDintegral ou certificaçãoV1 a partir deste caso.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A, função backend existente; sem turno Lovable; menor delta funcional com testes reais, sem reduzir segurança ou governança.
+
+## BUILD e RED
+
+GATE146 integrado b432417ac3e9f17d8f75803443f343c84517b8ec, guard42450339687SUCCESS, revisão independente sem Critical/Important. RED SQL real por pattern extraído da função instalada: TXT/PDF/DOCX retornam nome completo, três assertions falsas. RED Node acusa ausência da migration. Migration nova troca somente v_ext por lower(coalesce(substring(p_nome_original from '[.]([^.]*)$'),'')); sem extensão produz vazio e mantém recusa. Acceptance SQL avalia a expressão da própria função instalada em onze casos e mantém MIME divergente negado. CI/restore/reteste material ainda pendentes.
