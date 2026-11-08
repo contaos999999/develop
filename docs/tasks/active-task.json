@@ -1206,5 +1206,20 @@
       "late_fence_fix": "Finalizers capture original provenance and persist/reject failed snapshot after browser/deny close; RED helper absent then63/63protocol269/269suite"
     }
   },
-  "auth_configuration_changes_allowed": false
+  "auth_configuration_changes_allowed": false,
+  "vercel_upload_origin_gate": {
+    "phase": "GATE_DOCUMENTAL",
+    "origin": "https://contaos-41-hml.vercel.app",
+    "project": "gklhhhyosgasnyoxlrui",
+    "authorization": "Titular determinou resolver upload e executar deploy/teste HML; autorização específica da origem Vercel já usada no HML",
+    "future_build_paths": [
+      "supabase/functions/storage-sign-upload/index.ts",
+      "supabase/functions/storage-sign-download/index.ts",
+      "supabase/tests/storage_document_cors.test.mjs"
+    ],
+    "pr139_prerequisite": "Reutilizar BUILD139 integrado e checks no mesmoHEAD, sem duplicar harness",
+    "verify_jwt": true,
+    "prod": false,
+    "material_certified": false
+  }
 }
