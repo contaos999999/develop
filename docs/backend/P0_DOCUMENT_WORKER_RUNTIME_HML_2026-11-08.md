@@ -37,3 +37,15 @@ Apósaplicação: conferir pg_extension/net/http_post,cronssucessoeHTTPcodes san
 Rollback exige nova migration/PR revisada, semDROP CASCADE, apagarfilas/objetos/evidências oucancelar trabalhosalheios; se aextensão jáestiverpresente, somenteCREATEéno-op,hardeningcontinuaobrigatório e namespaceerradabloqueiaprova. Falha técnica mantém148DRAFT/semcertificaçãoCRUD/V1. NãoiniciarV2.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visualN/A, reparodeinfraestruturaHMLjáprevista, semLovable/frontend, semrelaxarguardsouautorização.
+
+## GATE complementar: isolamento preventivo do Restore e backup locais
+
+ApósGATE153integrado4a5bd7c, antesdeimplementarDDL, inspeçãomigration0019comprovouVaultURLHMLhardcoded+tokenaleatóriolocal. Habilitarpg_net noRestorepoderiafazercronslocais tentaremHTTPHML. Nenhumaextensãofoiaplicada,nenhumCIcomnovoDDLfoipublicado. OREDunitárioprópriojáexisteapenasnoisoladobackend-worker-build:63PASS/2FAIL,semproduto.
+
+Complemento permite acrescentar somente3caminhosBUILD: .github/workflows/restore-isolado.yml, scripts/p0-v1-synthetic-data-restore.sh e scripts/isolated-db-network.sh. Mudançaexclusiva decontençãonativa doscontainerslocais; nãoremover/skipparjob,testes,guard,backup,restore oucontrolesnemadicionarsegredos/permissões/tokens. Eventos,branches,condições,CLIpin,assertionsSQL,artefatos e banco127.0.0.1 permanecem. Nenhumaalteração decronHML,workflowsprivadosouproduçãopermitida.
+
+CriarbridgeDockerinternalANTESdedbstart/reset eforçarCLIcomflagglobal--network-id emtodasasoperações decontainerdessasprovas. Falharsemfallbackseainternalidade/nomevalidado/únicaredeanexadadoPostgresnãoforemcomprovados. Revalidarantes/depoisdarecriaçãoreal e nasduasinstânciasbackup. Helpercompartilhado deve exigirGitHubActions/repositóriocanônico,nenhumaDATABASE_URL/SUPABASE_DB_URL/SUPABASE_ACCESS_TOKENremota e operar somentecontainer/netnominaldoteste. SemalterarVault,crons,schemas oumigrations para simularisolamento.
+
+ProvaREALnoCI: metadadosDockerInternaltrue eattachmentúnicoesperado antes/depoisreset; tentativaTCPcanárioexternosemHTTP/credenciais,emcontainerdescartável,devefalharcomlimitecurto; conectividadeSQLlocaldevepassartodassuítes ebackuprestore. Casosunitáriosnegativosdohelperreal rejeitamredeexterna,attachmentadicional eorigem/variáveisremotasantesdequalquercomandoSupabase. FonteprimáriaDocker https://docs.docker.com/reference/cli/docker/network/create/ documenta--internal; CLI https://supabase.com/docs/reference/cli/introduction documenta--network-idglobal e resetrecriandoPostgres. NenhumPASSnativopresumidoantesdorun.
+
+AplicaçãoHMLcontinuaexactamenteGATE153: únicatransaçãoCREATEpg_netextensions+4REVOKEsnet,semoutraEdge ouconsumidormanual. EstecomplementonãoliberaDDLantesBUILD/revisão/CIcompleto. ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual, contençãoCIsemLovable/frontend e semrelaxarproteções.
