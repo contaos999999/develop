@@ -1350,7 +1350,7 @@
         "scripts/p0-v1-synthetic-data-restore.sh",
         "scripts/isolated-db-network.sh"
       ],
-      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole expected NIC checked; real bounded TCP deny canary plus real local SQL/backup checks; no CI skipping or remote calls"
+      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain"
     }
   }
 }
