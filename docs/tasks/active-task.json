@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-001-PLAN-20261108",
-  "title": "Trilha C — copiloto conversacional PLAN canônico e handoff preservado",
+  "id": "C-CHAT-001-BUILD-20261108",
+  "title": "Trilha C — Edge OpenAI conversacional segura, BUILD aditivo",
   "status": "ativa",
-  "phase": "PLAN",
+  "phase": "BUILD",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -35,11 +35,13 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Integrar plano canônico do copiloto e iniciar BUILD posterior sem alterar código certificado das Trilhas A/B, mantendo Zero-Drift, RLS, JWT e gates.",
+  "objective": "Conectar copilot-query existente à OpenAI apenas após recuperação scope-first e sem alterar a autoridade RLS/JWT ou as tabelas certificadas.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
-    "docs/TRILHA_C_COPILOTO_CANONICO_PLAN.md"
+    "docs/tasks/archive/C-CHAT-001-PLAN-20261108_snapshot.json",
+    "docs/backend/TRILHA_C_COPILOT_OPENAI_BUILD_PLAN_2026-11-08.md",
+    "supabase/functions/copilot-query/index.ts",
+    "supabase/tests/copilot_openai_contract.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -49,13 +51,13 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
     "by": "titular",
     "date": "2026-11-08",
-    "scope": "Handoff imediato autorizado expressamente para arquivar manifesto anterior, ativar PLAN Trilha C, reexecutar Zero-Drift e integrar PR #179 apenas com controles aprovados; sem PROD, sem alterar código ou certificações B."
+    "scope": "Execução integral Trilha C autorizada, integração OpenAI via Edge existente, sem PROD nem enfraquecer controles."
   },
   "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
@@ -120,8 +122,8 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "previous_task_id": "P0-CRUD-GLOBAL-HML-20261107",
-  "previous_task_snapshot_commit": "1d444e17467993bdf6a2c150184058196029f446",
+  "previous_task_id": "C-CHAT-001-PLAN-20261108",
+  "previous_task_snapshot_commit": "7d83f046c282051baeeeab6b4f61e0ad8bd0cef6",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -133,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Concluir CI do PLAN PR #179, integrar somente se gates verdes; abrir BUILD separado para Edge OpenAI + frontend e testes HML. Escopo certificado da Trilha B permanece imutável.",
+  "next_step": "Implementar fallback determinístico e chamada OpenAI backend segura, testes negativos e CI; deploy somente HML após gate e prova de runtime",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2039,13 +2041,9 @@
   },
   "edge_function_change_scope": "No Edge code/deploy delta. Management read-only revalidation of already approved worker v5 and unchanged two source hashes after current HEAD checks. Storage Edges/JWT true preserved.",
   "handoff": {
-    "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
-    "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
-    "source_status_at_snapshot": "ativa",
-    "source_phase_at_snapshot": "BUILD_CERTIFICACAO_DOMINIOS_RESTANTES",
-    "source_v1_certified_flag": false,
-    "closure_scope": "Encerramento do controle ativo da tarefa anterior, sem afirmar certificação integral da V1 ou eliminar pendências registradas",
-    "checkpoint_pr": 138,
-    "plan_pr": 179
+    "from": "C-CHAT-001-PLAN-20261108",
+    "archive": "docs/tasks/archive/C-CHAT-001-PLAN-20261108_snapshot.json",
+    "source_pr": 179,
+    "source_merge": "7d83f046c282051baeeeab6b4f61e0ad8bd0cef6"
   }
 }
