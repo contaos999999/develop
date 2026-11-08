@@ -676,3 +676,15 @@ test('native fence cannot activate Playwright preflight auto-fulfillment',async(
   assert.ok(/Fetch\.continueRequest',\{requestId\}/.test(source));
   assert.equal(readFileSync(browser,'utf8').includes('--disable-blink-features=SharedWorker'),true,'SharedWorker must be disabled by the verified native feature');
 });
+
+test('document CSP appends a separate restrictive policy preserving every original header and status',async()=>{
+  const {nativeDocumentWorkerPolicy}=await import('./p0_crud_global_browser.mjs');
+  const headers=[{name:'Set-Cookie',value:'first=one; Path=/'},{name:'content-security-policy',value:"script-src 'self'"},{name:'Set-Cookie',value:'second=two; HttpOnly'},{name:'Access-Control-Allow-Origin',value:'https://own.invalid'},{name:'X-Case',value:' exact value '}];
+  const original=structuredClone(headers),event={requestId:'own-request',request:{url:'https://own.invalid/login'},resourceType:'Document',responseStatusCode:200,responseStatusText:'OK',responseHeaders:headers};
+  assert.deepEqual(nativeDocumentWorkerPolicy(event,'https://own.invalid'),{requestId:'own-request',responseCode:200,responsePhrase:'OK',responseHeaders:[...original,{name:'Content-Security-Policy',value:"worker-src 'none'"}]});assert.deepEqual(headers,original);
+  for(const resourceType of ['XHR','Fetch','Script','Other'])assert.equal(nativeDocumentWorkerPolicy({...event,resourceType},'https://own.invalid'),null);
+  assert.equal(nativeDocumentWorkerPolicy({...event,request:{url:'https://foreign.invalid/'}},'https://own.invalid'),null);
+  for(const status of [0,204,301,307,308,401,500])assert.throws(()=>nativeDocumentWorkerPolicy({...event,responseStatusCode:status},'https://own.invalid'));
+  assert.throws(()=>nativeDocumentWorkerPolicy({...event,responseHeaders:undefined},'https://own.invalid'));
+  assert.throws(()=>nativeDocumentWorkerPolicy({...event,responseHeaders:[{name:'Unsafe',value:'line\r\nbreak'}]},'https://own.invalid'));
+});
