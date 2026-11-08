@@ -280,3 +280,6 @@ Estado: código eprovaslocaisconcluídos; CIremoto/revisãofinal/integraçãodes
 
 
 Reancoragem concorrente: checkpoint160/main a1ecb48546e1298d1d35e4f4e4d8b76d4eb59e57 preservado integralmente antes desta seção. Manifesto mantém verified_receipt e todas as evidências alheias; merge normal de b7a9e6d+a1ecb48, sem force/CAS sobre branches alheias. Novos checks precisam corresponder ao HEAD reancorado.
+
+
+Complemento de integração antes de publicar HEAD final: o preflight MATERIALDOCUMENTOS também reutiliza client_attack_surface_sql do mesmo módulo, semduplicarconsulta. Red no prepare REAL com chave nova/ausente reproduzido; exige booleanaTrue antesAuth/fixture. Dois caminhos adicionais já previstos noGATE158, p0_crud_global_hml.py e p0_crud_global_protocol.test.mjs, total8caminhos. A mudança também faz o public-probe PR legítimo disparar peloescopoexistente, semalterar workflowpúblico oupermissões. HEAD393637f anterior sóiniciouguard/Restore e não possuía public-probe; nenhumcheckanterior será usado para liberarHEADfinal.

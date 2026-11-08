@@ -42,7 +42,9 @@
     "supabase/tests/worker_api_boundary_hml.py",
     "supabase/tests/worker_api_boundary.test.mjs",
     "supabase/tests/worker_client_privileges.postgres.mjs",
-    ".github/workflows/restore-isolado.yml"
+    ".github/workflows/restore-isolado.yml",
+    "supabase/tests/p0_crud_global_hml.py",
+    "supabase/tests/p0_crud_global_protocol.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
