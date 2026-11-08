@@ -64,6 +64,58 @@ NegativosdohelperREALdevemrejeitarorigem/credentials/ownership/regras/nome/NIC/I
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual;compatibilidadeCLI+contençãoTCPnativa,semrelaxarCI/proteçõesouusarLovable.
 
+## BUILD em validação, sem aplicação HML
+
+GATE153 HEADf51c3be/guard42452599376/review5816824761 integrado4a5bd7c. Complemento154 HEADfbb81464/guard42453132612/review5816842954 integrado884fc628.10caminhosBUILDdeclarados;nenhumtrabalhoalheioalterado.
+
+Regressõesnovasde migrationexata/preflightREALprepare: RED63PASS2FAIL antesimplementação; GREENprotocolo67/67, com23metadatacasesguardantesAuth e8negaçõesdohelperrealantesSupabase. RegressãohelperexecutadacontrafonteGATEsemhelper:1FAILesperado. SQLmetadataextraídodométodoREAL eexecutadoreadonlyHML: extension_ready=false,http_post_ready=false,acl_isolated=false,scheduler_ready=false,destination_is_hml=true; provaoriginalpreservada,nenhumfixturecriado.
+
+SuíteNodecompleta326/326PASS;10guards/sintaxePython/Bash/diffPASSlocais. Mudançaworkflowmantémtodosjobs/testes/eventos/pins/condições/permissões/artefatos, substituindoapenasstart/reset/migrationlistporwrapperlocalnativo. Backupmantémduasinstânciasreais eassertionsoriginais. Helperprovémredeinternalpré-start,ownership/attachmentúnico,recriaçãoB,controlespositivoshostePostgresloopback/negativoaoMESMOlistenercontrolado,JSONLsanitizado. Ausência/falhadeferramentanãocontacomoDENY.
+
+Migrationinstalaextensãoforapublice4REVOKEsnetnumaúnicatransação. AcceptanceSQLrealacrescenta10checksde namespace/assinatura/scheduler/ACLsefetivasdeanon/authsemretornarheader/token. RegressãoqueuesEdgeAuthmantémidempotência/DLQ eexigepresençaexatanonpubliccomnetschemafechado,superandoassertantigodeausênciasobGATE153.
+
+Dockerlocalindisponível;nãocontarprovaTCPouRestorelocalcomoPASS. Próximo: revisãoindependente/CIguard/publicprobe/RestoreSQLreal/backup+contençãonativanoMESMOHEAD. Sóapósmergenormal echecagensHMLbacklog/destino,aplicaçãocanônicaHMLdomigrationhash.148permaneceDRAFT,semCRUDglobal/V1/V2/PROD.
+
+RevisãoBUILDidentificouImportantcleanup: helperpodiainiciarDBefalharnoTCPantesstarted=1. REDrealorquestraçãobackup:1FAIL,STARTEDsemCLEANUP_ATTEMPT. Corrigidoregistroantesdosdoisstarts; testeexecutabackuprealcomhelperquecriarecursoefalhapósstart,exigetentativacleanup,recursoencerrado,statusFAIL_OR_INCOMPLETE,semconverterfalhaemPASS.
+
+### BUILD reancorado após GATE156
+
+Complemento156HEAD6784bfa/guard42454206109/review5816878744 integrado7f692dc15a50e25d648bd164d65301018c83f03c. PreservadosGATE153/154,FAIL0f36aecheckpoint152. Helperagorausaúnicabridgeown,IPv6desabilitado/rotasglobaisausentes,regrasnativasLinuxowncomESTABLISHEDapenas+DROPinINPUT/DOCKER-USERantesstart,revalidandoprioridade/body/labels/NIC/kernelcountersantes/depoisreset. Políticaalheia/divergentenuncaésobrescrita. PortapublicadalocalCLIpermaneceparaSQLreal;nenhumproxy/relay/mockouguardignorado.
+
+BootstrapREALhelperREDcontra0f36a:1FAILsemKERNEL-SINPUT; GREENnovohelper68/68protocolo. RegressãopositivadebootstrapcomkernelstubcheganaCLIapóschecartodasregras,CLIcontinuaFAILsimulado93semprovaTCPfake;cadeiaACCEPTextraérecusadaantesCLIsemoverwrite. SuíteNodecompleta327/327PASS,10guards/sintaxe/diffPASSlocais. Nãoatestamkernel/Dockerreal.
+
+ProvanativanovoCIobrigatória: controlespositivoshostantes/depois ePostgresloopback,TCPdeniedcomDROPdelta,receptor0;apósresetrealnet.http_postLOCALaoMESMOlistenerbenignosemsegredos,errobounded+DROPdelta+receptor0. ArtefatoJSONLexplicitaTCP/HTTP(S),dns_certifiedfalse,pg_netN/Aantesresetseausente,sucessorealobrigatóriopósreset. Sequalquerrota,IPv6,rule,counter,workerlocal/SQLfalhar,manterFAIL. SemnovoHMLwriteatéCIrevisão/mergenormal;148DRAFT/nenhumCRUD/V1/V2.
+
+### Falha real do canário e diagnóstico fechado
+
+HEADe2e069a:guard42454681799/histórico42454682030/public42454681852SUCCESS. Restore42454681892rebuild128651070065/backup128651070216FAILapósdbstart,antesreset/migrationnova,emnativaTCPgenericafailure. Backupartifact13606742586/SHA256db9a2be04c4e0ba829c931d438c89bbc29350e2e6cfca9f9c3f66916e5253a09.NenhumHMLwriteoufixture. Causaexatamantinhanãoclassificada; nãopresumirqueDROPestáfuncionando.
+
+ControlepositivoagoraconsultaSHOWportREALdoPostgreslocalviaUnixsocketDockerpsql,exigeinteiro1..65535,nãoassume5432. DiagnósticopublicaapenasclassesfechadasTIMEOUT_TOOL_MISSING/LOCAL_POSTGRES_TCP_POSITIVE_FAILED/EXTERNAL_TCP_NOT_DENIED/DOCKER_OR_UNKNOWN_FAILURE,deltaDROP/contagemreceiver,semstderrraw/IP/credenciais. Falhaemqualquerclassecontinuabloqueante,contador/receptor/pg_netrealmantidos. CIpróprionovoHEADobrigatório,semrelaxarmétodoonativofirewall.
+
+### Prova TCP com ferramenta PostgreSQL e status normativo
+
+HEAD3fa747a/Restore42454969255rebuild128651938029/backup128651937842FAILantesreset. DiagnósticoREAL: DROPdelta3,receptor0,maswrapperdeTCPretornouclasseEXTERNAL_TCP_NOT_DENIEDsemexporstatusinterno. Nãoequivaleaconexãopermitida/nemPASS;causaexatautilitárianãopresumida. Artifactbackup13607665188/SHA2565d51599618f0ca52d2cf943403c0deb0fa844e5966aefde2916ad58de2a36a03. SemHMLwrite.
+
+SubstituídométododeferramentaBash/timeoutporpg_isready(PQping)doPostgresjáinstalado,comtimeout3s e códigosnormativos:0servidoraceita,2semresposta;outroscódigosnãoatestamDENY. https://www.postgresql.org/docs/17/app-pg-isready.html. ControleloopbackusaportaSHOWportreal eexige0;mesmoendpointcontroladoexternoexige2+DROPdelta>0+receiver0+positivoshostantes/depois. Ferramentanãotransmitepassword;PGPASSWORD/PGPASSFILE/PGSERVICEherdadoszerados eusername/databasebenignosconstantes,semHMLcredenciais. Nenhumcódigo143/127/1éaceitoparaconverterFAILemPASS.
+
+Novo validadorREALextraídoporAST:RED1FAILausente→GREEN69/69protocolo;suítefull328/328PASS. Negativosstatusambíguo,errodetool,DROPausente,receiveratingido,tipoerradobloqueiam. Firewall,pré-start/IPv6/rules eprovaREALnet.http_postpósresetinalterados; nãoháprovanativaforaCI. Revisãoindependente/novoCIcontinuamobrigatórios.
+
+### Ambiente limpo para o controle positivo
+
+HEAD28e157e/Restore42455364024falhou no controle positivo local de pg_isready, antes de testar o destino externo/reset/nova migration. Backup13607765338/SHA256d340e4adc03e8a8ec9d0e374570e9cacfb5efe67d74bf5804cfd64338c77d4d2. O status não havia sido exposto; a causa anterior continua não comprovada. HML não foi alterado.
+
+O processo agora usa `env -i`, preservando somente PATH e PGPASSFILE=/dev/null. Serviço e senha herdados são removidos, em vez de passados como opções vazias. Host, porta e usuário/database benignos são parâmetros explícitos. O status do controle positivo e sua classe fechada são registrados antes de qualquer recusa, sem stderr ou dados privados. Nenhuma exigência0/2/DROP/receptor/pg_net/IPv6 é relaxada.
+
+Regressão extrai a função tcp_probe real, emula apenas Dockerexec e executa o shell/processo reais com canários herdados: RED1FAIL na versão anterior; GREEN comprova ausência de serviço, senha e qualquer canário no processo final. Protocolo70/70 e suítecompleta329/329PASS. Revisão independente favorável, mas contenção e pg_net reais ainda precisam passar no novo CI; sem material/CRUD/V1/V2.
+
+## Diagnóstico ACL do último CI, continuação autorizada do titular
+
+HEAD4deade48a165d4df2d0643643b778cf283b46b09: guard42455696954, histórico42455696922, public42455696932 e backup128654108357SUCCESS. Reconstrução128654108585/restore42455696916FAIL em Teste1: oito verificações de privilégio efetivo net retornaramfalse; presençaextensions eownerpostgres passaram. Provas nativasTCP/HTTP passaram antes/depoisreset. Causa da ACL ainda NÃO determinada. Não afrouxar teste, instalarHML, liberararquivo manualmente ou alegar conclusão.
+
+Delta somente de diagnóstico noSQLjápermitido: SELECTcatálogo dosroles/superuser/herança e ACLs/owners de schema/tabelas/sequências/funçõesnet, semler filas,headers,segredos oucriarobjetos. Mantidas todasassertions bloqueantes. O titular nesta conversa determinou resolverworker e verificações dafixture152; reutilizar155 semduplicação. HMLcontinua intacto e arquivo152 pendente/enfileirado.
+
+Diagnóstico40323f2/restore42456721306: owners/grantors net=supabase_admin; grantsPUBLIC eexplícitosanon/authcontinuamabertos; rolesclientesnãoSuperuser/nãomembrospostgres. CausaentreREVOKEineficazporgrantor e reaplicaçãopósCLI aindaadistinguir. PróximodeltasomenteSQLlocalemsavepoint: executar osmesmos4REVOKEs, registrar catálogoimediato eROLLBACKTOantesdasassertionsoriginais. NenhumREVOKEcorrectivotardio éusadoparaaprovar. Sepermissõespermaneceremabertasantes/depois, nãoaplicarHML e buscarfluxooficialdeowner/instalação.
+
 ## Checkpoint: impedimento comprovado da plataforma e decisão necessária
 
 Em 08/11/2026, a continuação autorizada pelo titular investigou worker e verificação de segurança do arquivo do checkpoint #152. Ambos dependem do worker documental. O HML continua com o arquivo `8cc6ac08-7f5b-469c-ab50-7b33d5a12379` em segurança pendente e o job `431c5c89-812e-4d7e-99be-5550a55bafcf` enfileirado, zero tentativas. Nenhum status foi aprovado manualmente. Nenhuma extensão foi instalada no HML nesta execução.
@@ -121,3 +173,35 @@ TDD deve provar recusa de status/código divergentes, erro de transporte/redirec
 Após implantação e controles efetivos aprovados, **observar os crons normais**, sem consumidor manual, até processar a fixture #152. Comprovar job real, segurança aprovada pelo worker, extração, páginas/fragmentos e atualização autenticada na interface. Não atualizar status de segurança manualmente nem atribuir a prova de um TXT a antivírus universal, todos os formatos, CRUD global ou certificação V1. Encerrar com checkpoint integrado de commits, CI, implantação e pendências reais.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A; reaproveitar workers e código existentes, sem turno Lovable, nova arquitetura de backend ou relaxamento silencioso de requisito. A mudança da condição de segurança está expressamente aprovada e delimitada acima.
+
+Ruling: reancorar155 no GATE158 aprovado, preservando histórico/diagnósticos e contenção existentes. Somente a condição rawACL é substituída pela fronteiraAPI expressamente autorizada; custo se errado: exposição indevida da rede, bloqueada por provas reais antes/depois do deploy.
+
+## BUILD da alternativa expressamente autorizada
+
+GATE158 HEAD e7466f2f82c497d3a6be057ddbec7901b170fb9d integrado em eedf922cdf3fab0673438fb4627c327411819bd2 após guard42473235121SUCCESS e revisão independente sem Critical/Important. Reancoragem155 preserva dois pais d5d79b+eedf922, semforce. Autorização do titular e risco administrativo aceito estão no manifesto, não implícitos.
+
+TDD: novo teste recusou ausência do script; contrato da migration recusou os quatro REVOKEs antigos; teste de limpeza reproduziu falsa confirmação de ausência após criação incerta e passou após bloqueá-la; teste de workflow recusou ausência dos passos reais pre/post; preflight antigo recusou novo contrato antes da adaptação. GREEN dirigido73/73. O novo script não lê filas ou valores Vault, mantém credenciais apenas em memória, recusa redirects e só exclui identidade comprovadamente própria, com confirmação de ausência. A etapa SQL isolada agora prova o contrato gerenciado e LOGIN, sem alegar acesso API negado por SQL. Provas HTTP reais permanecem exigidas no deploy.
+
+O pipeline de deploy mantém todos os inputs/versões/gates anteriores; somente migration20261108060000 executa testes Auth/API reais antes e depois, com segredo administrativo limitado aos dois passos. Artefato contém apenas relatórios sanitizados e IDs opacos de recuperação, sem JWT/senha/admin secret ou bodies HTTP. A prova #152 continua intacta até o cron normal. CI, revisão final, merge e aplicação ainda pendentes neste registro.
+
+### Continuidade P0: papel efetivo da prova autenticada e diagnóstico HTTP local
+
+Base publicada `94667da1265e37232d6b494d18da7f21924727e0`. Guard/public/histórico SUCCESS; Restore `42473999159` teve backup `128711118826` SUCCESS e reconstrução `128711119115` FAILURE após reset. TCP positivo0/negativo2/DROPdelta8/receptor0 passou; a prova pg_net HTTP falhou sem discriminar resposta e contador. Acrescentado diagnóstico apenas de booleans/contagens: resposta própria de erro, DROP delta, receptor, pedido próprio ainda enfileirado e worker visível. Nenhum URL, header, corpo, segredo ou nova chamada HML. FAIL original e requisito HTTP continuam intactos.
+
+Revisão independente encontrou risco de falso PASS autenticado quando token emitido pelo Auth conserva sub mas usa role anon. RED dirigido:3PASS/1FAIL (`wrong issued token certified authenticated`). Correção mínima exige role authenticated e sub da fixture no mesmo token retornado pelo fluxo Auth legítimo e confirmado pelo endpoint Auth/user, antes das chamadas REST autenticadas. Parse local é somente coerência, não substitui verificação de assinatura pelo Auth; nenhuma sessão de navegador é extraída e nenhum JWT é impresso. GREEN4/4 dirigido e333/333 suíte em cópia isolada, sem skip; revisor separado reexecutou4/4 e aprovou estritamente esse delta sem Critical/Important. CI completo do novo HEAD, integração, implantação e provas HML ainda PENDENTES.
+
+GATE158 integrado `eedf922cdf3fab0673438fb4627c327411819bd2`; execução adicional Restore `42473442988` comprovou reconstrução `128709374356` e backup `128709374177` SUCCESS no HEAD do GATE `e7466f2f82c497d3a6be057ddbec7901b170fb9d`, junto com guard `128708700681`. Não reutilizar esses checks no BUILD. Fixture152 continua enfileirada/tentativas0 na consulta somente leitura; pg_net HML ainda ausente. Proposta159 usa condição ACL supersedida, manter separada sem reintroduzir requisito antigo. V1 não certificada; V2/PROD bloqueados.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A, deltas mínimos em caminhos já autorizados, testes e GitHub sem Lovable; sem nova configuração Auth, mudança RLS, consumo manual ou alteração PROD.
+
+
+### Conciliação final dos controles HTTP e execução no Restore
+
+Preservado integralmente9c263374 e seu diagnóstico pg_net, manifesto e correção JWT. Revisão final encontrou controle positivo anônimo inacessível (DataAPIroot401) e suíte boundary ausente no comando Restore. RED dos dois cenários reproduzido; GREEN usa Auth/settings200 anônimo e DataAPI/configuracao_upload?select=id&limit=0 com token authenticated200, mantendo net406/PGRST106 estrito. Restore executa a suíte nova antes da criação do banco. Teste usa Probe.run real, transporte apenas simulado e JWT sintético coerente; não é prova HML. GREEN6/6boundary e335/335Node completo, zero skip/fail. Revisão independente do conjunto sem Important adicional; JWT já revisado e conciliado. CI do novo HEAD e correção de eventual diagnóstico de isolamento continuam obrigatórios antes de merge/deploy. Nenhum write HML.
+
+
+### Espera assíncrona da prova local após reset
+
+HEADd21fb055: guard42474670270/histórico42474670303/public42474670278SUCCESS. Restore42474670328: reconstrução128713192747 concluiu suites SQL masFAIL no canário da etapa Registrar histórico (queuedtrue/deniedfalse/DROP37/receptor0); backup128713192615FAIL no último canárioHTTP. Diagnóstico exato: própria resposta ausente e request ainda na fila após10s, worker visível, DROPdelta46 e receptor0. As três provasHTTP anteriores confirmaram resposta negada e DROP2. Não é conexão externa permitida nem PASS do backup. Crons existentes têm timeout10000ms por request, executam em lotes e permanecem ativos no banco reconstruído;10s não cobrem necessariamente a espera do lote anterior mais o próprio request.
+
+Delta mínimo de hipótese temporal: polling do MESMO request até45s, mantendo exigências resposta statusnull com timeout/error, DROPpositivo e receptor0, sem restart/pausa de worker/cron, sem apagar filas, sem trocar destino nem relaxar firewall. Deadline vencida continua FAIL. Teste extrai funçãoREAL: REDausente; GREENresposta só após12s e caso sem resposta recusa até45s. Suíte336/336PASS. NovoCIreal ainda obrigatório para confirmar hipótese; HML intacto.

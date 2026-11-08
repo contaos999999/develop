@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "PLAN/GATE: restaurar dependência pg_net dos workers HML",
+  "title": "BUILD: runtime documental HML com pg_net isolado e Restore sem egress",
   "status": "ativa",
-  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_TCP_CI",
+  "phase": "BUILD_DOCUMENT_WORKER_RUNTIME_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos",
+  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos; Codex continuidade P0: 25 fontes canônicas e manifesto relidos, pacote ZIP/manual original conferidos, GATE158 e HEAD94667da verificados; delta JWT próprio com RED/GREEN/revisão e diagnóstico pg_net sem afrouxar prova",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -38,7 +38,18 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md"
+    "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
+    "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
+    "supabase/tests/hml_acceptance.sql",
+    "supabase/tests/p0_crud_global_hml.py",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    "supabase/tests/queues_edge_auth.sql",
+    ".github/workflows/restore-isolado.yml",
+    "scripts/p0-v1-synthetic-data-restore.sh",
+    "scripts/isolated-db-network.sh",
+    ".github/workflows/p0-hml-migration-version-parity.yml",
+    "supabase/tests/worker_api_boundary_hml.py",
+    "supabase/tests/worker_api_boundary.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -46,7 +57,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -132,7 +143,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisãoindependente+guarddocGATETCP;nãomerge155atécomplementointegradocomfixcompatível/provasCIreaisnomesmoHEAD. PreservarFAIL0f36a/153/154/152/148DRAFT. SemHMLwrite/fixtures/PROD/novasEdges/CRUD/V1/V2.",
+  "next_step": "BUILD156: contençãoTCP/HTTPnativaantesstartcompatívelcomSQLlocal,semcertificarDNS;provaREALnet.http_postlocal+DROP/receptor0/positivos+326regressões. Revisão/CIguard/public/Restore/backupnomesmoHEAD,mergenormal eapplycanônicoHMLsóapósPASS. PreservarFAIL0f36a,152/148DRAFT,semPROD/novasEdges/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1290,7 +1301,7 @@
     "prod": false
   },
   "document_worker_runtime_gate": {
-    "phase": "GATE",
+    "phase": "BUILD",
     "owner": "EXECUTOR_INDEPENDENTE_TRILHA_B",
     "base": "9af2c6a6b42ec175126d1bd2b2f33905742d8ad7",
     "project": "gklhhhyosgasnyoxlrui",
@@ -1305,7 +1316,7 @@
       "supabase/tests/p0_crud_global_protocol.test.mjs",
       "supabase/tests/queues_edge_auth.sql"
     ],
-    "migration_contract": "BEGIN; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; REVOKE ALL PRIVILEGES ON SCHEMA net, ALL TABLES/SEQUENCES/FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated (four exact statements); COMMIT; no application ACL change",
+    "migration_contract": "BEGIN; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; COMMIT; managed grants accepted by explicit titular decision; API boundary pre/post required",
     "material_pr": 148,
     "material_enabled": false,
     "prod": false,
@@ -1336,24 +1347,28 @@
       "own_fixture_job_count": 0,
       "other_executor_fixture_job_count": 1
     },
-    "net_acl_hardening_required": true,
-    "net_acl_before_first_commit": true,
+    "net_acl_hardening_required": false,
+    "net_acl_before_first_commit": false,
     "gate_pr": 153,
     "gate_head": "f51c3be18e9ee879fe535798def1a8f3eda405ee",
     "gate_merge": "4a5bd7c08141400822230cfbeb3601ad13abdff2",
     "gate_guard": 42452599376,
     "isolated_ci_complement": {
-      "phase": "GATE",
+      "phase": "BUILD",
       "reason": "migration0019 local Vault URL points HML; installing pg_net must not allow local cron HTTP egress",
       "future_build_paths": [
         ".github/workflows/restore-isolado.yml",
         "scripts/p0-v1-synthetic-data-restore.sh",
         "scripts/isolated-db-network.sh"
       ],
-      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain"
+      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain",
+      "gate_pr": 154,
+      "gate_head": "fbb81464adecf1379956de433e9bfeafd52a74e2",
+      "gate_merge": "884fc628f8d03801fa2c63c5cce1aff1730617be",
+      "gate_guard": 42453132612
     },
     "native_firewall_complement": {
-      "phase": "GATE",
+      "phase": "BUILD",
       "supersedes": "GATE154 --internal mechanism only; native TCP/HTTP containment and all tests preserved",
       "failure_head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
       "failure_run": 42453742973,
@@ -1363,10 +1378,78 @@
       "dns_certified": false,
       "all_protocols_certified": false,
       "real_pg_net_probe_required_after_reset": true,
-      "no_new_build_paths": true
+      "no_new_build_paths": true,
+      "gate_pr": 156,
+      "gate_head": "6784bfa06136f8ebb6717eece30fb040a53d7fd8",
+      "gate_merge": "7f692dc15a50e25d648bd164d65301018c83f03c",
+      "gate_guard": 42454206109
+    },
+    "build_validation": {
+      "state": "PENDENTE_REVISAO_CI_REANCORADO_G156",
+      "local_node_tests": 329,
+      "local_protocol_tests": 70,
+      "red_before_runtime_implementation": "63PASS2FAIL",
+      "native_helper_baseline_red": "1FAIL missing helper against GATE source",
+      "preflight_live_hml_original": {
+        "extension_ready": false,
+        "http_post_ready": false,
+        "acl_isolated": false,
+        "scheduler_ready": false,
+        "destination_is_hml": true
+      },
+      "native_local_docker": "NOT_AVAILABLE_NOT_CERTIFIED",
+      "hml_mutations": false,
+      "material_fixtures_created": 0,
+      "backup_post_start_cleanup_red": "1FAIL STARTED without CLEANUP_ATTEMPT; flag moved before both starts, GREEN real orchestration regression",
+      "firewall_bootstrap_red": "1FAIL no KERNEL -S INPUT on 0f36a helper; valid native-policy bootstrap reaches CLI only after rule checks; divergent policy rejected",
+      "tcp_control_port": "READ_ACTUAL_LOCAL_POSTGRES_SHOW_PORT_STRICT_INTEGER",
+      "native_tcp_tool": "Postgres pg_isready/PQping: local0,negative2 only plus DROPdelta>0/receiver0, no password; all other statuses fail",
+      "status_guard_red": "1FAIL missing actual validator then green; rejects ambiguous/tool statuses and missing packet/receiver proof",
+      "tcp_probe_environment": "env -i preserves only PATH and PGPASSFILE=/dev/null; host/port/user/database benign explicit flags; inherited service/password absent",
+      "environment_red": "1FAIL real tcp_probe/actual shell retained service/password option; GREEN real final child process has no inherited canary"
+    },
+    "first_build_failure": {
+      "head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
+      "restore": 42453742973,
+      "rebuild_job": 128648236429,
+      "backup_job": 128648236504,
+      "state": "FAIL_DBSTART_LOCAL_PORT_REFUSED_INTERNAL_NETWORK",
+      "backup_artifact": 13607001525,
+      "sha256": "9fbee7cca5163b8aa0a7571505ccb863cb1a5144c120c66a517412751e6864ee",
+      "no_hml_mutation": true
+    },
+    "second_build_failure": {
+      "head": "e2e069a0eee88d45efe4af7a405584cd8b88c5a3",
+      "restore": 42454681892,
+      "public_probe": 42454681852,
+      "state": "FAIL_NATIVE_TCP_CONTROL_AFTER_DBSTART_BEFORE_RESET",
+      "backup_artifact": 13606742586,
+      "sha256": "db9a2be04c4e0ba829c931d438c89bbc29350e2e6cfca9f9c3f66916e5253a09",
+      "no_hml_mutation": true,
+      "exact_cause": "UNCLASSIFIED_NOT_PRESUMED"
+    },
+    "third_build_failure": {
+      "head": "3fa747ab35911b298d7cad6dfea4ed4c04a3aba2",
+      "restore": 42454969255,
+      "state": "FAIL_NATIVE_TCP_WRAPPER_UNRECOGNIZED_STATUS",
+      "drop_packets_delta": 3,
+      "controlled_receiver_connections": 0,
+      "exact_inner_status": "NOT_EXPOSED_NOT_PRESUMED",
+      "backup_artifact": 13607665188,
+      "sha256": "5d51599618f0ca52d2cf943403c0deb0fa844e5966aefde2916ad58de2a36a03",
+      "no_hml_mutation": true
+    },
+    "fourth_build_failure": {
+      "head": "28e157e0f5b7f2447646128323b4675933bfaf45",
+      "restore": 42455364024,
+      "state": "FAIL_LOCAL_PG_ISREADY_POSITIVE_BEFORE_EXTERNAL_PROBE_RESET",
+      "backup_artifact": 13607765338,
+      "sha256": "d340e4adc03e8a8ec9d0e374570e9cacfb5efe67d74bf5804cfd64338c77d4d2",
+      "exact_status": "NOT_EXPOSED_NOT_PRESUMED",
+      "no_hml_mutation": true
     },
     "platform_constraint": {
-      "state": "AUTHORIZED_PENDING_COMPLEMENT_GATE",
+      "state": "AUTHORIZED_BUILD",
       "diagnostic_head": "d5d79b626a8236f3ed0a618d2ae5d733f311aac7",
       "diagnostic_run": 42456946721,
       "rebuild_job": 128657901129,
@@ -1382,7 +1465,7 @@
         "message": "Invalid schema: net"
       },
       "authenticated_api_negative": "NOT_EXECUTED",
-      "new_build_authorized": false,
+      "new_build_authorized": true,
       "decision": {
         "by": "titular",
         "date": "2026-11-08",
@@ -1392,7 +1475,7 @@
       }
     },
     "api_boundary_complement": {
-      "phase": "GATE",
+      "phase": "BUILD",
       "supersedes": "GATE153 somente exigência de REVOKEs/ACLs internos pg_net; risco aceito explicitamente pelo titular após157",
       "future_build_paths": [
         "docs/tasks/active-task.json",
@@ -1411,7 +1494,11 @@
       ],
       "pre_and_post_deploy_proof": true,
       "auth_fixture_only": true,
-      "new_build_authorized": false
-    }
+      "new_build_authorized": true,
+      "gate_pr": 158,
+      "gate_merge": "eedf922cdf3fab0673438fb4627c327411819bd2",
+      "gate_ci": 42473235121
+    },
+    "raw_acl_requirement_superseded_by": 158
   }
 }

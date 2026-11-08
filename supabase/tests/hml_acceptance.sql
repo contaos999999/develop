@@ -247,5 +247,20 @@ select 'UPLOAD_WRAPPER','Negativas sem efeitos persistidos',counts=array[
  (select count(*) from public.execucoes_assincronas),
  (select count(*) from public.eventos_auditoria)],'cinco tabelas sem delta' from wrapper_counts;
 
+-- GATE158: managed grants are accepted; SQL metadata is not an API-access proof.
+insert into contaos_testes
+select 'WORKER_RUNTIME','pg_net fora de public com assinatura oficial',
+ exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions')
+ and to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is not null,'metadata real sem HTTP';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Scheduler postgres preservado',has_schema_privilege('postgres','net','USAGE')
+ and has_function_privilege('postgres','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'),'capacidade oficial preservada';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Clientes sem LOGIN SQL direto',count(*)=2 and bool_and(not rolcanlogin),'não certifica API' from pg_roles where rolname in ('anon','authenticated');
+insert into contaos_testes
+select 'WORKER_RUNTIME','LOGIN restrito aos serviços nominais confiáveis',not exists(select 1 from pg_roles where rolcanlogin and rolname not in ('authenticator','pgbouncer','postgres','supabase_admin','supabase_auth_admin','supabase_etl_admin','supabase_functions_admin','supabase_read_only_user','supabase_replication_admin','supabase_storage_admin')),'inventário fechado';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Owner gerenciado preservado',exists(select 1 from pg_namespace where nspname='net' and pg_get_userbyid(nspowner)='supabase_admin'),'nenhum ownership alterado';
+
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;

@@ -63,7 +63,7 @@ jobs:
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo CRUD global sem rede ou credenciais
-        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |
@@ -81,10 +81,10 @@ jobs:
         run: mkdir -p restore-proof
 
       - name: Iniciar PostgreSQL Supabase isolado
-        run: supabase db start
+        run: bash scripts/isolated-db-network.sh run db start
 
       - name: Recriar banco a partir das migrations versionadas
-        run: supabase db reset --local --no-seed
+        run: bash scripts/isolated-db-network.sh run db reset --local --no-seed
 
       - name: Teste 1 - Aceitação HML
         shell: bash
@@ -278,7 +278,7 @@ jobs:
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
-          supabase migration list --local | tee restore-proof/migration-list.txt
+          bash scripts/isolated-db-network.sh run migration list --local | tee restore-proof/migration-list.txt
           printf 'commit=%s\n' "${GITHUB_SHA}" > restore-proof/resultado.txt
           printf 'status=PASS\n' >> restore-proof/resultado.txt
           printf 'criterio=db reset local + suites HML/seguranca concluídas sem erro\n' >> restore-proof/resultado.txt

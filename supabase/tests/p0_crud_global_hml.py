@@ -153,8 +153,26 @@ class Runner:
     def check(self,name,passed,http=None):
         self.report['assertions'].append(public_record(name,passed,http));self.save('report.json',self.report)
         if not passed:raise RuntimeError('CRUD proof assertion failed: '+name)
+    def verify_document_worker_runtime(self):
+        metadata=json.loads(self.sql("""select json_build_object(
+          'extension_ready',exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions'),
+          'http_post_ready',coalesce(has_schema_privilege('postgres',(select oid from pg_namespace where nspname='net'),'USAGE') and has_function_privilege('postgres',to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)'),'EXECUTE'),false),
+          'client_logins_closed',(select count(*)=2 and bool_and(not rolcanlogin) from pg_roles where rolname in ('anon','authenticated')) and not exists(select 1 from pg_roles where rolcanlogin and rolname not in ('authenticator','pgbouncer','postgres','supabase_admin','supabase_auth_admin','supabase_etl_admin','supabase_functions_admin','supabase_read_only_user','supabase_replication_admin','supabase_storage_admin')),
+          'scheduler_ready',exists(select 1 from cron.job j where j.jobname='contaos-workers-rapidos' and j.active and (select r.status='succeeded' and r.start_time>now()-interval '2 minutes' from cron.job_run_details r where r.jobid=j.jobid order by r.start_time desc limit 1)),
+          'destination_is_hml',(select count(*)=1 and bool_and(decrypted_secret='https://gklhhhyosgasnyoxlrui.supabase.co') from vault.decrypted_secrets where name='contaos_project_url'))""",True))
+        keys={'extension_ready','http_post_ready','client_logins_closed','scheduler_ready','destination_is_hml'}
+        self.check('DOCUMENT_WORKER_RUNTIME_READY',isinstance(metadata,dict) and set(metadata)==keys and all(type(metadata[k]) is bool and metadata[k] for k in keys))
+        status,body=self.read_document_api_boundary()
+        self.check('DOCUMENT_WORKER_API_SCHEMA_BLOCKED_ANON',status==406 and isinstance(body,dict) and body.get('code')=='PGRST106',status)
+    def read_document_api_boundary(self):
+        import importlib.util
+        spec=importlib.util.spec_from_file_location('worker_boundary',Path(__file__).with_name('worker_api_boundary_hml.py'))
+        boundary=importlib.util.module_from_spec(spec);spec.loader.exec_module(boundary)
+        probe=object.__new__(boundary.Probe);probe.admin='';probe.opener=urllib.request.build_opener(boundary.NoRedirect())
+        return probe.request('/rest/v1/http_request_queue?select=id&limit=0',profile='net')
     def prepare(self):
         assert self.material_enabled,'Material proof requires validated BUILD phase'
+        if self.batch=='DOCUMENTOS':self.verify_document_worker_runtime()
         assert not (self.root/'fixture.json').exists(),'Refuse fixture reuse'
         nonce=uuid.uuid4().hex
         f={'batch':self.batch,'scope':'P0-CRUD-GLOBAL-HML','nonce':nonce,'prefix':'0000 CRUDG '+nonce+' ','org':uid(),'org_b':uid(),'contractor':uid(),'contractor_b':uid(),'contract':uid(),'contract_b':uid(),'users':[],'created':{},'uploads':[]}
