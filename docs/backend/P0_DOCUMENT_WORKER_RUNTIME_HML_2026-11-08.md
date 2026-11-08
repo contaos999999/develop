@@ -248,3 +248,38 @@ Tentativa adicional de download não gerou recibo de conclusão no navegador aut
 Última etapa comprovada: upload152 preservado, runtime155 integrado/aplicado e aprovação/processamento da sua fixture concluídos, com provasAPI reais e cleanup. As duas pendências específicas desta execução estão encerradas. Próxima tarefa: retomar a matriz de requisitos ainda pendentes no planejamento da Trilha A; a prova material do executor Trilha B/PR148 deve ser própria, reancorada e validada no HEAD correspondente. Este checkpoint não autoriza limpar/reutilizar a fixture152 nem incorporar prova alheia.
 
 Não declarar antivírus universal, todos os formatos, CRUD global ou V1 certificados com este TXT. Nenhum V2 ou PROD. Qualquer novo código/DDL exige novo escopo e validação; este PR de checkpoint altera somente estes dois documentos. ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: resultado reaproveita frontend e workers existentes, sem alteração visual ou novo turno Lovable; evidências preservadas e trabalho concluído não repetido.
+
+## Defesa adicional contra elevação e exposição indireta, proposta independente
+
+Titular pediu buscar/implementar solução segura preservando arquitetura. Reancoragem155/39cb9ef e main/eedf922, sem avançar branch nem sobrescreverWIP do outro executor. O GATE158 existente permanece fonte canônica; este delta acrescenta controles de catálogo somenteleitura ao preflight antes de qualquerAuth/DDL.
+
+HipótesealternativaHTTPprivado descartada sem publicar/executarDDL: fonteprimária pramsey/pgsql-http SHAee52345b5929f63a3871685f85974f34b5fa8508/http.c linhas1278–1281 força FOLLOWLOCATION1/MAXREDIRS5 emPOST; a listaSQL de opções não permite desligá-lo. Não trocar persistência de token por risco de transmissão emredirects. Testes locais da pesquisa não contamcomo solução operacional.
+
+Plano mínimo desta defesa: acrescentar um booleano estrito client_attack_surface ao metadataSQL existente. Deve exigir duas rolescliente presentes, semLOGIN/SUPERUSER/CREATEROLE/CREATEDB/REPLICATION/BYPASSRLS, semmembership emrolesSQL/administrativas; semUSAGE/CREATE deVault ouCREATEpúblico, seteassinaturas exatas de transporte/token/worker fechadas ao cliente, nenhumaexposição direta pública deVault/net porviews/materializedviews ourotinas executáveis. O teste inclui permissões decoluna para evitar fuga porSELECTparcial. A aplicação destes controles não lê tokens, bodies oulinhas de net, não altera qualquergrant ourole e não representaosserviçosadministrativoscomo usuárioscomuns.
+
+Critérios: novoRED aceitaausência/nãoaplicação da guarda; GREENrecusacatálogo inseguro antesdequalquerrequestAuth; consultasSQLreais HML somenteleitura; casosnegativosSQLemPostgreSQLlocal comACLs sintéticas; suítetotal/guards/revisãoindependente. Guard/public/Restore/backupnomesmoHEAD continuamobrigatórios; nenhuma conclusãoPASSmaterialouzerorisco. O conjunto não é análise transitiva completa de qualquerSQLdinâmico nem substitui scannerSQL/RLS/negativosAPIautenticados.
+
+Arquitetura preservada: frontendContaOS, API/RPC/Edges/Auth/RBAC/RLS, PostgreSQL/Storage/Auditoria noSupabase. NenhumaEdge extra oualteraçãofrontend317/PROD. Trabalhodohelperdecontenção ecorreçõesJWT/positivoAPI pertencemaosoutrosexecutores e são reutilizadossematribuiçãoindevida.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual, deltacatálogo/readiness comdoisarquivosjáGATE158, semLovable, semschema/migration/roles/Authconfig/Edges/fixturesalheias.
+
+
+### Evidências próprias e reancoragem pós-integração155
+
+Base agora79aec0002712df1a2262bdee9185cc406ba21eb2, árvore idêntica ao39cb9ef testado, avançada localmente porFF puro sem tocarbranch155. Integração155 e deployHML42475332474 pertencem a outroexecutor. LeituraGitHub confirma passos WorkerAPIboundarybefore/afterdeploySUCCESS e artefato13614902486/digestba7d49fd5921faada31db7042d33133757b0424802414200771e302863a77292. SELECTs próprios somenteleitura confirmaram pg_net emextensions e fixture152 jobconcluído/tentativas1; essafixture não é prova própria nemlote5/3/5.
+
+Neste delta: REDausênciaguarda client_attack_surface eREDausência deexecuçãoSQLnoRestore reproduzidos; implementaçãoGREEN9/9testesdirigidos e339/339Nodecompletos,semSKIP. SQLHMLreal antes/depois da instalação executado somenteleitura retornou client_attack_surface=true,semexportarsecretoulinha dafila.
+
+A revisãoindependente encontrou Important no primeiro scanner(prosrc não cobre corposSQLpadrão). ReproduzidoRED real com funçãoSQL RETURN diretamente referenciando tabelaVault sintética; corrigido por pg_get_functiondef comCASEprokindf/p/w, evitandoaggregates. RegressãoPostgreSQLlocal PGlite0.3.14:16/16 cenáriosPASS,incluindoLOGIN/SUPERUSER/CREATEROLE/BYPASSRLS,membershipadministrativa,VaultUSAGE,CREATEpublic,endpointausente/aberto/overload,viewcomgrantdetabela/coluna,funçãoponte/corpoSQLpadrão eviewsegura. Nenhumcanário ouobjeto dessesfoicriado emHML.
+
+Revisor confirmou Importantresolvido porinspeção. Observação menor: timeout/psqlausente deveria produzir recibosanitizado. Corrigida comrecusafechada deOSError/TimeoutExpired; RED retirando a captura, GREENexecutandocódigo REALextraído do stepCI com dependênciaSQLindisponível. Nemstdout/stderrSQL nemtracebackpublicados, JSONcontémsomentestate/head/catalog_only.
+
+Acrescentado sexto caminho .github/workflows/restore-isolado.yml: disparosPR/push para os testes novos e passo Workerclientprivilegecatalog apósreset antesaceitação. Executa MESMAconsulta emBEGINREADONLY/ROLLBACKnoPostgresLOCALreal eexigesomente t comexit0. Não remove/skiptestes ouproteções; as provaslegadas decontenção/backup/material permanecem. O scriptPGliteé suplementolocalcomdependênciatemporária fixada, nãodependênciadeproduto nemcertificaçãoHTTP/HML.
+
+Estado: código eprovaslocaisconcluídos; CIremoto/revisãofinal/integraçãodestedeltacontinuamobrigatórios. Não declara segurançauniversal, resoluçãodequalquerSQLdinâmico/análisetransitivacompleta,5provasmateriais,CRUDouV1. NenhumanovaEdge/DDL/grant/role/Authconfig/Storage/frontend/PROD alterados.
+
+
+Reancoragem concorrente: checkpoint160/main a1ecb48546e1298d1d35e4f4e4d8b76d4eb59e57 preservado integralmente antes desta seção. Manifesto mantém verified_receipt e todas as evidências alheias; merge normal de b7a9e6d+a1ecb48, sem force/CAS sobre branches alheias. Novos checks precisam corresponder ao HEAD reancorado.
+
+
+Complemento de integração antes de publicar HEAD final: o preflight MATERIALDOCUMENTOS também reutiliza client_attack_surface_sql do mesmo módulo, semduplicarconsulta. Red no prepare REAL com chave nova/ausente reproduzido; exige booleanaTrue antesAuth/fixture. Dois caminhos adicionais já previstos noGATE158, p0_crud_global_hml.py e p0_crud_global_protocol.test.mjs, total8caminhos. A mudança também faz o public-probe PR legítimo disparar peloescopoexistente, semalterar workflowpúblico oupermissões. HEAD393637f anterior sóiniciouguard/Restore e não possuía public-probe; nenhumcheckanterior será usado para liberarHEADfinal.

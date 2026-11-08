@@ -2,11 +2,28 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {existsSync,readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
+test('worker client privilege fence rejects unsafe or missing catalog before any Auth request',()=>{
+ const code=String.raw`import importlib.util,tempfile,uuid
+from pathlib import Path
+s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+good={'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+assert not m.metadata_valid(good,'preinstall'),'missing client attack surface proof must fail'
+with tempfile.TemporaryDirectory() as d:
+ for value in [False,None,1,'true']:
+  p=object.__new__(m.Probe);p.stage='preinstall';p.creation_attempted=False;p.report_path=Path(d)/'pre-report.json';p.report={'assertions':[],'recovery':{}}
+  p.read_metadata=lambda:{**good,'client_attack_surface':value}
+  p.request=lambda *a,**k:(_ for _ in ()).throw(AssertionError('AUTH_OR_NETWORK_REACHED'))
+  assert not p.run() and not p.creation_attempted
+  assert p.report['assertions']==[{'name':'HML_METADATA_AND_LOGINS','passed':False,'status':None}]
+assert 'client_attack_surface' in m.metadata_sql()
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
+});
 test('managed worker boundary proof rejects invalid metadata and false HTTP denials',()=>{
  assert(existsSync('supabase/tests/worker_api_boundary_hml.py'),'real API boundary proof is required');
  const code=String.raw`import importlib.util
 s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
-good={'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+good={'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True,'client_attack_surface':True}
 assert m.metadata_valid(good,'preinstall')
 post={**good,'extension_present':True,'extension_ready':True,'scheduler_access':True}
 assert m.metadata_valid(post,'postinstall') and not m.metadata_valid(post,'preinstall')
@@ -74,7 +91,7 @@ def token(role,sub):
 def execute(issued):
  p=object.__new__(m.Probe);p.nonce=nonce;p.intent=intent;p.email=email;p.user_id=None;p.creation_attempted=False;p.stage='preinstall'
  p.report={'assertions':[],'cleanup':'NOT_REQUIRED','recovery':{}};p.save=lambda:None;p.cleanup=lambda:True
- p.read_metadata=lambda:{'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+ p.read_metadata=lambda:{'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True,'client_attack_surface':True}
  calls=[]
  def request(path,data=None,token=None,admin=False,method=None,profile=None):
   if token and path.startswith('/rest/v1/'):calls.append(path)
@@ -99,7 +116,7 @@ from pathlib import Path
 s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
 with tempfile.TemporaryDirectory() as d:
  p=object.__new__(m.Probe);p.stage='preinstall';p.report_path=Path(d)/'pre-report.json';p.nonce='testnonce';p.intent=str(uuid.uuid4());p.email='worker-boundary-testnonce@example.invalid';p.creation_attempted=False;p.create_outcome='not_started';p.user_id=None;p.report={'assertions':[],'recovery':{}}
- p.read_metadata=lambda:{'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+ p.read_metadata=lambda:{'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True,'client_attack_surface':True}
  identifier=str(uuid.uuid4());owned={'id':identifier,'email':p.email,'app_metadata':{'scope':m.SCOPE,'boundary_nonce':p.nonce,'fixture_request_id':p.intent}}
  enc=lambda v:base64.urlsafe_b64encode(json.dumps(v).encode()).decode().rstrip('=')
  token=enc({'alg':'RS256'})+'.'+enc({'role':'authenticated','sub':identifier})+'.PRIVATE_TOKEN_CANARY'
@@ -130,4 +147,39 @@ test('boundary security tests run before local database creation in Restore',()=
  const w=readFileSync('.github/workflows/restore-isolado.yml','utf8');
  const security=w.indexOf('node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs');
  assert(security>=0&&security<w.indexOf('name: Iniciar PostgreSQL Supabase isolado'),'new boundary security suite must execute in CI before DB initialization');
+});
+test('actual client privilege catalog is checked after isolated reset and before acceptance',()=>{
+ const w=readFileSync('.github/workflows/restore-isolado.yml','utf8');
+ const catalog=w.indexOf('name: Worker client privilege catalog');
+ assert(catalog>w.indexOf('name: Recriar banco a partir das migrations versionadas'));
+ assert(catalog<w.indexOf('name: Teste 1 - Aceitação HML'));
+ assert(w.includes("'supabase/tests/worker_api_boundary*'"));
+ assert(w.includes("'supabase/tests/worker_client_privileges*'"));
+});
+test('actual catalog workflow writes a sanitized failure receipt when SQL cannot run',()=>{
+ const code=String.raw`import contextlib,io,json,os,subprocess,tempfile,textwrap
+from pathlib import Path
+root=Path.cwd()
+source=(root/'.github/workflows/restore-isolado.yml').read_text()
+step=source.split('      - name: Worker client privilege catalog',1)[1].split('      - name: Teste 1 - Aceitação HML',1)[0]
+body=textwrap.dedent(step.split("python3 - <<'PY'\n",1)[1].rsplit('\n          PY',1)[0])
+original=subprocess.run
+for failure in [OSError('PRIVATE_CANARY'),subprocess.TimeoutExpired(['PRIVATE_CANARY'],20)]:
+ with tempfile.TemporaryDirectory() as directory:
+  temp=Path(directory);(temp/'restore-proof').mkdir();(temp/'supabase').symlink_to(root/'supabase',target_is_directory=True)
+  os.chdir(temp);os.environ['GITHUB_SHA']='a'*40
+  def unavailable(*args,**kwargs):raise failure
+  subprocess.run=unavailable;output=io.StringIO()
+  try:
+   with contextlib.redirect_stdout(output):
+    try:exec(compile(body,'actual-workflow-step','exec'),{})
+    except SystemExit as error:assert error.code==1
+    else:raise AssertionError('workflow accepted SQL unavailability')
+   proof=json.loads((temp/'restore-proof/worker-client-privileges.json').read_text())
+   assert proof=={'state':'FAIL','head':'a'*40,'catalog_only':True}
+   assert output.getvalue().strip()=='WORKER_CLIENT_PRIVILEGES_FAIL'
+   assert 'PRIVATE_CANARY' not in (temp/'restore-proof/worker-client-privileges.json').read_text()
+  finally:subprocess.run=original;os.chdir(root)
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
 });
