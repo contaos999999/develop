@@ -73,13 +73,17 @@ jobs:
         run: |
           node supabase/tests/p0_v117_revisao_browser.mjs --self-test
           python3 -m py_compile supabase/tests/p0_v117_revisao_jwt.py
-      - name: Instalar Supabase CLI fixada
-        uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
-        with:
-          version: 2.122.0
+      - name: Instalar Supabase CLI fixada pelo pacote oficial
+        shell: bash
+        run: |
+          set -euo pipefail
+          CLI_ROOT="$RUNNER_TEMP/contaos-cli-pinned"
+          npm install --prefix "$CLI_ROOT" --no-save --no-package-lock --ignore-scripts supabase@2.122.0
+          test "$("$CLI_ROOT/node_modules/.bin/supabase" --version)" = '2.122.0'
+          echo "$CLI_ROOT/node_modules/.bin" >> "$GITHUB_PATH"
 
       - name: Registrar versão da CLI
-        run: supabase --version
+        run: test "$(supabase --version)" = '2.122.0'
 
       - name: Preparar evidências
         run: mkdir -p restore-proof

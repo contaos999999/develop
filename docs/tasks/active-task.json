@@ -42,7 +42,8 @@
     "supabase/migrations/20261108114652_p0_null_pagination_guard.sql",
     "supabase/tests/hml_acceptance.sql",
     "supabase/tests/p0_crud_global_protocol.test.mjs",
-    "supabase/tests/null_pagination_guard.postgres.mjs"
+    "supabase/tests/null_pagination_guard.postgres.mjs",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -1563,6 +1564,13 @@
     "prod": false,
     "new_edges": false,
     "password_leak_protection": "EXCLUDED_BY_USER",
-    "hml_apply_only_after_same_head_checks": true
+    "hml_apply_only_after_same_head_checks": true,
+    "ci_install_repair": {
+      "reason": "setup-cli HTTP504 reproduced in attempts1/2",
+      "version": "2.122.0",
+      "source": "official npm supabase@2.122.0",
+      "scripts": "disabled",
+      "all_checks_preserved": true
+    }
   }
 }

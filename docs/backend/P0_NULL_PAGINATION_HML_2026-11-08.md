@@ -23,3 +23,9 @@ ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual, deltadevalidaç�
 ## Evidência local própria
 
 RED reproduzido: novo contrato falhou por ausência das duas definições na migration vazia gerada por CLI. GREEN:340/340 testesNode completos,0falhas/skip;29/29 avaliações PostgreSQLlocal dospredicados reais;10guardsPASS e diffchecklimpo. Teste de preservação compara somente dois corpos completos, com extração pelo fechamento real dollarquote, evitando capturar rotina adjacente. A migration contém exatamente2CREATEORREPLACE e preconditionCAS dos2corposanteriores. CasosSQLreais14 aguardam Restore remoto, não declaradosPASS localmente.
+
+## Reparação de infraestrutura reproduzida
+
+HEAD3ad2d4e: guard42477728912/public42477728986/backup42477729003PASS. Publicartifact13616280979/digestf1e63e8d2bcb11a6f0fb9fa1662d300f363d62f41abc74791aca8c0c2d9aad40 ebackup13616810404/digest8e199fc32c8a274a4c04eb1bdce745438d8e81fe92143f3483984799c824b432 baixados/conferidos. Rebuild128722692129 falhou no downloadsetupCLI504 antesSQL; rerun128724405530 também reproduziu dois504. Não liberar3ad comessasprovasparciais.
+
+Reparo mínimo sétimocaminho restore-isolado: instalar pacote oficialnpm supabase@2.122.0, mesma versão anterior, comscriptsdesativados e prefixotemporário próprio. Exige saídaexata2.122.0 antes de adicionar aoPATH e novamente no próximo passo. Distribuição oficial testada localmente retorna2.122.0. Semcontinue-on-error,semfallbacksilencioso,semalterarcheck/SQL/proteção/versão; stepinstaller legado dobackup permanece intacto. NovoHEADexige novamenteguard/public/rebuild/backup e revisão. NenhumHMLwriteenquantobloqueado.
