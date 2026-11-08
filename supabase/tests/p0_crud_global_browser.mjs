@@ -132,7 +132,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
   const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0;
-  const active=new Set(),pageIdentities=new WeakMap([[page,{targetId:initialTarget,browserContextId:ownContext}]]);
+  const active=new Set();
   const fail=error=>{failed=true;if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
   root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
   // Context routing covers the first popup request; Chromium's response pause
@@ -141,11 +141,16 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
     let routeStage='FENCE_ROUTE_REQUEST';try{
       const request=route.request();if(failed||!allowed(request.url(),request.isNavigationRequest())){failed=true;await route.abort('blockedbyclient');fail({code:'FENCE_REQUEST_ORIGIN_BLOCKED'});return;}
       // Hold even an approved popup URL until its own native response fence is ready.
-      routeStage='FENCE_ROUTE_IDENTITY';const requestPage=request.frame().page();let target=pageIdentities.get(requestPage);
-      if(!target){const identity=await context.newCDPSession(requestPage);try{target=(await identity.send('Target.getTargetInfo')).targetInfo;pageIdentities.set(requestPage,target);}finally{await identity.detach();}}
-      assert.equal(target.browserContextId,ownContext);
-      routeStage='FENCE_ROUTE_TARGET_READY';for(let i=0;!configured.has(target.targetId)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
-      assert(configured.has(target.targetId),'Unresolved routed page identity');await configured.get(target.targetId);assert(!failed);
+      routeStage='FENCE_ROUTE_IDENTITY';
+      // BrowserContext routing already scopes this request. Do not ask Playwright
+      // for a popup session before its first navigation can commit.
+      const {targetInfos}=await root.send('Target.getTargets');
+      const owned=new Set(targetInfos.filter(target=>target.browserContextId===ownContext&&['page','iframe','worker','shared_worker'].includes(target.type)).map(target=>target.targetId));
+      for(const session of sessions.values())if(session.contextId===ownContext)owned.add(session.targetId);
+      assert(owned.has(initialTarget),'Initial native target identity disappeared');
+      routeStage='FENCE_ROUTE_TARGET_READY';
+      for(const targetId of owned){for(let i=0;!configured.has(targetId)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(configured.has(targetId),'Unresolved routed context target');await configured.get(targetId);}
+      assert(!failed);
       routeStage='FENCE_ROUTE_CONTINUE';await route.continue();
     }catch(error){await route.abort('blockedbyclient').catch(()=>{});fail(Object.assign(error,{code:routeStage}));}
   });
@@ -172,7 +177,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   }
   const targetFilter=[{type:'page'},{type:'iframe'},{type:'worker'},{type:'shared_worker'},{exclude:true}];
   function attach(parent,event){
-    const session={id:event.sessionId,parent,contextId:event.targetInfo.browserContextId??parent?.contextId};sessions.set(session.id,session);
+    const session={id:event.sessionId,targetId:event.targetInfo.targetId,parent,contextId:event.targetInfo.browserContextId??parent?.contextId};sessions.set(session.id,session);
     const ready=(async()=>{
       assert(session.contextId,'Unresolved attached target context');
       if(session.contextId!==ownContext){await send(session,'Runtime.runIfWaitingForDebugger');return;}
@@ -185,6 +190,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   root.onEvent(event=>{
     const session=event.sessionId?sessions.get(event.sessionId):null;
     if(event.method==='Target.attachedToTarget')attach(session,event.params);
+    else if(event.method==='Target.detachedFromTarget'){const detached=sessions.get(event.params.sessionId);sessions.delete(event.params.sessionId);if(detached&&!([...sessions.values()].some(other=>other.targetId===detached.targetId)))configured.delete(detached.targetId);}
     else if(session)message(session,event);
   });
   await root.send('Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true,filter:targetFilter});
