@@ -2061,6 +2061,8 @@
     "migration_gate_required": true,
     "prod": false,
     "verify_jwt": true,
-    "frontend_dependency_head": "9bc106ce8322e2ed55ee4946e2a6e71d6d752dfd"
+    "frontend_dependency_head": "9bc106ce8322e2ed55ee4946e2a6e71d6d752dfd",
+    "lease_required": true,
+    "deployment_sequence": "CONTROLS_REVIEW_CI_RESTORE_BACKUP_THEN_TECHNICAL_HML_DEPLOY_READBACK_THEN_REAL_JWT_FRONTEND_THEN_CERTIFICATION"
   }
 }
