@@ -153,8 +153,22 @@ class Runner:
     def check(self,name,passed,http=None):
         self.report['assertions'].append(public_record(name,passed,http));self.save('report.json',self.report)
         if not passed:raise RuntimeError('CRUD proof assertion failed: '+name)
+    def verify_document_worker_runtime(self):
+        metadata=json.loads(self.sql("""select json_build_object(
+          'extension_ready',exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions'),
+          'http_post_ready',coalesce(has_schema_privilege('postgres',(select oid from pg_namespace where nspname='net'),'USAGE') and has_function_privilege('postgres',to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)'),'EXECUTE'),false),
+          'acl_isolated',exists(select 1 from pg_namespace where nspname='net')
+            and not exists(select 1 from pg_namespace n cross join (values('anon'),('authenticated')) roles(name) where n.nspname='net' and has_schema_privilege(roles.name,n.oid,'USAGE,CREATE'))
+            and not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace cross join (values('anon'),('authenticated')) roles(name) where n.nspname='net' and c.relkind in ('r','p','v','m','f') and (has_table_privilege(roles.name,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') or has_any_column_privilege(roles.name,c.oid,'SELECT,INSERT,UPDATE,REFERENCES')))
+            and not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace cross join (values('anon'),('authenticated')) roles(name) where n.nspname='net' and c.relkind='S' and has_sequence_privilege(roles.name,c.oid,'USAGE,SELECT,UPDATE'))
+            and not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace cross join (values('anon'),('authenticated')) roles(name) where n.nspname='net' and has_function_privilege(roles.name,p.oid,'EXECUTE')),
+          'scheduler_ready',exists(select 1 from cron.job j where j.jobname='contaos-workers-rapidos' and j.active and (select r.status='succeeded' and r.start_time>now()-interval '2 minutes' from cron.job_run_details r where r.jobid=j.jobid order by r.start_time desc limit 1)),
+          'destination_is_hml',(select count(*)=1 and bool_and(decrypted_secret='https://gklhhhyosgasnyoxlrui.supabase.co') from vault.decrypted_secrets where name='contaos_project_url'))""",True))
+        keys={'extension_ready','http_post_ready','acl_isolated','scheduler_ready','destination_is_hml'}
+        self.check('DOCUMENT_WORKER_RUNTIME_READY',isinstance(metadata,dict) and set(metadata)==keys and all(type(metadata[k]) is bool and metadata[k] for k in keys))
     def prepare(self):
         assert self.material_enabled,'Material proof requires validated BUILD phase'
+        if self.batch=='DOCUMENTOS':self.verify_document_worker_runtime()
         assert not (self.root/'fixture.json').exists(),'Refuse fixture reuse'
         nonce=uuid.uuid4().hex
         f={'batch':self.batch,'scope':'P0-CRUD-GLOBAL-HML','nonce':nonce,'prefix':'0000 CRUDG '+nonce+' ','org':uid(),'org_b':uid(),'contractor':uid(),'contractor_b':uid(),'contract':uid(),'contract_b':uid(),'users':[],'created':{},'uploads':[]}

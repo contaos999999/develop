@@ -9,6 +9,95 @@ const root=resolve('.');
 
 import {spawnSync} from 'node:child_process';
 const browser='supabase/tests/p0_crud_global_browser.mjs';
+test('worker runtime migration enables nonpublic pg_net and closes inherited access atomically',()=>{
+ const file='supabase/migrations/20261108060000_restore_document_worker_pg_net.sql';
+ assert(existsSync(file),'approved worker runtime migration required');
+ assert.equal(readFileSync(file,'utf8').replace(/^--.*$/gm,'').trim(),`BEGIN;
+CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+REVOKE ALL PRIVILEGES ON SCHEMA net FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA net FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA net FROM PUBLIC, anon, authenticated;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated;
+COMMIT;`);
+});
+test('actual local network helper rejects foreign runner, remote credentials and unsafe attachments before Supabase',()=>{
+ const helper=resolve('scripts/isolated-db-network.sh');assert(existsSync(helper),'native local containment helper required');
+ const dir=mkdtempSync(join(tmpdir(),'contaos-native-local-'));
+ try{
+  const bin=join(dir,'bin');mkdirSync(bin);
+  const network='contaos-proof-123-1-restore';
+  const labels={'com.contaos.scope':'isolated-db-proof','com.contaos.run':'123','com.contaos.attempt':'1','com.contaos.job':'restore'};
+  const good={Name:network,Internal:true,Labels:labels,IPAM:{Config:[{Subnet:'172.29.0.0/16'}]}};
+  const docker=join(bin,'docker');writeFileSync(docker,`#!/usr/bin/env python3
+import os,sys,json
+with open(os.environ['CALLS'],'a') as f:f.write('docker\\n')
+if sys.argv[1:3]==['network','inspect']:print(open(os.environ['NETWORK_FIXTURE']).read())
+elif sys.argv[1]=='inspect':print(json.dumps([{'Name':'/supabase_db_contaos-hml-local','NetworkSettings':{'Networks':{'${network}':{},'bridge':{}}}}]))
+else:sys.exit(92)
+`);chmodSync(docker,0o700);
+  const supabase=join(bin,'supabase');writeFileSync(supabase,"#!/bin/sh\nprintf 'SUPABASE\\n' >> \"$CALLS\"\nexit 93\n");chmodSync(supabase,0o700);
+  for(const [index,[extra,metadata]] of [
+   [{GITHUB_REPOSITORY:'outsider/fork'},good],
+   [{DATABASE_URL:'postgresql://PRIVATE_CANARY'},good],
+   [{SUPABASE_DB_URL:'PRIVATE_CANARY'},good],
+   [{SUPABASE_ACCESS_TOKEN:'PRIVATE_CANARY'},good],
+   [{GITHUB_JOB:'unknown'},good],
+   [{},{...good,Internal:false}],
+   [{},{...good,Labels:{...labels,'com.contaos.run':'another'}}],
+   [{},good]
+  ].entries()){
+   const calls=join(dir,'calls');writeFileSync(calls,'');const fixture=join(dir,'network.json');writeFileSync(fixture,JSON.stringify([metadata]));
+   const r=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env:{PATH:bin+':'+process.env.PATH,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'contaos999999/develop',GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',GITHUB_JOB:'restore',CALLS:calls,NETWORK_FIXTURE:fixture,...extra},encoding:'utf8',timeout:10000});
+   assert.notEqual(r.status,0,'unsafe case '+index+' must fail');assert(!readFileSync(calls,'utf8').includes('SUPABASE'));assert(!r.stdout.includes('PASS_NATIVE'));assert(!r.stderr.includes('PRIVATE_CANARY'));
+   if(index<5)assert.equal(readFileSync(calls,'utf8'),'','runner/credential guards precede Docker');
+  }
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('actual backup cleanup covers a helper failure after the local database starts',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'contaos-backup-start-fail-'));
+ try{
+  for(const p of ['scripts','supabase','.github/workflows','bin'])mkdirSync(join(dir,p),{recursive:true});
+  copyFileSync('scripts/p0-v1-synthetic-data-restore.sh',join(dir,'scripts/p0-v1-synthetic-data-restore.sh'));
+  writeFileSync(join(dir,'supabase/config.toml'),'project_id="contaos-hml-local"\n');writeFileSync(join(dir,'.github/workflows/restore-isolado.yml'),'local fixture\n');
+  writeFileSync(join(dir,'scripts/isolated-db-network.sh'),`#!/bin/bash
+set -eu
+if [[ "$*" == 'run db start' ]]; then touch resource; printf 'STARTED\\n' >> lifecycle; exit 45; fi
+if [[ "$*" == 'run stop --no-backup' ]]; then printf 'CLEANUP_ATTEMPT\\n' >> lifecycle; rm -f resource; exit 0; fi
+exit 46
+`);
+  for(const name of ['supabase','docker','psql']){writeFileSync(join(dir,'bin',name),'#!/bin/sh\nexit 0\n');chmodSync(join(dir,'bin',name),0o700);}
+  const r=spawnSync('bash',['scripts/p0-v1-synthetic-data-restore.sh'],{cwd:dir,env:{PATH:join(dir,'bin')+':'+process.env.PATH,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'contaos999999/develop'},encoding:'utf8',timeout:10000});
+  assert.notEqual(r.status,0);assert.deepEqual(readFileSync(join(dir,'lifecycle'),'utf8').trim().split('\n'),['STARTED','CLEANUP_ATTEMPT']);assert(!existsSync(join(dir,'resource')));
+  assert.match(readFileSync(join(dir,'restore-proof-synthetic/result.txt'),'utf8'),/status=FAIL_OR_INCOMPLETE/);
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('actual prepare rejects unavailable or exposed worker runtime before any Auth or fixture',()=>{
+ const code=String.raw`import importlib.util,json,tempfile
+from pathlib import Path
+s=importlib.util.spec_from_file_location('protocol','supabase/tests/p0_crud_global_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+keys=('extension_ready','http_post_ready','acl_isolated','scheduler_ready','destination_is_hml')
+good=dict.fromkeys(keys,True)
+cases=[good,{},dict(good,unexpected=True)]+[{**good,k:v} for k in keys for v in (False,None,'true',1)]
+class StopFixture(Exception):pass
+for i,metadata in enumerate(cases):
+ with tempfile.TemporaryDirectory() as d:
+  r=object.__new__(m.Runner);r.root=Path(d);r.batch='DOCUMENTOS';r.material_enabled=True;r.report={'assertions':[]};effects=[];queries=[]
+  def sql(source,fetch=False):
+   assert fetch is True;queries.append(source);return json.dumps(metadata)
+  def save(name,data):
+   if name=='fixture.json':effects.append('fixture');raise StopFixture()
+  def request(*args,**kwargs):effects.append('AUTH');raise AssertionError('Auth must not be reached')
+  r.sql=sql;r.save=save;r.request=request
+  try:r.prepare()
+  except StopFixture:assert i==0 and effects==['fixture']
+  except RuntimeError:assert i!=0 and effects==[]
+  else:raise AssertionError('prepare must stop at runtime or first fixture boundary')
+  assert len(queries)==1 and 'net.http_post' in queries[0] and 'vault.decrypted_secrets' in queries[0]
+  assert r.report['assertions']==[{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':i==0,'http':None}]
+print('WORKER_RUNTIME_PRE_AUTH_PASS',len(cases))`;
+ const r=spawnSync('python3',['-c',code],{env:{PATH:process.env.PATH},encoding:'utf8'});
+ assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/WORKER_RUNTIME_PRE_AUTH_PASS 23/);
+});
 test('browser protocol exists before any privileged run',async()=>{
   assert(existsSync(browser),'CRUD browser protocol missing');
   const m=await import('./p0_crud_global_browser.mjs');

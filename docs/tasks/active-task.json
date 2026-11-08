@@ -1,8 +1,8 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "PLAN/GATE: restaurar dependência pg_net dos workers HML",
+  "title": "BUILD: runtime documental HML com pg_net isolado e Restore sem egress",
   "status": "ativa",
-  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_ISOLATED_CI",
+  "phase": "BUILD_DOCUMENT_WORKER_RUNTIME_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,7 +38,15 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md"
+    "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
+    "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
+    "supabase/tests/hml_acceptance.sql",
+    "supabase/tests/p0_crud_global_hml.py",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    "supabase/tests/queues_edge_auth.sql",
+    ".github/workflows/restore-isolado.yml",
+    "scripts/p0-v1-synthetic-data-restore.sh",
+    "scripts/isolated-db-network.sh"
   ],
   "forbidden_paths": [
     "src/**",
@@ -46,7 +54,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -132,7 +140,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisãoindependente+guarddoccomplemento;mergenormalantesBUILD10caminhos. PreservarGATE153/histórico152/148DRAFT. ImplementarisolamentoCIantesDDL,RED/GREEN eCIpublic/restore/backupmesmoHEAD; somenteentãoHMLcanônico. SemPROD/novasEdges/CRUD/V1/V2.",
+  "next_step": "ImplementarBUILDexato153/154: contençãonativaCIantesmigrations,pg_netextensions+4REVOKEsnetatômicos,preflightreadonlyantesAuth. RED/GREEN,10guards,revisãoindependente eguard/public/RestorebackupmesmoHEAD antesmergenormal/applycanônicoHML. Repetirbacklogantesapply,preservar152/148DRAFT,semPROD/novasEdges/CRUD/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1290,7 +1298,7 @@
     "prod": false
   },
   "document_worker_runtime_gate": {
-    "phase": "GATE",
+    "phase": "BUILD",
     "owner": "EXECUTOR_INDEPENDENTE_TRILHA_B",
     "base": "9af2c6a6b42ec175126d1bd2b2f33905742d8ad7",
     "project": "gklhhhyosgasnyoxlrui",
@@ -1343,14 +1351,36 @@
     "gate_merge": "4a5bd7c08141400822230cfbeb3601ad13abdff2",
     "gate_guard": 42452599376,
     "isolated_ci_complement": {
-      "phase": "GATE",
+      "phase": "BUILD",
       "reason": "migration0019 local Vault URL points HML; installing pg_net must not allow local cron HTTP egress",
       "future_build_paths": [
         ".github/workflows/restore-isolado.yml",
         "scripts/p0-v1-synthetic-data-restore.sh",
         "scripts/isolated-db-network.sh"
       ],
-      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain"
+      "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain",
+      "gate_pr": 154,
+      "gate_head": "fbb81464adecf1379956de433e9bfeafd52a74e2",
+      "gate_merge": "884fc628f8d03801fa2c63c5cce1aff1730617be",
+      "gate_guard": 42453132612
+    },
+    "build_validation": {
+      "state": "PENDENTE_REVISAO_CI",
+      "local_node_tests": 326,
+      "local_protocol_tests": 67,
+      "red_before_runtime_implementation": "63PASS2FAIL",
+      "native_helper_baseline_red": "1FAIL missing helper against GATE source",
+      "preflight_live_hml_original": {
+        "extension_ready": false,
+        "http_post_ready": false,
+        "acl_isolated": false,
+        "scheduler_ready": false,
+        "destination_is_hml": true
+      },
+      "native_local_docker": "NOT_AVAILABLE_NOT_CERTIFIED",
+      "hml_mutations": false,
+      "material_fixtures_created": 0,
+      "backup_post_start_cleanup_red": "1FAIL STARTED without CLEANUP_ATTEMPT; flag moved before both starts, GREEN real orchestration regression"
     }
   }
 }

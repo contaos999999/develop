@@ -247,5 +247,30 @@ select 'UPLOAD_WRAPPER','Negativas sem efeitos persistidos',counts=array[
  (select count(*) from public.execucoes_assincronas),
  (select count(*) from public.eventos_auditoria)],'cinco tabelas sem delta' from wrapper_counts;
 
+-- GATE153: the actual extension is nonpublic and its inherited privileges are closed.
+insert into contaos_testes
+select 'WORKER_RUNTIME','pg_net fora de public com assinatura oficial',
+ exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions')
+ and to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is not null,'metadata real sem HTTP';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Scheduler postgres preservado',has_schema_privilege('postgres','net','USAGE')
+ and has_function_privilege('postgres','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'),'owner mantém acesso';
+insert into contaos_testes
+select 'WORKER_RUNTIME',roles.name||' sem uso/criação no schema net',not has_schema_privilege(roles.name,'net','USAGE,CREATE'),'privilégio efetivo'
+from (values('anon'),('authenticated')) roles(name);
+insert into contaos_testes
+select 'WORKER_RUNTIME',roles.name||' sem acesso a tabelas/headers net',
+ not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net' and c.relkind in ('r','p','v','m','f')
+ and (has_table_privilege(roles.name,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') or has_any_column_privilege(roles.name,c.oid,'SELECT,INSERT,UPDATE,REFERENCES'))),'nenhum token lido'
+from (values('anon'),('authenticated')) roles(name);
+insert into contaos_testes
+select 'WORKER_RUNTIME',roles.name||' sem acesso a sequências net',
+ not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net' and c.relkind='S' and has_sequence_privilege(roles.name,c.oid,'USAGE,SELECT,UPDATE')),'privilégio efetivo'
+from (values('anon'),('authenticated')) roles(name);
+insert into contaos_testes
+select 'WORKER_RUNTIME',roles.name||' sem execução de funções net',
+ not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='net' and has_function_privilege(roles.name,p.oid,'EXECUTE')),'privilégio efetivo'
+from (values('anon'),('authenticated')) roles(name);
+
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;

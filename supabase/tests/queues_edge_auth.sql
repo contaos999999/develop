@@ -33,7 +33,12 @@ select 'limite_move_para_dlq',
        exists(select 1 from public.jobs_dlq d where d.id_execucao=(select id1 from ids_job) and d.erro_codigo='TESTE_FALHA')
        and exists(select 1 from public.execucoes_assincronas e where e.id=(select id1 from ids_job) and e.status='cancelado'),
        'dlq='||(select count(*) from public.jobs_dlq d where d.id_execucao=(select id1 from ids_job))::text;
-insert into contaos_queue_tests values('pg_net_removida_conforme_hardening',not exists(select 1 from pg_extension where extname='pg_net'),'Edge auth é validada por testes HTTP externos; o banco não dispara HTTP.');
+insert into contaos_queue_tests
+select 'pg_net_runtime_nonpublic_com_net_fechado',
+ exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions')
+ and to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is not null
+ and not has_schema_privilege('anon','net','USAGE,CREATE') and not has_schema_privilege('authenticated','net','USAGE,CREATE'),
+ 'GATE153 supersede remoção intencional; nenhuma chamada HTTP nesta regressão';
 select teste,passou,detalhe from contaos_queue_tests order by teste;
 rollback;
 
