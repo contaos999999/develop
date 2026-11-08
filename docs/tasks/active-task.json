@@ -2,7 +2,7 @@
   "id": "P0-CRUD-GLOBAL-HML-20261107",
   "title": "PLAN/GATE: restaurar dependência pg_net dos workers HML",
   "status": "ativa",
-  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_ISOLATED_CI",
+  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_TCP_CI",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -132,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisãoindependente+guarddoccomplemento;mergenormalantesBUILD10caminhos. PreservarGATE153/histórico152/148DRAFT. ImplementarisolamentoCIantesDDL,RED/GREEN eCIpublic/restore/backupmesmoHEAD; somenteentãoHMLcanônico. SemPROD/novasEdges/CRUD/V1/V2.",
+  "next_step": "Revisãoindependente+guarddocGATETCP;nãomerge155atécomplementointegradocomfixcompatível/provasCIreaisnomesmoHEAD. PreservarFAIL0f36a/153/154/152/148DRAFT. SemHMLwrite/fixtures/PROD/novasEdges/CRUD/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1351,6 +1351,19 @@
         "scripts/isolated-db-network.sh"
       ],
       "policy": "Docker internal bridge before dbstart/reset; exact CLI --network-id; sole NIC checked; original controlled host TCP listener outside internal subnet positive + container loopback DB positive + same host endpoint denied with receiver zero new connections; tool errors never DENY; recreate/reinspect network for backup B; all real SQL/backup/tests remain"
+    },
+    "native_firewall_complement": {
+      "phase": "GATE",
+      "supersedes": "GATE154 --internal mechanism only; native TCP/HTTP containment and all tests preserved",
+      "failure_head": "0f36a471ae8b4ea831b5433babe271779200ccd8",
+      "failure_run": 42453742973,
+      "backup_failure_artifact": 13607001525,
+      "backup_failure_sha256": "9fbee7cca5163b8aa0a7571505ccb863cb1a5144c120c66a517412751e6864ee",
+      "policy": "Own bridge + owned IPv4 source CIDR jumps DOCKER-USER/FORWARD and INPUT before any start; only ESTABLISHED return then DROP; exact rule ownership/order/counters; no IPv6 global route/address, no alternate NIC; real controlled TCP and pg_net HTTP deny proofs with positive controls and DROP delta",
+      "dns_certified": false,
+      "all_protocols_certified": false,
+      "real_pg_net_probe_required_after_reset": true,
+      "no_new_build_paths": true
     }
   }
 }
