@@ -1103,6 +1103,21 @@
         "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
         "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
       }
+    },
+    "browser_worker_csp_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "APPEND_DOCUMENT_CSP_WORKER_SRC_NONE",
+      "source_head": "f94595306886c358c73400a3a83424344fb75180",
+      "source_run": 42440477002,
+      "artifact": 13600703885,
+      "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
+      "browser_workers": "NAO_CERTIFICADOS",
+      "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 141,
+      "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
+      "state": "INTEGRADO_ANTES_BUILD"
     }
   },
   "auth_configuration_changes_allowed": false
