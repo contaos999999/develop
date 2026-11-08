@@ -114,15 +114,16 @@ export function validatePublishedResponse(proof,{url,resourceType,status,body}){
 // WebSocket transport because Playwright's CDPSession.send omits envelope sessionId.
 async function connectNativeBrowserCDP(browser){
   const metadata=await browser.newBrowserCDPSession();let args;
-  try{args=(await metadata.send('Browser.getBrowserCommandLine')).arguments;}finally{await metadata.detach();}
+  try{args=(await metadata.send('Browser.getBrowserCommandLine')).arguments;}catch{throw Object.assign(Error('Chromium command metadata unavailable'),{code:'CDP_BROWSER_METADATA'});}finally{await metadata.detach();}
   const directory=args.find(value=>value.startsWith('--user-data-dir='))?.slice('--user-data-dir='.length);assert(directory&&resolve(directory)===directory);
-  const lines=readFileSync(join(directory,'DevToolsActivePort'),'utf8').trim().split('\n');assert(lines.length===2&&/^\d{1,5}$/.test(lines[0])&&/^\/devtools\/browser\/[a-f0-9-]+$/i.test(lines[1]));
+  let endpoint;try{endpoint=readFileSync(join(directory,'DevToolsActivePort'),'utf8');}catch{throw Object.assign(Error('Chromium endpoint metadata unavailable'),{code:'CDP_ENDPOINT_READ'});}
+  const lines=endpoint.trim().split('\n');assert(lines.length===2&&/^\d{1,5}$/.test(lines[0])&&/^\/devtools\/browser\/[a-f0-9-]+$/i.test(lines[1]));
   const port=Number(lines[0]);assert(port>0&&port<=65535);const socket=new WebSocket('ws://127.0.0.1:'+port+lines[1]);
   let serial=0,listener=()=>{},onClose=()=>{};const commands=new Map();
-  await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',()=>reject(Error('Local Chromium interception unavailable')),{once:true});});
-  socket.addEventListener('message',event=>{const data=JSON.parse(event.data);if(data.id){const pending=commands.get(data.id);if(!pending)return;commands.delete(data.id);clearTimeout(pending.timer);if(data.error)pending.reject(Error('Chromium interception command rejected'));else pending.resolve(data.result??{});}else listener(data);});
+  await new Promise((resolve,reject)=>{socket.addEventListener('open',resolve,{once:true});socket.addEventListener('error',()=>reject(Object.assign(Error('Local Chromium interception unavailable'),{code:'CDP_SOCKET_CONNECT'})),{once:true});});
+  socket.addEventListener('message',event=>{const data=JSON.parse(event.data);if(data.id){const pending=commands.get(data.id);if(!pending)return;commands.delete(data.id);clearTimeout(pending.timer);if(data.error)pending.reject(Object.assign(Error('Chromium interception command rejected'),{code:'CDP_'+pending.method.replace(/[^a-zA-Z0-9]/g,'_').toUpperCase()}));else pending.resolve(data.result??{});}else listener(data);});
   socket.addEventListener('close',()=>{onClose();for(const pending of commands.values()){clearTimeout(pending.timer);pending.reject(Error('Chromium interception connection closed'));}commands.clear();});
-  return {send(method,params={},sessionId){const id=++serial;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{commands.delete(id);reject(Error('Chromium interception command timeout'));},10000);commands.set(id,{resolve,reject,timer});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});},onEvent(callback){listener=callback;},onClose(callback){onClose=callback;},close(){socket.close();}};
+  return {send(method,params={},sessionId){const id=++serial;return new Promise((resolve,reject)=>{const timer=setTimeout(()=>{commands.delete(id);reject(Error('Chromium interception command timeout'));},10000);commands.set(id,{resolve,reject,timer,method});socket.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});},onEvent(callback){listener=callback;},onClose(callback){onClose=callback;},close(){socket.close();}};
 }
 // Native Chromium interception preserves browser CORS, cookies and Origin semantics.
 // No request body/header is read, and no response is replaced or fulfilled by the harness.
@@ -186,6 +187,7 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{}){
   const foreign=createServer((request,response)=>{counters.foreign++;if(request.method==='OPTIONS')counters.preflight++;if(request.method==='POST')counters.post++;response.writeHead(request.method==='OPTIONS'?204:200,{'Content-Type':'text/plain'});response.end('own synthetic foreign fixture');});
   const local=createServer((request,response)=>{
     if(request.url==='/redirect307'||request.url==='/redirect308'){response.writeHead(Number(request.url.slice(-3)),{Location:other+'/effect'});response.end();return;}
+    if(request.url==='/worker.js'){response.writeHead(200,{'Content-Type':'text/javascript'});response.end('fetch('+JSON.stringify(other+'/effect')+')');return;}
     if(request.url==='/main.js'){response.writeHead(200,{'Content-Type':'text/javascript'});response.end(mode==='changed'?'fetch("/executed")':script);return;}
     if(request.url==='/executed'){counters.executed++;response.writeHead(200);response.end();return;}
     response.writeHead(200,{'Content-Type':'text/html'});response.end(html);
@@ -194,7 +196,7 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{}){
   const close=server=>new Promise(resolve=>server.close(()=>resolve()));
   try{
     own=await listen(local);other=await listen(foreign);
-    const proof={origin:own,html_sha256:createHash('sha256').update(html).digest('hex'),modules:new Map([[own+'/main.js',createHash('sha256').update(script).digest('hex')]])};
+    const proof={origin:own,html_sha256:createHash('sha256').update(html).digest('hex'),modules:new Map([[own+'/main.js',createHash('sha256').update(script).digest('hex')],[own+'/worker.js',createHash('sha256').update('fetch('+JSON.stringify(other+'/effect')+')').digest('hex')]])};
     async function fixture(action,{permitForeign=false,changed=false}={}){
       mode=changed?'changed':'normal';const context=await browser.newContext({serviceWorkers:'block'});const page=await context.newPage();
       try{const fence=await installPublishedCDPFence(browser,context,page,proof,url=>{const origin=new URL(url).origin;return origin===own||(permitForeign&&origin===other);});await action({context,page,fence});}
@@ -203,9 +205,11 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{}){
     for(const status of [307,308]){onPhase('REDIRECT_'+status);await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.goto(own+'/redirect'+status).catch(()=>{});await new Promise(resolve=>setTimeout(resolve,100));assert.equal(counters.foreign,0,'Redirect transmitted to foreign endpoint');assert(fence.snapshot().failed);});}
     onPhase('POPUP_DIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>window.open(url,'_blank'),other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Popup was not fenced');assert.equal(counters.foreign,0,'Popup transmitted to foreign endpoint');});
     onPhase('POPUP_REDIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>window.open(url,'_blank'),own+'/redirect308').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Redirecting popup was not fenced');assert.equal(counters.foreign,0,'Popup redirect transmitted to foreign endpoint');});
+    onPhase('IFRAME_FOREIGN');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>{const frame=document.createElement('iframe');frame.src=url;document.body.append(frame);},other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Iframe was not fenced');assert.equal(counters.foreign,0,'Iframe transmitted to foreign endpoint');});
+    onPhase('WORKER_FOREIGN');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(()=>{globalThis.ownFenceWorker=new Worker('/worker.js');}).catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Worker was not fenced');assert.equal(counters.foreign,0,'Worker transmitted to foreign endpoint');});
     onPhase('CHANGED_SCRIPT');await fixture(async({page,fence})=>{await page.goto(own+'/login').catch(()=>{});assert(fence.snapshot().failed,'Changed executable response was not blocked');assert.equal(counters.executed,0,'Changed executable ran before hash proof');},{changed:true});
     onPhase('NATIVE_CORS');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const rejected=await page.evaluate(async url=>{try{await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:'{"fixture":true}'});return false;}catch{return true;}},other+'/effect');assert(rejected,'Native CORS enforcement was bypassed');assert(counters.preflight>0,'Native preflight did not run');assert.equal(counters.post,0,'Native CORS transmitted denied POST');fence.assertSafe();},{permitForeign:true});
-    return {redirect_307_blocked:true,redirect_308_blocked:true,popup_blocked:true,popup_redirect_blocked:true,changed_script_blocked:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
+    return {redirect_307_blocked:true,redirect_308_blocked:true,popup_blocked:true,popup_redirect_blocked:true,iframe_blocked:true,worker_blocked:true,changed_script_blocked:true,native_cors_preserved:true,foreign_effects:counters.post,unexpected_execution:counters.executed};
   }finally{await Promise.all([close(local),close(foreign)]);}
 }
 // Inert source analysis. Fetched modules are parsed, never imported or evaluated.
@@ -857,7 +861,7 @@ async function main(){
       });
       report.ui_diagnostic=sanitizeUiDiagnostic({...flags,read_http:readHttp});
     }catch{report.ui_diagnostic_unavailable=true;}}
-    report.state='FAIL';if(report.stage==='PUBLISHED_BACKEND_READONLY_FENCE')report.failure_code='PUBLICADA_BACKEND_NAO_COMPROVADO';report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
+    report.state='FAIL';if(report.stage==='PUBLISHED_BACKEND_READONLY_FENCE')report.failure_code='PUBLICADA_BACKEND_NAO_COMPROVADO';if(typeof e.code==='string'&&/^(?:CDP_[A-Z0-9_]{1,80}|ENOENT)$/.test(e.code))report.failure_code=e.code;report.failure_class=['Error','AssertionError','TimeoutError','TypeError'].includes(e.name)?e.name:'Other';save();process.exitCode=1;}
   finally{save();await stop(server,browser);}
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href)await main();
