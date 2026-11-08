@@ -938,3 +938,20 @@ test('late fence failure survives cleanup and is written to its original publish
   for(const state of ['PASS_BATCH','PASS_PUBLIC_PROBE','PASS_SMOKE']){const report={state};assert.equal(finalizePublishedFence(report,snapshot),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_LATE_PUBLISHED_FAILURE');}
   assert.equal(finalizePublishedFence({state:'PASS_BATCH'},{failed:false}),false);
 });
+test('real pg_net wait handles a queued batch beyond ten seconds and fails without its own denied response',()=>{
+ const code=String.raw`import ast,pathlib,types
+s=pathlib.Path('scripts/isolated-db-network.sh').read_text().split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0];tree=ast.parse(s)
+f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='wait_own_pg_net_denial')
+for ready,expected in [(12,True),(None,False)]:
+ clock=[0];calls=[]
+ def query(sql):
+  calls.append(sql);assert 'id=123' in sql and 'status_code is null' in sql and 'timed_out or error_msg is not null' in sql
+  return 't' if ready is not None and clock[0]>=ready else 'f'
+ ns={'time':types.SimpleNamespace(monotonic=lambda:clock[0],sleep=lambda t:clock.__setitem__(0,clock[0]+t)),'local_sql':query}
+ exec(compile(ast.Module(body=[f],type_ignores=[]),'<actual-pg-net-wait>','exec'),ns)
+ assert ns['wait_own_pg_net_denial']('123') is expected
+ assert calls and clock[0]<=46
+ if expected:assert clock[0]>=12
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
+});

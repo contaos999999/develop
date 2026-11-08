@@ -80,6 +80,14 @@ def tcp_probe(address,port):
     # Unset service/password entirely: an empty PGSERVICE is still a service option.
     script='exec env -i PATH="$PATH" PGPASSFILE=/dev/null pg_isready -U contaos_native_probe -d contaos_native_probe -h "$1" -p "$2" -t 3 -q'
     return capture(['docker','exec',container,'/bin/sh','-c',script,'proof',address,str(port)])
+def wait_own_pg_net_denial(request):
+    # The async worker may still be finishing a cron batch (10s request timeout).
+    # Wait for this request's actual denied response; absence never counts as PASS.
+    deadline=time.monotonic()+45
+    while time.monotonic()<deadline:
+        if local_sql('select exists(select 1 from net._http_response where id='+request+' and status_code is null and (timed_out or error_msg is not null));')=='t':return True
+        time.sleep(.1)
+    return False
 def native_proof(subnets):
     c=existing_container();require(c is not None,'Local Postgres container required');sole_network(c)
     firewall(subnets);no_ipv6_route()
@@ -122,11 +130,7 @@ def native_proof(subnets):
         if installed:
             local_sql('select net.check_worker_is_up();');before_http=dropped()
             request=local_sql("select net.http_post(url:='http://"+address+':'+str(port)+"/contaos-local-native-probe',body:='{}'::jsonb,headers:='{\"Content-Type\":\"application/json\"}'::jsonb,timeout_milliseconds:=1500);")
-            require(re.fullmatch(r'[0-9]+',request),'Exact own probe request required');deadline=time.monotonic()+10;denied=False
-            while time.monotonic()<deadline:
-                denied=local_sql('select exists(select 1 from net._http_response where id='+request+' and status_code is null and (timed_out or error_msg is not null));')=='t'
-                if denied:break
-                time.sleep(.1)
+            require(re.fullmatch(r'[0-9]+',request),'Exact own probe request required');denied=wait_own_pg_net_denial(request)
             pg_net_delta=dropped()-before_http
             print('LOCAL_PG_NET_CONTROL_DIAGNOSTIC '+json.dumps({'own_response_denied':denied,'drop_packets_delta':pg_net_delta,'controlled_receiver_connections':len(accepted)-1,'own_request_queued':local_sql('select exists(select 1 from net.http_request_queue where id='+request+');')=='t','worker_visible':local_sql("select exists(select 1 from pg_stat_activity where backend_type like 'pg_net%');")=='t'}),flush=True)
             require(denied and pg_net_delta>0,'Real pg_net request must fail with native DROP proof');pg_net_state='PASS_REAL_LOCAL_HTTP_DENIED'
