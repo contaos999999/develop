@@ -131,23 +131,23 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   assert(proof?.modules instanceof Map&&proof.modules.size>0);assert.equal(typeof allowed,'function');
   const initial=await context.newCDPSession(page),info=await initial.send('Target.getTargetInfo');await initial.detach();
   const ownContext=info.targetInfo.browserContextId,initialTarget=info.targetInfo.targetId;assert(ownContext);
-  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0;
+  const root=await connectNativeBrowserCDP(browser,{targetId:initialTarget,browserContextId:ownContext}),sessions=new Map(),configured=new Map();let failed=false,closed=false,failureCode=null,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0;
   const active=new Set(),pageIdentities=new WeakMap([[page,{targetId:initialTarget,browserContextId:ownContext}]]);
-  const fail=()=>{failed=true;void context.close().catch(()=>{});};
-  root.onClose(()=>{if(!closed)fail();});
+  const fail=error=>{failed=true;if(!failureCode)failureCode=typeof error?.code==='string'&&/^(?:CDP|FENCE)_[A-Z0-9_]{1,80}$/.test(error.code)?error.code:'FENCE_ASYNC_FAILURE';void context.close().catch(()=>{});};
+  root.onClose(()=>{if(!closed)fail({code:'FENCE_CDP_DISCONNECTED'});});
   // Context routing covers the first popup request; Chromium's response pause
   // independently prevents redirects and releases only hash-verified executable bytes.
   await context.route('**/*',async route=>{
-    try{
-      const request=route.request();if(failed||!allowed(request.url(),request.isNavigationRequest())){failed=true;await route.abort('blockedbyclient');fail();return;}
+    let routeStage='FENCE_ROUTE_REQUEST';try{
+      const request=route.request();if(failed||!allowed(request.url(),request.isNavigationRequest())){failed=true;await route.abort('blockedbyclient');fail({code:'FENCE_REQUEST_ORIGIN_BLOCKED'});return;}
       // Hold even an approved popup URL until its own native response fence is ready.
-      const requestPage=request.frame().page();let target=pageIdentities.get(requestPage);
+      routeStage='FENCE_ROUTE_IDENTITY';const requestPage=request.frame().page();let target=pageIdentities.get(requestPage);
       if(!target){const identity=await context.newCDPSession(requestPage);try{target=(await identity.send('Target.getTargetInfo')).targetInfo;pageIdentities.set(requestPage,target);}finally{await identity.detach();}}
       assert.equal(target.browserContextId,ownContext);
-      for(let i=0;!configured.has(target.targetId)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
+      routeStage='FENCE_ROUTE_TARGET_READY';for(let i=0;!configured.has(target.targetId)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
       assert(configured.has(target.targetId),'Unresolved routed page identity');await configured.get(target.targetId);assert(!failed);
-      await route.continue();
-    }catch{await route.abort('blockedbyclient').catch(()=>{});fail();}
+      routeStage='FENCE_ROUTE_CONTINUE';await route.continue();
+    }catch(error){await route.abort('blockedbyclient').catch(()=>{});fail(Object.assign(error,{code:routeStage}));}
   });
   function track(p){active.add(p);p.catch(fail).finally(()=>active.delete(p));}
   const send=(session,method,params={})=>root.send(method,params,session.id);
@@ -157,7 +157,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
     const response=event.responseStatusCode!==undefined||event.responseErrorReason!==undefined;
     if(!response){await send(session,'Fetch.continueRequest',{requestId});return;}
     try{
-      assert(!event.responseErrorReason,'Published response transport failed');if(event.responseStatusCode>=300&&event.responseStatusCode<400){redirectBlocks++;throw Error('Published redirects are blocked before following');}let body;
+      assert(!event.responseErrorReason,'Published response transport failed');if(event.responseStatusCode>=300&&event.responseStatusCode<400){redirectBlocks++;throw Object.assign(Error('Published redirects are blocked before following'),{code:'FENCE_RESPONSE_REDIRECT'});}let body;
       if(resourceType==='Script'||(resourceType==='Document'&&new URL(url).origin===proof.origin)){
         const result=await send(session,'Fetch.getResponseBody',{requestId});body=Buffer.from(result.body,result.base64Encoded?'base64':'utf8');
       }
@@ -191,7 +191,7 @@ export async function installPublishedCDPFence(browser,context,page,proof,allowe
   for(let i=0;!configured.has(initialTarget)&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));
   assert(configured.has(initialTarget),'Initial published target was not intercepted');await configured.get(initialTarget);assert(!failed);
   context.on('close',()=>{closed=true;root.close();});
-  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,failed})};
+  return {assertSafe:()=>{assert(!failed&&!closed,'Published preventive fence');assert(verifiedScripts>0&&verifiedDocuments>0,'Actual published source bytes not verified');},snapshot:()=>({verified_scripts:verifiedScripts,verified_documents:verifiedDocuments,redirect_blocks:redirectBlocks,failure_code:failureCode,failed})};
 }
 // Credential-free real Chromium fixtures run in the canonical public-probe job.
 export async function verifyPublishedCDPFence(browser,onPhase=()=>{}){
@@ -213,13 +213,14 @@ export async function verifyPublishedCDPFence(browser,onPhase=()=>{}){
     const proof={origin:own,html_sha256:createHash('sha256').update(html).digest('hex'),modules:new Map([[own+'/main.js',createHash('sha256').update(script).digest('hex')],[own+'/worker.js',createHash('sha256').update('fetch('+JSON.stringify(other+'/effect')+')').digest('hex')]])};
     async function fixture(action,{permitForeign=false,changed=false}={}){
       mode=changed?'changed':'normal';const context=await browser.newContext({serviceWorkers:'block'});const page=await context.newPage();
-      try{const fence=await installPublishedCDPFence(browser,context,page,proof,url=>{const origin=new URL(url).origin;return origin===own||(permitForeign&&origin===other);});await action({context,page,fence});}
+      let fence;try{fence=await installPublishedCDPFence(browser,context,page,proof,url=>{const origin=new URL(url).origin;return origin===own||(permitForeign&&origin===other);});await action({context,page,fence});}
+      catch(error){const code=fence?.snapshot().failure_code;if(code)error.code=code;throw error;}
       finally{await context.close().catch(()=>{});}
     }
     for(const status of [307,308]){onPhase('REDIRECT_'+status);await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.goto(own+'/redirect'+status).catch(()=>{});await new Promise(resolve=>setTimeout(resolve,100));assert.equal(counters.foreign,0,'Redirect transmitted to foreign endpoint');assert(fence.snapshot().failed);});}
-    onPhase('POPUP_DIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>window.open(url,'_blank'),other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));if(!fence.snapshot().failed)throw Object.assign(Error('Popup was not fenced'),{code:'FENCE_POPUP_NOT_FENCED'});if(counters.foreign!==0)throw Object.assign(Error('Popup transmitted to foreign endpoint'),{code:'FENCE_POPUP_FOREIGN_TRANSMITTED'});});
-    onPhase('POPUP_ALLOWED');await fixture(async({context,page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const pending=context.waitForEvent('page',{timeout:10000});await page.evaluate(url=>window.open(url,'_blank'),own+'/login');const popup=await pending;await popup.waitForLoadState('networkidle');fence.assertSafe();assert.equal(await popup.evaluate(()=>globalThis.nativeFenceFixture),true);await popup.close();});
-    onPhase('POPUP_REDIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const before=counters.redirect308;await page.evaluate(url=>window.open(url,'_blank'),own+'/redirect308').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));if(!fence.snapshot().failed)throw Object.assign(Error('Redirecting popup was not fenced'),{code:'FENCE_POPUP_REDIRECT_NOT_FENCED'});if(counters.foreign!==0)throw Object.assign(Error('Popup redirect transmitted to foreign endpoint'),{code:'FENCE_POPUP_REDIRECT_TRANSMITTED'});assert.equal(counters.redirect308,before+1,'Approved popup request did not reach own server');assert.equal(fence.snapshot().redirect_blocks,1,'Popup redirect response was not blocked by native CDP');});
+    onPhase('POPUP_DIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>{window.open(url,'_blank');},other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));if(!fence.snapshot().failed)throw Object.assign(Error('Popup was not fenced'),{code:'FENCE_POPUP_NOT_FENCED'});if(counters.foreign!==0)throw Object.assign(Error('Popup transmitted to foreign endpoint'),{code:'FENCE_POPUP_FOREIGN_TRANSMITTED'});});
+    onPhase('POPUP_ALLOWED');await fixture(async({context,page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const pending=context.waitForEvent('page',{timeout:10000});await page.evaluate(url=>{window.open(url,'_blank');},own+'/login');const popup=await pending;await popup.waitForLoadState('networkidle');fence.assertSafe();assert.equal(await popup.evaluate(()=>globalThis.nativeFenceFixture),true);await popup.close();});
+    onPhase('POPUP_REDIRECT');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();const before=counters.redirect308;await page.evaluate(url=>{window.open(url,'_blank');},own+'/redirect308').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));if(!fence.snapshot().failed)throw Object.assign(Error('Redirecting popup was not fenced'),{code:'FENCE_POPUP_REDIRECT_NOT_FENCED'});if(counters.foreign!==0)throw Object.assign(Error('Popup redirect transmitted to foreign endpoint'),{code:'FENCE_POPUP_REDIRECT_TRANSMITTED'});assert.equal(counters.redirect308,before+1,'Approved popup request did not reach own server');assert.equal(fence.snapshot().redirect_blocks,1,'Popup redirect response was not blocked by native CDP');});
     onPhase('IFRAME_FOREIGN');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(url=>{const frame=document.createElement('iframe');frame.src=url;document.body.append(frame);},other+'/effect').catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Iframe was not fenced');assert.equal(counters.foreign,0,'Iframe transmitted to foreign endpoint');});
     onPhase('WORKER_FOREIGN');await fixture(async({page,fence})=>{await page.goto(own+'/login');fence.assertSafe();await page.evaluate(()=>{globalThis.ownFenceWorker=new Worker('/worker.js');}).catch(()=>{});for(let i=0;!fence.snapshot().failed&&i<100;i++)await new Promise(resolve=>setTimeout(resolve,10));assert(fence.snapshot().failed,'Worker was not fenced');assert.equal(counters.foreign,0,'Worker transmitted to foreign endpoint');});
     onPhase('CHANGED_SCRIPT');await fixture(async({page,fence})=>{await page.goto(own+'/login').catch(()=>{});assert(fence.snapshot().failed,'Changed executable response was not blocked');assert.equal(counters.executed,0,'Changed executable ran before hash proof');},{changed:true});
