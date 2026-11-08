@@ -61,7 +61,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
@@ -1215,7 +1215,7 @@
   },
   "auth_configuration_changes_allowed": false,
   "vercel_upload_origin_gate": {
-    "phase": "BUILD",
+    "phase": "VERIFICADO_HML",
     "origin": "https://contaos-41-hml.vercel.app",
     "project": "gklhhhyosgasnyoxlrui",
     "authorization": "Titular determinou resolver upload e executar deploy/teste HML; autorização específica da origem Vercel já usada no HML",
@@ -1233,7 +1233,7 @@
     "gate_ci": 42449528794
   },
   "upload_extension_gate": {
-    "phase": "BUILD",
+    "phase": "VERIFICADO_HML",
     "base": "b8003019fe937c8dad436fae3a0334aee23f2453",
     "reason": "Titular autorizou corrigir upload HML; reteste real comprova P0001 por extração incorreta da extensão",
     "future_build_paths": [
@@ -1243,14 +1243,14 @@
       "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
       "docs/tasks/active-task.json"
     ],
-    "database_changes_allowed": true,
+    "database_changes_allowed": false,
     "prod": false,
     "gate_pr": 146,
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
   "upload_document_wrapper_gate": {
-    "phase": "BUILD",
+    "phase": "VERIFICADO_HML",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
     "authorization": "Titular determinou resolver upload e autorizou correções necessárias no HML; preservar autorização material backend",
     "future_build_paths": [
@@ -1260,7 +1260,7 @@
       "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
       "docs/tasks/active-task.json"
     ],
-    "database_changes_allowed": true,
+    "database_changes_allowed": false,
     "rls_changes_allowed": false,
     "auth_configuration_changes_allowed": false,
     "prod": false,
@@ -1268,7 +1268,7 @@
     "gate_merge": "7406e9c187ddb9c788e0b80258d470ec5451ce50",
     "gate_ci": 42450959313,
     "catalog_complement": {
-      "phase": "BUILD",
+      "phase": "VERIFICADO_CI",
       "ci_failure_head": "d8d368aceb513ae80c3c86dd0976e7c40905c223",
       "restore": 42451142640,
       "future_build_path": "supabase/tests/history_catalog_compare.py",
@@ -1277,5 +1277,31 @@
       "gate_merge": "ff090938de5a2cd7d8dec856e965a49f2db2ce09",
       "gate_ci": 42451366023
     }
+  },
+  "upload_material_proof": {
+    "date": "2026-11-08",
+    "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
+    "build_pr": 150,
+    "tested_head": "46a7b821a4e06cf5b5162513c82e3afc5d9b93a2",
+    "guard": 42451502833,
+    "restore": 42451502838,
+    "deploy": 42451722019,
+    "origin": "https://contaos-41-hml.vercel.app",
+    "contract": "be89ef7e-d839-46c0-9cfb-4da81edf8b74",
+    "file": "8cc6ac08-7f5b-469c-ab50-7b33d5a12379",
+    "document": "525e54fc-feec-4dc0-b540-1510a3c52485",
+    "version": "2ea42a44-db27-4c4e-801f-9fc5227c2458",
+    "sha256": "773eb577ba88a260247803d37dced4f5469e8c39347dd3fe7c58c4d9f4681103",
+    "bytes": 285,
+    "objects": 1,
+    "files": 1,
+    "documents": 1,
+    "versions": 1,
+    "list_after_reload": true,
+    "detail_verified": true,
+    "security_status": "pendente",
+    "processing": "na_fila",
+    "full_v1_certification": false,
+    "prod": false
   }
 }
