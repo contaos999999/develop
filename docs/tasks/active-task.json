@@ -1,6 +1,6 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: GATE complementar de destinos nativos por proxy DENY",
+  "title": "Prova privada V1: GATE de inspeção integral do Document pausado",
   "status": "ativa",
   "phase": "GATE_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
@@ -135,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão normativa e checks do GATE proxy DENY separado antes de integrar/reancorar e implementar. Sem material ou deploy.",
+  "next_step": "Revisão e checks do GATE HTML separado antes de integrar/reancorar e implementar a análise do mesmo body. Material e deploy desabilitados.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -989,7 +989,7 @@
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "GATE",
-    "state": "GATE_COMPLEMENTAR_PROXY_DENY_EM_VALIDACAO",
+    "state": "GATE_COMPLEMENTAR_DOCUMENT_PAUSADO_EM_VALIDACAO",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1114,6 +1114,19 @@
       "no_direct_fallback": true,
       "browser_workers": "NAO_CERTIFICADOS",
       "unexpected_product_worker": "FAIL",
+      "full_document_crud_v1_certification": false
+    },
+    "paused_document_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "EXACT_PAUSED_DOCUMENT_FULL_GRAPH_AST_BEFORE_CONTINUE",
+      "source_head": "544026099abbe613b39f8ec0f6142ce47208653b",
+      "source_run": 42444107587,
+      "artifact": 13603076801,
+      "sha256": "a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34",
+      "no_normalization": true,
+      "no_self_hash_without_ast": true,
+      "published_source_parity": "NAO_VERIFICADA",
       "full_document_crud_v1_certification": false
     }
   },
