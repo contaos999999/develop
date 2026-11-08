@@ -51,3 +51,49 @@ Complemento fechado permite acrescentar somente supabase/tests/history_catalog_c
 TDD em testeupload_document_wrapper existente: helperPython real extraído viaAST sem iniciarDB devefalharantesdeexistir; depois aceitar somente deltaexato e rejeitar campo divergente, registroausente ouduplicado. TestsSQLdeowner/corpos/ACLs/RBAC mantidos. Nodecompleto/guards/revisão e novoCI/restore/backupmesmoHEAD antesmerge/deploycontrolado/retesteUI. Falha históricapreservada; não redigirsucessoglobal. ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visualN/A, semLovable, ajusteexato deexpectativacanônica aprovada e semignorar diffs.
 
 Complemento151 integradoff090938de5a2cd7d8dec856e965a49f2db2ce09 após guard42451366023SUCCESS e revisão semCritical/Important. Reancoragem normal preserva osdoispais d8d368+ff090, semforce. TDDNode RED helperausente1PASS/1FAIL; helpernovo exige tuplasinteirasúnicas, retorna cópiadaexpectativa e deixaoriginal/real intactos. Negativosde7campos,ausências,duplicidades eobjetoestrangeiro preservado. Mudançadeprodutocontinua oúnicoALTER, seteSQLpassaramnoHEADanterior mas novoCIinteiro obrigatóriopendente.
+
+## Checkpoint final comprovado: upload autenticado concluído
+
+Em 08/11/2026, às 05:41:35 UTC, a chamada autenticada `criar_documento_contrato_completo` retornou HTTP 200. A interface exibiu “Concluído” e “Envio concluído. O processamento segue em segundo plano.” O documento permaneceu na lista após recarregar, e o detalhe apresentou a versão 1 e a cadeia de evidência.
+
+### Código, testes e implantação
+
+- PR #150 integrado em `cb074f501b8b0d527bda3c0840248e4e8c589d56`; HEAD testado `46a7b821a4e06cf5b5162513c82e3afc5d9b93a2` é ancestral integrado da main, com migration idêntica ao merge.
+- Guard `42451502833`, histórico `42451502812` e restore `42451502838` aprovados. Jobs de reconstrução `128641498974` e backup `128641498745` SUCCESS. Logs confirmam sete testes UPLOAD_WRAPPER aprovados e HISTORY_CATALOG_PASS.
+- Suíte Node completa: **322/322 PASS**, zero skips. Revisão independente final sem Critical/Important; quatro arquivos do delta conferidos contra os blobs remotos.
+- Deploy controlado `42451722019`, job `128642176181`, SUCCESS. O workflow existente conferiu fonte, hash, manifesto e checks, aplicou exatamente uma migration pela CLI e confirmou paridade global de versões.
+- Migration `20261108054500_fix_document_upload_wrapper.sql`, SHA-256 `5798d972d1592b48c25139e7e489e900831af8fe3ce74c9057b1da7fadbb0f5d`.
+
+O catálogo HML posterior confirma wrapper público DEFINER, owner postgres, search_path vazio, EXECUTE anon=false/authenticated=true. A função privada permanece DEFINER, owner postgres, search_path vazio e EXECUTE anon=false/authenticated=false. Corpos e ACLs foram preservados: MD5 público `76a15744ab7c8e4e2fb11f3e6477e661`, privado `4bd3d0edebe2522b9ced4e1d6c482e9d`.
+
+### Evidência material autenticada
+
+Organização **ContaOS HML Teste**, contrato **AUD-A-VERCEL-20261108**, origem `https://contaos-41-hml.vercel.app`. A ação “Tentar novamente” retomou a criação com o mesmo arquivo já confirmado. Não houve novo envio ao Storage nem duplicação da confirmação. Nenhum JWT ou cookie foi extraído; nenhum backend foi simulado.
+
+| Registro | Identificador |
+| --- | --- |
+| Contrato | `be89ef7e-d839-46c0-9cfb-4da81edf8b74` |
+| Arquivo | `8cc6ac08-7f5b-469c-ab50-7b33d5a12379` |
+| Documento | `525e54fc-feec-4dc0-b540-1510a3c52485` |
+| Versão 1 | `2ea42a44-db27-4c4e-801f-9fc5227c2458` |
+
+Consultas somente de leitura confirmaram **1 objeto, 1 arquivo, 1 documento e 1 versão** próprios. O detalhe mostrou documento ativo, tipo Lista de verificação, arquivo TXT, MIME text/plain e 285 bytes. SHA-256 do TXT local, do arquivo e da versão iguais: `773eb577ba88a260247803d37dced4f5469e8c39347dd3fe7c58c4d9f4681103`.
+
+Capturas e DOM foram preservados nesta execução. Os recibos abaixo não afirmam que os PNGs foram incorporados ao Git:
+
+| Captura | SHA-256 |
+| --- | --- |
+| `upload-persistido-lista.png` | `14f53826dcbbf55e393688fdeb8cf190dfd717ac740890e2af87d704fa9541e1` |
+| `upload-persistido-detalhe.png` | `be6469db13284e05b2a6601d15ee59460083cbaa1f40d23ab5267116a9b9657a` |
+
+[Detalhe autenticado do documento](https://contaos-41-hml.vercel.app/contratos/be89ef7e-d839-46c0-9cfb-4da81edf8b74/documentos/525e54fc-feec-4dc0-b540-1510a3c52485).
+
+### Planejamento da continuidade
+
+**Última etapa concluída:** upload TXT autenticado, confirmação, registro documental, persistência após recarregar e detalhe com cadeia de evidência. Não repetir PRs #145, #147 e #150 nem reimplementar CORS, extração da extensão ou delegação. Estas fixtures não pertencem ao runner #148 e não devem ser eliminadas por limpeza de outro executor. O manifesto fecha novas alterações de banco neste checkpoint.
+
+**Próximas pendências:** processamento e worker reais, verificação de segurança, demais formatos e limites, retomada, novas versões, CRUD e matriz visual/acessibilidade da Trilha A, mediante os respectivos PLAN/GATE. O PR #148 é uma frente independente e não recebe certificação por esta prova.
+
+O arquivo permanece com `status_seguranca=pendente`; processamento **Na fila**, tentativas **0**. Nenhum download foi liberado artificialmente. A prova não certifica V1, matriz 232/72 ou CRUD global. PROD permanece intacto.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: correção de backend com impacto visual N/A; prova material na interface existente, sem novo turno Lovable e sem reduzir guards, RBAC, RLS ou JWT.

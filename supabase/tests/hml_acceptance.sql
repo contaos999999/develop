@@ -247,5 +247,57 @@ select 'UPLOAD_WRAPPER','Negativas sem efeitos persistidos',counts=array[
  (select count(*) from public.execucoes_assincronas),
  (select count(*) from public.eventos_auditoria)],'cinco tabelas sem delta' from wrapper_counts;
 
+-- GATE158: managed grants are accepted; SQL metadata is not an API-access proof.
+insert into contaos_testes
+select 'WORKER_RUNTIME','pg_net fora de public com assinatura oficial',
+ exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions')
+ and to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is not null,'metadata real sem HTTP';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Scheduler postgres preservado',has_schema_privilege('postgres','net','USAGE')
+ and has_function_privilege('postgres','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'),'capacidade oficial preservada';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Clientes sem LOGIN SQL direto',count(*)=2 and bool_and(not rolcanlogin),'não certifica API' from pg_roles where rolname in ('anon','authenticated');
+insert into contaos_testes
+select 'WORKER_RUNTIME','LOGIN restrito aos serviços nominais confiáveis',not exists(select 1 from pg_roles where rolcanlogin and rolname not in ('authenticator','pgbouncer','postgres','supabase_admin','supabase_auth_admin','supabase_etl_admin','supabase_functions_admin','supabase_read_only_user','supabase_replication_admin','supabase_storage_admin')),'inventário fechado';
+insert into contaos_testes
+select 'WORKER_RUNTIME','Owner gerenciado preservado',exists(select 1 from pg_namespace where nspname='net' and pg_get_userbyid(nspowner)='supabase_admin'),'nenhum ownership alterado';
+
+-- Real RPC pagination checks, own transaction fixtures, no retained writes.
+create or replace function pg_temp.documentos_paginacao(a integer,b integer,c integer,d integer)
+returns text language plpgsql security invoker set search_path='' as $$
+begin
+ perform public.obter_documentos_competencia_v115('aaaaaaaa-2000-4000-8000-000000000001',a,b,c,d);
+ return '00000';
+exception when others then return sqlstate; end; $$;
+create or replace function pg_temp.analise_paginacao(a integer,b integer,c integer,d integer,e integer,f integer)
+returns text language plpgsql security invoker set search_path='' as $$
+begin
+ perform public.obter_analise_competencia_v116('aaaaaaaa-2000-4000-8000-000000000001',a,b,c,d,e,f);
+ return '00000';
+exception when others then return sqlstate; end; $$;
+grant execute on function pg_temp.documentos_paginacao(integer,integer,integer,integer),pg_temp.analise_paginacao(integer,integer,integer,integer,integer,integer) to authenticated;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
+insert into contaos_testes values('NULL_PAGINATION','documentos NULL argumento 1',pg_temp.documentos_paginacao(null,25,0,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','documentos NULL argumento 2',pg_temp.documentos_paginacao(0,null,0,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','documentos NULL argumento 3',pg_temp.documentos_paginacao(0,25,null,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','documentos NULL argumento 4',pg_temp.documentos_paginacao(0,25,0,null)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','documentos paginação válida',pg_temp.documentos_paginacao(0,25,0,25)='00000','controle positivo');
+insert into contaos_testes values('NULL_PAGINATION','analise NULL argumento 1',pg_temp.analise_paginacao(null,25,0,10,0,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','analise NULL argumento 2',pg_temp.analise_paginacao(0,null,0,10,0,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','analise NULL argumento 3',pg_temp.analise_paginacao(0,25,null,10,0,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','analise NULL argumento 4',pg_temp.analise_paginacao(0,25,0,null,0,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','analise NULL argumento 5',pg_temp.analise_paginacao(0,25,0,10,null,25)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','analise NULL argumento 6',pg_temp.analise_paginacao(0,25,0,10,0,null)='PT400','rejeição exata');
+insert into contaos_testes values('NULL_PAGINATION','analise paginação válida',pg_temp.analise_paginacao(0,25,0,10,0,25)='00000','controle positivo');
+select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated","session_id":"bbbbbbbb-2222-4222-8222-222222222222","aal":"aal1"}',true);
+insert into contaos_testes values('NULL_PAGINATION','documentos isolamento antes da validação',pg_temp.documentos_paginacao(null,25,0,25)='42501','organização B não enumera A');
+insert into contaos_testes values('NULL_PAGINATION','analise isolamento antes da validação',pg_temp.analise_paginacao(null,25,0,10,0,25)='42501','organização B não enumera A');
+reset role;
+select set_config('request.jwt.claim.sub','',true);
+select set_config('request.jwt.claims','{}',true);
+
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;

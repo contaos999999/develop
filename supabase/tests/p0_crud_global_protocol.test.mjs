@@ -9,6 +9,161 @@ const root=resolve('.');
 
 import {spawnSync} from 'node:child_process';
 const browser='supabase/tests/p0_crud_global_browser.mjs';
+test('NULL pagination correction preserves entire approved RPC definitions except two exact guards',()=>{
+ const prior=readFileSync('supabase/migrations/20261106014102_p0_v1_rbac_persistente.sql','utf8');
+ const actual=readFileSync('supabase/migrations/20261108114652_p0_null_pagination_guard.sql','utf8');
+ const rules=[
+  ['privado.obter_documentos_competencia_v115','if p_documentos_offset < 0','if p_documentos_offset is null or p_requisitos_offset is null or p_documentos_limite is null or p_requisitos_limite is null or p_documentos_offset < 0'],
+  ['public.obter_analise_competencia_v116','if p_resultados_offset<0','if p_resultados_offset is null or p_execucoes_offset is null or p_apontamentos_offset is null or p_resultados_limite is null or p_execucoes_limite is null or p_apontamentos_limite is null or p_resultados_offset<0']
+ ];
+ const definition=(source,name)=>{const start=source.indexOf('CREATE OR REPLACE FUNCTION '+name+'(');assert(start>=0,'required exact RPC');const body=source.indexOf('AS $function$',start);const end=source.indexOf('$function$',body+'AS $function$'.length);assert(end>body);const semicolon=source.indexOf(';',end);return source.slice(start,semicolon+1);};
+ for(const [name,before,after] of rules){const original=definition(prior,name);assert(original.includes(before));assert.equal(definition(actual,name),original.replace(before,after));}
+ assert.equal((actual.match(/CREATE OR REPLACE FUNCTION/g)||[]).length,2);
+ assert(!/\bGRANT\b|\bREVOKE\b|\bDROP\b|\bALTER\s+(?:ROLE|TABLE|POLICY)/i.test(actual));
+ assert(actual.includes('76611a9a23e0d9bebf09aa1e0aa44093')&&actual.includes('84aaf91cce67651a5cbb3ecd16f8eaa2'));
+});
+test('worker runtime migration uses only the explicitly approved managed extension contract',()=>{
+ const file='supabase/migrations/20261108060000_restore_document_worker_pg_net.sql';
+ assert(existsSync(file),'approved worker runtime migration required');
+ assert.equal(readFileSync(file,'utf8').replace(/^--.*$/gm,'').trim(),`BEGIN;
+CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
+COMMIT;`);
+});
+test('actual local network helper rejects foreign runner, remote credentials and unsafe attachments before Supabase',()=>{
+ const helper=resolve('scripts/isolated-db-network.sh');assert(existsSync(helper),'native local containment helper required');
+ const dir=mkdtempSync(join(tmpdir(),'contaos-native-local-'));
+ try{
+  const bin=join(dir,'bin');mkdirSync(bin);
+  const network='contaos-proof-123-1-restore';
+  const labels={'com.contaos.scope':'isolated-db-proof','com.contaos.run':'123','com.contaos.attempt':'1','com.contaos.job':'restore'};
+  const good={Name:network,Internal:false,EnableIPv6:false,Labels:labels,IPAM:{Config:[{Subnet:'172.29.0.0/16'}]}};
+  const docker=join(bin,'docker');writeFileSync(docker,`#!/usr/bin/env python3
+import os,sys,json
+with open(os.environ['CALLS'],'a') as f:f.write('docker\\n')
+if sys.argv[1:3]==['network','inspect']:print(open(os.environ['NETWORK_FIXTURE']).read())
+elif sys.argv[1]=='inspect':print(json.dumps([{'Name':'/supabase_db_contaos-hml-local','NetworkSettings':{'Networks':{'${network}':{},'bridge':{}}}}]))
+else:sys.exit(92)
+`);chmodSync(docker,0o700);
+  const supabase=join(bin,'supabase');writeFileSync(supabase,"#!/bin/sh\nprintf 'SUPABASE\\n' >> \"$CALLS\"\nexit 93\n");chmodSync(supabase,0o700);
+  for(const [index,[extra,metadata]] of [
+   [{GITHUB_REPOSITORY:'outsider/fork'},good],
+   [{DATABASE_URL:'postgresql://PRIVATE_CANARY'},good],
+   [{SUPABASE_DB_URL:'PRIVATE_CANARY'},good],
+   [{SUPABASE_ACCESS_TOKEN:'PRIVATE_CANARY'},good],
+   [{GITHUB_JOB:'unknown'},good],
+   [{},{...good,Internal:true}],
+   [{},{...good,EnableIPv6:true}],
+   [{},{...good,Labels:{...labels,'com.contaos.run':'another'}}],
+   [{},good]
+  ].entries()){
+   const calls=join(dir,'calls');writeFileSync(calls,'');const fixture=join(dir,'network.json');writeFileSync(fixture,JSON.stringify([metadata]));
+   const r=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env:{PATH:bin+':'+process.env.PATH,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'contaos999999/develop',GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',GITHUB_JOB:'restore',CALLS:calls,NETWORK_FIXTURE:fixture,...extra},encoding:'utf8',timeout:10000});
+   assert.notEqual(r.status,0,'unsafe case '+index+' must fail');assert(!readFileSync(calls,'utf8').includes('SUPABASE'));assert(!r.stdout.includes('PASS_NATIVE'));assert(!r.stderr.includes('PRIVATE_CANARY'));
+   if(index<5)assert.equal(readFileSync(calls,'utf8'),'','runner/credential guards precede Docker');
+  }
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('actual TCP containment bootstrap verifies kernel policy before allowing CLI start',()=>{
+ const helper=resolve('scripts/isolated-db-network.sh'),dir=mkdtempSync(join(tmpdir(),'contaos-firewall-bootstrap-'));
+ try{
+  const bin=join(dir,'bin');mkdirSync(bin);const network='contaos-proof-123-1-restore';
+  const metadata={Name:network,Internal:false,EnableIPv6:false,Labels:{'com.contaos.scope':'isolated-db-proof','com.contaos.run':'123','com.contaos.attempt':'1','com.contaos.job':'restore'},IPAM:{Config:[{Subnet:'172.29.0.0/16'}]}};
+  writeFileSync(join(dir,'network.json'),JSON.stringify([metadata]));
+  writeFileSync(join(bin,'docker'),`#!/usr/bin/env python3
+import os,sys
+if sys.argv[1:3]==['network','inspect']:print(open('network.json').read())
+else:sys.exit(1)
+`);chmodSync(join(bin,'docker'),0o700);
+  writeFileSync(join(bin,'sudo'),`#!/usr/bin/env python3
+import json,os,sys,shlex
+assert sys.argv[1:5]==['-n','iptables','-w','5']
+a=sys.argv[5:];path='kernel.json';state=json.load(open(path));op,chain=a[:2]
+with open('lifecycle','a') as f:f.write('KERNEL '+op+' '+chain+'\\n')
+if op=='-S':
+ if chain not in state:sys.exit(1)
+ print(('-P '+chain+' ACCEPT') if chain in ('INPUT','FORWARD') else '-N '+chain)
+ for row in state[chain]:print(shlex.join(['-A',chain,*row]))
+elif op=='-N':assert chain not in state;state[chain]=[]
+elif op=='-A':state[chain].append(a[2:])
+elif op=='-I':assert a[2]=='1';state[chain].insert(0,a[3:])
+else:sys.exit(90)
+json.dump(state,open(path,'w'))
+`);chmodSync(join(bin,'sudo'),0o700);
+  writeFileSync(join(bin,'supabase'),"#!/bin/sh\nprintf 'SUPABASE_START\\n' >> lifecycle\nexit 93\n");chmodSync(join(bin,'supabase'),0o700);
+  const env={PATH:bin+':'+process.env.PATH,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'contaos999999/develop',GITHUB_RUN_ID:'123',GITHUB_RUN_ATTEMPT:'1',GITHUB_JOB:'restore'};
+  writeFileSync(join(dir,'kernel.json'),JSON.stringify({INPUT:[],FORWARD:[['-j','DOCKER-USER']], 'DOCKER-USER':[]}));writeFileSync(join(dir,'lifecycle'),'');
+  const r=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env,encoding:'utf8',timeout:10000});
+  assert.equal(r.status,1,'CLI failure remains failure');const lifecycle=readFileSync(join(dir,'lifecycle'),'utf8');assert(lifecycle.includes('KERNEL -S INPUT'));assert(lifecycle.trim().endsWith('SUPABASE_START'),'verified native bootstrap must precede CLI');assert(!r.stdout.includes('PASS_NATIVE'));
+  const state=JSON.parse(readFileSync(join(dir,'kernel.json'),'utf8'));const chain=Object.keys(state).find(k=>k.startsWith('CTOS_'));assert(chain);state[chain].push(['-j','ACCEPT']);writeFileSync(join(dir,'kernel.json'),JSON.stringify(state));writeFileSync(join(dir,'lifecycle'),'');
+  const bad=spawnSync('bash',[helper,'run','db','start'],{cwd:dir,env,encoding:'utf8',timeout:10000});assert.notEqual(bad.status,0);assert(!readFileSync(join(dir,'lifecycle'),'utf8').includes('SUPABASE_START'),'divergent existing policy cannot be overwritten or bypassed');
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('native TCP control rejects tool errors, ambiguous status and missing packet or receiver proof',()=>{
+ const source=String.raw`import ast,pathlib
+s=pathlib.Path('scripts/isolated-db-network.sh').read_text().split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0]
+tree=ast.parse(s);f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='validate_tcp_controls');ns={};exec(compile(ast.Module(body=[f],type_ignores=[]),'<real-native-validator>','exec'),ns);v=ns['validate_tcp_controls']
+assert v(0,2,3,0) is True
+for args in [(2,2,3,0),(0,0,3,0),(0,1,3,0),(0,3,3,0),(0,127,3,0),(0,143,3,0),(0,2,0,0),(0,2,3,1),(False,2,3,0),(0,'2',3,0)]:assert v(*args) is False,args
+print('NATIVE_TCP_STATUS_GUARD_PASS')`;
+ const r=spawnSync('python3',['-c',source],{env:{PATH:process.env.PATH},encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/NATIVE_TCP_STATUS_GUARD_PASS/);
+});
+test('actual TCP probe starts pg_isready without inherited libpq service or password',()=>{
+ const code=String.raw`import ast,pathlib,tempfile,subprocess,os
+s=pathlib.Path('scripts/isolated-db-network.sh').read_text().split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0];tree=ast.parse(s);f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='tcp_probe')
+with tempfile.TemporaryDirectory() as d:
+ tool=pathlib.Path(d)/'pg_isready';tool.write_text("#!/usr/bin/env python3\nimport os\nassert 'PGSERVICE' not in os.environ and 'PGPASSWORD' not in os.environ\nassert os.environ.get('PGPASSFILE')=='/dev/null'\nassert not any('PRIVATE_CANARY' in value for value in os.environ.values())\nprint('PQ_PING_CREDENTIAL_ISOLATION_PASS')\n");tool.chmod(0o700)
+ def capture(argv):
+  assert argv[:2]==['docker','exec'];args=argv[2:];env={'PATH':d+':'+os.environ['PATH'],'PGSERVICE':'PRIVATE_CANARY','PGPASSWORD':'PRIVATE_CANARY'}
+  while args[0]=='-e':key,value=args[1].split('=',1);env[key]=value;args=args[2:]
+  assert args[0]=='own-container';return subprocess.run(args[1:],env=env,capture_output=True,text=True,timeout=5)
+ ns={'capture':capture,'container':'own-container'};exec(compile(ast.Module(body=[f],type_ignores=[]),'<actual-tcp-probe>','exec'),ns);r=ns['tcp_probe']('127.0.0.1','5432');assert r.returncode==0,r.stderr;print(r.stdout.strip())`;
+ const r=spawnSync('python3',['-c',code],{env:{PATH:process.env.PATH},encoding:'utf8'});assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/PQ_PING_CREDENTIAL_ISOLATION_PASS/);
+});
+test('actual backup cleanup covers a helper failure after the local database starts',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'contaos-backup-start-fail-'));
+ try{
+  for(const p of ['scripts','supabase','.github/workflows','bin'])mkdirSync(join(dir,p),{recursive:true});
+  copyFileSync('scripts/p0-v1-synthetic-data-restore.sh',join(dir,'scripts/p0-v1-synthetic-data-restore.sh'));
+  writeFileSync(join(dir,'supabase/config.toml'),'project_id="contaos-hml-local"\n');writeFileSync(join(dir,'.github/workflows/restore-isolado.yml'),'local fixture\n');
+  writeFileSync(join(dir,'scripts/isolated-db-network.sh'),`#!/bin/bash
+set -eu
+if [[ "$*" == 'run db start' ]]; then touch resource; printf 'STARTED\\n' >> lifecycle; exit 45; fi
+if [[ "$*" == 'run stop --no-backup' ]]; then printf 'CLEANUP_ATTEMPT\\n' >> lifecycle; rm -f resource; exit 0; fi
+exit 46
+`);
+  for(const name of ['supabase','docker','psql']){writeFileSync(join(dir,'bin',name),'#!/bin/sh\nexit 0\n');chmodSync(join(dir,'bin',name),0o700);}
+  const r=spawnSync('bash',['scripts/p0-v1-synthetic-data-restore.sh'],{cwd:dir,env:{PATH:join(dir,'bin')+':'+process.env.PATH,GITHUB_ACTIONS:'true',GITHUB_REPOSITORY:'contaos999999/develop'},encoding:'utf8',timeout:10000});
+  assert.notEqual(r.status,0);assert.deepEqual(readFileSync(join(dir,'lifecycle'),'utf8').trim().split('\n'),['STARTED','CLEANUP_ATTEMPT']);assert(!existsSync(join(dir,'resource')));
+  assert.match(readFileSync(join(dir,'restore-proof-synthetic/result.txt'),'utf8'),/status=FAIL_OR_INCOMPLETE/);
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('actual prepare rejects unavailable or exposed worker runtime before any Auth or fixture',()=>{
+ const code=String.raw`import importlib.util,json,tempfile
+from pathlib import Path
+s=importlib.util.spec_from_file_location('protocol','supabase/tests/p0_crud_global_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+keys=('extension_ready','http_post_ready','client_logins_closed','scheduler_ready','destination_is_hml','client_attack_surface')
+good=dict.fromkeys(keys,True)
+cases=[good,{},dict(good,unexpected=True),{k:v for k,v in good.items() if k!='client_attack_surface'}]+[{**good,k:v} for k in keys for v in (False,None,'true',1)]
+class StopFixture(Exception):pass
+for i,metadata in enumerate(cases):
+ with tempfile.TemporaryDirectory() as d:
+  r=object.__new__(m.Runner);r.root=Path(d);r.batch='DOCUMENTOS';r.material_enabled=True;r.report={'assertions':[]};effects=[];queries=[]
+  def sql(source,fetch=False):
+   assert fetch is True;queries.append(source);return json.dumps(metadata)
+  def save(name,data):
+   if name=='fixture.json':effects.append('fixture');raise StopFixture()
+  def request(*args,**kwargs):effects.append('AUTH');raise AssertionError('Auth must not be reached')
+  r.sql=sql;r.save=save;r.request=request;r.read_document_api_boundary=lambda:(406,{'code':'PGRST106'})
+  try:r.prepare()
+  except StopFixture:assert i==0 and effects==['fixture']
+  except RuntimeError:assert i!=0 and effects==[]
+  else:raise AssertionError('prepare must stop at runtime or first fixture boundary')
+  assert len(queries)==1 and 'net.http_post' in queries[0] and 'vault.decrypted_secrets' in queries[0]
+  assert r.report['assertions']==([{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':True,'http':None},{'name':'DOCUMENT_WORKER_API_SCHEMA_BLOCKED_ANON','passed':True,'http':406}] if i==0 else [{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':False,'http':None}])
+print('WORKER_RUNTIME_PRE_AUTH_PASS',len(cases))`;
+ const r=spawnSync('python3',['-c',code],{env:{PATH:process.env.PATH},encoding:'utf8'});
+ assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/WORKER_RUNTIME_PRE_AUTH_PASS 28/);
+});
 test('browser protocol exists before any privileged run',async()=>{
   assert(existsSync(browser),'CRUD browser protocol missing');
   const m=await import('./p0_crud_global_browser.mjs');
@@ -795,6 +950,23 @@ test('late fence failure survives cleanup and is written to its original publish
   assert.equal(smoke.state,'FAIL');assert.equal(smoke.published_fence.failed,true);assert.equal(local.published_fence,undefined);assert.equal(localSaves,0);assert.equal(smokeSaves,1);
   for(const state of ['PASS_BATCH','PASS_PUBLIC_PROBE','PASS_SMOKE']){const report={state};assert.equal(finalizePublishedFence(report,snapshot),true);assert.equal(report.state,'FAIL');assert.equal(report.failure_code,'FENCE_LATE_PUBLISHED_FAILURE');}
   assert.equal(finalizePublishedFence({state:'PASS_BATCH'},{failed:false}),false);
+});
+test('real pg_net wait handles a queued batch beyond ten seconds and fails without its own denied response',()=>{
+ const code=String.raw`import ast,pathlib,types
+s=pathlib.Path('scripts/isolated-db-network.sh').read_text().split("<<'PY'\n",1)[1].rsplit('\nPY',1)[0];tree=ast.parse(s)
+f=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='wait_own_pg_net_denial')
+for ready,expected in [(12,True),(None,False)]:
+ clock=[0];calls=[]
+ def query(sql):
+  calls.append(sql);assert 'id=123' in sql and 'status_code is null' in sql and 'timed_out or error_msg is not null' in sql
+  return 't' if ready is not None and clock[0]>=ready else 'f'
+ ns={'time':types.SimpleNamespace(monotonic=lambda:clock[0],sleep=lambda t:clock.__setitem__(0,clock[0]+t)),'local_sql':query}
+ exec(compile(ast.Module(body=[f],type_ignores=[]),'<actual-pg-net-wait>','exec'),ns)
+ assert ns['wait_own_pg_net_denial']('123') is expected
+ assert calls and clock[0]<=46
+ if expected:assert clock[0]>=12
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
 });
 
 test('expired global deadline during backend proof blocks published credentials and local uploads',async()=>{

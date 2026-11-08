@@ -138,6 +138,12 @@ jobs:
           if extra:sys.exit('::error::Remote history has versions absent from GitHub: '+str(len(extra)))
           print('PASS: exactly one pending CLI migration; no orphan remote versions')
           PY
+      - name: Worker API boundary before deploy
+        if: env.OPERATION == 'deploy_one' && env.TARGET_VERSION == '20261108060000'
+        env:
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY }}
+        shell: bash
+        run: python3 supabase/tests/worker_api_boundary_hml.py --stage preinstall --report "$RUNNER_TEMP/contaos-worker-boundary/preinstall-report.json"
       - name: Deploy only approved CLI migration
         if: env.OPERATION == 'deploy_one'
         shell: bash
@@ -146,6 +152,12 @@ jobs:
           npx --yes supabase@2.81.3 db push --db-url "$DATABASE_URL" --yes
           test "$(psql "$DATABASE_URL" -X -v ON_ERROR_STOP=1 -Atqc "SELECT count(*) FROM supabase_migrations.schema_migrations WHERE version='$TARGET_VERSION'")" = 1
           echo 'PASS: exactly one target migration history row'
+      - name: Worker API boundary after deploy
+        if: env.OPERATION == 'deploy_one' && env.TARGET_VERSION == '20261108060000'
+        env:
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY }}
+        shell: bash
+        run: python3 supabase/tests/worker_api_boundary_hml.py --stage postinstall --report "$RUNNER_TEMP/contaos-worker-boundary/postinstall-report.json"
       - name: Verify global local/remote history parity
         shell: bash
         run: |
@@ -158,3 +170,11 @@ jobs:
           print('PASS: every HML migration version matches a GitHub migration filename')
           PY
 
+      - name: Publish sanitized worker API boundary proof
+        if: always() && env.OPERATION == 'deploy_one' && env.TARGET_VERSION == '20261108060000'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: contaos-worker-api-boundary
+          path: ${{ runner.temp }}/contaos-worker-boundary/*-report.json
+          if-no-files-found: error
+          retention-days: 30

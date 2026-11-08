@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'supabase/tests/worker_api_boundary*'
+      - 'supabase/tests/worker_client_privileges*'
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
       - 'supabase/tests/p0_crud_listas*'
@@ -22,6 +24,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'supabase/tests/worker_api_boundary*'
+      - 'supabase/tests/worker_client_privileges*'
       - 'supabase/config.toml'
       - 'supabase/migrations/**'
       - 'supabase/tests/p0_crud_cadastros*'
@@ -63,28 +67,51 @@ jobs:
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo CRUD global sem rede ou credenciais
-        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |
           node supabase/tests/p0_v117_revisao_browser.mjs --self-test
           python3 -m py_compile supabase/tests/p0_v117_revisao_jwt.py
-      - name: Instalar Supabase CLI fixada
-        uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1
-        with:
-          version: 2.122.0
+      - name: Instalar Supabase CLI fixada pelo pacote oficial
+        shell: bash
+        run: |
+          set -euo pipefail
+          CLI_ROOT="$RUNNER_TEMP/contaos-cli-pinned"
+          npm install --prefix "$CLI_ROOT" --no-save --no-package-lock --ignore-scripts supabase@2.122.0
+          test "$("$CLI_ROOT/node_modules/.bin/supabase" --version)" = '2.122.0'
+          echo "$CLI_ROOT/node_modules/.bin" >> "$GITHUB_PATH"
 
       - name: Registrar versão da CLI
-        run: supabase --version
+        run: test "$(supabase --version)" = '2.122.0'
 
       - name: Preparar evidências
         run: mkdir -p restore-proof
 
       - name: Iniciar PostgreSQL Supabase isolado
-        run: supabase db start
+        run: bash scripts/isolated-db-network.sh run db start
 
       - name: Recriar banco a partir das migrations versionadas
-        run: supabase db reset --local --no-seed
+        run: bash scripts/isolated-db-network.sh run db reset --local --no-seed
+
+      - name: Worker client privilege catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import importlib.util,json,os,subprocess
+          from pathlib import Path
+          spec=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py')
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          try:
+            result=subprocess.run(['psql','postgresql://postgres:postgres@127.0.0.1:54322/postgres','-X','-qAt','-v','ON_ERROR_STOP=1'],input='BEGIN READ ONLY;'+module.client_attack_surface_sql()+';ROLLBACK;',text=True,capture_output=True,timeout=20)
+            passed=result.returncode==0 and result.stdout.strip()=='t'
+          except (OSError,subprocess.TimeoutExpired):
+            passed=False
+          Path('restore-proof/worker-client-privileges.json').write_text(json.dumps({'state':'PASS' if passed else 'FAIL','head':os.environ['GITHUB_SHA'],'catalog_only':True})+'\n')
+          print('WORKER_CLIENT_PRIVILEGES_'+('PASS' if passed else 'FAIL'))
+          if not passed:raise SystemExit(1)
+          PY
 
       - name: Teste 1 - Aceitação HML
         shell: bash
@@ -278,7 +305,7 @@ jobs:
       - name: Registrar histórico reconstruído
         shell: bash
         run: |
-          supabase migration list --local | tee restore-proof/migration-list.txt
+          bash scripts/isolated-db-network.sh run migration list --local | tee restore-proof/migration-list.txt
           printf 'commit=%s\n' "${GITHUB_SHA}" > restore-proof/resultado.txt
           printf 'status=PASS\n' >> restore-proof/resultado.txt
           printf 'criterio=db reset local + suites HML/seguranca concluídas sem erro\n' >> restore-proof/resultado.txt

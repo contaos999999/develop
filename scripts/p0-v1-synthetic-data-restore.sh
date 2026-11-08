@@ -21,7 +21,7 @@ cleanup() {
   local result="$?"
   trap - EXIT
   if (( started )); then
-    if supabase stop --no-backup > "$PROOF_DIR/cleanup.log" 2>&1; then
+    if bash scripts/isolated-db-network.sh run stop --no-backup > "$PROOF_DIR/cleanup.log" 2>&1; then
       started=0
     else
       echo '::error::Falha ao parar instância local; não limpar temporários.' >&2
@@ -66,9 +66,9 @@ verify_base() {
 printf 'scope=LOCAL_GITHUB_ACTIONS_ONLY\nrepo=%s\nhead=%s\n' "$GITHUB_REPOSITORY" "${GITHUB_SHA:-unknown}" > "$PROOF_DIR/result.txt"
 
 # Instância A: migrations canônicas e um registro próprio.
-supabase db start
 started=1
-supabase db reset --local --no-seed
+bash scripts/isolated-db-network.sh run db start
+bash scripts/isolated-db-network.sh run db reset --local --no-seed
 [[ "$(verify_base source)" == '0' ]] || { echo '::error::Origem deve estar vazia.' >&2; exit 1; }
 first="$(container_id)"
 probe_id="$(python3 -c 'import uuid;print(uuid.uuid4())')"
@@ -90,15 +90,15 @@ grep -Eq 'TABLE DATA public organizacoes' "$PROOF_DIR/archive-toc.txt" || { echo
 sha256sum "$TEMP_DIR/synthetic.dump" | awk '{print $1}' > "$PROOF_DIR/archive.sha256"
 
 # Destruição real do container A e do volume local; nunca --remote/--linked.
-supabase stop --no-backup
+bash scripts/isolated-db-network.sh run stop --no-backup
 started=0
 [[ -z "$(docker ps -q --no-trunc --filter "id=$first")" ]] || { echo '::error::Origem ainda ativa.' >&2; exit 1; }
 
 # Instância B: container diferente, schema reconstruído do zero.
 start_epoch="$(date +%s)"
-supabase db start
 started=1
-supabase db reset --local --no-seed
+bash scripts/isolated-db-network.sh run db start
+bash scripts/isolated-db-network.sh run db reset --local --no-seed
 # db reset pode recriar o container: resolver o ID somente DEPOIS do reset.
 second="$(container_id)"
 [[ "$second" != "$first" ]] || { echo '::error::Container antigo reutilizado.' >&2; exit 1; }
