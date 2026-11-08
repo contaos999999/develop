@@ -36,16 +36,25 @@ async function boundedPublicText(fetcher,url,maximum){
 export async function inspectPublishedBackend(fetcher,analyzer){
   try{
     const html=await boundedPublicText(fetcher,PUBLISHED_ORIGIN+'/login',262144);
-    // HTML is never executed here. Reject inline modules, foreign scripts, base URLs and ambiguous attributes.
-    assert(!/<base\b/i.test(html));const entries=[];
+    // Every executable script participates in inert analysis; no auxiliary script is ignored.
+    assert(!/<base\b/i.test(html));const entries=[],modules=new Map();let total=0;
+    const allowedScriptPath=p=>p.startsWith('/assets/')||p==='/~flock.js'||/^\/__l5e\/events\.[a-f0-9]+\.js$/.test(p);
     for(const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)){
       const attrs=[...match[1].matchAll(/([\w-]+)\s*=\s*(["'])(.*?)\2/g)];
       const values=new Map();for(const [,key,,value] of attrs){assert(!values.has(key.toLowerCase()));values.set(key.toLowerCase(),value);}
-      if(['application/json','application/ld+json'].includes(values.get('type')))continue;assert.equal(values.get('type'),'module');
-      assert(values.has('src')&&!match[2].trim());const raw=values.get('src');assert(!/[&<>\s]/.test(raw));
-      const url=new URL(raw,PUBLISHED_ORIGIN+'/login');assert.equal(url.origin,PUBLISHED_ORIGIN);assert(url.pathname.startsWith('/assets/')&&!url.search&&!url.hash);entries.push(url.href);
+      const type=values.get('type');if(['application/json','application/ld+json'].includes(type))continue;
+      assert(type===undefined||['module','text/javascript','application/javascript'].includes(type));
+      if(values.has('src')){
+        assert(!match[2].trim());const raw=values.get('src');assert(!/[&<>\s]/.test(raw));
+        const url=new URL(raw,PUBLISHED_ORIGIN+'/login');assert.equal(url.origin,PUBLISHED_ORIGIN);assert(allowedScriptPath(url.pathname)&&!url.username&&!url.password&&!url.search&&!url.hash);entries.push(url.href);
+      }else{
+        assert(!/\bsrc\b/i.test(match[1]),'Ambiguous script source');const source=match[2];if(!source.trim())continue;
+        assert(Buffer.byteLength(source)<=262144);total+=Buffer.byteLength(source);
+        const id=PUBLISHED_ORIGIN+'/assets/__inline_'+createHash('sha256').update(source).digest('hex')+'.js';assert(!modules.has(id));modules.set(id,source);entries.push(id);
+      }
     }
-    assert(entries.length>0&&entries.length<=8);const modules=new Map(),pending=[...new Set(entries)];let total=0;
+    assert(entries.length>0&&entries.length<=16);const pending=[...new Set(entries.filter(e=>!modules.has(e)))];
+    for(const [url,source] of modules)for(const name of analyzer.imports(source)){const child=new URL(name,url);assert.equal(child.origin,PUBLISHED_ORIGIN);assert(child.pathname.startsWith('/assets/')&&!child.search&&!child.hash);pending.push(child.href);}
     while(pending.length){
       const url=pending.shift();if(modules.has(url))continue;assert(modules.size<32);
       const source=await boundedPublicText(fetcher,url,4194304);total+=Buffer.byteLength(source);assert(total<=8388608);modules.set(url,source);
