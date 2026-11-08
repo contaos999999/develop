@@ -90,7 +90,7 @@ print(json.dumps({'sha':os.environ['LIVE_HEAD']} if sys.argv[-1].endswith('/comm
   for(const kind of ['valid','missing','failed','stale_check','advanced_head']){
    const checks=names.filter(n=>kind!=='missing'||n!=='guard').map(name=>({name,head_sha:kind==='stale_check'?'b'.repeat(40):sha,conclusion:kind==='failed'?'failure':'success'}));
    writeFileSync(join(dir,'checks.json'),JSON.stringify({check_runs:checks}));
-   const r=spawnSync('bash',['-e','-o','pipefail','-c',gate],{cwd:dir,env:{PATH:join(dir,'bin')+':'+process.env.PATH,SOURCE_ROOT:root,TESTED_HEAD:sha,LIVE_HEAD:kind==='advanced_head'?'b'.repeat(40):sha,DOMAIN:'base_normativa',CHECKS_FILE:join(dir,'checks.json')},encoding:'utf8'});
+   const r=spawnSync('bash',['-e','-o','pipefail','-c',gate],{cwd:dir,env:{PATH:join(dir,'bin')+':'+process.env.PATH,SOURCE_ROOT:root,TESTED_HEAD:sha,LIVE_HEAD:kind==='advanced_head'?'b'.repeat(40):sha,DOMAIN:'base_normativa',CHECKS_FILE:join(dir,'checks.json'),RUNNER_TEMP:dir,GITHUB_ENV:join(dir,'env')},encoding:'utf8'});
    assert.equal(r.status===0,kind==='valid',r.stderr);assert.equal(r.stdout.includes('HEAD_MANIFEST_PRESERVED_PROOF_CHECKS_SUCCESS'),kind==='valid');
   }
  }finally{rmSync(dir,{recursive:true,force:true});}
@@ -101,4 +101,8 @@ test('Restore executes new domain gates and competency cannot pass without snaps
 required=m.REQUIRED['competencias']['checks']
 for n in ['COMPETENCE_SNAPSHOT_MATERIALIZED','COMPETENCE_SNAPSHOT_IMMUTABLE','COMPETENCE_SNAPSHOT_TENANT_ISOLATED','COMPETENCE_SNAPSHOT_SQL']:assert n in required
 print('SNAPSHOT_AND_CI_GUARD_PASS')`);assert.equal(r.status,0,r.stderr);
+});
+test('runner context is resolved on runner steps rather than invalid job env',()=>{
+ const job=section('domain-proof');const beforeSteps=job.slice(0,job.indexOf('    steps:'));assert.doesNotMatch(beforeSteps,/\$\{\{\s*runner\./);
+ const [gate]=scripts(job);assert.match(gate,/os.environ\['RUNNER_TEMP'\]/);assert.match(gate,/GITHUB_ENV/);
 });

@@ -108,7 +108,6 @@ jobs:
       TESTED_HEAD: ${{ github.event.workflow_run.head_sha }}
       FRONTEND_HEAD: 164b10b44eaf5b553efcc7ab4e053b86c4d3b269
       DOMAIN: ${{ matrix.domain }}
-      CONTAOS_TEST_PRIVATE_DIR: ${{ runner.temp }}/contaos-remaining-${{ matrix.domain }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -133,6 +132,8 @@ jobs:
           checks=api('commits/'+sha+'/check-runs?per_page=100')['check_runs']
           for name in ['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias']:
               assert any(c['name']==name and c['head_sha']==sha and c['conclusion']=='success' for c in checks),name
+          private=pathlib.Path(os.environ['RUNNER_TEMP'])/('contaos-remaining-'+os.environ['DOMAIN'])
+          with open(os.environ['GITHUB_ENV'],'a') as out:out.write('CONTAOS_TEST_PRIVATE_DIR='+str(private)+'\n')
           print('HEAD_MANIFEST_PRESERVED_PROOF_CHECKS_SUCCESS')
           PY
       - name: Complete migration parity and real own JWT domain proof
@@ -156,13 +157,13 @@ jobs:
           unset GH_TOKEN
           python3 supabase/tests/p0_crud_global_remaining_hml.py --domain "$DOMAIN"
       - name: Independent own quarantine and cleanup receipt
-        if: always()
+        if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''
         env:
           DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
           AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY || secrets.CONTAOS_HML_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python3 supabase/tests/p0_crud_global_remaining_hml.py --domain "$DOMAIN" --cleanup
       - name: Sanitized independent domain receipts only
-        if: always()
+        if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: contaos-remaining-${{ matrix.domain }}-sanitized
@@ -172,5 +173,5 @@ jobs:
           if-no-files-found: error
           retention-days: 30
       - name: Erase only own private runner files
-        if: always()
+        if: always() && env.CONTAOS_TEST_PRIVATE_DIR != ''
         run: rm -rf -- "$CONTAOS_TEST_PRIVATE_DIR"
