@@ -28,3 +28,15 @@ Somente plano/manifesto nesta etapa. Autoriza BUILD subsequente com migrationCLI
 Arquivos BUILD são os oito caminhos exatos em version_wrapper_guard.planned_build_paths no manifesto. Neste GATE somente este documento e active-task.json são editáveis. Revisão do escopo e guard obrigatórios antes integração.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visualN/A, backend existente, semLovable/frontend/PROD.
+
+
+## BUILD após GATE163
+
+GATE163integrado b7ea3d8e6605f5a4636c24ae36731f2efd471e5a,guard42480584324SUCCESS noHEAD2dddafb2da306999f39acafe3dee73547f2adc57,revisãoindependentesemCriticalImportant. EsteBUILDrespeitaoitocaminhos, semalterarmigrationaplicada.
+
+REDsdirigidos confirmados: migrationCLIaindavazia e reconciliador inexistente falharam; prepareREAL recusoumetadataantesdeAuthquandofaltouchavenova. GREEN343/343Node,33casospreAuth (ausente/falso/null/string/númeronuncaTrue),10guards/PythonAST/diffPASS. Catálogopúblico/privadoesperadoantesALTER éfechado,preconditionrecusaqualquerdrift. A únicaalteração produto é atributoSECURITYDEFINER,nenhumcorpoougrant.
+
+Treze casosSQLREAIS acrescidosàaceitaçãotransacional descartável:2metadados,criaçãopública,V2pública,replayidempotente,versão1preservada,6negativos(semsessão/sessãoinválida/outrotenant/leitor/semmotivo/arquivooutrocontratomesmaorg) econtagens6tabelassemefeitos. AguardamRestore remoto,semPASSantecipado. PreflightDOCUMENTOS exige wrapperexatodefiner/body/owner/path e privadafechada antesdequalquerAuth/fixture. SHA256migrationda346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f.
+
+
+CI iniciala365f20d:guard42481080884/verify42481080871PASS,backup42481080877PASS,rebuild128732929834FAIL naaceitação.12/13casosVERSION_WRAPPERt;Somentesemsessãof porfixturequeconfiguravaJSONsub/session_idvazios emvezdeausênciaJWT. Corrigida preparação para claims{} conforme demaisnegativoscanônicos, semalterarexpectativa42501. Seisnegativos agoraexibemSQLSTATEreal nosdiagnósticos sanitizados. Nenhumteste retirado,nenhumcodeproduto/migration/hashmodificado;novoHEADexigeCIcompletanovamente. NenhumDDLHMLaplicado.

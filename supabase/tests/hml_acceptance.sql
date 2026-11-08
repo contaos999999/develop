@@ -299,5 +299,89 @@ reset role;
 select set_config('request.jwt.claim.sub','',true);
 select set_config('request.jwt.claims','{}',true);
 
+-- Version wrapper: real authenticated SQL in the disposable Restore transaction only.
+insert into contaos_testes select 'VERSION_WRAPPER','Catálogo público exato',
+ p.prosecdef and pg_get_userbyid(p.proowner)='postgres' and p.proconfig=array['search_path=""']::text[]
+ and md5(p.prosrc)='6d0c5926f4b25fd0e9562b0c010174ef'
+ and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE'),'um atributo alterado'
+ from pg_proc p where p.oid='public.adicionar_versao_documento_contrato(uuid,uuid,text,text)'::regprocedure;
+insert into contaos_testes select 'VERSION_WRAPPER','Privada fechada e preservada',
+ p.prosecdef and pg_get_userbyid(p.proowner)='postgres' and p.proconfig=array['search_path=""']::text[]
+ and md5(p.prosrc)='10698cb96e7de1de5a88b25960b341e5'
+ and not has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE'),'RBAC original'
+ from pg_proc p where p.oid='privado.adicionar_versao_documento_contrato_v110(uuid,uuid,text,text)'::regprocedure;
+insert into public.contratos(id,id_organizacao,id_contratante,numero,objeto,inicio,situacao)
+ values('aaaaaaaa-1000-4000-8000-000000000009','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','aaaaaaaa-0000-4000-8000-000000000001','VERSION-OTHER','Outro contrato próprio','2026-01-01','ativo');
+insert into public.arquivos(id,id_organizacao,id_contrato,bucket,path,nome_original,mime,tamanho,sha256,status_seguranca,origem) values
+ ('aaaaaaaa-9200-4000-8000-000000000001','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','aaaaaaaa-1000-4000-8000-000000000001','contaos-documentos','version-wrapper/v1.txt','v1.txt','text/plain',10,repeat('a',64),'aprovado','fixture'),
+ ('aaaaaaaa-9200-4000-8000-000000000002','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','aaaaaaaa-1000-4000-8000-000000000001','contaos-documentos','version-wrapper/v2.txt','v2.txt','text/plain',10,repeat('b',64),'aprovado','fixture'),
+ ('aaaaaaaa-9200-4000-8000-000000000003','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','aaaaaaaa-1000-4000-8000-000000000009','contaos-documentos','version-wrapper/foreign.txt','foreign.txt','text/plain',10,repeat('c',64),'aprovado','fixture');
+create temporary table version_wrapper_receipts(kind text primary key,receipt jsonb not null);
+grant select,insert on version_wrapper_receipts to authenticated;
+create or replace function pg_temp.version_wrapper_try(p_file uuid,p_reason text,p_key text)
+returns text language plpgsql security invoker set search_path='' as $$
+begin
+ perform public.adicionar_versao_documento_contrato((select (receipt->>'id_documento')::uuid from pg_temp.version_wrapper_receipts where kind='create'),p_file,p_reason,p_key);
+ return '00000';
+exception when others then return sqlstate; end; $$;
+grant execute on function pg_temp.version_wrapper_try(uuid,text,text) to authenticated;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
+insert into version_wrapper_receipts values('create',public.criar_documento_contrato_completo('aaaaaaaa-1000-4000-8000-000000000001','outro','Version wrapper fixture',null,null,null,null,'aaaaaaaa-9200-4000-8000-000000000001','version-wrapper-create'));
+insert into contaos_testes select 'VERSION_WRAPPER','Criação pública válida',(receipt->>'numero_versao')::integer=1 and receipt->>'id_arquivo'='aaaaaaaa-9200-4000-8000-000000000001','primeira versão real' from version_wrapper_receipts where kind='create';
+reset role;
+create temporary table version_wrapper_counts as select array[
+ (select count(*) from public.documentos_contrato),(select count(*) from public.versoes_documento),
+ (select count(*) from public.comandos_idempotentes),(select count(*) from public.execucoes_assincronas),
+ (select count(*) from public.processamentos_documento),(select count(*) from public.eventos_auditoria)] as counts;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','',true);
+select set_config('request.jwt.claims','{}',true); -- No JWT, rather than malformed empty identifiers.
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Sem sessão',code='42501','SQLSTATE='||code from result;
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"00000000-0000-4000-8000-000000000000","aal":"aal1"}',true);
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Sessão inválida',code='42501','SQLSTATE='||code from result;
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',true);
+select set_config('request.jwt.claims','{"sub":"22222222-2222-4222-8222-222222222222","role":"authenticated","session_id":"bbbbbbbb-2222-4222-8222-222222222222","aal":"aal1"}',true);
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Outro tenant',code='42501','SQLSTATE='||code from result;
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','33333333-3333-4333-8333-333333333333',true);
+select set_config('request.jwt.claims','{"sub":"33333333-3333-4333-8333-333333333333","role":"authenticated","session_id":"cccccccc-3333-4333-8333-333333333333","aal":"aal1"}',true);
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Leitor',code='42501','SQLSTATE='||code from result;
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000002',null,'version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Motivo obrigatório',code='PT400','SQLSTATE='||code from result;
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
+with result as materialized (select pg_temp.version_wrapper_try('aaaaaaaa-9200-4000-8000-000000000003','Motivo','version-wrapper-denied') as code) insert into contaos_testes select 'VERSION_WRAPPER','Arquivo outro contrato',code='42501','SQLSTATE='||code from result;
+reset role;
+insert into contaos_testes select 'VERSION_WRAPPER','Negativas sem efeitos',counts=array[
+ (select count(*) from public.documentos_contrato),(select count(*) from public.versoes_documento),
+ (select count(*) from public.comandos_idempotentes),(select count(*) from public.execucoes_assincronas),
+ (select count(*) from public.processamentos_documento),(select count(*) from public.eventos_auditoria)],'seis tabelas sem delta' from version_wrapper_counts;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',true);
+select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","session_id":"aaaaaaaa-1111-4111-8111-111111111111","aal":"aal1"}',true);
+insert into version_wrapper_receipts values('version',public.adicionar_versao_documento_contrato((select (receipt->>'id_documento')::uuid from version_wrapper_receipts where kind='create'),'aaaaaaaa-9200-4000-8000-000000000002','Nova versão legítima','version-wrapper-positive'));
+insert into version_wrapper_receipts values('replay',public.adicionar_versao_documento_contrato((select (receipt->>'id_documento')::uuid from version_wrapper_receipts where kind='create'),'aaaaaaaa-9200-4000-8000-000000000002','Nova versão legítima','version-wrapper-positive'));
+insert into contaos_testes select 'VERSION_WRAPPER','Nova versão pública válida',(receipt->>'numero_versao')::integer=2 and receipt->>'id_arquivo'='aaaaaaaa-9200-4000-8000-000000000002','segunda versão real' from version_wrapper_receipts where kind='version';
+insert into contaos_testes select 'VERSION_WRAPPER','Idempotência preservada',
+ (select receipt from version_wrapper_receipts where kind='version')=(select receipt from version_wrapper_receipts where kind='replay')
+ and (select count(*) from public.versoes_documento where id_documento_contrato=(select (receipt->>'id_documento')::uuid from version_wrapper_receipts where kind='create'))=2,'replay sem versão ou job adicional';
+insert into contaos_testes select 'VERSION_WRAPPER','Primeira versão preservada',exists(select 1 from public.versoes_documento where id=(receipt->>'id_versao')::uuid and numero_versao=1 and id_arquivo='aaaaaaaa-9200-4000-8000-000000000001'),'histórico intacto' from version_wrapper_receipts where kind='create';
+reset role;
+select set_config('request.jwt.claim.sub','',true);
+select set_config('request.jwt.claims','{}',true);
+
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;
