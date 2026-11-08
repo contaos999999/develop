@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Retomada material documental após delegação de versões",
+  "title": "Diagnóstico e correção da fence assíncrona sem credenciais",
   "status": "ativa",
-  "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
+  "phase": "BUILD_FENCE_DOCUMENT_BARRIER",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEADs/checkpoints vivos e PRs155/160/161/162 preservados; reancoragem própria148",
+  "context_read_by": "Codex Trilha B, contexto canônico integral e checkpoint165/HEAD87c18599; correção solicitada expressamente pelo titular",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -38,12 +38,8 @@
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md",
-    "supabase/migrations/20261108122815_fix_document_version_wrapper.sql",
-    "supabase/tests/upload_document_version_wrapper.test.mjs",
-    "supabase/tests/history_catalog_compare.py",
-    "supabase/tests/hml_acceptance.sql",
-    "supabase/tests/p0_crud_global_hml.py",
+    "docs/backend/P0_FENCE_DOCUMENT_BARRIER_2026-11-08.md",
+    "supabase/tests/p0_crud_global_browser.mjs",
     "supabase/tests/p0_crud_global_protocol.test.mjs"
   ],
   "forbidden_paths": [
@@ -52,7 +48,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -138,7 +134,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "DRAFT dependente: só ready/merge após164revisado/CI/integradonormal/aplicadoHML/verificadocom7booleansTrue eapóscheckscompletos desteHEAD. ThenRestorepushmainMESMOmergeHEAD/currentmainliberarNOVOlote1TXTpublicadoPRIMEIRO+4locais,5/3/5/5recibos/worker/cleanuppróprio. Nunca usar949b nemfixture152/160. NenhumaDDLnovafora164/PROD/V1/V2.",
+  "next_step": "Reproduzir concorrência Document/Script sem credenciais; TDD; corrigir barreira mantendo prova antes de continue; revisão independente e CI no mesmo HEAD. Material suspenso até novo rito de retomada.",
   "database_change_scope": "GATE163: somente SECURITY DEFINER da assinatura pública adicionar_versao_documento_contrato(uuid,uuid,text,text), com precondições de catálogo; preservar todos corpos/owner/ACL/search_path, sem grants/roles/RLS/Edges/frontend/PROD.",
   "evidence": {
     "test_pr": 52,
@@ -657,7 +653,7 @@
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
   },
-  "database_test_fixtures_allowed": true,
+  "database_test_fixtures_allowed": false,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -979,7 +975,7 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": true,
+  "storage_test_fixtures_allowed": false,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "BUILD",
@@ -1761,5 +1757,16 @@
     "local_tests": 343,
     "pre_auth_cases": 33,
     "real_rpc_sql_cases_pending": 13
+  },
+  "fence_document_barrier": {
+    "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
+    "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
+    "incident_run": 42482714141,
+    "artifact": 13618595331,
+    "artifact_sha256": "6411d21d820d9eac37bf2fda57c4e302504e5d7c0fc5d359cb18385218492103",
+    "scope": "Somente harness/manifesto/plano; sem backend produto, migrations, Edges, frontend317, Auth, dados HML ou PROD",
+    "material_enabled": false,
+    "incident_root_cause": "PENDENTE_DIAGNOSTICO_FECHADO",
+    "global_complete": false
   }
 }
