@@ -27,6 +27,87 @@ def validate_document_control(request, f):
     assert request['nonce']==f['nonce'] and request['org']==f['org'] and request['user']==admin[0]['id'],'Foreign control scope'
     for value in (request['org'],request['user'],admin[0]['intent_id']):assert str(uuid.UUID(value))==value
     return admin[0]['id']
+FRONTEND_PIN='164b10b44eaf5b553efcc7ab4e053b86c4d3b269'
+def validate_upload_intent(u, f):
+    import re
+    assert u['provenance'] in ('PUBLISHED','LOCAL')
+    published=u['provenance']=='PUBLISHED'
+    assert u['frontend_head']==(None if published else FRONTEND_PIN)
+    assert u['source_parity']==('NAO_VERIFICADA' if published else 'PINNED')
+    assert u['org']==f['org'] and u['contract']==f['contract']
+    assert u['mime'] in ('text/plain','application/pdf') and type(u['version']) is int and u['version'] in (1,2)
+    fmt='txt' if u['mime']=='text/plain' else 'pdf'
+    assert not published or (fmt=='txt' and u['version']==1)
+    stem=f['nonce']+'-'+u['provenance'].lower()+'-'+fmt
+    assert u['intent_nonce']==stem+'-'+str(u['version'])
+    assert u['name']=='crudg-'+stem+'-v'+str(u['version'])+'.'+fmt
+    assert re.fullmatch('[0-9a-f]{64}',u['sha256']) and type(u['size']) is int and 0<u['size']<10000
+    return published
+
+def reconcile_document_receipts(f):
+    uploads=f.get('uploads',[]);files=f.get('recovered_uploads',[]);objects=f.get('recovered_objects',[])
+    assert len(uploads)<=5 and len({u['intent_nonce'] for u in uploads})==len(uploads)
+    for u in uploads:validate_upload_intent(u,f)
+    assert len({r['file'] for r in files})==len(files) and len({r['path'] for r in files})==len(files)
+    assert len({r['name'] for r in objects})==len(objects)
+    for r in files:
+        matches=[u for u in uploads if u['name']==r['name']];assert len(matches)==1,'Unowned recovered upload'
+        u=matches[0]
+        assert r['sha256']==u['sha256'] and r['size']==u['size']
+        assert r['path'].startswith(f['org']+'/uploads/') and r['path'].endswith('/'+u['name'])
+        for key in ('file','document','id_version'):
+            if r.get(key) is not None:assert str(uuid.UUID(r[key]))==r[key]
+        if r.get('version') is not None:assert r['version']==u['version']
+        missing=any(k not in u for k in ('file','document','id_version','path'))
+        for key in ('file','document','id_version','path'):
+            if r.get(key) is None:continue
+            assert key not in u or u[key]==r[key],'Conflicting receipt identity'
+            u[key]=r[key]
+        if missing:u['state']='RECOVERED'
+    for r in objects:
+        matches=[u for u in uploads if r['name'].startswith(f['org']+'/uploads/') and r['name'].endswith('/'+u['name'])]
+        assert len(matches)==1,'Unowned recovered object'
+        u=matches[0];assert 'path' not in u or u['path']==r['name'],'Conflicting object path'
+        u['path']=r['name']
+    # An object without a registered file is retained for cleanup, but cannot certify a batch.
+    return f
+
+def validate_document_partition(f):
+    uploads=f.get('uploads',[]);assert len(uploads)==5,'Five disjoint receipts required'
+    for u in uploads:
+        validate_upload_intent(u,f)
+        assert u['state']=='PROCESSED' and u['download_verified'] is True
+        assert u.get('download_proof_kind')=='UI_EDGE_AND_SIGNED_GET' and u.get('popup_rendering')=='NAO_CERTIFICADO'
+        for key in ('file','document','id_version'):assert str(uuid.UUID(u[key]))==u[key]
+    published=[u for u in uploads if u['provenance']=='PUBLISHED'];local=[u for u in uploads if u['provenance']=='LOCAL']
+    assert len(published)==1 and len(local)==4 and uploads[0] is published[0]
+    assert len({u['file'] for u in uploads})==5 and len({u['id_version'] for u in uploads})==5 and len({u['path'] for u in uploads})==5
+    assert len({u['document'] for u in local})==2 and published[0]['document'] not in {u['document'] for u in local}
+    assert {(u['mime'],u['version']) for u in local}=={(m,v) for m in ('text/plain','application/pdf') for v in (1,2)}
+    for mime in ('text/plain','application/pdf'):
+        rows=[u for u in local if u['mime']==mime];assert rows[0]['version']==1 and rows[1]['version']==2 and rows[0]['document']==rows[1]['document']
+    recovered=f['recovered_uploads'];objects=f['recovered_objects']
+    assert len(recovered)==5 and len(objects)==5
+    assert {r['file'] for r in recovered}=={u['file'] for u in uploads}
+    assert {r['name'] for r in objects}=={u['path'] for u in uploads}
+    for u in uploads:
+        rows=[r for r in recovered if r['file']==u['file']];assert len(rows)==1
+        for key in ('document','id_version','path','version','sha256','size','name'):assert rows[0][key]==u[key]
+    return {'published':1,'local':4,'files':5,'documents':3,'versions':5}
+
+def validate_readiness_control(request, f):
+    import re
+    assert set(request)=={'action','nonce','sequence','file','document','id_version','intent_nonce'}
+    assert request['action']=='PUBLISHED_READINESS' and f['batch']=='DOCUMENTOS' and f['scope']=='P0-CRUD-GLOBAL-HML'
+    assert re.fullmatch('[0-9a-f]{32}',f['nonce']) and request['nonce']==f['nonce'] and f['prefix']=='0000 CRUDG '+f['nonce']+' '
+    assert type(request['sequence']) is int and 1<=request['sequence']<=61
+    assert request['sequence']==f.get('readiness_control',{}).get('sequence',0)+1,'Readiness replay refused'
+    candidates=[u for u in f['uploads'] if u['intent_nonce']==request['intent_nonce']];assert len(candidates)==1
+    upload=candidates[0];assert validate_upload_intent(upload,f) and upload['state'] in ('REGISTERED','PROCESSED')
+    for key in ('file','document','id_version'):
+        assert str(uuid.UUID(request[key]))==request[key] and request[key]==upload[key],'Foreign readiness identity'
+    return upload
+
 def validate_local_restore_url(raw):
     target=urllib.parse.urlsplit(raw)
     assert (target.scheme,target.hostname,target.port,target.username,target.password,target.path)==('postgresql','127.0.0.1',54322,'postgres','postgres','/postgres') and not target.query and not target.fragment,'Local restore only'
@@ -49,7 +130,7 @@ class Runner:
         self.report={'schema':'contaos.crud-global.hml.v1','backend_head':env['TESTED_HEAD'],'frontend_head':env['FRONTEND_HEAD'],'state':'RUNNING','batch':self.batch,'global_complete':False,'assertions':[]}
     def save(self,name,data):
         assert name in ('fixture.json','report.json','cleanup.json')
-        p=self.root/name;p.write_text(json.dumps(data,indent=2)+'\n');os.chmod(p,0o600)
+        p=self.root/name;temporary=p.with_suffix('.tmp');temporary.write_text(json.dumps(data,indent=2)+'\n');os.chmod(temporary,0o600);temporary.replace(p)
         if name=='fixture.json':
             self.report['recovery']={'batch':data.get('batch',self.batch if hasattr(self,'batch') else None),'scope':data['scope'],'nonce':data['nonce'],'prefix':data['prefix'],**{k:data[k] for k in ('org','contract') if k in data},'users':[{k:u[k] for k in ('id','intent_id','creation_state') if k in u} for u in data['users']]}
             self.save('report.json',self.report)
@@ -132,17 +213,31 @@ class Runner:
         f['permission_control']['state']='REVOKED';self.save('fixture.json',f)
         request_path.unlink()
         ack=self.root/'document-control-response.tmp';ack.write_text(json.dumps({'action':'REVOKE_OWN_ADMIN','nonce':f['nonce'],'state':'REVOKED'}));os.chmod(ack,0o600);ack.replace(self.root/'document-control-response.json')
+    def handle_document_readiness(self):
+        request_path=self.root/'document-readiness-request.json'
+        if not request_path.exists():return
+        assert not request_path.is_symlink() and request_path.stat().st_size<=2048
+        f=json.loads((self.root/'fixture.json').read_text());request=json.loads(request_path.read_text())
+        upload=validate_readiness_control(request,f)
+        f['readiness_control']={'sequence':request['sequence'],'state':'INTENT'};self.save('fixture.json',f)
+        # Fixed readonly joins: the Node request cannot select SQL, a URL, a queue or a tenant.
+        source="select json_build_object('owned',count(*)=1,'ready',coalesce(bool_and(a.status_seguranca='aprovado' and p.status='concluido' and (select count(*)=1 and bool_and(e.status='concluido') from public.execucoes_assincronas e where e.id_organizacao=a.id_organizacao and e.id_contrato=a.id_contrato and e.entidade_tipo='versao_documento' and e.entidade_id=v.id and e.fila='documents') and exists(select 1 from public.paginas_documento where id_versao_documento=v.id) and exists(select 1 from public.fragmentos_documento where id_versao_documento=v.id)),false),'failed',coalesce(bool_or(a.status_seguranca in ('bloqueado','quarentena') or p.status in ('falhou','cancelado')),false)) from public.arquivos a join public.versoes_documento v on v.id_arquivo=a.id and v.id_organizacao=a.id_organizacao and v.id_contrato=a.id_contrato join public.documentos_contrato d on d.id=v.id_documento_contrato and d.id_organizacao=a.id_organizacao and d.id_contrato=a.id_contrato join public.processamentos_documento p on p.id_versao_documento=v.id and p.etapa='documents' join public.organizacoes o on o.id=a.id_organizacao join public.contratos c on c.id=a.id_contrato and c.id_organizacao=o.id where a.id="+q(upload['file'])+' and v.id='+q(upload['id_version'])+' and d.id='+q(upload['document'])+' and o.id='+q(f['org'])+' and c.id='+q(f['contract'])+' and o.razao_social='+q(f['prefix']+'A')+' and a.nome_original='+q(upload['name'])+' and a.path='+q(upload['path'])+' and a.sha256='+q(upload['sha256'])+' and v.hash=a.sha256 and a.tamanho='+str(upload['size'])+' and v.numero_versao=1;'
+        result=json.loads(self.sql(source,True));assert set(result)=={'owned','ready','failed'} and all(type(x) is bool for x in result.values())
+        assert result['owned'],'Readonly readiness identity not confirmed'
+        state='FAILED' if result['failed'] else 'READY' if result['ready'] else 'PENDING'
+        f['readiness_control']['state']=state;self.save('fixture.json',f)
+        request_path.unlink();ack=self.root/'document-readiness-response.tmp';ack.write_text(json.dumps({'action':'PUBLISHED_READINESS','nonce':f['nonce'],'sequence':request['sequence'],'state':state}));os.chmod(ack,0o600);ack.replace(self.root/'document-readiness-response.json')
     def run_browser(self):
         import time
         process=subprocess.Popen(['node','supabase/tests/p0_crud_global_browser.mjs'],env=browser_environment(os.environ),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
         deadline=time.monotonic()+1200
         try:
             while process.poll() is None:
-                if self.batch=='DOCUMENTOS':self.handle_document_control()
+                if self.batch=='DOCUMENTOS':self.handle_document_control();self.handle_document_readiness()
                 if time.monotonic()>=deadline:raise RuntimeError('Browser proof timed out')
                 time.sleep(.05)
             if self.batch=='DOCUMENTOS':
-                self.handle_document_control()
+                self.handle_document_control();self.handle_document_readiness()
                 if process.returncode==0:assert json.loads((self.root/'fixture.json').read_text()).get('permission_control',{}).get('state')=='REVOKED','Required revocation proof missing'
             return process.returncode
         finally:
@@ -159,18 +254,20 @@ class Runner:
         for key in ('org','contract'):assert str(uuid.UUID(f[key]))==f[key]
         pattern='crudg-'+f['nonce']+'-%'
         own_scope='exists(select 1 from public.organizacoes own_org join public.contratos own_contract on own_contract.id_organizacao=own_org.id where own_org.id='+q(f['org'])+' and own_contract.id='+q(f['contract'])+' and own_org.razao_social='+q(f['prefix']+'A')+')'
-        files=json.loads(self.sql("/* DOCUMENT_RECOVER_FILES */ select coalesce(json_agg(r),'[]'::json) from (select a.id as file,a.path,a.sha256,a.tamanho as size,v.id as id_version,v.id_documento_contrato as document,v.numero_versao as version from public.arquivos a left join public.versoes_documento v on v.id_arquivo=a.id and v.id_organizacao=a.id_organizacao and v.id_contrato=a.id_contrato where "+own_scope+' and a.id_organizacao='+q(f['org'])+' and a.id_contrato='+q(f['contract'])+' and a.nome_original like '+q(pattern)+' and a.path like '+q(f['org']+'/uploads/%/'+pattern)+" order by a.id limit 101) r;",True))
+        files=json.loads(self.sql("/* DOCUMENT_RECOVER_FILES */ select coalesce(json_agg(r),'[]'::json) from (select a.id as file,a.nome_original as name,a.path,a.sha256,a.tamanho as size,v.id as id_version,v.id_documento_contrato as document,v.numero_versao as version from public.arquivos a left join public.versoes_documento v on v.id_arquivo=a.id and v.id_organizacao=a.id_organizacao and v.id_contrato=a.id_contrato where "+own_scope+' and a.id_organizacao='+q(f['org'])+' and a.id_contrato='+q(f['contract'])+' and a.nome_original like '+q(pattern)+' and a.path like '+q(f['org']+'/uploads/%/'+pattern)+" order by a.id limit 101) r;",True))
         objects=json.loads(self.sql("/* DOCUMENT_RECOVER_OBJECTS */ select coalesce(json_agg(r),'[]'::json) from (select name from storage.objects where bucket_id='contaos-documentos' and "+own_scope+' and name like '+q(f['org']+'/uploads/%/'+pattern)+" order by name limit 101) r;",True))
         assert len(files)<=100 and len(objects)<=100,'Own upload recovery exceeded safe bound'
         f['recovered_uploads']=files;f['recovered_objects']=objects;self.save('fixture.json',f)
+        reconcile_document_receipts(f);self.save('fixture.json',f)
         return {'preserved_uploads':len(files),'preserved_objects':len(objects)}
     def verify_documents(self, f):
         assert f.get('permission_control',{}).get('state')=='REVOKED','Own permission revocation missing'
         admin=next(u for u in f['users'] if u['profile']=='administrador')
         self.check('DOCUMENT_OWN_ADMIN_BINDING_REVOKED',self.sql('select count(*)=1 and bool_and(not ativo) from public.vinculos_usuarios where id_usuario='+q(admin['id'])+' and id_organizacao='+q(f['org'])+" and perfil='administrador';",True)=='t')
-        uploads=f.get('uploads',[]);assert len(uploads)==4,'Four physical uploads required'
+        uploads=f.get('uploads',[])
         self.recover_document_uploads(f)
-        assert len(f['recovered_uploads'])==4 and len(f['recovered_objects'])==4,'Ambiguous upload recovery'
+        partition=validate_document_partition(f);self.report['document_partition']=partition
+        self.report['local_documents']={'frontend_head':FRONTEND_PIN,'source_parity':'PINNED','files':4,'documents':2,'versions':4}
         for upload in uploads:
             assert upload['org']==f['org'] and upload['contract']==f['contract'] and upload['state']=='PROCESSED' and upload['download_verified']
             for key in ('file','document','id_version'):assert str(uuid.UUID(upload[key]))==upload[key]
@@ -179,10 +276,11 @@ class Runner:
             self.check('DOCUMENT_INTEGRITY_VERSION_WORKER_PERSISTED',self.sql(proof,True)=='t')
             entity=upload['document'] if upload['version']==1 else upload['id_version'];event='DocumentoContratoCriado' if upload['version']==1 else 'VersaoDocumentoContratoCriada'
             self.check('DOCUMENT_REAL_AUDIT_PERSISTED',self.sql('select exists(select 1 from public.eventos_auditoria where id_organizacao='+org+' and id_entidade='+q(entity)+' and evento='+q(event)+' and id_usuario='+q(next(u['id'] for u in f['users'] if u['profile']=='administrador'))+');',True)=='t')
-        self.check('DOCUMENT_NO_UNAUTHORIZED_WRITES',self.sql('select (select count(*) from public.documentos_contrato where id_organizacao='+q(f['org'])+')=2 and (select count(*) from public.versoes_documento where id_organizacao='+q(f['org'])+')=4 and (select count(*) from public.arquivos where id_organizacao='+q(f['org'])+')=4;',True)=='t')
+        self.check('DOCUMENT_NO_UNAUTHORIZED_WRITES',self.sql('select (select count(*) from public.documentos_contrato where id_organizacao='+q(f['org'])+')=3 and (select count(*) from public.versoes_documento where id_organizacao='+q(f['org'])+')=5 and (select count(*) from public.arquivos where id_organizacao='+q(f['org'])+')=5;',True)=='t')
         for format in ('txt','pdf'):
-            versions=[x for x in uploads if x['mime']==('application/pdf' if format=='pdf' else 'text/plain')]
+            versions=[x for x in uploads if x['provenance']=='LOCAL' and x['mime']==('application/pdf' if format=='pdf' else 'text/plain')]
             self.check('DOCUMENT_'+format.upper()+'_PREVIOUS_VERSION_RETAINED',len(versions)==2 and versions[0]['document']==versions[1]['document'] and versions[0]['sha256']!=versions[1]['sha256'])
+        self.report['published_smoke']={'frontend_head':None,'source_parity':'NAO_VERIFICADA','state':'PASS_SQL_CONFIRMED','files':1,'documents':1,'versions':1}
     def quarantine_document_jobs(self, f, max_wait_seconds=300):
         import re,time
         assert f['scope']=='P0-CRUD-GLOBAL-HML' and re.fullmatch('[0-9a-f]{32}',f['nonce'])
@@ -263,10 +361,17 @@ class Runner:
             assert clean=='t','Own identities not fully quarantined'
         document_cleanup={}
         if f.get('batch')=='DOCUMENTOS':
+            recovery_failed=False
             try:
                 document_cleanup=self.recover_document_uploads(f)
+            except Exception:
+                recovery_failed=True
+            quarantine_failed=False
+            try:
                 document_cleanup.update(self.quarantine_document_jobs(f))
             except Exception:
+                quarantine_failed=True
+            if recovery_failed or quarantine_failed:
                 result={'state':'QUARENTENA_PENDENTE','own_users':len(owned),'own_organizations':len(orgs),'document_work_pending':True}
                 self.save('cleanup.json',result);self.report['cleanup']=result;self.report['state']='CLEANUP_FAILED';self.save('report.json',self.report)
                 raise RuntimeError('Own document quarantine pending; identities revoked') from None
@@ -377,7 +482,7 @@ def main():
         returncode=r.run_browser()
         r.check('REAL_BROWSER_BATCH',returncode==0)
         r.verify();r.report['state']='PASS_BATCH';r.report['completed_domains']=[] if r.batch=='DOCUMENTOS' else ['auditoria'] if r.batch=='AUDITORIA' else ['organizacoes','contratantes','contratos','listas'];r.report['unverified_domains']=['regras_preventivas','base_normativa','orcamento','documentos_contrato','documento_detalhe','competencias','documentos_competencia','analise_revisao','parecer','apresentacao','protocolo','historico','administracao','auditoria']
-        if r.batch=='DOCUMENTOS':r.report['completed_scopes']=['DOCUMENTOS_TXT_PDF_UPLOAD_VERSION_DOWNLOAD_WORKER'];r.report['remaining_domains']=list(r.report['unverified_domains']);r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas','auditoria']
+        if r.batch=='DOCUMENTOS':r.report['completed_scopes']=['DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL'];r.report['download_proof_kind']='UI_EDGE_AND_SIGNED_GET';r.report['popup_rendering']='NAO_CERTIFICADO';r.report['remaining_domains']=list(r.report['unverified_domains']);r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas','auditoria']
         if r.batch=='AUDITORIA':r.report['unverified_domains'].remove('auditoria');r.report['prior_pass_domains']=['organizacoes','contratantes','contratos','listas']
     except Exception as e:
         failed=True;r.report['state']='FAIL';r.report['failure_class']=type(e).__name__

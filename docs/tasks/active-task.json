@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: GATE de inspeção integral do Document pausado",
+  "title": "Prova privada V1: BUILD CORS com contenção nativa e provas parciais",
   "status": "ativa",
-  "phase": "GATE_CORS_DOCUMENTAL_HML",
+  "phase": "BUILD_CORS_DOCUMENTAL_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-07",
-  "context_read_by": "Codex; leitura integral do contexto raiz 00–20, P0, certificado e implementação afetada",
+  "context_read_acknowledged_at": "2026-11-08",
+  "context_read_by": "Codex executor independente Trilha B; contexto raiz00–20, P0, manifesto, certificado, PLAN/GATE138/140/141/142/143 e implementação afetada lidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -40,18 +40,23 @@
     "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
     "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
-    "docs/tasks/active-task.json"
+    "docs/tasks/active-task.json",
+    "supabase/functions/storage-sign-upload/index.ts",
+    "supabase/functions/storage-sign-download/index.ts",
+    "supabase/tests/storage_document_cors.test.mjs",
+    "supabase/tests/p0_crud_global_browser.mjs",
+    "supabase/tests/p0_crud_global_protocol.test.mjs",
+    "supabase/tests/p0_crud_global_hml.py"
   ],
   "forbidden_paths": [
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
-    "PROD/**",
-    "supabase/functions/**"
+    "PROD/**"
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -135,7 +140,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão e checks do GATE HTML separado antes de integrar/reancorar e implementar a análise do mesmo body. Material e deploy desabilitados.",
+  "next_step": "Validar DENY nativo, hashes carregados e GET limitado após GATE140 integrado. Exigir revisão e guard/restore/backup/public-probe SUCCESS no mesmo HEAD antes de integrar BUILD139. Material e deploy dependem da sequência governada e continuam desabilitados nesta fase.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -988,8 +993,8 @@
   "storage_test_fixtures_allowed": false,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
-    "phase": "GATE",
-    "state": "GATE_COMPLEMENTAR_DOCUMENT_PAUSADO_EM_VALIDACAO",
+    "phase": "BUILD",
+    "state": "BUILD_LOCAL_NO_DEPLOY",
     "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
     "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
     "frontend_dependency": {
@@ -1076,6 +1081,7 @@
       ],
       "local_node_modules_not_pin": "2.119.0"
     },
+    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea",
     "popup_safety_gate": {
       "phase": "GATE_COMPLEMENTAR",
       "policy": "DENY_NEW_WEB_CONTENTS",
@@ -1087,7 +1093,16 @@
         "EDGE_CORS_UI_REAL",
         "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
       ],
-      "full_document_crud_v1_certification": false
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 140,
+      "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
+      "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
+      "build_state": "EM_VALIDACAO",
+      "browser_worker_policy": {
+        "dedicated": "UNEXPECTED_FAIL_CLOSED_HTTP_BLOB_DATA_ZERO_EFFECTS_REQUIRED",
+        "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
+        "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
+      }
     },
     "browser_worker_csp_gate": {
       "phase": "GATE_COMPLEMENTAR",
@@ -1100,7 +1115,15 @@
       "browser_workers": "NAO_CERTIFICADOS",
       "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
       "full_document_crud_v1_certification": false,
-      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO"
+      "gate_pr": 141,
+      "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
+      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO",
+      "build_state": "EM_VALIDACAO_CI_REAL",
+      "local_tdd": {
+        "red": "51PASS/1FAIL helper absent",
+        "green_protocol": 52,
+        "green_full": 258
+      }
     },
     "native_destination_gate": {
       "phase": "GATE_COMPLEMENTAR",
@@ -1114,7 +1137,19 @@
       "no_direct_fallback": true,
       "browser_workers": "NAO_CERTIFICADOS",
       "unexpected_product_worker": "FAIL",
-      "full_document_crud_v1_certification": false
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 142,
+      "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
+      "state": "INTEGRADO_ANTES_BUILD",
+      "build_state": "EM_VALIDACAO_CI_REAL",
+      "local_tdd": {
+        "red": "52PASS/2FAIL proxy helpers absent",
+        "worker_latch_red": "53PASS/1FAIL finalizer absent",
+        "green_protocol": 55,
+        "green_full": 261,
+        "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained",
+        "data_origin_red": "54PASS/1FAIL validator absent"
+      }
     },
     "paused_document_gate": {
       "phase": "GATE_COMPLEMENTAR",
@@ -1127,7 +1162,48 @@
       "no_normalization": true,
       "no_self_hash_without_ast": true,
       "published_source_parity": "NAO_VERIFICADA",
-      "full_document_crud_v1_certification": false
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 143,
+      "gate_merge": "f53304fbdab7570fa0f5167a9bcd0c76cded6be6",
+      "state": "INTEGRADO_ANTES_BUILD"
+    },
+    "paused_document_build": {
+      "state": "EM_VALIDACAO_CI_REAL",
+      "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
+      "local_protocol": 63,
+      "local_full_suite": 269,
+      "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
+      "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
+      "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
+      "material_enabled": false,
+      "global_complete": false,
+      "first_ci": {
+        "head": "7bf439d6dc439ff29c69cd197648363276db0a6b",
+        "run": 42448576211,
+        "artifact": 13604377240,
+        "sha256": "6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2",
+        "state": "FAIL_CHANGED_SCRIPT",
+        "local_red": "failure latch false before awaited native abort; fixed synchronously"
+      },
+      "second_ci": {
+        "head": "49275f778cf2a5551e41be8a3f40dd55bf14f353",
+        "run": 42448737328,
+        "artifact": 13604452311,
+        "sha256": "809fbc88de08da0e2106dbd87b8ab8ebdf3122911de31f9b132148054f4da85f",
+        "state": "FAIL_BEFORE_FIRST_PAUSED_FIXTURE_EVIDENCE",
+        "local_reproduction": "Node inert fetch keeps1idleTCP after1100ms; original fixture server Connection:close drains0 naturally; no socket destroy"
+      },
+      "first_public_success": {
+        "head": "2b2bb2cf172d654966ec76d7764b215a37326d00",
+        "run": 42448929569,
+        "artifact": 13604249723,
+        "sha256": "e3bd0eb6e147afe93991596bfc70d07df39460ecfdf193124b4320b5b8be62e4",
+        "assertions": 12,
+        "document_modules": 114,
+        "loaded_script_hashes": 49,
+        "material_enabled": false
+      },
+      "late_fence_fix": "Finalizers capture original provenance and persist/reject failed snapshot after browser/deny close; RED helper absent then63/63protocol269/269suite"
     }
   },
   "auth_configuration_changes_allowed": false
