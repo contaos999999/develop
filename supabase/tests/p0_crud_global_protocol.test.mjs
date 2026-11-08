@@ -974,3 +974,34 @@ test('expired global deadline during backend proof blocks published credentials 
   await assert.rejects(()=>runDocumentProvenances({now:()=>now,proveBackend:async()=>{calls.push('READONLY_BACKEND_PROOF');now=900001;},published:async()=>calls.push('PUBLISHED'),local:async()=>calls.push('LOCAL')}),{name:'AssertionError'});
   assert.deepEqual(calls,['READONLY_BACKEND_PROOF']);
 });
+
+test('concurrent Script stays paused until the real Document proof settles',async()=>{
+  const {validatePublishedResponse}=await import('./p0_crud_global_browser.mjs');
+  const {createHash}=await import('node:crypto');
+  const source=readFileSync('supabase/tests/p0_crud_global_browser.mjs','utf8'),start=source.indexOf('  async function paused(session,event){'),end=source.indexOf('  function message(session,data){',start);
+  for(const outcome of ['VALID','PROOF_REJECTED','CHANGED','UNINSPECTED','LATE_FAILED','LATE_CLOSED']){
+    const result=await vm.runInNewContext(`(async()=>{
+      let failed=false,closed=false,documentInspection=false,verifiedScripts=0,verifiedDocuments=0,redirectBlocks=0,failureHTML=null;
+      const documentProofs=[],loadedScriptHashes=new Set(),calls=[],initialTarget='own',origin='https://scope-and-approval-keeper.lovable.app';
+      const hash=s=>createHash('sha256').update(s).digest('hex');
+      let release,started;const waiting=new Promise(r=>started=r),pending=new Promise((resolve,reject)=>release=()=>${outcome==='PROOF_REJECTED'?'reject(Error("Own synthetic proof rejection"))':'resolve()'});
+      const next={origin,html_sha256:hash('document'),modules:new Map([[origin+'/assets/a.js',hash('script')]])};
+      let proof={origin,modules:new Map([[origin+'/assets/a.js',hash('script')]]),inspectDocument:async()=>{started();await pending;${outcome==='LATE_FAILED'?'failed=true;':outcome==='LATE_CLOSED'?'closed=true;':''}return {state:'HML_CONFIG_CONFIRMED',asset_sha256:[],module_count:1,runtimeProof:next};}};
+      const allowed=()=>true,expectedPopup=()=>false,fail=()=>{failed=true;};
+      const send=async(session,method,params)=>{calls.push([params.requestId,method]);return {body:params.requestId==='doc'?'document':${JSON.stringify(outcome==='CHANGED'?'changed':'script')},base64Encoded:false};};
+      ${source.slice(start,end)}
+      const session={type:'page',targetId:'own'};
+      const doc=paused(session,{requestId:'doc',request:{url:origin+'/login'},resourceType:'Document',responseStatusCode:200}).catch(()=>{});
+      await waiting;
+      const script=paused(session,{requestId:'script',request:{url:origin+${JSON.stringify(outcome==='UNINSPECTED'?'/assets/unknown.js':'/assets/a.js')}},resourceType:'Script',responseStatusCode:200}).catch(()=>{});
+      await new Promise(r=>setImmediate(r));
+      const before=calls.filter(([id,method])=>id==='script'&&method!=='Fetch.getResponseBody');
+      release();await Promise.all([doc,script]);
+      return {before,calls,failed,verifiedScripts};
+    })()`,{assert,Buffer,URL,Map,createHash,validatePublishedResponse,setImmediate});
+    assert.equal(result.before.length,0,outcome+': Script must remain paused during proof');
+    const continued=result.calls.some(([id,method])=>id==='script'&&method==='Fetch.continueResponse');
+    assert.equal(continued,outcome==='VALID',outcome);assert.equal(result.verifiedScripts,outcome==='VALID'?1:0,outcome);
+    if(outcome!=='VALID')assert.equal(result.failed,true,outcome);
+  }
+});
