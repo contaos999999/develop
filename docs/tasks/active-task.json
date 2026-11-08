@@ -46,7 +46,10 @@
     "supabase/tests/queues_edge_auth.sql",
     ".github/workflows/restore-isolado.yml",
     "scripts/p0-v1-synthetic-data-restore.sh",
-    "scripts/isolated-db-network.sh"
+    "scripts/isolated-db-network.sh",
+    ".github/workflows/p0-hml-migration-version-parity.yml",
+    "supabase/tests/worker_api_boundary_hml.py",
+    "supabase/tests/worker_api_boundary.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -1313,7 +1316,7 @@
       "supabase/tests/p0_crud_global_protocol.test.mjs",
       "supabase/tests/queues_edge_auth.sql"
     ],
-    "migration_contract": "BEGIN; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; REVOKE ALL PRIVILEGES ON SCHEMA net, ALL TABLES/SEQUENCES/FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated (four exact statements); COMMIT; no application ACL change",
+    "migration_contract": "BEGIN; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; COMMIT; managed grants accepted by explicit titular decision; API boundary pre/post required",
     "material_pr": 148,
     "material_enabled": false,
     "prod": false,
@@ -1344,8 +1347,8 @@
       "own_fixture_job_count": 0,
       "other_executor_fixture_job_count": 1
     },
-    "net_acl_hardening_required": true,
-    "net_acl_before_first_commit": true,
+    "net_acl_hardening_required": false,
+    "net_acl_before_first_commit": false,
     "gate_pr": 153,
     "gate_head": "f51c3be18e9ee879fe535798def1a8f3eda405ee",
     "gate_merge": "4a5bd7c08141400822230cfbeb3601ad13abdff2",
@@ -1444,6 +1447,58 @@
       "sha256": "d340e4adc03e8a8ec9d0e374570e9cacfb5efe67d74bf5804cfd64338c77d4d2",
       "exact_status": "NOT_EXPOSED_NOT_PRESUMED",
       "no_hml_mutation": true
-    }
+    },
+    "platform_constraint": {
+      "state": "AUTHORIZED_BUILD",
+      "diagnostic_head": "d5d79b626a8236f3ed0a618d2ae5d733f311aac7",
+      "diagnostic_run": 42456946721,
+      "rebuild_job": 128657901129,
+      "cause": "Supabase owns pg_net objects as supabase_admin; postgres REVOKE has no effect and leaves PUBLIC/client grants",
+      "official_source": "https://supabase.com/kb/troubleshooting/revoking-access-to-pg_net-objects-has-no-effect-0bbc16",
+      "hml_changed": false,
+      "worker_file_security": "pendente",
+      "worker_attempts": 0,
+      "candidate": "Keep Supabase worker/cron and default managed pg_net grants, prove net not exposed in Data API, deny API access for anon/authenticated, restrict direct DB logins to trusted services; requires explicit decision before superseding GATE153 raw-ACL requirement",
+      "public_api_negative": {
+        "status": 406,
+        "code": "PGRST106",
+        "message": "Invalid schema: net"
+      },
+      "authenticated_api_negative": "NOT_EXECUTED",
+      "new_build_authorized": true,
+      "decision": {
+        "by": "titular",
+        "date": "2026-11-08",
+        "message": "Surorizo",
+        "interpretation": "Autorizo a alternativa solicitada no checkpoint157: fronteiraAPI, SQLdireto somenteadministrativo confiável e risco de headers legíveis porSQLdireto aceito",
+        "scope": "HML apenas; preservar workers Supabase, JWT/RBAC/RLS, configuraçãoAuth e PROD"
+      }
+    },
+    "api_boundary_complement": {
+      "phase": "BUILD",
+      "supersedes": "GATE153 somente exigência de REVOKEs/ACLs internos pg_net; risco aceito explicitamente pelo titular após157",
+      "future_build_paths": [
+        "docs/tasks/active-task.json",
+        "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
+        "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
+        "supabase/tests/hml_acceptance.sql",
+        "supabase/tests/p0_crud_global_hml.py",
+        "supabase/tests/p0_crud_global_protocol.test.mjs",
+        "supabase/tests/queues_edge_auth.sql",
+        ".github/workflows/restore-isolado.yml",
+        "scripts/p0-v1-synthetic-data-restore.sh",
+        "scripts/isolated-db-network.sh",
+        ".github/workflows/p0-hml-migration-version-parity.yml",
+        "supabase/tests/worker_api_boundary_hml.py",
+        "supabase/tests/worker_api_boundary.test.mjs"
+      ],
+      "pre_and_post_deploy_proof": true,
+      "auth_fixture_only": true,
+      "new_build_authorized": true,
+      "gate_pr": 158,
+      "gate_merge": "eedf922cdf3fab0673438fb4627c327411819bd2",
+      "gate_ci": 42473235121
+    },
+    "raw_acl_requirement_superseded_by": 158
   }
 }

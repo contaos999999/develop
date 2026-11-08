@@ -247,53 +247,20 @@ select 'UPLOAD_WRAPPER','Negativas sem efeitos persistidos',counts=array[
  (select count(*) from public.execucoes_assincronas),
  (select count(*) from public.eventos_auditoria)],'cinco tabelas sem delta' from wrapper_counts;
 
--- Read-only metadata diagnostics: never inspect queue rows or headers.
-select 'NET_ACL_DIAGNOSTIC_ROLES',jsonb_build_object('role',rolname,'superuser',rolsuper,'inherit',rolinherit,'postgres_member',pg_has_role(rolname,'postgres','MEMBER'))
-from pg_roles where rolname in ('anon','authenticated','postgres');
-select 'NET_ACL_DIAGNOSTIC_SCHEMA',jsonb_build_object('owner',pg_get_userbyid(nspowner),'acl',nspacl::text)
-from pg_namespace where nspname='net';
-select 'NET_ACL_DIAGNOSTIC_OBJECT',jsonb_build_object('kind',c.relkind,'name',c.relname,'owner',pg_get_userbyid(c.relowner),'acl',c.relacl::text)
-from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net' and c.relkind in ('r','S');
-select 'NET_ACL_DIAGNOSTIC_FUNCTION',jsonb_build_object('name',p.proname,'owner',pg_get_userbyid(p.proowner),'acl',p.proacl::text)
-from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='net';
-
--- Diagnostic only: undo all test-local ACL changes before the original assertions.
-savepoint net_acl_grantor_diagnostic;
-REVOKE ALL PRIVILEGES ON SCHEMA net FROM PUBLIC, anon, authenticated;
-REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA net FROM PUBLIC, anon, authenticated;
-REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA net FROM PUBLIC, anon, authenticated;
-REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated;
-select 'NET_ACL_DIAGNOSTIC_AFTER_REVOKE',jsonb_build_object('user',current_user,'session',session_user,'schema_acl',nspacl::text,
- 'anon_usage',has_schema_privilege('anon','net','USAGE'),'auth_usage',has_schema_privilege('authenticated','net','USAGE'),
- 'anon_http',has_function_privilege('anon','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'))
-from pg_namespace where nspname='net';
-rollback to savepoint net_acl_grantor_diagnostic;
-release savepoint net_acl_grantor_diagnostic;
-
--- GATE153: the actual extension is nonpublic and its inherited privileges are closed.
+-- GATE158: managed grants are accepted; SQL metadata is not an API-access proof.
 insert into contaos_testes
 select 'WORKER_RUNTIME','pg_net fora de public com assinatura oficial',
  exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions')
  and to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is not null,'metadata real sem HTTP';
 insert into contaos_testes
 select 'WORKER_RUNTIME','Scheduler postgres preservado',has_schema_privilege('postgres','net','USAGE')
- and has_function_privilege('postgres','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'),'owner mantém acesso';
+ and has_function_privilege('postgres','net.http_post(text,jsonb,jsonb,jsonb,integer)','EXECUTE'),'capacidade oficial preservada';
 insert into contaos_testes
-select 'WORKER_RUNTIME',roles.name||' sem uso/criação no schema net',not has_schema_privilege(roles.name,'net','USAGE,CREATE'),'privilégio efetivo'
-from (values('anon'),('authenticated')) roles(name);
+select 'WORKER_RUNTIME','Clientes sem LOGIN SQL direto',count(*)=2 and bool_and(not rolcanlogin),'não certifica API' from pg_roles where rolname in ('anon','authenticated');
 insert into contaos_testes
-select 'WORKER_RUNTIME',roles.name||' sem acesso a tabelas/headers net',
- not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net' and c.relkind in ('r','p','v','m','f')
- and (has_table_privilege(roles.name,c.oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') or has_any_column_privilege(roles.name,c.oid,'SELECT,INSERT,UPDATE,REFERENCES'))),'nenhum token lido'
-from (values('anon'),('authenticated')) roles(name);
+select 'WORKER_RUNTIME','LOGIN restrito aos serviços nominais confiáveis',not exists(select 1 from pg_roles where rolcanlogin and rolname not in ('authenticator','pgbouncer','postgres','supabase_admin','supabase_auth_admin','supabase_etl_admin','supabase_functions_admin','supabase_read_only_user','supabase_replication_admin','supabase_storage_admin')),'inventário fechado';
 insert into contaos_testes
-select 'WORKER_RUNTIME',roles.name||' sem acesso a sequências net',
- not exists(select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='net' and c.relkind='S' and has_sequence_privilege(roles.name,c.oid,'USAGE,SELECT,UPDATE')),'privilégio efetivo'
-from (values('anon'),('authenticated')) roles(name);
-insert into contaos_testes
-select 'WORKER_RUNTIME',roles.name||' sem execução de funções net',
- not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='net' and has_function_privilege(roles.name,p.oid,'EXECUTE')),'privilégio efetivo'
-from (values('anon'),('authenticated')) roles(name);
+select 'WORKER_RUNTIME','Owner gerenciado preservado',exists(select 1 from pg_namespace where nspname='net' and pg_get_userbyid(nspowner)='supabase_admin'),'nenhum ownership alterado';
 
 select grupo,teste,passou,detalhe from contaos_testes order by grupo,teste;
 rollback;

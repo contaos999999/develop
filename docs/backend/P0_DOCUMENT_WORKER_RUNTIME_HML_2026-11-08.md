@@ -115,3 +115,71 @@ HEAD4deade48a165d4df2d0643643b778cf283b46b09: guard42455696954, histórico424556
 Delta somente de diagnóstico noSQLjápermitido: SELECTcatálogo dosroles/superuser/herança e ACLs/owners de schema/tabelas/sequências/funçõesnet, semler filas,headers,segredos oucriarobjetos. Mantidas todasassertions bloqueantes. O titular nesta conversa determinou resolverworker e verificações dafixture152; reutilizar155 semduplicação. HMLcontinua intacto e arquivo152 pendente/enfileirado.
 
 Diagnóstico40323f2/restore42456721306: owners/grantors net=supabase_admin; grantsPUBLIC eexplícitosanon/authcontinuamabertos; rolesclientesnãoSuperuser/nãomembrospostgres. CausaentreREVOKEineficazporgrantor e reaplicaçãopósCLI aindaadistinguir. PróximodeltasomenteSQLlocalemsavepoint: executar osmesmos4REVOKEs, registrar catálogoimediato eROLLBACKTOantesdasassertionsoriginais. NenhumREVOKEcorrectivotardio éusadoparaaprovar. Sepermissõespermaneceremabertasantes/depois, nãoaplicarHML e buscarfluxooficialdeowner/instalação.
+
+## Checkpoint: impedimento comprovado da plataforma e decisão necessária
+
+Em 08/11/2026, a continuação autorizada pelo titular investigou worker e verificação de segurança do arquivo do checkpoint #152. Ambos dependem do worker documental. O HML continua com o arquivo `8cc6ac08-7f5b-469c-ab50-7b33d5a12379` em segurança pendente e o job `431c5c89-812e-4d7e-99be-5550a55bafcf` enfileirado, zero tentativas. Nenhum status foi aprovado manualmente. Nenhuma extensão foi instalada no HML nesta execução.
+
+### Evidência e causa definitiva do bloqueio atual
+
+- PR #155, HEAD `4deade48a165d4df2d0643643b778cf283b46b09`: guard/public/histórico e backup passaram; a reconstrução bloqueou em oito testes de privilégio efetivo do schema net. Os testes nativos de contenção TCP/HTTP passaram.
+- Diagnóstico somente de catálogo `40323f2c30d0891144a7c44be05abefadd540af7`: owners e grantors dos objetos net são `supabase_admin`; grants a PUBLIC e aos clientes continuam presentes. anon/authenticated não são superusers nem membros de postgres.
+- Diagnóstico isolado em savepoint `d5d79b626a8236f3ed0a618d2ae5d733f311aac7`, run `42456946721`, job `128657901129`: os quatro REVOKEs originais emitiram **WARNING: no privileges could be revoked**. O catálogo imediatamente posterior continuou com anon_usage=true, auth_usage=true e anon_http=true. O rollback foi executado antes das oito assertions originais, que continuaram falhando. Não se trata de simplesmente afrouxar teste ou reaplicar uma revogação após o reset.
+
+A [documentação oficial do Supabase, atualizada em 04/11/2026](https://supabase.com/kb/troubleshooting/revoking-access-to-pg_net-objects-has-no-effect-0bbc16) confirma que postgres não concedeu esses privilégios e não possui grant option. A plataforma não suporta alterar os grants de pg_net por projeto. Remover os grants de PUBLIC também quebraria workers que dependem deles. Portanto, o contrato literal de quatro REVOKEs eficazes do GATE #153 não é executável neste ambiente. Não tentar SET ROLE privilegiado, alterar ownership, editar catálogos, fabricar PASS ou acessar credenciais de administrador da plataforma.
+
+### Alternativa concreta, ainda NÃO autorizada como BUILD
+
+Preservar frontend e backend Supabase, os workers e crons existentes, usando a fronteira suportada pelo provedor: pg_net em namespace interno, net fora dos schemas expostos pela Data API, anon/authenticated sem LOGIN direto e acesso SQL direto somente por serviços confiáveis. Isso substituiria explicitamente a exigência de ACL interna fechada do GATE #153; não seria uma alegação falsa de revogação.
+
+**Consequência material:** qualquer papel com acesso SQL direto pode ler headers de requisições pg_net enquanto estão na fila, inclusive o token interno enviado pelo cron. Esses acessos devem ser considerados administrativos e confiáveis. Esta mudança de condição de segurança exige decisão expressa do titular antes de habilitar a extensão, alterar testes ou integrar/aplicar o BUILD #155.
+
+Provas preparatórias somente de leitura: HML inventariou apenas roles de infraestrutura/Supabase com LOGIN. A requisição anônima à Data API com Accept-Profile net, seleção apenas de id e limite zero, retornou **406/PGRST106, Invalid schema: net**. Isso prova somente a recusa dessa chamada; não substitui inventário completo da configuração gerenciada, prova autenticada ou verificação posterior à ativação. Nenhuma linha de fila, header ou segredo foi lido. A consulta de configuração da sessão não retornou db_schemas e não foi usada para alegar configuração global confirmada.
+
+Se o titular aprovar esta alternativa, um GATE complementar deve fechar os caminhos e exigir: configuração gerenciada exata, negativos reais anon e authenticated para net, revisão dos logins diretos, preservação de JWT/token interno/RBAC/RLS, instalação versionada sem REVOKE ineficaz nem escalada, contenção TCP/HTTP real do Restore/backup, testes completos e revisão independente no mesmo HEAD, merge normal e deploy canônico. Depois, observar os crons normais processarem o mesmo arquivo #152 e comprovar segurança aprovada, extração real, páginas/fragmentos e estado de processamento, sem consumidor global manual ou liberação artificial.
+
+**Estado:** diagnóstico concluído; duas pendências de produto ainda NÃO resolvidas; PR #155 bloqueado; nenhum deploy HML autorizado por este checkpoint. A prova de upload #152 permanece válida e não deve ser repetida ou apagada. V1/global/CRUD continuam sem certificação integral. Não iniciar V2 ou alterar PROD.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A; diagnóstico e planejamento sem turno Lovable, sem alteração do backend HML, sem reduzir teste ou proteção silenciosamente.
+
+## GATE complementar aprovado pelo titular: fronteira efetiva da API
+
+Em 08/11/2026 o titular respondeu **“Surorizo”**, interpretado no contexto inequívoco como **“Autorizo”**, à pergunta expressa do checkpoint #157. A autorização aceita manter os workers no Supabase, proteger a fronteira da API e limitar SQL direto a serviços administrativos confiáveis, ciente de que essas contas podem ler headers da fila pg_net. Não solicitar novamente essa mesma decisão. O registro histórico de oito negativas ACL e da decisão anterior permanece intacto.
+
+Este complemento substitui **somente** a condição inexequível de revogar os grants gerenciados de pg_net do GATE #153. Não afirma ACLs fechadas nem ausência de acesso SQL administrativo. Preserva o backend Supabase, Auth/JWT/token interno/RBAC/RLS/Storage, workers/crons, filas e payloads existentes, a contenção real TCP/HTTP dos GATEs #154/#156, as provas de restore/backup/guards e a proibição de consumidor global manual. Frontend, PROD e migrations já aplicadas permanecem intocados.
+
+### BUILD fechado após integração deste GATE
+
+Reutilizar o PR #155 com reancoragem normal, mantendo seus dez caminhos já autorizados e acrescentando somente:
+
+- `.github/workflows/p0-hml-migration-version-parity.yml`;
+- `supabase/tests/worker_api_boundary_hml.py`;
+- `supabase/tests/worker_api_boundary.test.mjs`.
+
+A migration **ainda não aplicada** `20261108060000_restore_document_worker_pg_net.sql` passa a conter somente BEGIN, CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions e COMMIT. Retirar os REVOKEs ineficazes dessa versão não aplicada, preservando seus hashes/falhas anteriores no histórico. Não mudar owners, grantors, roles, membership, LOGIN, configuraçãoAuth ou catálogos privilegiados. A extensão deve estar fora de public, sua API oficial disponível ao scheduler e as identidades de aplicação sem LOGIN. Qualquer role SQL de LOGIN além da lista nominal dos serviços já inventariados deve bloquear a implantação para análise, sem revogação cega de infraestrutura.
+
+Substituir as oito assertions que exigiam ACLs impossíveis por testes precisos de contrato gerenciado: namespace, assinatura, owners gerenciados, capacidade do scheduler, anon/authenticated sem LOGIN e inventário fechado de logins. Registrar que esses testes SQL não certificam a Data API. Não retirar as demais provas e negativas existentes. O preflight do runner documental deve exigir extensão/cron/destino HML e os controles efetivos, sem alegar grants revogados.
+
+### Prova real antes e depois do deploy
+
+No workflow canônico de deploy_one, **somente para a versão 20261108060000**, executar o novo script antes de qualquer DDL e novamente depois da aplicação, após conferir fonte/hash/checks/manifesto e exatamente uma migration pendente. Disponibilizar `CONTAOS_HML_AUTH_ADMIN_KEY` somente no passo de prova correspondente, dentro do ambiente protegido hml. Nenhum token, senha, body de erro ou URL assinada pode ser impresso ou publicado. Preservar comportamentos/inputs das outras migrations e os gates atuais da CLI.
+
+O script valida project ref/host/role do DATABASE_URL e origem HTTPS fixa, sem redirects. Lê somente metadados de extensão, roles e comparação booleana do destino Vault, nunca valores de secrets ou linhas das filas. Cria apenas uma identidade Auth sintética própria por execução, com escopo/nonce/intent_id recuperáveis; autentica pela API normal e confirma identidade. Usa a chave pública já existente, mantendo a chave administrativa apenas na API Auth. Exige controles positivos de API pública e sessão autenticada; para **ambas** as identidades, uma leitura com `Accept-Profile: net`, seleção apenas de id e limite zero deve retornar exatamente 406/PGRST106. Outros erros, falha de transporte ou autenticação não contam como proteção. Essa é a prova da configuração efetiva da API; não inferir configuração global de GUC ausente numa sessão SQL. Não selecionar headers, body, tokens ou linhas de net.
+
+A identidade própria deve ser excluída e sua ausência confirmada, inclusive quando a requisição de criação tiver resultado incerto. Verificar scope/nonce/intent_id antes de qualquer exclusão; não excluir usuário preexistente, de outra execução ou da fixture #152. Limpeza incompleta mantém FAIL; relatório sanitizado identifica estágio, HEAD, booleans e status, sem credenciais. Não criar arquivos/documentos/jobs nem chamar workers nesse preflight. Um FAIL anterior impede DDL; FAIL posterior impede declarar conclusão e preserva os recibos para correção, sem apagar filas ou aplicar rollback destrutivo automaticamente.
+
+TDD deve provar recusa de status/código divergentes, erro de transporte/redirect, inventário inesperado, estados de extensão incompatíveis e ciclo de recuperação/cleanup de identidade própria. Regressão valida o workflow exato antes/depois do deploy e limita a migration ao contrato aprovado. Suíte Node completa, sintaxe Python/YAML, todos os guards, public-probe, restore SQL e backup reais no mesmo HEAD, mais revisão independente do conjunto, são obrigatórios antes de merge/aplicação.
+
+Após implantação e controles efetivos aprovados, **observar os crons normais**, sem consumidor manual, até processar a fixture #152. Comprovar job real, segurança aprovada pelo worker, extração, páginas/fragmentos e atualização autenticada na interface. Não atualizar status de segurança manualmente nem atribuir a prova de um TXT a antivírus universal, todos os formatos, CRUD global ou certificação V1. Encerrar com checkpoint integrado de commits, CI, implantação e pendências reais.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A; reaproveitar workers e código existentes, sem turno Lovable, nova arquitetura de backend ou relaxamento silencioso de requisito. A mudança da condição de segurança está expressamente aprovada e delimitada acima.
+
+Ruling: reancorar155 no GATE158 aprovado, preservando histórico/diagnósticos e contenção existentes. Somente a condição rawACL é substituída pela fronteiraAPI expressamente autorizada; custo se errado: exposição indevida da rede, bloqueada por provas reais antes/depois do deploy.
+
+## BUILD da alternativa expressamente autorizada
+
+GATE158 HEAD e7466f2f82c497d3a6be057ddbec7901b170fb9d integrado em eedf922cdf3fab0673438fb4627c327411819bd2 após guard42473235121SUCCESS e revisão independente sem Critical/Important. Reancoragem155 preserva dois pais d5d79b+eedf922, semforce. Autorização do titular e risco administrativo aceito estão no manifesto, não implícitos.
+
+TDD: novo teste recusou ausência do script; contrato da migration recusou os quatro REVOKEs antigos; teste de limpeza reproduziu falsa confirmação de ausência após criação incerta e passou após bloqueá-la; teste de workflow recusou ausência dos passos reais pre/post; preflight antigo recusou novo contrato antes da adaptação. GREEN dirigido73/73. O novo script não lê filas ou valores Vault, mantém credenciais apenas em memória, recusa redirects e só exclui identidade comprovadamente própria, com confirmação de ausência. A etapa SQL isolada agora prova o contrato gerenciado e LOGIN, sem alegar acesso API negado por SQL. Provas HTTP reais permanecem exigidas no deploy.
+
+O pipeline de deploy mantém todos os inputs/versões/gates anteriores; somente migration20261108060000 executa testes Auth/API reais antes e depois, com segredo administrativo limitado aos dois passos. Artefato contém apenas relatórios sanitizados e IDs opacos de recuperação, sem JWT/senha/admin secret ou bodies HTTP. A prova #152 continua intacta até o cron normal. CI, revisão final, merge e aplicação ainda pendentes neste registro.

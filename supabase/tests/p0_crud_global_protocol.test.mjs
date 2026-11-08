@@ -9,15 +9,11 @@ const root=resolve('.');
 
 import {spawnSync} from 'node:child_process';
 const browser='supabase/tests/p0_crud_global_browser.mjs';
-test('worker runtime migration enables nonpublic pg_net and closes inherited access atomically',()=>{
+test('worker runtime migration uses only the explicitly approved managed extension contract',()=>{
  const file='supabase/migrations/20261108060000_restore_document_worker_pg_net.sql';
  assert(existsSync(file),'approved worker runtime migration required');
  assert.equal(readFileSync(file,'utf8').replace(/^--.*$/gm,'').trim(),`BEGIN;
 CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
-REVOKE ALL PRIVILEGES ON SCHEMA net FROM PUBLIC, anon, authenticated;
-REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA net FROM PUBLIC, anon, authenticated;
-REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA net FROM PUBLIC, anon, authenticated;
-REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated;
 COMMIT;`);
 });
 test('actual local network helper rejects foreign runner, remote credentials and unsafe attachments before Supabase',()=>{
@@ -132,7 +128,7 @@ test('actual prepare rejects unavailable or exposed worker runtime before any Au
  const code=String.raw`import importlib.util,json,tempfile
 from pathlib import Path
 s=importlib.util.spec_from_file_location('protocol','supabase/tests/p0_crud_global_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
-keys=('extension_ready','http_post_ready','acl_isolated','scheduler_ready','destination_is_hml')
+keys=('extension_ready','http_post_ready','client_logins_closed','scheduler_ready','destination_is_hml')
 good=dict.fromkeys(keys,True)
 cases=[good,{},dict(good,unexpected=True)]+[{**good,k:v} for k in keys for v in (False,None,'true',1)]
 class StopFixture(Exception):pass
@@ -144,13 +140,13 @@ for i,metadata in enumerate(cases):
   def save(name,data):
    if name=='fixture.json':effects.append('fixture');raise StopFixture()
   def request(*args,**kwargs):effects.append('AUTH');raise AssertionError('Auth must not be reached')
-  r.sql=sql;r.save=save;r.request=request
+  r.sql=sql;r.save=save;r.request=request;r.read_document_api_boundary=lambda:(406,{'code':'PGRST106'})
   try:r.prepare()
   except StopFixture:assert i==0 and effects==['fixture']
   except RuntimeError:assert i!=0 and effects==[]
   else:raise AssertionError('prepare must stop at runtime or first fixture boundary')
   assert len(queries)==1 and 'net.http_post' in queries[0] and 'vault.decrypted_secrets' in queries[0]
-  assert r.report['assertions']==[{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':i==0,'http':None}]
+  assert r.report['assertions']==([{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':True,'http':None},{'name':'DOCUMENT_WORKER_API_SCHEMA_BLOCKED_ANON','passed':True,'http':406}] if i==0 else [{'name':'DOCUMENT_WORKER_RUNTIME_READY','passed':False,'http':None}])
 print('WORKER_RUNTIME_PRE_AUTH_PASS',len(cases))`;
  const r=spawnSync('python3',['-c',code],{env:{PATH:process.env.PATH},encoding:'utf8'});
  assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/WORKER_RUNTIME_PRE_AUTH_PASS 23/);

@@ -1,0 +1,65 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {existsSync,readFileSync} from 'node:fs';
+import {spawnSync} from 'node:child_process';
+test('managed worker boundary proof rejects invalid metadata and false HTTP denials',()=>{
+ assert(existsSync('supabase/tests/worker_api_boundary_hml.py'),'real API boundary proof is required');
+ const code=String.raw`import importlib.util
+s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+good={'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+assert m.metadata_valid(good,'preinstall')
+post={**good,'extension_present':True,'extension_ready':True,'scheduler_access':True}
+assert m.metadata_valid(post,'postinstall') and not m.metadata_valid(post,'preinstall')
+assert not m.metadata_valid(good,'other') and not m.metadata_valid({},'preinstall') and not m.metadata_valid({**good,'extra':True},'preinstall')
+for key in good:
+ for value in [None,'true',1,0,not good[key]]:
+  assert not m.metadata_valid({**good,key:value},'preinstall'),(key,value)
+assert m.api_denied(406,{'code':'PGRST106'})
+for status in [0,200,400,401,403,404,500]:assert not m.api_denied(status,{'code':'PGRST106'})
+for body in [None,[],{}, {'code':'42501'}, {'code':'PGRST301'}]:assert not m.api_denied(406,body)
+try:m.NoRedirect().redirect_request(None,None,302,'',{},'https://foreign.invalid')
+except m.BoundaryError:pass
+else:raise AssertionError('redirect accepted')
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
+});
+test('boundary cleanup recovers uncertain owned creation without deleting foreign identities',()=>{
+ const code=String.raw`import importlib.util,uuid
+s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+nonce='n';intent=str(uuid.uuid4());email='worker-boundary-n@example.invalid';identifier=str(uuid.uuid4())
+owned={'id':identifier,'email':email,'app_metadata':{'scope':m.SCOPE,'boundary_nonce':nonce,'fixture_request_id':intent}}
+foreign={**owned,'id':str(uuid.uuid4()),'app_metadata':{**owned['app_metadata'],'boundary_nonce':'foreign'}}
+assert m.own_record(owned,nonce,intent,email) and not m.own_record(foreign,nonce,intent,email)
+assert not m.own_record({**owned,'id':'invalid'},nonce,intent,email)
+def probe():
+ p=object.__new__(m.Probe);p.creation_attempted=True;p.create_outcome='uncertain';p.user_id=None;p.nonce=nonce;p.intent=intent;p.email=email;return p
+p=probe();p.find_owned=lambda:None
+try:p.cleanup()
+except m.BoundaryError:pass
+else:raise AssertionError('uncertain create cannot certify absence')
+p=probe();deleted=[];state={'gone':False}
+def request(path,**kwargs):
+ if '?page=' in path:return 200,{'users':[foreign] if state['gone'] else [foreign,owned]}
+ if kwargs.get('method')=='DELETE':
+  deleted.append(path);state['gone']=True;return 200,{}
+ return (404,{'error_code':'user_not_found'}) if state['gone'] else (200,owned)
+p.request=request
+assert p.cleanup() and deleted==['/auth/v1/admin/users/'+identifier]
+p=probe();p.user_id=identifier;p.request=lambda *a,**k:(200,foreign)
+try:p.cleanup()
+except m.BoundaryError:pass
+else:raise AssertionError('foreign identity accepted')
+p=probe();p.creation_attempted=False;p.request=lambda *a,**k:(_ for _ in ()).throw(AssertionError('unexpected Auth request'))
+assert p.cleanup()
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
+});
+test('worker boundary runs immediately before and after the single approved deploy',()=>{
+ const w=readFileSync('.github/workflows/p0-hml-migration-version-parity.yml','utf8');
+ const before=w.indexOf('Worker API boundary before deploy');const deploy=w.indexOf('name: Deploy only approved CLI migration');const after=w.indexOf('Worker API boundary after deploy');
+ assert(before>=0&&before<deploy&&after>deploy,'real pre/post steps required');
+ assert.equal((w.match(/AUTH_ADMIN_KEY: \$\{\{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY \}\}/g)||[]).length,2);
+ assert(w.includes('worker_api_boundary_hml.py --stage preinstall'));assert(w.includes('worker_api_boundary_hml.py --stage postinstall'));
+ assert(w.includes("env.TARGET_VERSION == '20261108060000'"));
+ assert(w.includes('path: ${{ runner.temp }}/contaos-worker-boundary/*-report.json'));
+});

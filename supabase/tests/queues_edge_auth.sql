@@ -34,11 +34,11 @@ select 'limite_move_para_dlq',
        and exists(select 1 from public.execucoes_assincronas e where e.id=(select id1 from ids_job) and e.status='cancelado'),
        'dlq='||(select count(*) from public.jobs_dlq d where d.id_execucao=(select id1 from ids_job))::text;
 insert into contaos_queue_tests
-select 'pg_net_runtime_nonpublic_com_net_fechado',
+select 'pg_net_runtime_nonpublic_clientes_sem_login',
  exists(select 1 from pg_extension e join pg_namespace n on n.oid=e.extnamespace where e.extname='pg_net' and n.nspname='extensions')
  and to_regprocedure('net.http_post(text,jsonb,jsonb,jsonb,integer)') is not null
- and not has_schema_privilege('anon','net','USAGE,CREATE') and not has_schema_privilege('authenticated','net','USAGE,CREATE'),
- 'GATE153 supersede remoção intencional; nenhuma chamada HTTP nesta regressão';
+ and (select count(*)=2 and bool_and(not rolcanlogin) from pg_roles where rolname in ('anon','authenticated')),
+ 'GATE158: grants gerenciados aceitos; API é verificada no deploy real; sem HTTP neste SQL';
 select teste,passou,detalhe from contaos_queue_tests order by teste;
 rollback;
 
