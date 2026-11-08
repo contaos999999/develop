@@ -190,4 +190,3 @@ Deno.serve(async(req:Request)=>{
     return respostaErro(500,'COPILOTO_FALHOU','Não foi possível concluir a consulta','O copiloto encontrou um problema durante a recuperação das fontes. Nenhuma conclusão foi inventada.','Tente novamente ou encaminhe a análise para revisão humana.')
   }
 })
-
