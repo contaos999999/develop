@@ -240,3 +240,46 @@ Após revisão e checks documentais, integrar este GATE; reancorar #139 por merg
 Este complemento restringe somente o navegador de prova. Preserva o worker real de documentos no backend, cinco recibos disjuntos, readiness, negativos, auditoria e cleanup obrigatórios. Não altera o produto nem autoriza aceitar Worker funcional bloqueado. Continuam NÃO CERTIFICADOS Browser Workers e janela/download nativo, e pendentes os critérios integrais documentais, CRUD global e V1. UI Edge CORS e GET assinado limitado continuam provas parciais separadas.
 
 Deploy HML permanece condicionado à seção 9 e às fontes integradas aprovadas; PROD proibido. A autorização de continuidade existente dispensa nova aprovação humana rotineira. ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, novas funções, configurações, permissões ou escopo de produto.
+
+
+## 13. GATE complementar: barreira nativa de destinos por contexto com proxy DENY
+
+Documento separado anterior ao BUILD, sem execução material. Exigir revisão normativa e guard/reconstrução/backup SUCCESS no mesmo HEAD antes de integrar; depois reancorar #139 por merge normal, sem force push. Preservam-se os dez caminhos autorizados e todas as negações de produto/PROD.
+
+### 13.1 Falha comprovada e substituição delimitada
+
+Preservar o §12 como histórico. O HEAD `2447807580249d57b0e8215c4a078e9b2ae4a0cf`, run `42441727347`, job `128612183414`, artefato `13601469706` SHA256 `27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721`, provou CSP raw continuada1/observada1, mas Worker HTTP bootstrap1/START1/HTTP estrangeiro1 após close e drenagem; zero upgrades. O header não provou enforcement. A implementação não satisfaz o aceite de contenção do §12, e não recebe PASS retroativo.
+
+Substituir a dependência da CSP inoperante pela barreira nativa abaixo. Exclusivamente nas fixtures isoladas SEM credenciais, bootstrap/START na origem própria pode demonstrar que o Worker negativo realmente executou, sem certificar Worker produtivo. O aceite passa a exigir zero conexões/requests HTTP e zero upgrades WS/WSS nos destinos não aprovados, incluindo efeitos tardios. Não denominar isso zero execução de Worker, rede global ou certificação funcional. No fluxo real da aplicação, qualquer Browser Worker inesperado continua FAIL; se necessário ao produto e bloqueado, mantém pendência funcional, sem ocultar o erro.
+
+### 13.2 Contrato nativo e negações
+
+Criar cada BrowserContext já com proxy nativo, antes de qualquer página/target ou navegação. O endpoint DENY é um servidor TCP efêmero próprio, exclusivamente loopback: encerra a conexão sem ler, armazenar, registrar, responder ou encaminhar dados. Não implementar HTTP, CONNECT, túnel, TLS MITM, resposta sintética, forwarding, relay, fulfill ou mock. Nunca ler headers/body de autenticação. Seu recibo pode conter apenas contagem de conexões, sem URLs, bytes, paths ou endpoints.
+
+A configuração nativa deve encaminhar destinos não aprovados somente ao DENY, sem fallback DIRECT e sem lista alternativa de proxies. DIRECT é admissível exclusivamente pelo bypass exato SCHEME + HOST normalizado + PORT das duas origens aprovadas na execução de produto: origem frontend em teste e HML `https://gklhhhyosgasnyoxlrui.supabase.co:443`. O frontend é local `http://127.0.0.1:4173` OU publicado `https://scope-and-approval-keeper.lovable.app:443`, sem união adicional de origens. Não usar wildcard, sufixo, CIDR, subdomínio, host parecido ou bypass geral de localhost. Aplicar `<-loopback>` explicitamente antes das exceções exatas para remover bypass implícito de localhost/link-local.
+
+No conjunto sintético sem credenciais, as origens aprovadas são somente os servidores efêmeros próprios necessários à fixture, fixados antes de criar o contexto; a origem estrangeira só entra no bypass da fixture CORS positiva/negativa que a autoriza para testar o protocolo. Isso não amplia origens da aplicação nem autoriza requests externos de sondagem.
+
+Manter o fence nativo de identidade de target, URL/path/método já requerido, popup DENY e redirects negados antes de seguir. Proxy por origem não substitui esses controles, hashes ou isolamento lógico. Manter a inspeção do backend efetivamente HML, grafo/SDK e comparação dos bytes HTML/scripts carregados antes de preencher qualquer credencial. Worker ou destino opaco/inesperado interrompe FAIL e cleanup. Não aceitar CSP raw observada como controle de segurança; retirar a alteração de headers CSP inoperante no BUILD desta política, preservando headers/status/corpo originais.
+
+### 13.3 Fontes e provas reais obrigatórias
+
+Fontes primárias pinadas: Chromium156.0.8078.4 `net/docs/proxy.md` (https://github.com/chromium/chromium/blob/156.0.8078.4/net/docs/proxy.md) documenta padrões de esquema/host/porta, remoção dos bypass implícitos, ordem significativa e falha sem DIRECT. Playwright1.64.1 `crBrowser.ts` (https://github.com/microsoft/playwright/blob/v1.64.1/packages/playwright-core/src/server/chromium/crBrowser.ts) repassa proxyServer/proxyBypassList a Target.createBrowserContext. Confirmar a execução no runtime congelado existente, sem alterar dependências ou workflow.
+
+TDD e fixtures Chromium reais devem provar:
+- Positivo: origem própria aprovada trafega diretamente e recebe bytes/status reais; endpoint DENY não recebe essa conexão.
+- Negativos: porta, protocolo HTTP/HTTPS/WS/WSS, host parecido, subdomínio, trailing dot, aliases localhost/loopback, IPv4/IPv6 e literal IP não aprovados não alcançam o destino. Conferir conexões TCP do destino, não somente requests HTTP, para detectar tentativa TLS/CONNECT/WS.
+- Proxy fechado/indisponível continua falhando sem transmissão ao destino e sem fallback DIRECT. Não liberar origem em reação à falha.
+- Workers HTTP/blob/data, SharedWorker quando disponível e WS/WSS, redirects rápidos e popup/about:blank não alcançam destinos não aprovados. A fixture negativa pode permitir execução Worker própria sem credenciais para observar sua tentativa real; fora dela, Worker inesperado mantém FAIL.
+- A rede das origens aprovadas permanece nativa, sem alteração de CORS/Origin/cookies/headers/status/body. CORS positivo exige OPTIONS real e um POST permitido/status esperado; negativo exige OPTIONS real e zero POST negado.
+- Hash de HTML/scripts e ChangedJS sem execução continuam obrigatórios; nenhum SDK injetado, JWT extraído ou API interna.
+
+Medir contadores finais somente depois de aguardar context.close, drenagem de eventos e TCP dos servidores e janela explícita de observação. Reprovar qualquer efeito tardio. Não destruir sockets do destino antes da contabilização para fabricar zero. Encerrar o endpoint DENY somente após fechar/drenar seus contextos.
+
+### 13.4 Sequência e alcance do resultado
+
+Revisão normativa deste GATE e checks documentais precedem sua integração. Depois: merge normal main→#139, RED→BUILD→GREEN, revisão independente do harness completo, guard/restore/backup/public-probe SUCCESS no mesmo HEAD final e integração permitida. Sem nenhum check não fazer merge. Autorizações rotineiras já existem; nenhum novo pedido humano por hipótese.
+
+Preservar autenticação/RLS/RBAC, worker backend real, cinco recibos disjuntos, readiness SELECT restrita, negativos, auditoria, banimento/revogação e cleanup. UI Edge e GET assinado limitado continuam provas parciais; janela nativa e Browser Workers funcionais NÃO CERTIFICADOS. Critérios integrais documentais, CRUD global, identidade visual e V1 continuam pendentes. Deploy HML somente após fonte integrada e condições da seção9; PROD permanece proibido.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visual N/A; sem frontend, Lovable, dependências, workflows, novas funções ou ampliação material do sistema.

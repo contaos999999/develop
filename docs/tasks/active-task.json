@@ -1117,13 +1117,30 @@
       "full_document_crud_v1_certification": false,
       "gate_pr": 141,
       "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
-      "state": "INTEGRADO_ANTES_BUILD",
+      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO",
       "build_state": "EM_VALIDACAO_CI_REAL",
       "local_tdd": {
         "red": "51PASS/1FAIL helper absent",
         "green_protocol": 52,
         "green_full": 258
       }
+    },
+    "native_destination_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "NATIVE_CONTEXT_PROXY_DENY_EXACT_ORIGIN_BYPASS",
+      "source_head": "2447807580249d57b0e8215c4a078e9b2ae4a0cf",
+      "source_run": 42441727347,
+      "artifact": 13601469706,
+      "sha256": "27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721",
+      "no_forwarding": true,
+      "no_direct_fallback": true,
+      "browser_workers": "NAO_CERTIFICADOS",
+      "unexpected_product_worker": "FAIL",
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 142,
+      "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
+      "state": "INTEGRADO_ANTES_BUILD"
     }
   },
   "auth_configuration_changes_allowed": false
