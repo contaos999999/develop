@@ -74,7 +74,7 @@ jobs:
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo CRUD global sem rede ou credenciais
-        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs supabase/tests/p0_crud_global_remaining.test.mjs supabase/tests/remaining_domains/detail_wrapper.test.mjs
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs supabase/tests/p0_crud_global_remaining.test.mjs supabase/tests/remaining_domains/detail_wrapper.test.mjs supabase/tests/remaining_domains/metadata_append.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |
@@ -318,6 +318,16 @@ jobs:
           test "$DB_URL" = postgresql://postgres:postgres@127.0.0.1:54322/postgres
           psql "$DB_URL" -X -qAt -v ON_ERROR_STOP=1 -f supabase/tests/remaining_domains/detail_wrapper_local.sql | tee restore-proof/detail-vigency-local.txt
           grep -Fxq 'DETAIL_VIGENCY_LOCAL_SQL_PASS' restore-proof/detail-vigency-local.txt
+
+      - name: Teste 22 - Metadados revisados acrescentam versao imutavel
+        shell: bash
+        env:
+          DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          set -euo pipefail
+          test "$DB_URL" = postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          psql "$DB_URL" -X -qAt -v ON_ERROR_STOP=1 -f supabase/tests/remaining_domains/metadata_append_local.sql | tee restore-proof/metadata-append-local.txt
+          grep -Fxq 'METADATA_APPEND_LOCAL_SQL_PASS' restore-proof/metadata-append-local.txt
 
       - name: Registrar histórico reconstruído
         shell: bash
