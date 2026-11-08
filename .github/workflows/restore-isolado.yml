@@ -63,7 +63,7 @@ jobs:
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo CRUD global sem rede ou credenciais
-        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |

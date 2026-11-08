@@ -116,7 +116,7 @@ class Probe:
         passed=False
         try:
             self.check('HML_METADATA_AND_LOGINS',metadata_valid(self.read_metadata(),self.stage))
-            status,_=self.request('/rest/v1/',profile='public');self.check('PUBLIC_API_CONTROL_ANON',status==200,status)
+            status,_=self.request('/auth/v1/settings');self.check('PUBLIC_API_CONTROL_ANON',status==200,status)
             path='/rest/v1/http_request_queue?select=id&limit=0'
             status,data=self.request(path,profile='net');self.check('NET_SCHEMA_DENIED_ANON',api_denied(status,data),status)
             self.creation_attempted=True;self.create_outcome='uncertain';self.report['cleanup']='REQUIRED';self.save()
@@ -131,7 +131,7 @@ class Probe:
             self.check('AUTHENTICATED_SESSION_CREATED',status==200 and isinstance(token,str) and bool(token),status)
             status,user=self.request('/auth/v1/user',token=token);self.check('AUTHENTICATED_IDENTITY_CONFIRMED',status==200 and isinstance(user,dict) and user.get('id')==self.user_id,status)
             self.check('AUTHENTICATED_ISSUED_TOKEN_ROLE_AND_SUBJECT',issued_authenticated_token_matches(token,self.user_id))
-            status,_=self.request('/rest/v1/',token=token,profile='public');self.check('PUBLIC_API_CONTROL_AUTHENTICATED',status==200,status)
+            status,_=self.request('/rest/v1/configuracao_upload?select=id&limit=0',token=token,profile='public');self.check('PUBLIC_API_CONTROL_AUTHENTICATED',status==200,status)
             status,data=self.request(path,token=token,profile='net');self.check('NET_SCHEMA_DENIED_AUTHENTICATED',api_denied(status,data),status)
             passed=True
         except Exception:self.report['state']='FAIL'

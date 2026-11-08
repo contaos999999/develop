@@ -93,3 +93,41 @@ for invalid in [token('anon',identifier),token('service_role',identifier),token(
 `;
  const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
 });
+test('real probe uses accessible public controls and never certifies anonymous public 401',()=>{
+ const code=String.raw`import importlib.util,tempfile,json,uuid,base64
+from pathlib import Path
+s=importlib.util.spec_from_file_location('boundary','supabase/tests/worker_api_boundary_hml.py');m=importlib.util.module_from_spec(s);s.loader.exec_module(m)
+with tempfile.TemporaryDirectory() as d:
+ p=object.__new__(m.Probe);p.stage='preinstall';p.report_path=Path(d)/'pre-report.json';p.nonce='testnonce';p.intent=str(uuid.uuid4());p.email='worker-boundary-testnonce@example.invalid';p.creation_attempted=False;p.create_outcome='not_started';p.user_id=None;p.report={'assertions':[],'recovery':{}}
+ p.read_metadata=lambda:{'extension_present':False,'extension_ready':False,'scheduler_access':False,'application_logins_closed':True,'trusted_logins_only':True,'destination_is_hml':True,'token_present':True,'cron_active':True}
+ identifier=str(uuid.uuid4());owned={'id':identifier,'email':p.email,'app_metadata':{'scope':m.SCOPE,'boundary_nonce':p.nonce,'fixture_request_id':p.intent}}
+ enc=lambda v:base64.urlsafe_b64encode(json.dumps(v).encode()).decode().rstrip('=')
+ token=enc({'alg':'RS256'})+'.'+enc({'role':'authenticated','sub':identifier})+'.PRIVATE_TOKEN_CANARY'
+ state={'deleted':False};calls=[]
+ def request(path,data=None,**kw):
+  calls.append((path,kw.get('admin',False),kw.get('profile')))
+  if path=='/auth/v1/settings':assert not kw.get('admin') and not kw.get('token');return 200,{}
+  if path=='/rest/v1/':return 401,{'code':'42501'}
+  if path=='/rest/v1/configuracao_upload?select=id&limit=0':assert kw.get('token')==token and not kw.get('admin');return 200,[]
+  if path=='/rest/v1/http_request_queue?select=id&limit=0':assert kw.get('profile')=='net' and not kw.get('admin');return 406,{'code':'PGRST106'}
+  if path=='/auth/v1/admin/users':assert kw.get('admin');return 201,owned
+  if path.startswith('/auth/v1/token?'):assert not kw.get('admin');return 200,{'access_token':token}
+  if path=='/auth/v1/user':return 200,{'id':identifier}
+  if path.startswith('/auth/v1/admin/users?page='):return 200,{'users':[] if state['deleted'] else [owned]}
+  if path=='/auth/v1/admin/users/'+identifier:
+   if kw.get('method')=='DELETE':state['deleted']=True;return 200,{}
+   return (404,{'error_code':'user_not_found'}) if state['deleted'] else (200,owned)
+  raise AssertionError('unexpected request')
+ p.request=request
+ assert p.run(),'public 401 must be replaced by a genuine accessible control'
+ assert state['deleted'] and p.report['state']=='PASS' and p.report['cleanup']=='OWN_AUTH_ABSENT_CONFIRMED'
+ assert '/rest/v1/' not in [x[0] for x in calls]
+ assert 'PRIVATE_TOKEN_CANARY' not in p.report_path.read_text()
+`;
+ const r=spawnSync('python3',['-c',code],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);
+});
+test('boundary security tests run before local database creation in Restore',()=>{
+ const w=readFileSync('.github/workflows/restore-isolado.yml','utf8');
+ const security=w.indexOf('node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs');
+ assert(security>=0&&security<w.indexOf('name: Iniciar PostgreSQL Supabase isolado'),'new boundary security suite must execute in CI before DB initialization');
+});

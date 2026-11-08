@@ -193,3 +193,8 @@ Revisão independente encontrou risco de falso PASS autenticado quando token emi
 GATE158 integrado `eedf922cdf3fab0673438fb4627c327411819bd2`; execução adicional Restore `42473442988` comprovou reconstrução `128709374356` e backup `128709374177` SUCCESS no HEAD do GATE `e7466f2f82c497d3a6be057ddbec7901b170fb9d`, junto com guard `128708700681`. Não reutilizar esses checks no BUILD. Fixture152 continua enfileirada/tentativas0 na consulta somente leitura; pg_net HML ainda ausente. Proposta159 usa condição ACL supersedida, manter separada sem reintroduzir requisito antigo. V1 não certificada; V2/PROD bloqueados.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: visual N/A, deltas mínimos em caminhos já autorizados, testes e GitHub sem Lovable; sem nova configuração Auth, mudança RLS, consumo manual ou alteração PROD.
+
+
+### Conciliação final dos controles HTTP e execução no Restore
+
+Preservado integralmente9c263374 e seu diagnóstico pg_net, manifesto e correção JWT. Revisão final encontrou controle positivo anônimo inacessível (DataAPIroot401) e suíte boundary ausente no comando Restore. RED dos dois cenários reproduzido; GREEN usa Auth/settings200 anônimo e DataAPI/configuracao_upload?select=id&limit=0 com token authenticated200, mantendo net406/PGRST106 estrito. Restore executa a suíte nova antes da criação do banco. Teste usa Probe.run real, transporte apenas simulado e JWT sintético coerente; não é prova HML. GREEN6/6boundary e335/335Node completo, zero skip/fail. Revisão independente do conjunto sem Important adicional; JWT já revisado e conciliado. CI do novo HEAD e correção de eventual diagnóstico de isolamento continuam obrigatórios antes de merge/deploy. Nenhum write HML.
