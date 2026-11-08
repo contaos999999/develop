@@ -1,12 +1,12 @@
 {
   "id": "P0-CRUD-GLOBAL-HML-20261107",
-  "title": "Prova privada V1: BUILD CORS com contenção nativa e provas parciais",
+  "title": "PLAN/GATE: restaurar dependência pg_net dos workers HML",
   "status": "ativa",
-  "phase": "BUILD_CORS_DOCUMENTAL_HML",
+  "phase": "GATE_DOCUMENT_WORKER_RUNTIME_HML",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex executor independente Trilha B; contexto raiz00–20, P0, manifesto, certificado, PLAN/GATE138/140/141/142/143 e implementação afetada lidos",
+  "context_read_by": "Codex executor independente Trilha B; contexto canônico, HEAD9af2c6a, checkpoints138/139/148/149/150/151/152 e migrations0001/0019/0022/0025 lidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -37,23 +37,8 @@
   ],
   "objective": "Executar matriz CRUDglobalV1 contra frontendreal e HML, sem simular backend/contornarRLS, corrigindo apenas lacunas comprovadas por rito próprio.",
   "allowed_paths": [
-    "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
-    "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
-    "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
     "docs/tasks/active-task.json",
-    "supabase/functions/storage-sign-upload/index.ts",
-    "supabase/functions/storage-sign-download/index.ts",
-    "supabase/tests/storage_document_cors.test.mjs",
-    "supabase/tests/p0_crud_global_browser.mjs",
-    "supabase/tests/p0_crud_global_protocol.test.mjs",
-    "supabase/tests/p0_crud_global_hml.py",
-    "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
-    "supabase/migrations/20261108053000_fix_upload_extension_extraction.sql",
-    "supabase/tests/hml_acceptance.sql",
-    "supabase/tests/upload_extension.test.mjs",
-    "supabase/migrations/20261108054500_fix_document_upload_wrapper.sql",
-    "supabase/tests/upload_document_wrapper.test.mjs",
-    "supabase/tests/history_catalog_compare.py"
+    "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -63,7 +48,7 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": true,
+  "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -147,7 +132,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Validar DENY nativo, hashes carregados e GET limitado após GATE140 integrado. Exigir revisão e guard/restore/backup/public-probe SUCCESS no mesmo HEAD antes de integrar BUILD139. Material e deploy dependem da sequência governada e continuam desabilitados nesta fase.",
+  "next_step": "Revisão independente eguard destePLAN/GATE; integrar antesBUILD separado. BUILD apenas habilita pg_net fora dopublic sob supersessão explícita daremoçãointencional e preflightmetadata antesAuthfixtures, testaSQL/Node/public/Restore/backup mesmoHEAD. ReparoHML apósmergenormal; observarcron normal e sóentão reancorar148. SemnovasEdges/frontend/PROD/CRUD/V1/V2.",
   "database_change_scope": {
     "migration": "20261107094443_p0_v117_revisao_humana.sql",
     "new_public_functions": [
@@ -1303,5 +1288,55 @@
     "processing": "na_fila",
     "full_v1_certification": false,
     "prod": false
+  },
+  "document_worker_runtime_gate": {
+    "phase": "GATE",
+    "owner": "EXECUTOR_INDEPENDENTE_TRILHA_B",
+    "base": "9af2c6a6b42ec175126d1bd2b2f33905742d8ad7",
+    "project": "gklhhhyosgasnyoxlrui",
+    "failure": "cron5/6/9: schema net does not exist; pg_net available0.20.4 not installed",
+    "authorization": "Titular determinou resolver definitivamente TrilhaB/backendHML e provar worker real; reparo mínimo de dependência já exigida pela migration0001, semPROD",
+    "future_build_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/P0_DOCUMENT_WORKER_RUNTIME_HML_2026-11-08.md",
+      "supabase/migrations/20261108060000_restore_document_worker_pg_net.sql",
+      "supabase/tests/hml_acceptance.sql",
+      "supabase/tests/p0_crud_global_hml.py",
+      "supabase/tests/p0_crud_global_protocol.test.mjs",
+      "supabase/tests/queues_edge_auth.sql"
+    ],
+    "migration_contract": "BEGIN; CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions; REVOKE ALL PRIVILEGES ON SCHEMA net, ALL TABLES/SEQUENCES/FUNCTIONS IN SCHEMA net FROM PUBLIC, anon, authenticated (four exact statements); COMMIT; no application ACL change",
+    "material_pr": 148,
+    "material_enabled": false,
+    "prod": false,
+    "no_manual_global_consumer": true,
+    "preserve_other_executor_fixture": "PR152 records remain owned by its executor; no cleanup or edits by this repair",
+    "superseded_intentional_removal": "20261102101651_remove_unused_pg_net.sql retained; enable under current worker proof requirement without public-schema warning",
+    "runtime_effects": [
+      "documents",
+      "embeddings",
+      "ai",
+      "webhooks",
+      "finance",
+      "reports",
+      "notifications",
+      "ocr",
+      "historico"
+    ],
+    "readonly_backlog": {
+      "documents": 1,
+      "ocr": 0,
+      "ai": 0,
+      "embeddings": 0,
+      "finance_imports": 0,
+      "reports": 0,
+      "webhooks": 0,
+      "historico": 0,
+      "integrations": 0,
+      "own_fixture_job_count": 0,
+      "other_executor_fixture_job_count": 1
+    },
+    "net_acl_hardening_required": true,
+    "net_acl_before_first_commit": true
   }
 }
