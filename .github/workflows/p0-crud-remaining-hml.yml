@@ -114,6 +114,11 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           persist-credentials: false
+      - name: Install pinned official CLI for single approved detail migration
+        if: matrix.domain == 'documento_detalhe'
+        uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb
+        with:
+          version: 2.122.0
       - name: Exact live HEAD and immutable proof before HML credentials
         env:
           GH_TOKEN: ${{ github.token }}
@@ -149,6 +154,12 @@ jobs:
           assert live['sha']==sha,'Live HEAD changed before Auth'
           url=urllib.parse.urlsplit(os.environ['DATABASE_URL'])
           assert url.username=='postgres.gklhhhyosgasnyoxlrui' and url.hostname.endswith('.pooler.supabase.com')
+          task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text())
+          if task.get('remaining_certification',{}).get('approved_hml_migration'):
+              import sys
+              sys.path.insert(0,'supabase/tests')
+              from remaining_domains.detail_migration import ensure_migration
+              ensure_migration(os.environ)
           local=sorted(p.name.split('_',1)[0] for p in pathlib.Path('supabase/migrations').glob('*.sql'))
           remote=subprocess.run(['psql',os.environ['DATABASE_URL'],'-X','-qAt','-v','ON_ERROR_STOP=1','-c','select version from supabase_migrations.schema_migrations order by version'],capture_output=True,text=True)
           assert remote.returncode==0 and local==remote.stdout.splitlines() and len(local)==len(set(local))
@@ -170,6 +181,7 @@ jobs:
           path: |
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/report.json
             ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/cleanup.json
+            ${{ env.CONTAOS_TEST_PRIVATE_DIR }}/migration-receipt.json
           if-no-files-found: error
           retention-days: 30
       - name: Erase only own private runner files

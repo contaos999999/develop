@@ -43,7 +43,9 @@
     "supabase/tests/p0_crud_global_remaining.test.mjs",
     "supabase/tests/remaining_domains/**",
     ".github/workflows/p0-crud-remaining-hml.yml",
-    ".github/workflows/restore-isolado.yml"
+    ".github/workflows/restore-isolado.yml",
+    "supabase/migrations/20261108183000_fix_document_vigency_wrapper.sql",
+    "supabase/tests/history_catalog_compare.py"
   ],
   "forbidden_paths": [
     "src/**",
@@ -51,7 +53,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -1813,9 +1815,7 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
-      "regras_preventivas",
-      "documento_detalhe",
-      "documentos_competencia"
+      "documento_detalhe"
     ],
     "pending_domains": [
       "regras_preventivas",
@@ -1873,8 +1873,18 @@
       "pr": 171,
       "head": "56a080177881b48d487d41057dce4712a2c9454c",
       "merge": "f8f6b414e63761c21f95e6839ba757d49786b808",
-      "state": "PENDING_MATERIAL_RESULT",
-      "prevent_phase2_merge_until_budget_job_terminal": true
+      "state": "PASS_DOMAIN_44_CHECKS",
+      "prevent_phase2_merge_until_budget_job_terminal": true,
+      "run": 42507974749,
+      "artifact": 13628630866,
+      "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26"
+    },
+    "approved_hml_migration": {
+      "file": "supabase/migrations/20261108183000_fix_document_vigency_wrapper.sql",
+      "version": "20261108183000",
+      "sha256": "d9bc08f5c5f81be4913f9eb7a9a3f7d0b567ba1421ea41b9fc4921518c8cc96c",
+      "scope": "ONE_PUBLIC_WRAPPER_SECURITY_ATTRIBUTE_ONLY",
+      "gate": "Exact HEAD/manifest/guard/Restore/rebuild/backup before CLI; exact migration history and before/after public/private catalog; no other pending migration; before Auth fixtures"
     }
   }
 }

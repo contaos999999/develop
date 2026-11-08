@@ -12,6 +12,18 @@ def reconcile_document_upload_wrapper(expected,actual):
  result['functions'][result['functions'].index(prior)]=approved
  return result
 
+def reconcile_document_vigency_wrapper(expected,actual):
+ # GATE138 corrective detail proof: one exact attribute delta; never remove actual catalog records.
+ prior={'schema':'public','name':'definir_vigencia_sugestao_extracao',
+  'args':'p_id_sugestao uuid, p_vigencia_inicio date, p_vigencia_fim date',
+  'definer':False,'config':['search_path=""'],'auth_exec':True,'anon_exec':False}
+ approved={**prior,'definer':True}
+ if expected['functions'].count(prior)!=1 or actual['functions'].count(approved)!=1:
+  raise SystemExit('VIGENCY_WRAPPER_CATALOG_FAIL: exact unique prior/approved metadata required')
+ result={**expected,'functions':list(expected['functions'])}
+ result['functions'][result['functions'].index(prior)]=approved
+ return result
+
 def reconcile_document_version_wrapper(expected,actual):
  # GATE163: one exact attribute delta; never remove actual catalog records.
  prior={'schema':'public','name':'adicionar_versao_documento_contrato',
@@ -32,6 +44,7 @@ query=(root/'history-catalog-query.sql').read_text()
 actual=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',query],text=True))
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
+expected=reconcile_document_vigency_wrapper(expected,actual)
 crud_expected=json.loads((root/'p0_crud_cadastros_catalog_expected.json').read_text())
 for record in crud_expected:
  if actual['functions'].count(record)!=1:

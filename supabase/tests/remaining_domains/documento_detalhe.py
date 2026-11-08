@@ -4,7 +4,10 @@ from remaining_domains.document_fixture import contract_document
 
 def run(r):
     f=r.fixture;doc=contract_document(r,'detail-source');version=doc['id_versao']
-    r.report['limitations']=['Suggestion rows are declared synthetic prerequisites; this proves human review, not AI suggestion generation.'];r.save('report.json',r.report)
+    r.report['limitations']=['Suggestion rows are declared synthetic prerequisites; this proves human review, not AI suggestion generation. Own queued extraction is quarantined before synthetic suggestions; running own work must drain.'];r.save('report.json',r.report)
+    isolation=r.quarantine_document_jobs(f);r.report['synthetic_precondition_queue_isolation']=isolation
+    r.check('DETAIL_SYNTHETIC_QUEUE_QUIESCED',isolation['active_jobs']==0)
+    r.save('report.json',r.report)
     suggestions={kind:r.entity('suggestion_'+kind,uid()) for kind in ('classificacao','metadado','obrigacao','prazo')}
     for kind,id in suggestions.items():
         r.sql('insert into public.sugestoes_extracao_documento(id,id_organizacao,id_contrato,id_versao_documento,tipo,conteudo,pagina,trecho_fonte,metadados) select '+','.join(q(v) for v in [id,f['org'],f['contract'],version,kind,'Own synthetic '+kind])+",1,'Own synthetic source',"+q('{"campos":{"own_field":"synthetic"}}')+'::jsonb where exists(select 1 from public.versoes_documento where id='+q(version)+' and id_organizacao='+q(f['org'])+' and id_contrato='+q(f['contract'])+');')
