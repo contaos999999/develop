@@ -76,6 +76,7 @@ test('real gate rejects missing check, failed check and advanced HEAD before Aut
  try{
   const task=JSON.parse(readFileSync('docs/tasks/active-task.json','utf8'));const protectedPaths=Object.keys(task.remaining_certification.preserved_documental.protected_sha256);
   for(const p of [...protectedPaths,'supabase/tests/p0_crud_global_remaining_hml.py','docs/tasks/active-task.json']){mkdirSync(join(dir,p,'..'),{recursive:true});copyFileSync(p,join(dir,p));}
+  task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
   mkdirSync(join(dir,'bin'));
   writeFileSync(join(dir,'bin/git'),`#!/usr/bin/env python3
 import sys,os
@@ -105,4 +106,28 @@ print('SNAPSHOT_AND_CI_GUARD_PASS')`);assert.equal(r.status,0,r.stderr);
 test('runner context is resolved on runner steps rather than invalid job env',()=>{
  const job=section('domain-proof');const beforeSteps=job.slice(0,job.indexOf('    steps:'));assert.doesNotMatch(beforeSteps,/\$\{\{\s*runner\./);
  const [gate]=scripts(job);assert.match(gate,/os.environ\['RUNNER_TEMP'\]/);assert.match(gate,/GITHUB_ENV/);
+});
+test('budget prerequisite uses official registration and worker completion without direct approval',()=>{
+ const r=run(`import json
+from remaining_domains.orcamento import approve_source
+class Fake:
+ fixture={'org':'org','contract':'contract','prefix':'own '}
+ def __init__(self,states):self.states=iter(states);self.calls=[];self.checks=[]
+ def operation(self,name,payload):
+  self.calls.append((name,payload));return {'id_documento':'doc','id_versao':'version','id_job':'job'}
+ def entity(self,name,value):return value
+ def sql(self,query,readonly):
+  assert readonly is True and query.startswith('select ')
+  assert 'aprovado' in query and 'concluido' in query and 'paginas_documento' in query and 'fragmentos_documento' in query
+  return json.dumps(next(self.states))
+ def check(self,name,value,*args):
+  self.checks.append((name,value));assert value
+r=Fake([{'owned':True,'ready':False,'failed':False},{'owned':True,'ready':True,'failed':False}]);approve_source(r,'file',timeout=1,pause=lambda _:None)
+assert r.calls[0][0]=='criar_documento_contrato_completo'
+assert ('BUDGET_SOURCE_WORKER_READY',True) in r.checks
+for state in [{'owned':False,'ready':True,'failed':False},{'owned':True,'ready':False,'failed':True}]:
+ try:approve_source(Fake([state]),'file',timeout=1,pause=lambda _:None)
+ except AssertionError:pass
+ else:raise AssertionError('Unready or foreign source approved')
+print('BUDGET_PREREQUISITE_FAIL_CLOSED')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/BUDGET_PREREQUISITE_FAIL_CLOSED/);
 });

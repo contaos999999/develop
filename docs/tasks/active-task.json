@@ -1813,9 +1813,7 @@
     "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
     "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
     "domains_to_run": [
-      "base_normativa",
-      "orcamento",
-      "competencias"
+      "orcamento"
     ],
     "pending_domains": [
       "regras_preventivas",
