@@ -674,4 +674,5 @@ test('native fence cannot activate Playwright preflight auto-fulfillment',async(
   assert.equal(/Fetch\.fulfillRequest|route\.fulfill|routeWebSocket/.test(readFileSync(browser,'utf8')),false);
   assert.ok(/requestStage:'Request'/.test(source));assert.ok(/requestStage:'Response'/.test(source));
   assert.ok(/Fetch\.continueRequest',\{requestId\}/.test(source));
+  assert.equal(readFileSync(browser,'utf8').includes('--disable-blink-features=SharedWorker'),true,'SharedWorker must be disabled by the verified native feature');
 });
