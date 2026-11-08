@@ -201,6 +201,10 @@ async function loadPublishedAnalyzer(frontend){
   const append=url=>transformed.code+';const proofURL='+JSON.stringify(url)+';const proofClient=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");proofClient.auth.signInWithPassword({});proofClient.functions.invoke("storage-sign-upload");';
   const name=PUBLISHED_ORIGIN+'/assets/fixture.js',positive=append(HML_ORIGIN);referenceName.prove(new Map([[name,positive]]),[name]);
   const factory=positive.replace('const proofClient=new '+ctor+'(proofURL,','const proofFactory=(a,b)=>new '+ctor+'(a,b);const proofClient=proofFactory(proofURL,');referenceName.prove(new Map([[name,factory]]),[name]);
+  // The real frontend RBAC adapter binds Function.call to the same client receiver.
+  const bound=positive+';proofClient.rpc.call(proofClient,"obter_resumo_dashboard",{});';
+  referenceName.prove(new Map([[name,bound]]),[name]);
+  for(const source of [positive+';unboundClient.rpc.call(proofClient,"other",{});',positive+';proofClient.rpc.call(unboundClient,"other",{});'])assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
   const negatives=[append('https://foreign.supabase.co')+';const unused='+JSON.stringify(HML_ORIGIN)+';',positive+';const another=new '+ctor+'(proofURL,"public_fixture_key_not_a_secret");',positive.replace('new '+ctor+'(proofURL,','new '+ctor+'(unknownConfiguration,'),positive.replace('proofClient.auth.signInWithPassword','unboundClient.auth.signInWithPassword'),positive.replace('new '+ctor+'(proofURL,','misleadingCreateClient(proofURL,'),positive+';const escaped=proofClient;',positive+';proofClient.auth=unknown;'];
   for(const source of negatives)assert.throws(()=>referenceName.prove(new Map([[name,source]]),[name]));
   return analyzer;
