@@ -74,7 +74,7 @@ jobs:
         run: node --test supabase/tests/p0_workflow_routing.test.mjs
 
       - name: Protocolo CRUD global sem rede ou credenciais
-        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs supabase/tests/p0_crud_global_remaining.test.mjs supabase/tests/remaining_domains/detail_wrapper.test.mjs supabase/tests/remaining_domains/metadata_append.test.mjs supabase/tests/remaining_domains/presentation_source.test.mjs supabase/tests/remaining_domains/ai_envelope.test.mjs supabase/tests/remaining_domains/void_approval.test.mjs
+        run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs supabase/tests/p0_crud_global_remaining.test.mjs supabase/tests/remaining_domains/detail_wrapper.test.mjs supabase/tests/remaining_domains/metadata_append.test.mjs supabase/tests/remaining_domains/presentation_source.test.mjs supabase/tests/remaining_domains/ai_envelope.test.mjs supabase/tests/remaining_domains/void_approval.test.mjs supabase/tests/copilot_catalog.test.mjs
 
       - name: Protocolo privado V117 sem rede
         run: |
@@ -258,6 +258,49 @@ jobs:
           set -euo pipefail
           psql 'postgresql://postgres:postgres@127.0.0.1:54322/postgres' -X -At -v ON_ERROR_STOP=1 -f supabase/tests/copilot_scope_quota.sql | tee restore-proof/copilot-scope-quota.txt
           grep -Fxq 'COPILOT_SCOPE_QUOTA_SQL_PASS' restore-proof/copilot-scope-quota.txt
+          python3 - <<'PY' | tee restore-proof/copilot-quota-concurrency.txt
+          import concurrent.futures,json,os,subprocess,time,uuid
+          DB='postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+          ORG='c7171717-aaaa-4000-8000-000000000001';CT='c7171717-2000-4000-8000-000000000001';U='c7171717-0000-4000-8000-000000000001';SID='c7171717-0000-4000-9000-000000000001'
+          PREFIX='copilot-concurrency-'+uuid.uuid4().hex
+          F=json.dumps({'session_id':SID,'ids_fragmentos':[],'ids_precedentes':[]})
+          def sql(q):
+           r=subprocess.run(['psql',DB,'-X','-qAt','-v','ON_ERROR_STOP=1'],input=q,text=True,capture_output=True,timeout=30)
+           assert r.returncode==0,'COPILOT_CONCURRENCY_SQL_FAILED'
+           return r.stdout.strip()
+          def reserve(n):
+           return json.loads(sql("select public.worker_reservar_consulta_copiloto('%s','%s','%s','%s','%s'::jsonb,'isolated');"%(ORG,CT,U,PREFIX+str(n),F)))
+          try:
+           first=reserve(0);assert first['autorizado']
+           # A terceira conexão segura exatamente a trava usada pela reserva, antes da disputa.
+           lock="begin;select pg_advisory_xact_lock(hashtextextended('copilot:org:%s',0));select pg_sleep(1);commit;"%ORG
+           holder=subprocess.Popen(['psql',DB,'-X','-qAt','-v','ON_ERROR_STOP=1'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+           holder.stdin.write(lock);holder.stdin.close();assert holder.stdout.readline()=='\n'
+           started=time.monotonic()
+           with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(reserve,[1,2]))
+           assert time.monotonic()-started>=0.4,'Native lock not exercised'
+           assert holder.wait(timeout=15)==0
+           assert sum(r['autorizado'] for r in results)==1
+           assert [r['codigo'] for r in results if not r['autorizado']]==['COPILOTO_LIMITE_CONCORRENCIA']
+           live=next(r for r in results if r['autorizado']);before=sql("select criado_em from public.consultas_semanticas where id='%s';"%first['id_consulta'])
+           sql("update public.consultas_semanticas set filtros=jsonb_set(jsonb_set(filtros,'{copilot,expires_at}',to_jsonb(clock_timestamp()-interval '1 second')),'{copilot,deadline_at}',to_jsonb(clock_timestamp()-interval '1 second')) where id='%s';"%first['id_consulta'])
+           recovered=reserve(3);assert recovered['autorizado']
+           assert sql("select status||':'||(filtros#>>'{copilot,erro}') from public.consultas_semanticas where id='%s';"%first['id_consulta'])=='falhou:LEASE_EXPIRADA'
+           assert sql("select criado_em from public.consultas_semanticas where id='%s';"%first['id_consulta'])==before
+           assert sql("select public.worker_validar_lease_copiloto('%s','%s');"%(first['id_consulta'],first['token']))=='f'
+           assert sql("select public.worker_validar_lease_copiloto('%s','%s');"%(live['id_consulta'],live['token']))=='t'
+           assert sql("select position('%s' in filtros::text)=0 from public.consultas_semanticas where id='%s';"%(live['token'],live['id_consulta']))=='t'
+           # Expirar somente deadline impede conclusão, mas não libera slot antes da lease.
+           sql("update public.consultas_semanticas set filtros=jsonb_set(filtros,'{copilot,deadline_at}',to_jsonb(clock_timestamp()-interval '1 second')) where id='%s';"%recovered['id_consulta'])
+           assert sql("select public.worker_validar_lease_copiloto('%s','%s');"%(recovered['id_consulta'],recovered['token']))=='f'
+           assert reserve(4)['codigo']=='COPILOTO_LIMITE_CONCORRENCIA'
+           assert sql("select count(*) from public.consultas_semanticas where texto_consulta like '%s%%';"%PREFIX)=='3'
+           print('COPILOT_QUOTA_CONCURRENCY_PASS: native two-client contention; 2 active; expired orphan fenced; live lease retained; no raw token stored')
+          finally:
+           sql("delete from public.consultas_semanticas where texto_consulta like '%s%%' and id_organizacao='%s' and criado_por='%s';"%(PREFIX,ORG,U))
+           assert sql("select count(*) from public.consultas_semanticas where texto_consulta like '%s%%';"%PREFIX)=='0'
+          PY
+          grep -Fq 'COPILOT_QUOTA_CONCURRENCY_PASS:' restore-proof/copilot-quota-concurrency.txt
 
       - name: Teste 12 - Matriz RBAC V1
         shell: bash
@@ -408,3 +451,4 @@ jobs:
           path: restore-proof-synthetic/
           if-no-files-found: warn
           retention-days: 30
+
