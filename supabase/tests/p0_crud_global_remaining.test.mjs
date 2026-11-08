@@ -63,7 +63,7 @@ const wf=()=>readFileSync('.github/workflows/p0-crud-remaining-hml.yml','utf8');
 const section=(name)=>wf().match(new RegExp('^  '+name+':\\n([\\s\\S]*?)(?=^  [a-z][a-z-]*:|$(?![\\s\\S]))','m'))?.[1]||'';
 const scripts=source=>[...source.matchAll(/^        run: \|\n((?:^          .*\n|^\n)+)/gm)].map(m=>m[1].split('\n').map(l=>l.startsWith('          ')?l.slice(10):l).join('\n'));
 test('remaining routing is before HML environment and closes foreign/failed/PR origins',()=>{
- const s=section('scope'),job=section('domain-proof');assert(s&&job);assert.doesNotMatch(s,/secrets\.|environment:|GH_TOKEN/);assert.match(job,/needs: scope/);assert.match(job,/fail-fast: false/);assert.match(job,/Independent own quarantine/);assert.match(job,/cleanup.json/);
+ const s=section('scope'),job=section('domain-proof');assert(s&&job);assert.doesNotMatch(s,/secrets\.|environment:|GH_TOKEN/);assert.match(job,/needs: \[scope, runtime-ready\]/);assert.match(job,/fail-fast: false/);assert.match(job,/Independent own quarantine/);assert.match(job,/cleanup.json/);
  const condition=s.match(/^    if: (.+)$/m)[1];
  for(const [change,want] of [[{},true],[{conclusion:'failure'},false],[{event:'pull_request'},false],[{head_branch:'feature'},false],[{head_repository:{full_name:'foreign/repo'}},false]]){
   const context={github:{event_name:'workflow_run',repository:'contaos999999/develop',event:{workflow_run:{conclusion:'success',event:'push',head_branch:'main',head_repository:{full_name:'contaos999999/develop'},...change}}}};
@@ -76,7 +76,7 @@ test('real gate rejects missing check, failed check and advanced HEAD before Aut
  try{
   const task=JSON.parse(readFileSync('docs/tasks/active-task.json','utf8'));const protectedPaths=Object.keys(task.remaining_certification.preserved_documental.protected_sha256);
   for(const p of [...protectedPaths,'supabase/tests/p0_crud_global_remaining_hml.py','docs/tasks/active-task.json']){mkdirSync(join(dir,p,'..'),{recursive:true});copyFileSync(p,join(dir,p));}
-  task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
+  delete task.remaining_certification.approved_ai_worker_deploy;task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
   mkdirSync(join(dir,'bin'));
   writeFileSync(join(dir,'bin/git'),`#!/usr/bin/env python3
 import sys,os
