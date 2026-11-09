@@ -35,11 +35,12 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Acrescentar somente quatro paths exatos aos filtros Restore, preservando todos os controles.",
+  "objective": "Quatro triggers Restore e setup completo snapshotB no título exato ai_envelope já aprovado pelo GATE181.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    ".github/workflows/restore-isolado.yml"
+    ".github/workflows/restore-isolado.yml",
+    "supabase/tests/remaining_domains/ai_envelope.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -2376,7 +2377,9 @@
     "red_log_sha256": "2dc1ba6ac72629219ac6b478a5b3a2523e63cfcb49ec035b3dfb438d2b5d07ac",
     "requires_gate_ci_and_merge_before_source": true,
     "preserve_assertions_and_routing": true,
-    "requires_false_fixture_flags_simulation": true
+    "requires_false_fixture_flags_simulation": true,
+    "additional_preapproved_181_path": "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+    "additional_preapproved_181_title": "actual routing limits explicit manual resume to exact main inputs"
   },
   "copilot_c13_history_gate": {
     "state": "PLAN_ONLY_NO_SOURCE",
