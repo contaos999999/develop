@@ -246,3 +246,5 @@ Não reescrever137, apagar conversas ou reabrir rawchat e declarar C13seguro. Ev
 ### ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
 
 ContaOS Brand v1.0/BRAND-01 preservada; impacto_visual N/A justificado: governança backend apenas, sem UI/assets/tokens/tipos. Nenhum turnoLovable. Reusar contexto25/25, provas válidas e tabelas/Edge existentes; delta fechado preserva TDD, segurança, CI/Restore, revisão e TesteC independente. PROD/Authconfig/Storageconfig intocados. Resultado atual: GATE proposto, nenhuma implementação ou certificação.
+
+Ativação BUILD_RAW_READ_RLS: GATE191 integradoeea93e73834ab8bbb92fc7738e6b2a7250b00cb7 após reviewroot6730306244/CI42547397969verde. Allowlist8paths fechada, DB/RLS/Edge true somente escopo planejado; Auth/Storage/fixturesHML false. SQL/testSQL/catalog autoria separada do Edge/testcontrato190; não duplicar writes. TDDnativoRED→GREEN viaRestoreisolado, semSQLremoto/deploy.

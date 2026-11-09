@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-003-RAW-READ-RLS-GATE-20261109",
-  "title": "PLAN/GATE: impedir leitura bruta de conversas fora da Edge autorizada",
+  "id": "C-CHAT-003-RAW-READ-RLS-BUILD-20261109",
+  "title": "BUILD: negar leitura bruta do chat preservando retornos não chat",
   "status": "ativa",
-  "phase": "PLAN_C13_RAW_READ_RLS",
+  "phase": "BUILD_C13_RAW_READ_RLS",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-09",
@@ -35,10 +35,16 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Fechar documentalmente lacuna de leitura Data API do chat; nenhum SQL, Edge, teste de implementação, fixture ou HML neste PR.",
+  "objective": "Implementar somente GATE191 integrado: SQL aditivo, SQLtests e catálogo; Edge do mesmo escopo possui outro autor coordenado.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+    "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
+    "supabase/tests/copilot_scope_quota.sql",
+    "supabase/tests/history_catalog_compare.py",
+    "supabase/tests/copilot_catalog.test.mjs",
+    "supabase/functions/copilot-query/index.ts",
+    "supabase/tests/copilot_openai_contract.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -46,9 +52,9 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
-  "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "database_changes_allowed": true,
+  "rls_changes_allowed": true,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -132,7 +138,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão independente e CI deste GATE documental, integração coordenada; só depois ativação BUILD explícita com escopo fechado e TDD causal. Nenhum deployment neste gate.",
+  "next_step": "TDD SQL nativo RED em Restore, implementação mínima e GREEN/revisão independente. Sem HML remoto/deploy.",
   "database_change_scope": "PLAN somente; migration nova CLI identificada, corpo vazio fora do repositório. Migration137 aplicada imutável.",
   "evidence": {
     "test_pr": 52,
@@ -2448,7 +2454,7 @@
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
   },
   "copilot_raw_read_rls_gate": {
-    "state": "PLAN_ONLY_NO_SOURCE_NO_HML",
+    "state": "BUILD_AUTHORIZED_AFTER_GATE191",
     "base_head": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
     "base_active_task_blob": "1f98e4da6af4fbba4c89533f773bbf519398c74a",
     "concurrent_c13": {
@@ -2512,6 +2518,13 @@
       "copiloto-openai-rag-v2-fenced"
     ],
     "reanchored_main": "290613c977efb16fe512980db96a276dd897f97d",
-    "reanchored_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd"
+    "reanchored_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd",
+    "gate_pr": 191,
+    "gate_head": "2bea085a63f192ab3f0b2e7246f9ab80d717ece4",
+    "gate_merge": "eea93e73834ab8bbb92fc7738e6b2a7250b00cb7",
+    "gate_ci": 42547397969,
+    "sql_owner": "review_c13_backend",
+    "edge_owner": "backend_cors_runtime",
+    "remote_execution_allowed": false
   }
 }
