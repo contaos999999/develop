@@ -401,7 +401,8 @@
     "supabase/tests/copilot_hml.mjs",
     ".github/workflows/copilot-c13-final-readback-recovery.yml",
     "plans/c13-hml-cors-origin-20261109.md",
-    "supabase/functions/copilot-query/index.ts"
+    "supabase/functions/copilot-query/index.ts",
+    ".github/workflows/c13-v8-focal-security.yml"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -2980,5 +2981,11 @@
     "origin": "https://contaos-41-nygkrrbkq-contaos9999.vercel.app",
     "scope": "Only exact CORS allowlist; HML only; preserve JWT RLS",
     "review_required": true
+  },
+  "c13_v8_security_focal": {
+    "scope": "HML HTTP read-only OPTIONS and no-auth negative",
+    "workflow": ".github/workflows/c13-v8-focal-security.yml",
+    "no_secrets": true,
+    "no_deploy": true
   }
 }
