@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -398,8 +398,9 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/functions/copilot-query/index.ts",
-    "supabase/tests/copilot_openai_contract.test.mjs"
+    "supabase/tests/copilot_hml.mjs",
+    ".github/workflows/copilot-hml.yml",
+    ".github/workflows/restore-isolado.yml"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -1476,7 +1477,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Ativação documental/CI/revisão; REDPGRST201→GREENmínimoEdge/teste, regressão/CI/Restore/backup/review; integrar/deploysomenteEdgeexistente e readback; reativação API com novononce/PRE apóscontroles. Não reutilizar ensaioFAIL.",
+  "next_step": "Integrar a retomada documental após revisão/CI, conferir Restore/backup na main final, novo nonce/PRE e executar prova API; exigir cleanup independente e readback final, sem certificar UI/P0.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -1595,7 +1596,7 @@
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
   },
-  "phase": "BUILD_EDGE_POSTGREST_FK",
+  "phase": "BUILD_HML_COPILOT_PROOF",
   "upload_document_wrapper_gate": {
     "phase": "VERIFICADO_HML",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
@@ -2202,7 +2203,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Corrigir somente embed PostgREST ambíguo de versões→arquivos usando FKcomposta existente, preservando JWT/RLS/contrato/DTO e fail-closed; semDDL ou materialHML nesta etapa.",
+  "objective": "Executar somente api_c13 em HML com fixtures próprias e limites já aprovados, após CI/Restore/backup no SHA main exato e novo PRE imutável. Fontes e harness congelados; UI e certificação bloqueadas.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2235,7 +2236,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Somente hint explícito da FKexistente versoes_documento_arquivo_org_contrato_fk no embedarquivos e testes causais PostgREST; sem fallbackadmin/global ou mudança de contrato.",
+  "edge_function_change_scope": "Edge v5 já implantada e readback integral igual à fonte197. Nenhuma alteração de fonte ou novo deploy nesta retomada; JWT obrigatório e demais Edges preservadas.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2331,7 +2332,7 @@
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
   },
-  "previous_task_id": "C-CHAT-002-RESTORE-TRIGGERS-BUILD-20261109",
+  "previous_task_id": "C-CHAT-004-POSTGREST-FK-BUILD-20261109",
   "fence_document_barrier": {
     "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
     "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
@@ -2366,8 +2367,8 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "BUILD corretivo Edge: desambiguar FK de arquivo em versões",
-  "edge_function_changes_allowed": true,
+  "title": "Retomada API C13 após correção FK verificada",
+  "edge_function_changes_allowed": false,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
     "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
@@ -2551,7 +2552,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "NenhumaDDL/migration/RLS/grant/corpoSQL ou dadoHML nesta fase.",
+  "database_change_scope": "Somente DML das fixtures sintéticas próprias autorizadas pelo protocolo api_c13, com intents e quarentena independentes. Nenhuma DDL/RLS/grant/configuração ou dado alheio; proteção RLS138 e Trilhas A/B preservadas.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
@@ -2593,7 +2594,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-004-POSTGREST-FK-BUILD-20261109",
+  "id": "C-CHAT-005-HML-API-RETRY-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2607,7 +2608,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "PAUSED_FOR_EDGE_FK_FIX",
+    "state": "HML_EXECUTION_AUTHORIZED",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2656,10 +2657,10 @@
     "c13_backend_merge": "9878b7a5bbb29b5aded791b942ece96c4b7acd2d",
     "raw_rls_deploy_run": 42549348642,
     "technical_edge_readback": {
-      "version": 4,
+      "version": 5,
       "verify_jwt": true,
-      "source_sha256": "49b07e295a8efc7147ac3c21081b2432051cfe6b5f9787a9955eee8c2d826342",
-      "bundle_sha256": "112bc951fbb6e0e21c3bea531bdb67c4f34303d35bfacb54241fc862e80fec23",
+      "source_sha256": "8757464c63dd350d0d2a8bc00622e289fb2a06af80b691f3197905cd5085935b",
+      "bundle_sha256": "66cad55a64bae4a5463c661637dc7f447d8a714fb579c83c18ef1dbc9242828e",
       "readback_equal": true,
       "not_material_api_proof": true
     },
@@ -2709,10 +2710,18 @@
       "cleanup": "QUARENTENA_VERIFICADA_SAME_JOB_AND_INDEPENDENT",
       "artifact": 13646726347,
       "artifact_sha256": "c05a9d88653a28635a428382cfef7c96717119de7c7458308f9e1a70e4719db5"
+    },
+    "retry_requires": {
+      "new_nonce": true,
+      "consumed_nonce": "06451483d0fec06da22eebfaed900607",
+      "new_immutable_pre_receipt": true,
+      "exact_final_main_ci_restore_backup": true,
+      "post_material_readback": true,
+      "ui_forbidden": true
     }
   },
   "copilot_postgrest_fk_fix": {
-    "state": "DOCUMENTARY_ACTIVATION_BEFORE_SOURCE",
+    "state": "INTEGRATED_DEPLOYED_HML_READBACK_EXACT",
     "native_foreign_keys": [
       "versoes_documento_id_arquivo_fkey",
       "versoes_documento_arquivo_org_fk",
@@ -2726,6 +2735,17 @@
     "ddl": false,
     "raw_rls_preserved": true,
     "admin_fallback_forbidden": true,
-    "final_jwt_hml_replay_required": true
+    "final_jwt_hml_replay_required": true,
+    "gate_pr": 196,
+    "gate_merge": "8f38c4609a05da0a2abdf020b3b44e5041339679",
+    "build_pr": 197,
+    "build_head": "9fa861117519e456267fcd9b583647771de5aba7",
+    "build_merge": "02bd7be18fa84b7e7a99a522629908e06c116296",
+    "guard": 42555104531,
+    "restore_backup": 42555104537,
+    "source_blob": "60255fb82c57eaa7a7d8a04811ed09b7c2c0b6f9",
+    "local_tests": 554,
+    "focal_tests": 126,
+    "independent_review": "APPROVED_NO_FINDINGS_RED_GREEN_REPRODUCED"
   }
 }

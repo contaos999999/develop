@@ -312,3 +312,14 @@ TDD deve reproduzir ambiguidade com fixture de múltiplasFKs do catálogo real, 
 API fica pausada pelo phase/state até corrigir/implantar/readback e reativar documentalmente o escopoAPI próprio jáaprovado, sem ampliarorçamento. Novoensaio exige novononce,PREimutávelfresco/main/CI/Restore/backup e cleanup/POSTreadback. Fontev4/49b07e anterior não é confundida comsourcefutura. Resultado máximoAPI_PASS_UI_PENDING; certificação integral permanecebloqueada.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: impacto visualN/A; semassets/tokens/tipos/Lovable/PROD, preservandohistórico e provasA/B.
+
+
+## Retomada API C13 após correção PostgREST, 09/11/2026
+
+Gate196 integrado8f38c4609a05da0a2abdf020b3b44e5041339679; BUILD197 head9fa861117519e456267fcd9b583647771de5aba7 integrado02bd7be18fa84b7e7a99a522629908e06c116296. RED67fabde1:73PASS/53FAIL focais e falha nativa42555057904; GREEN126/126 focais,554/554 em18arquivos,10guards e runner self-test PASS. Revisão independente reproduziu RED/GREEN e aprovou sem findings. CI42555104531 e Restore/backup42555104537 SUCCESS, jobs128958941965/128958941708; artefatos13647500307 sha256b6bf2817206bb35fdb3496a860a94563336cdae809c767b57dab873fa5d4df17 e13646848569 sha2569b014c9660ccab324be4206feacf1d452fd788c130ea6ad59d82277391e47258.
+
+Único delta de produto: arquivos!versoes_documento_arquivo_org_contrato_fk!inner; FK existente preserva arquivo/organização/contrato. Edge HML v5 ACTIVE verify_jwt=true, readback integral externo igual ao blob60255fb82c57eaa7a7d8a04811ed09b7c2c0b6f9, fonte SHA2568757464c63dd350d0d2a8bc00622e289fb2a06af80b691f3197905cd5085935b e bundle66cad55a64bae4a5463c661637dc7f447d8a714fb579c83c18ef1dbc9242828e. Nenhuma DDL/RLS/grant/Auth/Storageconfig/PROD alterada. Trilhas A/B preservadas.
+
+Esta ativação documental retoma somente api_c13 com os mesmos limites próprios de194:4usuários/2organizações,3turnos OpenAI A,2reservas controladas,1fallback A e6fallbacks B com sétimo negado; limpeza independente e recibo pós-material obrigatórios. UI permanece proibida; limites de24consultas UI são reserva herdada, não autorização. Exigir CI/Restore/backup canônicos no SHA main final e novo nonce/PRE imutável fresco com frontend PR/head/checks exatos antes de credenciais. Nonce06451483d0fec06da22eebfaed900607 e PRE6731129800 consumidos, nunca reutilizar ou editar. Expiração JWT natural, sem mudar TTL/claims; nenhuma leitura alheia ou matriz RBAC global. A primeira execução42553694889 continua FAIL e não alcançou OpenAI. Sucesso futuro máximo API_PASS_UI_PENDING, sem certificar C13 UI/P0 ou atualizar GATE138 para PASS antes de todos os controles.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/A visual, fontes e harness congelados nesta retomada documental; preservar A/B e contexto canônico. Certificação false.
