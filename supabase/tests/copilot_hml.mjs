@@ -338,10 +338,17 @@ export async function waitOwnDocumentReady(read,{now=Date.now,delay=ms=>new Prom
  const start=now();
  while(now()-start<300000){
   signal?.throwIfAborted();const state=await read();
-  if(state.ready&&state.fragments>0)return;
-  await delay(2000);
+  signal?.throwIfAborted();
+  requireC(['ready','documents_complete','embeddings_complete','ai_complete'].every(k=>typeof state?.[k]==='boolean')&&['fragments','unfinished_jobs','failed_jobs','queue_messages'].every(k=>Number.isSafeInteger(state?.[k])&&state[k]>=0),'own document worker state complete');
+  requireC(state.failed_jobs===0,'own document worker failed or cancelled');
+  if(now()-start>=300000)break;
+  if(state.ready&&state.fragments>0&&state.documents_complete&&state.embeddings_complete&&state.ai_complete&&state.unfinished_jobs===0&&state.queue_messages===0)return;
+  await delay(Math.min(2000,300000-(now()-start)));
  }
  throw Error('own normal worker not ready');
+}
+export function ownDocumentStateSQL(f){
+ return `with fragments as(select id,embedding from public.fragmentos_documento where id_organizacao=${q(f.org)} and id_contrato=${q(f.contract)} and id_versao_documento=${q(f.document.id_versao)}),jobs as(select * from public.execucoes_assincronas where id_organizacao=${q(f.org)}) select json_build_object('ready',privado.copilot_versao_elegivel(${q(f.document.id_versao)},${q(f.org)},${q(f.contract)},null),'fragments',(select count(*) from fragments where embedding is not null),'documents_complete',exists(select 1 from jobs where id=${q(f.document.id_job)} and id_contrato=${q(f.contract)} and fila='documents' and entidade_tipo='versao_documento' and entidade_id=${q(f.document.id_versao)} and status='concluido'),'embeddings_complete',not exists(select 1 from fragments f where f.embedding is null or not exists(select 1 from jobs j where j.id_contrato=${q(f.contract)} and j.fila='embeddings' and j.entidade_tipo='fragmento_documento' and j.entidade_id=f.id and j.status='concluido')),'ai_complete',exists(select 1 from jobs where id_contrato=${q(f.contract)} and fila='ai' and entidade_tipo='extrair_documento' and entidade_id=${q(f.document.id_versao)} and status='concluido'),'unfinished_jobs',(select count(*) from jobs where status<>'concluido'),'failed_jobs',(select count(*) from jobs where status in('falhou','cancelado')),'queue_messages',${['documents','ocr','ai','embeddings'].map(queue=>`(select count(*) from pgmq.q_${queue} where message->>'id_organizacao'=${q(f.org)})`).join('+')});`;
 }
 async function document(e,f,token,root){
  const bytes=Buffer.from(`Documento sintético do ContaOS, sem dados pessoais. O relatório mensal deve conter a relação de despesas e comprovantes. Marcador ${f.nonce}.`),name=`copilot-${f.nonce}.txt`;
@@ -353,7 +360,7 @@ async function document(e,f,token,root){
  const confirmed=await api(e,'/rest/v1/rpc/confirmar_upload_arquivo',{token,body:{p_id_organizacao:f.org,p_id_contrato:f.contract,p_path:signed.data.path,p_nome_original:name,p_mime:'text/plain',p_tamanho:bytes.length,p_sha256:digest(bytes),p_origem:'upload_usuario'}});requireC(confirmed.status===200&&typeof confirmed.data==='string','official confirm upload');
  const created=await api(e,'/rest/v1/rpc/criar_documento_contrato_completo',{token,body:{p_id_contrato:f.contract,p_tipo:'outro',p_titulo:'Own copilot source '+f.nonce,p_categoria:'original',p_vigencia_inicio:'2026-01-01',p_vigencia_fim:null,p_observacoes:'Synthetic own source',p_id_arquivo:confirmed.data,p_chave_idempotencia:randomUUID()}});
  requireC(created.status===200&&created.data?.id_versao&&created.data?.id_job,'official create document');f.document=created.data;save(root,'fixture.json',f);
- await waitOwnDocumentReady(()=>JSON.parse(sql(e,`select json_build_object('ready',privado.copilot_versao_elegivel(${q(f.document.id_versao)},${q(f.org)},${q(f.contract)},null),'fragments',(select count(*) from public.fragmentos_documento where id_versao_documento=${q(f.document.id_versao)} and embedding is not null));`)),{signal:materialDeadline.signal});
+ await waitOwnDocumentReady(()=>JSON.parse(sql(e,ownDocumentStateSQL(f))),{signal:materialDeadline.signal});
 }
 // Inherited full-UI groundwork is unreachable in this API-only BUILD.
 // It does not produce screenshots or visual certification in api_c13.
@@ -712,6 +719,23 @@ async function selfTest(){
  let documentReads=0,documentClock=0;
  await waitOwnDocumentReady(async()=>++documentReads===1?{...documentComplete,ai_complete:false,unfinished_jobs:1}:documentComplete,{now:()=>documentClock,delay:async ms=>{documentClock+=ms;}});
  assert.equal(documentReads,2,'eligible embedded document must wait for concurrent own AI extraction before negative counts');
+ for(const pending of [{queue_messages:1},{documents_complete:false},{embeddings_complete:false},{ai_complete:false},{unfinished_jobs:1},{ready:false},{fragments:0}]){
+  let reads=0,clock=0;
+  await waitOwnDocumentReady(async()=>++reads===1?{...documentComplete,...pending}:documentComplete,{now:()=>clock,delay:async ms=>{clock+=ms;}});
+  assert.equal(reads,2,'every own pipeline stage and empty queue is required');
+ }
+ for(const invalid of [{failed_jobs:1},{failed_jobs:-1},{queue_messages:null},{ai_complete:undefined},{unfinished_jobs:NaN}])await assert.rejects(waitOwnDocumentReady(async()=>({...documentComplete,...invalid})),/own document worker/);
+ let barrierClock=0,timeoutReads=0;
+ await assert.rejects(waitOwnDocumentReady(async()=>{timeoutReads++;return {...documentComplete,queue_messages:1};},{now:()=>barrierClock,delay:async ms=>{barrierClock+=ms;}}),/own normal worker not ready/);
+ assert.equal(barrierClock,300000);assert.equal(timeoutReads,150,'one shared bounded deadline, no unbounded worker wait');
+ const barrierAbort=new AbortController();let abortedReads=0;
+ barrierAbort.abort(Error('own barrier aborted'));
+ await assert.rejects(waitOwnDocumentReady(async()=>{abortedReads++;return documentComplete;},{signal:barrierAbort.signal}),/own barrier aborted/);assert.equal(abortedReads,0);
+ const duringReadAbort=new AbortController();
+ await assert.rejects(waitOwnDocumentReady(async()=>{duringReadAbort.abort(Error('barrier aborted during read'));return documentComplete;},{signal:duringReadAbort.signal}),/barrier aborted during read/);
+ await assert.rejects(waitOwnDocumentReady(async()=>{throw Error('own read failed');}),/own read failed/);
+ let lateClock=0;
+ await assert.rejects(waitOwnDocumentReady(async()=>{lateClock=300000;return documentComplete;},{now:()=>lateClock}),/own normal worker not ready/);
  const e={PROOF_MODE:'api_c13',FRONTEND_PR:'379',TESTED_HEAD:'a'.repeat(40),FRONTEND_HEAD:'b'.repeat(40),RESTORE_RUN_ID:'123',DEPLOYMENT_RECEIPT_COMMENT_ID:'456',EDGE_SOURCE_SHA256:'c'.repeat(64),EDGE_BUNDLE_SHA256:'d'.repeat(64),EDGE_VERSION:'9',NONCE:'e'.repeat(32),GITHUB_REPOSITORY:'contaos999999/develop',GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_SHA:'a'.repeat(40)};
  assert.equal(inputs(e).head,e.TESTED_HEAD);
  assert.equal(inputs(e).mode,'api_c13','API mode must be explicit and does not need a checkout');
