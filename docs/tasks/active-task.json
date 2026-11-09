@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-002-C13-HISTORY-PLAN-20261109",
-  "title": "Trilha C PLAN/GATE: histórico próprio paginado e continuidade C13",
+  "id": "C-CHAT-002-HML-PROOF-BUILD-20261109",
+  "title": "BUILD fase3: runner HML próprio com recibos externos e cleanup",
   "status": "ativa",
-  "phase": "PLAN_C13_HISTORY",
+  "phase": "BUILD_HML_COPILOT_PROOF",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -35,10 +35,13 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Fechar contrato C13 e controles fase3 documentalmente antes de qualquer implementação/execução.",
+  "objective": "Permitir TDD offline dos dois paths runner sob escopo fechado; execução HML somente coordenada após dependências e recibos.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+    "supabase/tests/copilot_hml.mjs",
+    ".github/workflows/copilot-hml.yml",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -119,8 +122,8 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "previous_task_id": "C-CHAT-002-B-FIXTURE-BUILD-20261109",
-  "previous_task_snapshot_commit": "8dc073d7ad4344231f99169a2180465a3354fe4c",
+  "previous_task_id": "C-CHAT-002-C13-HISTORY-PLAN-20261109",
+  "previous_task_snapshot_commit": "1a08988ebf58a38c0647d497725fd713aa7be90c",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -132,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão/CI e integração deste GATE; ativação BUILD documental fechada antes de SRC C13 ou fase3.",
+  "next_step": "TDD runner por ownerexclusivo; merge normal do188/main antes ready/CIintegração; HML somente após backendC13API/gates/readbacks e coordenação.",
   "database_change_scope": "Documentação apenas; nenhuma alteração/aplicação SQL, RLS, grants ou fixtures.",
   "evidence": {
     "test_pr": 52,
@@ -651,7 +654,7 @@
       "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
     ]
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -973,7 +976,7 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "technical_subtask": {
     "id": "P0-CORS-DOCUMENTAL-HML-20261107",
     "phase": "BUILD",
@@ -2443,5 +2446,43 @@
       "full_ui"
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
+  },
+  "copilot_hml": {
+    "state": "OFFLINE_BUILD_NOT_HML_EXECUTION",
+    "project": "gklhhhyosgasnyoxlrui",
+    "function_slug": "copilot-query",
+    "verify_jwt": true,
+    "max_owned_organizations": 2,
+    "max_owned_auth_users": 4,
+    "fixture_namespace": "external_immutable_receipt_scope_and_nonce",
+    "frontend_authority": "external_immutable_receipt_exact_repository_pr_head_ci",
+    "receipt_schema": "contaos.copilot.deployment.v1",
+    "receipt_issue": 138,
+    "receipt_author": "contaos9999",
+    "receipt_created_equals_updated": true,
+    "receipt_pre_max_age_seconds": 900,
+    "receipt_post_required": true,
+    "gate_187_merge": "1a08988ebf58a38c0647d497725fd713aa7be90c",
+    "requires_trigger_188_merged_before_ready": true,
+    "requires_backend_c13_api_pass_before_ui": true,
+    "hml_execution_requires_coordinator": true,
+    "hml_executed": false,
+    "fixture_authorization": {
+      "auth_admin_api_only": true,
+      "no_insert_auth_users": true,
+      "no_foreign_fixtures": true,
+      "no_global_rbac_mutation": true,
+      "own_nonce_intents_and_quarantine": true,
+      "independent_cleanup_job_required": true
+    },
+    "operational_limits": {
+      "actor_per_minute": 6,
+      "actor_per_hour": 30,
+      "organization_per_hour": 120,
+      "actor_active": 2,
+      "organization_active": 8,
+      "deadline_seconds": 45,
+      "lease_seconds": 90
+    }
   }
 }
