@@ -37,6 +37,24 @@ import { stripTypeScriptTypes } from 'node:module';
 import { runInNewContext } from 'node:vm';
 const ORIGINS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app','https://contaos-41-hml.vercel.app'];
 const evil='https://untrusted.invalid';
+// Catálogo observado no HML: resolver embeds por FK, sem aceitar relação ambígua.
+const fileConstraints=[
+  {name:'versoes_documento_id_arquivo_fkey',columns:['id_arquivo']},
+  {name:'versoes_documento_arquivo_org_fk',columns:['id_arquivo','id_organizacao']},
+  {name:'versoes_documento_arquivo_org_contrato_fk',columns:['id_arquivo','id_organizacao','id_contrato']},
+];
+function fileEmbedError(selection){
+  const embed=selection.match(/(?:^|,)arquivos((?:![A-Za-z_][A-Za-z_0-9]*)*)\(/);
+  if(!embed)return null;
+  const hints=embed[1].split('!').filter(h=>h&&h!=='inner'&&h!=='left');
+  const matches=fileConstraints.filter(fk=>hints.every(h=>h===fk.name||fk.columns.includes(h)));
+  return matches.length===1?null:{code:matches.length>1?'PGRST201':'PGRST200',status:matches.length>1?300:400};
+}
+test('fixture PostgREST distingue embed ambíguo, FK existente e hint inexistente',()=>{
+  assert.equal(fileEmbedError('id,arquivos!inner(id)').code,'PGRST201');
+  for(const fk of fileConstraints)assert.equal(fileEmbedError(`id,arquivos!${fk.name}!inner(id)`),null);
+  assert.equal(fileEmbedError('id,arquivos!missing_fk!inner(id)').code,'PGRST200');
+});
 function runtime(options={}) {
   const calls=[]; let handler; let ranked=false;
   const fragment={id:'fragment',id_versao_documento:'version',pagina_inicio:2,pagina_fim:2,texto:'Obrigação documental válida.',similaridade:0.8,fonte_temporal:'documento_contratual_ou_evidencia'};
@@ -47,9 +65,10 @@ function runtime(options={}) {
     return {
       auth:{getUser:async()=>{calls.push(['auth']);if(options.pauseAuth) await options.pauseAuth;return {data:{user:options.invalidAuth?null:{id:'synthetic-user'}},error:options.invalidAuth?{}:null};}},
       from(table){
-        const state={operation:'select',value:null,filters:{},after:null,orders:[],inFilters:{},ltFilters:{},maximum:null,seek:null};
+        const state={operation:'select',value:null,filters:{},after:null,orders:[],inFilters:{},ltFilters:{},maximum:null,seek:null,selection:''};
         const chain={};
         for(const method of ['select','eq','insert','update','order','limit','gt','lt','in','is','or','abortSignal']) chain[method]=(...args)=>{if(method==='insert'||method==='update'){state.operation=method;state.value=args[0];}if(method==='eq')state.filters[args[0]]=args[1];if(method==='gt')state.after=args[1];if(method==='in'){state.many=true;state.inFilters[args[0]]=args[1];}if(method==='lt')state.ltFilters[args[0]]=args[1];if(method==='is')state.filters[args[0]]=args[1];if(method==='order')state.orders.push([args[0],args[1]?.ascending!==false]);if(method==='limit')state.maximum=args[0];if(method==='or')state.seek=args[0];calls.push([admin?'admin':'user',table,method,...args]);return chain;};
+        const select=chain.select;chain.select=(selection)=>{state.selection=selection;return select(selection);};
         function rows(input){let data=input.filter(row=>Object.entries(state.filters).every(([k,v])=>(k==='escopo->>data_referencia'?(row.escopo?.data_referencia??null):row[k])===v)&&Object.entries(state.inFilters).every(([k,values])=>values.includes(row[k]))&&Object.entries(state.ltFilters).every(([k,v])=>row[k]<v));if(state.seek){const m=state.seek.match(/^criado_em\.lt\.(.+),and\(criado_em\.eq\.(.+),id\.lt\.(.+)\)$/);if(!m)throw new Error('invalid test seek');data=data.filter(row=>row.criado_em<m[1]||row.criado_em===m[2]&&row.id<m[3]);}data.sort((a,b)=>{for(const [k,asc] of state.orders){if(a[k]===b[k])continue;return (a[k]<b[k]?-1:1)*(asc?1:-1);}return 0;});return state.maximum===null?data:data.slice(0,state.maximum);}
         function result(){
           if(admin&&table==='mensagens_copiloto'&&state.operation==='insert'){options.afterMessage?.();}
@@ -63,7 +82,7 @@ function runtime(options={}) {
           if(admin&&table==='sessoes_copiloto'&&state.operation==='update'){const found=options.sessions?rows(options.sessions):[{id:state.filters.id}];for(const row of found)Object.assign(row,state.value);options.closed=true;return {data:options.closeRace?null:(found[0]??null),error:null};}
           if(!admin&&table==='mensagens_copiloto')return {data:rows(options.messages??[]),error:null};
           if(!admin&&table==='fragmentos_documento') return {data:options.noSources||state.after?[]:[{id:'fragment',id_organizacao:'org',id_contrato:'contract',id_versao_documento:'version'}],error:null};
-          if(!admin&&table==='versoes_documento') return {data:[{...versionRow,arquivos:{...versionRow.arquivos,status_seguranca:options.unsafeSource?'quarentena':'aprovado'},processamentos_documento:versionRow.processamentos_documento.map(p=>({...p,status:options.incompleteSource?'processando':'concluido'}))}],error:null};
+          if(!admin&&table==='versoes_documento') {const error=fileEmbedError(state.selection);if(error)return {data:null,error};return {data:[{...versionRow,...options.versionScope,arquivos:{...versionRow.arquivos,...options.fileScope,status_seguranca:options.unsafeSource?'quarentena':'aprovado'},processamentos_documento:versionRow.processamentos_documento.map(p=>({...p,...options.processingScope,status:options.incompleteSource?'processando':'concluido'}))}],error:null};}
           if(!admin&&table==='precedentes') return {data:options.noSources||state.after?[]:precRows.map(p=>({...p,id_organizacao:'org',id_contratante:'contractor'})).sort((a,b)=>a.id.localeCompare(b.id)),error:null};
           if(!admin&&table==='contratos'&&state.many) return {data:options.deniedOrigin?[]:[{id:'contract',id_organizacao:'org',id_contratante:'contractor'}],error:null};
           if(!admin&&table==='contratos') return {data:options.denied?null:{id:'contract',id_organizacao:'org',id_contratante:'contractor',numero:'123'},error:options.denied?{}:null};
@@ -87,6 +106,16 @@ function runtime(options={}) {
   return {handler,calls,request};
 }
 function cors(response,origin){assert.equal(response.headers.get('access-control-allow-origin'),origin);assert.equal(response.headers.get('access-control-allow-credentials'),null);assert.match(response.headers.get('vary')??'',/Origin/);assert.equal(response.headers.get('cache-control'),'no-store');}
+test('runtime catálogo HML com três FKs permite fonte legítima sem consulta administrativa',async()=>{
+ const r=runtime();const response=await r.handler(r.request());assert.equal(response.status,200);
+ const body=await response.json();assert.equal(body.fontes[0].fonte_id,'fragment');assert.equal(r.calls.filter(c=>c[0]==='fetch').length,1);
+ assert.equal(r.calls.filter(c=>c[0]==='admin'&&['versoes_documento','arquivos'].includes(c[1])).length,0);
+ for(const query of r.calls.filter(c=>c[0]==='user'&&c[1]==='versoes_documento'&&c[2]==='select'))assert.equal(fileEmbedError(query[3]),null);
+});
+for(const scope of ['versionScope','fileScope','processingScope'])for(const key of ['id_organizacao','id_contrato'])test(`runtime FK explícita não libera ${scope}/${key} divergente`,async()=>{
+ const r=runtime({[scope]:{[key]:'foreign'}});const response=await r.handler(r.request());assert.equal(response.status,200);
+ assert.equal((await response.json()).fontes.length,0);assert.equal(r.calls.filter(c=>c[0]==='fetch').length,0);
+});
 for(const origin of ORIGINS) test(`runtime preflight autorizado ${origin} não toca Auth/DB/IA`,async()=>{
   const r=runtime();const response=await r.handler(r.request('OPTIONS',origin,{'access-control-request-method':'POST','access-control-request-headers':'Authorization, apikey, Content-Type, x-client-info'}));
   assert.equal(response.status,204);cors(response,origin);assert.equal(await response.text(),'');assert.equal(response.headers.get('access-control-allow-methods'),'POST, OPTIONS');assert.deepEqual(r.calls,[]);
