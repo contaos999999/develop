@@ -41,10 +41,15 @@ jobs:
                 echo "Denied origin unexpectedly received CORS origin"; exit 1
               fi
             elif [[ "$label" == no-auth ]]; then
-              # The Supabase JWT gateway can reject before Edge CORS middleware.
-              # A 401 may have no ACAO; if present it must match the allowed origin.
-              if [[ -n "$cors" && "$cors" != "$allowed" ]]; then
-                printf "Unauthenticated 401 CORS mismatch: observed=%q expected=%q (gateway may respond before Edge)\n" "$cors" "$allowed"; exit 1
+              # Supabase JWT gateway rejects missing JWT before Edge middleware.
+              # Gateway-owned 401 has been observed with ACAO "*"; do not
+              # mistake this unauthenticated error header for Edge CORS policy.
+              # Require exact 401 and ensure no authenticated data was returned.
+              if [[ "$cors" != "" && "$cors" != "$allowed" && "$cors" != "*" ]]; then
+                printf "Unauthenticated gateway 401 unexpected CORS: observed=%q\n" "$cors"; exit 1
+              fi
+              if grep -Eiq '"(sessoes|mensagens|id_organizacao|id_contrato)"[[:space:]]*:' /tmp/c13-body; then
+                echo "Unauthenticated 401 unexpectedly contained protected fields"; exit 1
               fi
             fi
           }
