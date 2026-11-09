@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-002-SCOPE-QUOTA-SQL-BUILD-20261108",
-  "title": "Trilha C BUILD: RPCs elegíveis, reserva atômica e provas SQL",
+  "id": "C-CHAT-002-EDGE-BUILD-20261109",
+  "title": "Trilha C BUILD Edge: RLS de fontes, reserva e persistência fenced",
   "status": "ativa",
-  "phase": "BUILD_SQL",
+  "phase": "BUILD_EDGE",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -39,17 +39,9 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/migrations/20261108232731_c_chat_scope_quota.sql",
     "supabase/functions/copilot-query/index.ts",
     "supabase/tests/copilot_openai_contract.test.mjs",
-    "supabase/tests/copilot_scope_quota.sql",
-    "supabase/tests/copilot_hml.mjs",
-    "supabase/tests/p0_crud_global_remaining.test.mjs",
-    "supabase/tests/remaining_domains/ai_envelope.test.mjs",
-    ".github/workflows/copilot-hml.yml",
-    ".github/workflows/restore-isolado.yml",
-    "supabase/tests/history_catalog_compare.py",
-    "supabase/tests/copilot_catalog.test.mjs"
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -57,9 +49,9 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": true,
+  "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -143,7 +135,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "TDD SQL real no Restore isolado; código Edge e runner em PRs posteriores, sem SQL remoto/deploy.",
+  "next_step": "TDD runtime Edge sobre SQL182congelado;semDDL/deploy/HMLharness.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2362,5 +2354,15 @@
       "job": 128905777482,
       "native_error": "COPILOT_SQL_SECURITY_REPRO: PRECEDENTE_A_VERSAO_B_ACCEPTED,HISTORICO_PERMISSION_REVOCATION_ACCEPTED"
     }
+  },
+  "edge_build_dependency": {
+    "sql_pr": 182,
+    "head": "aed72f7a095e5d6a552a1ffe5261f7d1d6fe2af7",
+    "restore": 42538570697,
+    "rebuild_job": 128908231330,
+    "backup_job": 128908231416,
+    "state": "SQL_GREEN_NOT_DEPLOYED",
+    "reuse_edge_pr": 180,
+    "reuse_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97"
   }
 }
