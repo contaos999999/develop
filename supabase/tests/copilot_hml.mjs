@@ -695,6 +695,13 @@ async function selfTest(){
  for(const patch of [{GITHUB_REF:'refs/heads/foreign'},{GITHUB_EVENT_NAME:'pull_request'},{TESTED_HEAD:'main'},{GITHUB_SHA:'f'.repeat(40)},{GITHUB_REPOSITORY:'foreign/develop'},{NONCE:'reuse'},{EDGE_VERSION:'0'},{RESTORE_RUN_ID:'1;echo bad'}])assert.throws(()=>inputs({...e,...patch}));
  const runs=['ContaOS Zero-Drift','ContaOS Restore Isolado'].map((name,n)=>({name,id:n===1?123:n+5,head_sha:e.TESTED_HEAD,status:'completed',conclusion:'success',event:'push',head_branch:'main',head_repository:{full_name:e.GITHUB_REPOSITORY}}));
  validateChecks(runs,e.TESTED_HEAD,'123');
+ const manualRestore=structuredClone(runs);manualRestore[1].event='workflow_dispatch';manualRestore[1].path='.github/workflows/restore-isolado.yml';
+ assert.doesNotThrow(()=>validateChecks(manualRestore,e.TESTED_HEAD,'123'),'canonical manual main Restore with exact SHA and run must be accepted');
+ for(const patch of [{event:'pull_request'},{event:'schedule'},{path:'.github/workflows/foreign.yml'},{path:undefined},{head_sha:'f'.repeat(40)},{head_branch:'foreign'},{head_repository:{full_name:'foreign/develop'}},{id:999},{status:'in_progress'},{conclusion:'failure'}]){
+  const bad=structuredClone(manualRestore);Object.assign(bad[1],patch);assert.throws(()=>validateChecks(bad,e.TESTED_HEAD,'123'));
+ }
+ const manualGuard=structuredClone(manualRestore);manualGuard[0].event='workflow_dispatch';manualGuard[0].path='.github/workflows/zero-drift.yml';assert.throws(()=>validateChecks(manualGuard,e.TESTED_HEAD,'123'),'Zero-Drift guard must remain main push');
+
  for(const field of ['head_sha','status','conclusion','event','head_branch']){const bad=structuredClone(runs);bad[1][field]='invalid';assert.throws(()=>validateChecks(bad,e.TESTED_HEAD,'123'));}
  const steps=['Context Gate — leitura obrigatória 4.1','Zero-Drift','Architecture Guard','SQL Security Guard','Migrations reproduzíveis','Historical HML source integrity','Segredos proibidos'].map(name=>({name,status:'completed',conclusion:'success'}));
  validateGuardSteps([{conclusion:'success',steps}]);
