@@ -1,0 +1,44 @@
+name: ContaOS C13 v8 focal CORS and JWT negative
+on:
+  push:
+    branches: [test/c13-v8-security-focal-20261109]
+    paths: [.github/workflows/c13-v8-focal-security.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focal-negative:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Preflight allowed origin, disallowed origin and unauthenticated POST
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://gklhhhyosgasnyoxlrui.supabase.co/functions/v1/copilot-query"
+          allowed="https://contaos-41-nygkrrbkq-contaos9999.vercel.app"
+          denied="https://origin-not-allowed.invalid"
+          test_case() {
+            local label="$1" method="$2" origin="$3" expected="$4"
+            local args=(-sS --retry 2 --connect-timeout 10 --max-time 25 -o /tmp/c13-body -D /tmp/c13-headers -w '%{http_code}' -X "$method" -H "Origin: $origin")
+            if [[ "$method" == OPTIONS ]]; then
+              args+=(-H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: authorization,apikey,content-type")
+            else
+              args+=(-H "Content-Type: application/json" --data '{"acao":"listar_sessoes"}')
+            fi
+            local code
+            code=$(curl "${args[@]}" "$url")
+            echo "$label status=$code expected=$expected"
+            test "$code" = "$expected"
+            if [[ "$label" == allowed ]]; then
+              grep -iq "^access-control-allow-origin: $allowed" /tmp/c13-headers
+            else
+              if grep -iq '^access-control-allow-origin:' /tmp/c13-headers; then
+                echo "Unexpected CORS allow-origin"; exit 1
+              fi
+            fi
+          }
+          test_case allowed OPTIONS "$allowed" 204
+          test_case denied OPTIONS "$denied" 403
+          test_case no-auth POST "$allowed" 401
+          echo C13_V8_CORS_AND_NOAUTH_PASS
