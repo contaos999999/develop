@@ -188,3 +188,75 @@ JWT expirado, precisão de camadas validada nas fontes oficiais https://supabase
 Hook offline precisão pré-workflow: preservar literalmente o run inline original, pois contratoB verifica esse formato. O self-test runner será step offline separado imediatamente antes do protocolo privado V117/antesDB, sem mudar comando/assertion original. RED recursivo466/465PASS/1FAIL foi de compatibilidade do formato, não HML; nenhum skip/relaxamento.
 
 Runner herda main290613/189 PARCIAL3b01dc/65casos por merge normal. Não declara C13 completo; sucessora190 e gateRLS seguem bloqueantes, nenhuma execução HML.
+
+
+## PLAN/GATE C13: impedir leitura bruta do chat pela Data API
+
+**Estado documental: SEM SOURCE, SQL remoto, fixtures ou HML neste PR.** Baseline main39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63 (#188 integrado). Requisito: conversa própria e retenção de resposta com qualquer fonte atual indisponível, conforme PLAN187f29c4440 e canônicos00/02/03/07/09/10/18. Owner check somente na Edge não protege caminhos Data API alternativos. Esta lacuna IMPORTANT reabre GATE específico e bloqueia certificação/deployment C13 até correção comprovada.
+
+### Evidência independente, somente metadados
+
+Em09/11/2026, consulta read-only a pg_class/pg_policies/has_table_privilege no HMLgklhhhyosgasnyoxlrui confirmou as quatro tabelas abaixo com RLS=true, authenticated SELECT=true e anon SELECT=false. Nenhuma linha de negócio, documento, credencial ou fixture foi lida/criada. Catálogo real coincide com migrations0012/0018:
+
+| Tabela | Única política SELECT authenticated observada | Consequência |
+|---|---|---|
+| sessoes_copiloto | criado_por=auth.uid(), organização e contrato acessíveis | Metadados próprios protegidos; preservar |
+| mensagens_copiloto | organização acessível e EXISTS sessão com criado_por=auth.uid() | Conteúdo bruto legível ao dono sem revalidar fonte |
+| fontes_resposta_copiloto | organização acessível e EXISTS mensagem/sessão com criado_por=auth.uid() | Trechos persistidos legíveis ao dono após fonte indisponível |
+| retornos_modelo | organização acessível e contrato acessível ou null | Outro ator do mesmo org/contrato pode ler resposta/fontes brutas de chat alheio |
+
+SQL182 materializa p_retorno em retornos_modelo.resposta, p_fontes em retornos_modelo.fontes e linhas de mensagem/fontes. A política de retornos não consulta ator, sessão, namespace ou fonte; as outras duas não consultam segurança/processamento/origem/vigência atual. Logo B autorizado ao contrato satisfaz a política do retorno de chat de A; A mantém SELECT bruto depois de sua fonte ficar em quarentena. DTO sanitizado da Edge não altera visibilidade SQL. Isto é prova de catálogo/código, não ensaio JWT/HML ou Restore executado.
+
+Consumer não chat: queue-worker-ai/index.ts também grava retornos_modelo para análises/consultas. Não revogar SELECT global de retornos_modelo nem alterar worker A/B para corrigir chat. No src frontend inspecionado só foram encontradas referências dessas três tabelas nos tipos gerados imutáveis; isso não elimina o endpoint Data API nem presume ausência de consumidores externos.
+
+### Caminho CLI e allowlist fechada
+
+CLI oficial2.122.0 em cache, --version e migration new --help conferidos antes de migration new c_chat_raw_read_hardening em diretório temporário com config existente. Caminho realmente gerado: supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql. Skeleton vazio SHA256e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855, somente scratch, fora deste PR. Hash vazio identifica geração, não aprova corpoDDL. Nenhuma conexão CLI remota. Migration137/20261108232731 e nove contratos permanecem imutáveis.
+
+Este PR altera exatamente docs/tasks/active-task.json e este plano; flags DB/RLS/Edge/Auth/Storage/fixtures=false. Após revisão/CI/integração deste GATE, ativação documental BUILD poderá habilitar somente oito caminhos:
+
+1. docs/tasks/active-task.json;
+2. docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md;
+3. supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql;
+4. supabase/tests/copilot_scope_quota.sql;
+5. supabase/tests/history_catalog_compare.py;
+6. supabase/tests/copilot_catalog.test.mjs;
+7. supabase/functions/copilot-query/index.ts;
+8. supabase/tests/copilot_openai_contract.test.mjs.
+
+Sem helperfile/tabela/índice/assinatura pública/workflow/routingA/B novo, alteração de tipos frontend ou RLS fora das três tabelas. Runner e HML seguem fase própria. Ajuste Edge mínimo integra este GATE futuro porque negar raw authenticated invalida leitura userClient dessas tabelas; não habilita SOURCE189 antecipadamente nem bypass genérico.
+
+### Desenho fechado
+
+- Preservar policies/grants sessoes_copiloto: contrato/sessão própria são resolvidos por userClient/JWT/RLS e dono explícito mesmo Master. Sessão metadataown não autoriza outro ator.
+- Adicionar política SELECT AS RESTRICTIVE TO authenticated em mensagens_copiloto e fontes_resposta_copiloto que nega toda leitura bruta autenticada. Tabelas são exclusivas do chat. Não apagar linhas, alterar grantsservice/finalizador ou reescrever policies anteriores.
+- Em retornos_modelo adicionar SELECT AS RESTRICTIVE TO authenticated negando somente chat. Não chat conserva exatamente org/contrato anterior. Classificar chat por consulta com filtros.copilot.namespace=c_chat_v1 OU mensagem ligada por id_retorno_modelo OU mensagem ligada pela mesma id_consulta_semantica não nula. Cobrir legado sem namespace, fallback e provedores supabase/openai, nulls e prompts/modelos variantes. Não usar modelo/provedor/prompt_versao como autoridade exclusiva para abrir acesso.
+- Tratar também retorno legado temporariamente órfão: no fluxo antigo INSERT usuário podia falhar ignorado e retorno era inserido antes da mensagem assistente em chamadas separadas. Namespace/vínculo não podem ser única forma de detectar esse caso. Marcadores legados exatos conferidos em Git ec73fa6/1e777e7/7494f06: prompt_versao copiloto-temporal-pt-BR-v2 e copiloto-openai-rag-v1; incluir também versões fenced conhecidas copiloto-temporal-pt-BR-v3-fenced e copiloto-openai-rag-v2-fenced como negação complementar. Esse conjunto fechado suplementa classificação somente para NEGAR, nunca conceder; testar órfão de cada marcador e positivo não chat determinístico. Não usar prefixo amplo nem modelo/provedor genérico. Se não for possível classificar legado sem falso acesso, falhar fechado e reabrir decisão de compatibilidade, não presumir não chat. Nenhuma leitura de dados reais para esta classificação.
+- Helper privado fechado: privado.copilot_retorno_e_chat(p_id_retorno uuid,p_id_consulta uuid) RETURNS boolean, SECURITY DEFINER, owner postgres, search_path vazio. Necessário para classificar sob política sem recursão RLS e sem invisibilidade da mensagem alheia produzir falso não chat. Sem SQL dinâmico, qualificar todos objetos. Retorna apenas booleano de classificação, nunca conteúdo/fonte/identidade nem autorização. Não aceita ator/organização livres. A expressão RLS passa IDs da própria linha, não inputs do cliente.
+- Revogar PUBLIC/anon/service_role no helper; EXECUTE somente owner e authenticated específico necessário à política. Sem wrapper/schema público ou API privada exposta; nenhum grant novo de schema/tabela. Não afirmar ACL owner-only que impediria execução RLS. Provar argumentos inexistentes/divergentes fail-closed e ausência de conteúdo. Caso o desenho necessite privilégio adicional, revisar GATE antes da fonte.
+- Edge lê mensagens/fontes/retornos por admin somente APÓS contrato/sessão userClient, JWT válido, permissão canônica e dono explícito. Cada query inclui organização/contrato/sessão comprovados; fontes somente por IDs de mensagens desse conjunto, retornos somente por IDs ligados a essas mensagens. Conferir vínculos de todas linhas retornadas. Nunca queryglobal, só UUID livre ou cursor conferindo autoridade. Admin permite sanitizar, não publicar raw.
+- Revalidar todas fontes históricas sob userClient/RLS/permissões/origem/elegibilidade SQL antes de exibir/contextualizar e antes/depois provider. Qualquer dependência indisponível exige conteudo=null,fontes=[],conteudo_disponivel=false e exclusão do par completo do contexto. Flags estritas próprias do retorno mantidas; não expor resposta/fontes internas/prompt/filtros/token. Preservar quota6/30/120,slots2/8,deadline45s,lease90s,fencing e finalizador182.
+- Preservar demais contratos C13: microssegundos/seek/teto128KiB/6pares/8000bytes/ownerMaster, closeCAS na mesma sessão e nenhuma chamada IA/embedding/reserva em read/close. Não modificar SQL182 para viabilizar leitura.
+
+### Tarefas posteriores com RED→GREEN
+
+> Executar tarefa por tarefa somente após GATE revisto, CI verde, integração e ativação BUILD própria. Nenhuma etapa abaixo foi executada neste PR documental.
+
+- [ ] Congelar HEAD189 e reancorar main viva. Ativação189:0af1a9dbff22644e09b50f4806e5e02b955a8813/blobmanifest37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd confirmados pelo autor. GATE atual fixa base39e7/blob anterior. Preservar ledgers e taskC13 por comparação estrutural/Git objects; não substituir manifesto inteiro por versão antiga. PR189 foi integrado externamente em290613c977efb16fe512980db96a276dd897f97d com fonte parcial; este GATE foi reancorado por fast-forward e delta documental estrutural, preservando ledger189. Fonte parcial não está certificada nem liberada para deploy; sucessor C13 deve fechar testes e contrato. Root coordena novo CAS do HEAD e reconciliação antes merge. Não promover189 como solução da lacuna antes gates conjuntos.
+- [ ] RED causal em copilot_scope_quota.sql/Restore isolado: A/B e Master distintos com acesso ao mesmoorg/contrato, chatA e retorno nãochat equivalente. Baseline deve mostrar B/Master lendo retornochatA e dono lendo raw mensagem/fonte após quarentena. Não usar HML/dados reais/mocks de policy.
+- [ ] Matriz SQL: authenticated dono/B/Master recebem zero rawchat nas três tabelas; namespace, vínculo retorno, vínculo consulta, legado semnamespace, órfão conhecido, fallback, null e provedores cobertos. A/B mantêm retornonãochat quando policy anterior permite; tenant/contrato alheios negados. Nãochat com mesmo modelo/prompt genérico não pode ser bloqueado por inferência desses campos. Testar SELECT direto/joins/embed e ausência de recursão ou concessãoDML.
+- [ ] Implementar somente migration CLI exata com três policies e helper. Registrar SHA256 final, assinatura/owner/linguagem/return/SECDEF/search_path/ACL e MD5prosrc. Preservar nove corpos182 e todas policies/grants anteriores. Hash vazio não é corpo aprovado.
+- [ ] history_catalog_compare.py/copilot_catalog.test.mjs comparam delta exato de helper/policies: nome,assinatura,comando,roles,permissive,qual,owner,bodyMD5,search_path,ACL; grants tabela invariáveis. Manter todas linhas atuais e comparação histórica, sem ignorar prefixos/policies/tabelas, remover registros atuais ou normalizar corpo divergente. Rejeitar missing/extra/duplicado/assinatura/ACL/qual/body/SECDEF e mudança nãochat. Valores finais exigem revisão antes aplicaçãoHML.
+- [ ] RED runtime handlerreal: nenhum adminread antes JWT/contrato/sessãoown permitidos; id_sessao/cursor/retorno/mensagem/fonte forjados não chegam a rawglobal/provider. Master alheio negado. DTOdono válido preserva flags/fontes/páginas/contexto; fonte quarentenada gera placeholder e zero raw; revogação duranteprovider403 sem nova resposta; read/close zeroinferência.
+- [ ] Implementar mínimo Edgeadminscoped; executar focal copilot_openai_contract.test.mjs, catálogo, SQLnativo e regressãoA/B. Rodar Context Gate, Zero-Drift paths exatos, architecture/sqlsecurity guard, secretsscan, runtime real e Restore reconstrução/backup2instâncias no mesmoSHA. Ausência de PostgreSQLlocal não substitui Restore nem autoriza dizer SQLGREEN.
+- [ ] Revisão independente fonteSQL por backendauthor e fonteEdge por reviewer separado, sem Important/Critical aberto, CIHEADcongelado e integração coordenada. Somente faseHMLposterior aplica CLI canônico com nativecatalog/ACL/bodyMD5/readback e recibos. Não aplicar SQL viaMCP nem confundir API_PASS_UI_PENDING com certificaçãoUI.
+
+### Rollback, limites e governança
+
+Não reescrever137, apagar conversas ou reabrir rawchat e declarar C13seguro. Eventual rollback por nova migration aprovada e decisão de segurança; manter versãoEdge compatível com RLS efetiva, sem promover fonte antiga userClientraw após hardening. Legado não classificado, acesso bruto restante, quebra nãochat ou catálogo/ACL divergente = NO-GO. Este GATE não provaJWTmaterial nem certificaHML.
+
+### ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE
+
+ContaOS Brand v1.0/BRAND-01 preservada; impacto_visual N/A justificado: governança backend apenas, sem UI/assets/tokens/tipos. Nenhum turnoLovable. Reusar contexto25/25, provas válidas e tabelas/Edge existentes; delta fechado preserva TDD, segurança, CI/Restore, revisão e TesteC independente. PROD/Authconfig/Storageconfig intocados. Resultado atual: GATE proposto, nenhuma implementação ou certificação.
+
+Runner herda GATE191 eea93 por merge normal; rawDataAPI/privacy, C13completo e cleanup/readbacks permanecem bloqueantes de execução/certificação. OFFLINE_BUILD não é autorização HML.
