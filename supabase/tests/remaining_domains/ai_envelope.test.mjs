@@ -56,7 +56,7 @@ for key,value in [('backend_head','c'*40),('project','prod'),('function_slug','s
 });
 
 test('actual routing limits explicit manual resume to exact main inputs',()=>{
- const code=String.raw`import re,subprocess,tempfile,pathlib,os,json
+ const code=String.raw`import re,subprocess,tempfile,pathlib,os,json,hashlib
 source=pathlib.Path('.github/workflows/p0-crud-remaining-hml.yml').read_text()
 start=source.index('      - name: Read-only exact task routing');end=source.index('  runtime-ready:',start)
 section=source[start:end];script=section.split('        run: |\n',1)[1]
@@ -68,7 +68,8 @@ for event,patch,ok,applicable in [('workflow_run',{},True,True),('workflow_dispa
   fixture=pathlib.Path(d)/'fixture';fixture.mkdir()
   for name in ['supabase','.github','.git']:(fixture/name).symlink_to(pathlib.Path(name).resolve(),target_is_directory=name!='.git')
   (fixture/'docs/tasks').mkdir(parents=True)
-  task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text());task['id']='P0-CRUD-GLOBAL-HML-20261107';task['phase']='BUILD_CERTIFICACAO_DOMINIOS_RESTANTES'
+  raw=pathlib.Path('docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json').read_bytes();assert hashlib.sha256(raw).hexdigest()=='6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606'
+  task=json.loads(raw);task['id']='P0-CRUD-GLOBAL-HML-20261107';task['phase']='BUILD_CERTIFICACAO_DOMINIOS_RESTANTES'
   (fixture/'docs/tasks/active-task.json').write_text(json.dumps(task))
   r=subprocess.run(['bash','-e','-o','pipefail','-c',script],env=env,cwd=fixture,capture_output=True,text=True)
   assert (r.returncode==0)==ok,(event,patch,r.stderr)
