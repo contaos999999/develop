@@ -97,10 +97,13 @@ jobs:
       actions: read
       checks: read
       issues: read
-    env:
-      CONTAOS_TEST_PRIVATE_DIR: ${{ runner.temp }}/copilot-private-${{ github.run_id }}-${{ github.run_attempt }}
-      SDK_DIR: ${{ runner.temp }}/copilot-sdk
     steps:
+      - name: Prepare isolated runner paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'CONTAOS_TEST_PRIVATE_DIR=%s\n' "$RUNNER_TEMP/copilot-private-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          printf 'SDK_DIR=%s\n' "$RUNNER_TEMP/copilot-sdk" >> "$GITHUB_ENV"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.sha }}
@@ -148,10 +151,13 @@ jobs:
       actions: read
       checks: read
       issues: read
-    env:
-      CONTAOS_TEST_PRIVATE_DIR: ${{ runner.temp }}/copilot-recovery-${{ github.run_id }}-${{ github.run_attempt }}
-      SDK_DIR: ${{ runner.temp }}/copilot-sdk
     steps:
+      - name: Prepare isolated runner paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'CONTAOS_TEST_PRIVATE_DIR=%s\n' "$RUNNER_TEMP/copilot-recovery-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          printf 'SDK_DIR=%s\n' "$RUNNER_TEMP/copilot-sdk" >> "$GITHUB_ENV"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.sha }}
