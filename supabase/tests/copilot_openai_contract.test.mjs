@@ -96,6 +96,7 @@ function runtime(options={}) {
   }
   const compiled=stripTypeScriptTypes(source.replace(/^import .*\n/gm,''),{mode:'strip'});
   runInNewContext(compiled,{
+    console:{info:(...args)=>calls.push(['diagnostic',...args])},
     Request,Response,Headers,TextDecoder,TextEncoder,Uint8Array,AbortSignal,atob,btoa,
     Deno:{env:{get:key=>({SUPABASE_URL:'https://fixture.invalid',SUPABASE_ANON_KEY:'public-fixture',SUPABASE_SERVICE_ROLE_KEY:'private-fixture',OPENAI_API_KEY:options.noKey?'':'ai-fixture'})[key]},serve:fn=>{handler=fn;}},
     Supabase:{ai:{Session:class {async run(text){calls.push(['embedding',text]);options.lastEmbedding=text;return [0.1,0.2];}}}},
@@ -106,6 +107,25 @@ function runtime(options={}) {
   return {handler,calls,request};
 }
 function cors(response,origin){assert.equal(response.headers.get('access-control-allow-origin'),origin);assert.equal(response.headers.get('access-control-allow-credentials'),null);assert.match(response.headers.get('vary')??'',/Origin/);assert.equal(response.headers.get('cache-control'),'no-store');}
+const providerMessage=text=>({status:'completed',output:[{type:'message',status:'completed',content:[{type:'output_text',text,annotations:[]}]}]});
+for(const [options,reason,status]of [
+ [{output:providerMessage('Plano Aurora PRIVATE_OUTPUT')},'SEM_CITACAO'],
+ [{output:providerMessage('PRIVATE_OUTPUT [F9]')},'CITACAO_INVALIDA'],
+ [{providerStatus:429,output:{private:'PRIVATE_HTTP_BODY'}},'HTTP_INVALIDO',429],
+ [{providerStatus:503,output:{private:'PRIVATE_HTTP_BODY'}},'HTTP_INVALIDO',503],
+ [{fetchError:true},'EXCECAO_OU_TIMEOUT'],
+ [{output:{status:'incomplete',output:[{private:'PRIVATE_INCOMPLETE'}]}},'RESPOSTA_INCOMPLETA'],
+ [{output:{status:'completed',output:[{type:'message',status:'completed',content:[{type:'refusal',refusal:'PRIVATE_REFUSAL'}]}]}},'MENSAGEM_INVALIDA_OU_RECUSADA'],
+ [{output:{status:'completed',output:[]}},'FORMATO_INVALIDO'],
+ [{output:providerMessage('')},'SAIDA_VAZIA_OU_EXTENSA'],
+])test(`runtime diagnóstico ${reason}/${status??'none'} mantém fallback e não registra conteúdo`,async()=>{
+ const r=runtime(options),response=await r.handler(r.request('POST',ORIGINS[2],{},{id_contrato:'contract',pergunta:'PRIVATE_QUESTION'}));
+ assert.equal(response.status,200);const body=await response.json();assert.match(body.resposta,/Pergunta analisada no contrato/);assert.doesNotMatch(body.resposta,/PRIVATE_OUTPUT|PRIVATE_HTTP_BODY|PRIVATE_REFUSAL/);
+ const logs=r.calls.filter(c=>c[0]==='diagnostic');assert.equal(logs.length,1);assert.equal(logs[0].length,2);
+ const event=JSON.parse(logs[0][1]);assert.deepEqual(event,{event:'COPILOT_PROVIDER_FALLBACK',reason,...(status?{status}:{})});
+ assert.doesNotMatch(logs[0][1],/PRIVATE_|private provider error|ai-fixture|private-fixture|synthetic-user|fixture-signature|https?:|[0-9a-f]{8}-[0-9a-f]{4}-/);
+});
+test('runtime síntese citada válida não gera diagnóstico de fallback',async()=>{const r=runtime(),response=await r.handler(r.request());assert.equal(response.status,200);assert.equal(r.calls.filter(c=>c[0]==='diagnostic').length,0);});
 test('runtime catálogo HML com três FKs permite fonte legítima sem consulta administrativa',async()=>{
  const r=runtime();const response=await r.handler(r.request());assert.equal(response.status,200);
  const body=await response.json();assert.equal(body.fontes[0].fonte_id,'fragment');assert.equal(r.calls.filter(c=>c[0]==='fetch').length,1);
