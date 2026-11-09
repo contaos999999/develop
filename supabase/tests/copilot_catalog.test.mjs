@@ -30,3 +30,8 @@ for(const field of ['body_md5','owner','args','returns','language','definer','co
 for(const mode of ['missing','duplicate','signature','extra','old_metadata'])test(`full catalog rejects ${mode} without ignoring actual rows`,()=>{
  const r=run(d=>{const f=d.actual.functions.find(f=>f.name==='worker_buscar_fragmentos_copiloto');if(mode==='missing')d.actual.functions.splice(d.actual.functions.indexOf(f),1);if(mode==='duplicate')d.actual.functions.push(clone(f));if(mode==='signature')f.args+=' extra text';if(mode==='extra')d.actual.functions.push({...f,name:'worker_copilot_extra_unapproved'});if(mode==='old_metadata')d.actual.functions.find(f=>f.name==='worker_buscar_fragmentos_temporais').auth_exec=true;});assert.notEqual(r.status,0);assert.match(r.stderr+r.stdout,/CATALOG_FAIL/);
 });
+// GATE191 retains the original policies exactly once; set comparison must not hide duplicates.
+test('catalog rejects duplicated original chat policy instead of hiding it in a set',()=>{
+ const r=run(d=>{d.actual.policies.push(clone(d.actual.policies.find(p=>p.tablename==='retornos_modelo'&&p.policyname==='retornos_modelo_select')));});
+ assert.notEqual(r.status,0);assert.match(r.stderr+r.stdout,/CHAT_ORIGINAL_POLICY_FAIL/);
+});
