@@ -358,3 +358,12 @@ TDD deve provar no handler real: saída semcitação, citação inválida, HTTP4
 Nonce440a5148ef4798ec38372201f9554691/PRE6732769381consumidos; cleanupjobs e readbackSQLindependente confirmaram4banned/0sessõesvínculosMaster/2inativas/0jobs. Falhas anteriores e45PASSpreservados; P0/C13finalnão certificados.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/A visual; diagnóstico mínimo, zero conteúdo sensível e semLovable ouPROD.
+
+
+## Replay API com diagnóstico fechado implantado, 09/11/2026
+
+Gate202 integrado32bdbcbe7845b1905a12dbcf25d54acc047af699 eBUILD203 integrado490d33bbe78411396214f4b9374d22ac26b02473 (HEADc11dcc28163271f5ac8bb5c465dd178ef6df079d). CI42566732588/Restore42566732528 ambosjobs128994727099/128994727319SUCCESS; revisãoindependentesemfindings,136focais/564totaisPASS, REDa07e14fe127PASS9FAIL. Artefatos13651488926 SHA1030a7d07d5a62ebf7d5cd65c8e138bfa7adeb3f80d45cedf7ed41336dc589fc e13650924215 SHA54314a1aa6afed2fcd19e5e82c2b6cf3dfc4ee12c9b1de1061ef8cbd6f4ecf17. Edgev6ACTIVEJWTtrue, readbackintegral externo igualaoblob856f189c00254b1eb427ba087c6c21eb273bf25e, SHA9092f15344496db84af6127b0aed287120433e97fc6f37c30838399adc31593f/bundle9bc0a47741a772a356c0fe76ae787fe507b1073232789c0b3b855d2eda0a844f. Observabilidade apenas enum/status, semtexto e semalterarvalidação/retry/modelo/timeout/payload/JWT/RLS.
+
+Retoma apenasapi_c13 nos mesmoslimites194:4usuários/2orgs/3turnosA/2reservascontroladas/1fallbackA/6fallbacksBcomsétimonegado. Runner57db8fce eEdgecongelados. Nenhum novo deploy/DDL/RLS/Authconfig/UI. Novo PRE/nonce eCI/Restore/backupmainfinal obrigatórios; nonces06451483d0fec06da22eebfaed900607,662bb3fea781644f1b4f065eef0511a4,440a5148ef4798ec38372201f9554691/PREs6731129800,6731497251,6732769381consumidos. Logs somenteenumsanitizado emjanelaexplicitada se houver falha; não atribuir causa retrospectiva ou rerunar cegamente. ExpiraçãoJWTnatural, cleanupindependente/pós-readbackmantidos; máximoAPI_PASS_UI_PENDING, P0/C13UInãocertificados.45PASSdo42556492600 e10PASSdo42565938714preservados; ambasexecuçõesFAIL ecleanupverificado.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual; A/B ePRODpreservados, semrelaxamentos ou conclusãoporpressuposição.
