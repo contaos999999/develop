@@ -597,7 +597,7 @@ export function forgeOwnJWTSignature(token){
 }
 export function invalidAuthResult(kind,r){
  requireC(['missing','malformed'].includes(kind)&&r.status===401,'negative POST auth requires HTTP401');
- const edge=kind==='missing'?'AUTH_NAO_AUTENTICADO':'AUTH_SESSAO_INVALIDA';
+ const edge=kind==='missing'?'AUTH_ACESSO_NEGADO':'AUTH_SESSAO_INVALIDA';
  if(r.data?.ok===false&&r.data.codigo===edge)return 'EDGE_'+edge;
  const gateway=kind==='missing'?'UNAUTHORIZED_NO_AUTH_HEADER':'UNAUTHORIZED_INVALID_JWT_FORMAT';
  requireC(r.headers.get('sb-error-code')===gateway,'exact missing/malformed platform auth rejection');return 'GATEWAY_'+gateway;
@@ -809,10 +809,10 @@ async function selfTest(){
  assert.equal(typeof invalidAuthResult,'function','missing/malformed POST auth needs exact platform or Edge rejection');
  assert.equal(invalidAuthResult('missing',{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_NO_AUTH_HEADER'})}),'GATEWAY_UNAUTHORIZED_NO_AUTH_HEADER');
  assert.equal(invalidAuthResult('malformed',{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_INVALID_JWT_FORMAT'})}),'GATEWAY_UNAUTHORIZED_INVALID_JWT_FORMAT');
- assert.equal(invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_NAO_AUTENTICADO'},headers:new Headers()}),'EDGE_AUTH_NAO_AUTENTICADO');
+ assert.equal(invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_ACESSO_NEGADO'},headers:new Headers()}),'EDGE_AUTH_ACESSO_NEGADO');
  assert.equal(invalidAuthResult('malformed',{status:401,data:{ok:false,codigo:'AUTH_SESSAO_INVALIDA'},headers:new Headers()}),'EDGE_AUTH_SESSAO_INVALIDA');
  for(const bad of [{status:500,data:{},headers:new Headers()},{status:401,data:{},headers:new Headers()},{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_LEGACY_JWT'})}])assert.throws(()=>invalidAuthResult('missing',bad));
- assert.throws(()=>invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_SESSAO_INVALIDA'},headers:new Headers()}));
+ assert.throws(()=>invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_SESSAO_INVALIDA'},headers:new Headers()}));assert.throws(()=>invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_NAO_AUTENTICADO'},headers:new Headers()}));
 
  assert.equal(typeof authRecognition,'function','revoked-token Auth branch cannot treat transport/provider errors as authentication rejection');
  assert.equal(authRecognition({data:{user:{id:'own'}},error:null},'own'),true);assert.equal(authRecognition({data:{user:null},error:{name:'AuthApiError',status:401}},'own'),false);
