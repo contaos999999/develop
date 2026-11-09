@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-002-RESTORE-TRIGGERS-BUILD-20261109",
-  "title": "BUILD: quatro triggers Restore antes de SRC C13",
+  "id": "C-CHAT-002-C13-HISTORY-BUILD-20261109",
+  "title": "BUILD C13: histórico próprio paginado e contexto limitado",
   "status": "ativa",
-  "phase": "BUILD_C13_RESTORE_TRIGGERS",
+  "phase": "BUILD_C13_HISTORY",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -35,12 +35,12 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Quatro triggers Restore e setup completo snapshotB no título exato ai_envelope já aprovado pelo GATE181.",
+  "objective": "Implementar somente contrato C13 fechado187 após triggers188 integrados, com TDD e sem SQL novo.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    ".github/workflows/restore-isolado.yml",
-    "supabase/tests/remaining_domains/ai_envelope.test.mjs"
+    "supabase/functions/copilot-query/index.ts",
+    "supabase/tests/copilot_openai_contract.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -50,7 +50,7 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -121,8 +121,8 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "previous_task_id": "C-CHAT-002-C13-HISTORY-PLAN-20261109",
-  "previous_task_snapshot_commit": "1a08988ebf58a38c0647d497725fd713aa7be90c",
+  "previous_task_id": "C-CHAT-002-RESTORE-TRIGGERS-BUILD-20261109",
+  "previous_task_snapshot_commit": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -134,7 +134,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI/Restore/backup e integração deste PR antes de ativar SRC C13.",
+  "next_step": "TDD RED/GREEN C13 e revisão/CI/Restore/backup; nenhum merge/deploy/HML sem coordenação.",
   "database_change_scope": "Documentação apenas; nenhuma alteração/aplicação SQL, RLS, grants ou fixtures.",
   "evidence": {
     "test_pr": 52,
@@ -2382,7 +2382,7 @@
     "additional_preapproved_181_title": "actual routing limits explicit manual resume to exact main inputs"
   },
   "copilot_c13_history_gate": {
-    "state": "PLAN_ONLY_NO_SOURCE",
+    "state": "BUILD_AUTHORIZED_AFTER_GATES_187_188",
     "source_base": "8dc073d7ad4344231f99169a2180465a3354fe4c",
     "edge_integrated_commit": "635c46dcd04c344d005a5cee8ca6c1cb0a8593dd",
     "edge_source_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
@@ -2406,7 +2406,8 @@
     "persisted_risk_flags": true,
     "certified": false,
     "requires_restore_trigger_pr_merged_before_source": true,
-    "requires_historical_source_recheck_after_provider": true
+    "requires_historical_source_recheck_after_provider": true,
+    "restore_trigger_integrated_commit": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63"
   },
   "copilot_hml_proof_gate": {
     "state": "PLAN_ONLY_NO_RUNNER_SOURCE",
