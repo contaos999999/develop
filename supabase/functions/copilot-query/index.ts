@@ -367,7 +367,18 @@ Deno.serve(async(req:Request)=>{
         if(mensagens.length&&UTF8.encode(JSON.stringify([...mensagens,dto])).length>130000)break
         mensagens.push(dto);ultimo=m
       }
-      return json({ok:true,sessao:{id:sessao.id,status:sessao.status,data_referencia:dataReferencia},mensagens,proximo_cursor:ultimo&&data.length>mensagens.length?novoCursor(escopo,ultimo):null})
+      // A leitura administrativa não preserva autoridade: revalidar após todo I/O,
+      // inclusive páginas vazias, mensagens de usuário e assistentes sem fontes.
+      const {data:sessaoAtual,error:erroAtual}=await userClient.from('sessoes_copiloto').select('id,status,escopo,id_organizacao,id_contrato,criado_por').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
+      if(erroAtual){if(erroAtual.code==='42501')throw new Error('FONTE_REVOGADA');throw new Error('HISTORICO_FALHOU')}
+      if(!sessaoAtual||sessaoAtual.id!==idSessaoInformada||sessaoAtual.id_organizacao!==contrato.id_organizacao||sessaoAtual.id_contrato!==idContrato||sessaoAtual.criado_por!==userData.user.id||!['ativa','encerrada'].includes(sessaoAtual.status)||(sessaoAtual.escopo?.data_referencia??null)!==dataReferencia)throw new Error('FONTE_REVOGADA')
+      // Esta RPC canônica também revalida sessão Auth ativa, vínculo e contrato.
+      const {data:permissoesAtuais,error:erroPermissoes}=await userClient.rpc('consultar_permissoes_efetivas',{p_id_organizacao:contrato.id_organizacao,p_id_contrato:idContrato})
+      if(erroPermissoes){if(erroPermissoes.code==='42501')throw new Error('FONTE_REVOGADA');throw new Error('PERMISSOES_FALHOU')}
+      if(!Array.isArray(permissoesAtuais?.permissoes))throw new Error('PERMISSOES_FALHOU')
+      if(!permissoesAtuais.permissoes.some((p:any)=>p.recurso==='arquivos'&&p.acao==='consultar'&&p.permitido!==false))throw new Error('FONTE_REVOGADA')
+      sinal.throwIfAborted()
+      return json({ok:true,sessao:{id:sessaoAtual.id,status:sessaoAtual.status,data_referencia:dataReferencia},mensagens,proximo_cursor:ultimo&&data.length>mensagens.length?novoCursor(escopo,ultimo):null})
     }
     let idSessao=idSessaoInformada
     if(idSessao){
