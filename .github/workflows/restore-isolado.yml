@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'supabase/tests/copilot_hml.mjs'
+      - 'supabase/functions/copilot-query/index.ts'
+      - 'supabase/tests/copilot_openai_contract.test.mjs'
+      - '.github/workflows/copilot-hml.yml'
       - 'supabase/tests/worker_api_boundary*'
       - 'supabase/tests/worker_client_privileges*'
       - 'supabase/migrations/**'
@@ -26,6 +30,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'supabase/tests/copilot_hml.mjs'
+      - 'supabase/functions/copilot-query/index.ts'
+      - 'supabase/tests/copilot_openai_contract.test.mjs'
+      - '.github/workflows/copilot-hml.yml'
       - 'supabase/tests/worker_api_boundary*'
       - 'supabase/tests/worker_client_privileges*'
       - 'supabase/config.toml'
@@ -75,6 +83,9 @@ jobs:
 
       - name: Protocolo CRUD global sem rede ou credenciais
         run: node --test supabase/tests/p0_crud_global_protocol.test.mjs supabase/tests/worker_api_boundary.test.mjs supabase/tests/p0_crud_global_remaining.test.mjs supabase/tests/remaining_domains/detail_wrapper.test.mjs supabase/tests/remaining_domains/metadata_append.test.mjs supabase/tests/remaining_domains/presentation_source.test.mjs supabase/tests/remaining_domains/ai_envelope.test.mjs supabase/tests/remaining_domains/void_approval.test.mjs supabase/tests/copilot_catalog.test.mjs supabase/tests/copilot_openai_contract.test.mjs
+
+      - name: Trilha C runner self-tests
+        run: node supabase/tests/copilot_hml.mjs --self-test
 
       - name: Protocolo privado V117 sem rede
         run: |
