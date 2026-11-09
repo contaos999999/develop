@@ -219,7 +219,23 @@ async function mensagemC13(m:any,client:any,admin:any,contrato:any,ref:string|nu
   else{dto.incerteza=null;dto.conflito_historico=null;dto.baixa_confianca=null}
   return dto
 }
-function consultaMensagensC13(client:any,contrato:any,sessao:string){return client.from('mensagens_copiloto').select('id,papel,conteudo,criado_em,id_consulta_semantica,retornos_modelo(resposta),fontes_resposta_copiloto(fonte_tipo,fonte_id,id_versao_documento,pagina,trecho,score,metadados)').eq('id_sessao',sessao).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',contrato.id).in('papel',['usuario','assistente'])}
+function consultaMensagensC13(admin:any,contrato:any,sessao:string){return admin.from('mensagens_copiloto').select('id,id_organizacao,id_contrato,id_sessao,papel,conteudo,criado_em,id_consulta_semantica,id_retorno_modelo').eq('id_sessao',sessao).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',contrato.id).in('papel',['usuario','assistente'])}
+async function vincularMensagensC13(admin:any,contrato:any,sessao:string,linhas:any[],sinal:AbortSignal){
+  if(linhas.length>50||linhas.some(m=>!UUID_C13.test(m.id)||m.id_organizacao!==contrato.id_organizacao||m.id_contrato!==contrato.id||m.id_sessao!==sessao||!['usuario','assistente'].includes(m.papel))||new Set(linhas.map(m=>m.id)).size!==linhas.length)throw new Error('FONTE_REVOGADA')
+  if(linhas.length===0)return []
+  const ids=linhas.map(m=>m.id),retornos=[...new Set(linhas.map(m=>m.id_retorno_modelo).filter(Boolean))]
+  const [f,r]=await Promise.all([
+    admin.from('fontes_resposta_copiloto').select('id,id_organizacao,id_contrato,id_mensagem,fonte_tipo,fonte_id,id_versao_documento,pagina,trecho,score,metadados').eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',contrato.id).in('id_mensagem',ids).limit(18*ids.length+1).abortSignal(sinal),
+    retornos.length?admin.from('retornos_modelo').select('id,id_organizacao,id_contrato,id_consulta,resposta').eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',contrato.id).in('id',retornos).limit(retornos.length+1).abortSignal(sinal):Promise.resolve({data:[],error:null})
+  ])
+  if(f.error||r.error||!Array.isArray(f.data)||!Array.isArray(r.data))throw new Error('HISTORICO_FALHOU')
+  if(f.data.length>18*ids.length||r.data.length>retornos.length||f.data.some((v:any)=>v.id_organizacao!==contrato.id_organizacao||v.id_contrato!==contrato.id||!ids.includes(v.id_mensagem))||r.data.some((v:any)=>v.id_organizacao!==contrato.id_organizacao||v.id_contrato!==contrato.id||!retornos.includes(v.id))||new Set(r.data.map((v:any)=>v.id)).size!==r.data.length)throw new Error('FONTE_REVOGADA')
+  return linhas.map(m=>{
+    const fontes=f.data.filter((v:any)=>v.id_mensagem===m.id),retorno=r.data.find((v:any)=>v.id===m.id_retorno_modelo)
+    if(fontes.length>18||(m.id_retorno_modelo&&(!retorno||(retorno.id_consulta??null)!==(m.id_consulta_semantica??null))))throw new Error('FONTE_REVOGADA')
+    return {...m,fontes_resposta_copiloto:fontes,retornos_modelo:retorno??null}
+  })
+}
 
 function textoContextoC13(m:any,contrato:any){
   let texto=String(m.conteudo??'')
@@ -233,10 +249,11 @@ function textoContextoC13(m:any,contrato:any){
 async function contextoC13(client:any,admin:any,contrato:any,sessao:string|null,ref:string|null,sinal:AbortSignal){
   const vazio={mensagens:[] as any[],dependencias:[] as any[][]}
   if(!sessao)return vazio
-  const {data,error}=await consultaMensagensC13(client,contrato,sessao).order('criado_em',{ascending:false}).order('id',{ascending:false}).limit(50).abortSignal(sinal)
+  const {data,error}=await consultaMensagensC13(admin,contrato,sessao).order('criado_em',{ascending:false}).order('id',{ascending:false}).limit(50).abortSignal(sinal)
   if(error||!Array.isArray(data)||data.length>50)throw new Error('HISTORICO_FALHOU')
+  const vinculadas=await vincularMensagensC13(admin,contrato,sessao,data,sinal)
   const grupos=new Map<string,{usuario:any[],assistente:any[]}>()
-  for(const m of data){
+  for(const m of vinculadas){
     if(typeof m.id_consulta_semantica!=='string'||!m.id_consulta_semantica||!['usuario','assistente'].includes(m.papel))continue
     let g=grupos.get(m.id_consulta_semantica);if(!g){g={usuario:[],assistente:[]};grupos.set(m.id_consulta_semantica,g)}
     g[m.papel as 'usuario'|'assistente'].push(m)
@@ -313,24 +330,27 @@ Deno.serve(async(req:Request)=>{
         const rows=data.slice(0,limite)
         return json({ok:true,sessoes:rows.map((s:any)=>({id:s.id,titulo:s.titulo==null?null:String(s.titulo).slice(0,120),status:s.status,data_referencia:s.escopo?.data_referencia??null,criado_em:s.criado_em,atualizado_em:s.atualizado_em})),proximo_cursor:data.length>limite?novoCursor(escopo,rows[rows.length-1]):null})
       }
-      const {data:sessao,error:erroSessao}=await userClient.from('sessoes_copiloto').select('id,status,escopo').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
-      if(erroSessao||!sessao||!['ativa','encerrada'].includes(sessao.status)||(sessao.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão não pertence ao contexto autorizado.')
+      const {data:sessao,error:erroSessao}=await userClient.from('sessoes_copiloto').select('id,status,escopo,id_organizacao,id_contrato,criado_por').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
+      if(erroSessao||!sessao||sessao.id!==idSessaoInformada||sessao.id_organizacao!==contrato.id_organizacao||sessao.id_contrato!==idContrato||sessao.criado_por!==userData.user.id||!['ativa','encerrada'].includes(sessao.status)||(sessao.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão não pertence ao contexto autorizado.')
       if(acao==='encerrar_sessao'){
         if(body.cursor!=null)return respostaErro(400,'DADOS_INVALIDOS','Revise a solicitação','Encerramento não utiliza cursor.')
         if(sessao.status==='ativa'){
           const {data:fechada,error}=await admin.from('sessoes_copiloto').update({status:'encerrada'}).eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).eq('status','ativa').select('id').maybeSingle()
           if(error)throw new Error('HISTORICO_FALHOU')
           if(!fechada){
-            const {data:atual,error:ea}=await userClient.from('sessoes_copiloto').select('id,status,escopo').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
+            const {data:atual,error:ea}=await userClient.from('sessoes_copiloto').select('id,status,escopo,id_organizacao,id_contrato,criado_por').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
             if(ea)throw new Error('HISTORICO_FALHOU')
             if(!atual||atual.status!=='encerrada'||(atual.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão mudou durante o encerramento.')
           }
         }
         return json({ok:true,id_sessao:idSessaoInformada,status:'encerrada'})
       }
-      const data=await paginaC13(()=>consultaMensagensC13(userClient,contrato,idSessaoInformada!),cursor,limite,sinal)
+      const podeLer=await permissoesEfetivas(userClient,contrato.id_organizacao,idContrato)
+      if(!podeLer('arquivos'))return respostaErro(403,'AUTH_ACESSO_NEGADO','Acesso não permitido','Você não possui permissão para ler o conteúdo desta conversa.')
+      const data=await paginaC13(()=>consultaMensagensC13(admin,contrato,idSessaoInformada!),cursor,limite,sinal)
+      const vinculadas=await vincularMensagensC13(admin,contrato,idSessaoInformada!,data.slice(0,limite),sinal)
       const mensagens:any[]=[];let ultimo:any=null
-      for(const m of data.slice(0,limite)){
+      for(const m of vinculadas){
         let dto=await mensagemC13(m,userClient,admin,contrato,dataReferencia,sinal)
         if(UTF8.encode(JSON.stringify(dto)).length>130000)dto={...dto,conteudo:null,fontes:[],conteudo_disponivel:false,motivo_indisponibilidade:'LIMITE_TAMANHO'}
         if(mensagens.length&&UTF8.encode(JSON.stringify([...mensagens,dto])).length>130000)break
@@ -340,8 +360,8 @@ Deno.serve(async(req:Request)=>{
     }
     let idSessao=idSessaoInformada
     if(idSessao){
-      const {data:s}=await userClient.from('sessoes_copiloto').select('id,escopo').eq('id',idSessao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).eq('status','ativa').maybeSingle()
-      if(!s||(s.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão informada não pertence a você ou não está mais ativa.')
+      const {data:s}=await userClient.from('sessoes_copiloto').select('id,escopo,status,id_organizacao,id_contrato,criado_por').eq('id',idSessao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).eq('status','ativa').maybeSingle()
+      if(!s||s.id!==idSessao||s.id_organizacao!==contrato.id_organizacao||s.id_contrato!==idContrato||s.criado_por!==userData.user.id||s.status!=='ativa'||(s.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão informada não pertence a você ou não está mais ativa.')
     }
     const pode=await permissoesEfetivas(userClient,contrato.id_organizacao,idContrato)
     if(!pode('arquivos'))return respostaErro(403,'AUTH_ACESSO_NEGADO','Acesso não permitido','Você não possui permissão para consultar arquivos deste contrato.')
