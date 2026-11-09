@@ -30,11 +30,21 @@ jobs:
             code=$(curl "${args[@]}" "$url")
             echo "$label status=$code expected=$expected"
             test "$code" = "$expected"
-            if [[ "$origin" == "$allowed" ]]; then
-              grep -iq "^access-control-allow-origin: $allowed" /tmp/c13-headers
-            else
-              if grep -iq '^access-control-allow-origin:' /tmp/c13-headers; then
-                echo "Unexpected CORS allow-origin"; exit 1
+            local cors
+            cors=$(awk 'BEGIN{IGNORECASE=1} tolower($0) ~ /^access-control-allow-origin:/ {sub(/^[^:]*:[[:space:]]*/, ""); sub(/\r$/, ""); print}' /tmp/c13-headers | tail -n 1)
+            if [[ "$label" == allowed ]]; then
+              if [[ "$cors" != "$allowed" ]]; then
+                echo "Allowed preflight missing exact CORS origin"; exit 1
+              fi
+            elif [[ "$label" == denied ]]; then
+              if [[ -n "$cors" ]]; then
+                echo "Denied origin unexpectedly received CORS origin"; exit 1
+              fi
+            elif [[ "$label" == no-auth ]]; then
+              # The Supabase JWT gateway can reject before Edge CORS middleware.
+              # A 401 may have no ACAO; if present it must match the allowed origin.
+              if [[ -n "$cors" && "$cors" != "$allowed" ]]; then
+                echo "Unauthenticated 401 exposed unexpected CORS origin"; exit 1
               fi
             fi
           }
