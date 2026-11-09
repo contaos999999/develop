@@ -345,3 +345,16 @@ Readback SQL independente do nonce662bb3fea781644f1b4f065eef0511a4 confirmou4usu
 Retomada documental somenteapi_c13, mesmosbudgets194:4identidades/2orgs,3turnosOpenAIA,2reservascontroladas,1fallbackA,6fallbacksB/sétimonegado; semfrontend/UI/novoDeploy/DDL/RLS/Authconfig. Exigir guards/Restore/backup canônicos na main final e novos PRE/nonce; ambosnonces06451483d0fec06da22eebfaed900607/662bb3fea781644f1b4f065eef0511a4 ePREs6731129800/6731497251 consumidos. SDKcontractoffline devepassarantesadmin; erro de transporte/5xx não é revogação. JWToriginal expira naturalmente, semrefresh/TTL/claims alterados. Cleanupindependente e pós-readback imutável obrigatórios; resultado máximo API_PASS_UI_PENDING. Fonte/harness congelados nesta retomada. P0/C13UI continuamnão certificados.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/A visual; preservarA/B/PROD, semrepetição deimplementações certificadas ou bypass.
+
+
+## Diagnóstico fechado do fallback do follow-up, 09/11/2026
+
+Execução42565938714 no63a8164 FAIL emC13_CONTEXTUAL_FOLLOWUP após10checksPASS, antes do controle de revogação; SDKcontractnativoaprovado. Artefato13651645770 SHA535b296398adac0726a4241bd56ded266a2e7032481a14367781c7a310b5f0ff conferido. PrimeiroturnoOpenAIpassou. SegundoturnoHTTP200/4350ms persistiu fallbackSupabase semâncoraPlanoAurora. Não prova perda de memória nem timeout: a fonte oculta por desenho a razão do fallback. O motivo exato ainda não pode ser atribuído a HTTP/forma/refusal/citação. Não repetir cegamente nem enfraquecer teste/citações.
+
+Gate antes do BUILD para somente4paths:2docs, Edgeexistente e testeexecutável. Adicionar diagnóstico interno exclusivamente evento fixo+enum fechado e statusHTTPnumérico opcional. Nenhum texto de pergunta/histórico/resposta/fontes, header, URL, UUID, token, erro livre ou credencial. Preservar em todos os ramos as mesmas respostas/fallback, limites, modelo, timeout, payload, validação e autorização. Sem retry novo ou mudança de dependência/schema/RLS/grants/Auth/Storageconfig/frontend/A/B/PROD.
+
+TDD deve provar no handler real: saída semcitação, citação inválida, HTTP429/5xx, incompleta/recusada, exceção e caminho positivo. Diagnóstico precisa nomear apenas motivo fechado; canários de conteúdo/segredos e identificadores nunca podem aparecer. Manter todos os testes existentes. CI/Restore/backup e revisão independente no mesmoHEAD, integração antes de deploy da Edge já existente comJWTtrue e paridade exata. Depois, nova ativação/PRE/nonce e replay para obter a causa se reaparecer; não certificar antes dos controles reais. Rollback por revert do delta de diagnóstico, sem alterar dados.
+
+Nonce440a5148ef4798ec38372201f9554691/PRE6732769381consumidos; cleanupjobs e readbackSQLindependente confirmaram4banned/0sessõesvínculosMaster/2inativas/0jobs. Falhas anteriores e45PASSpreservados; P0/C13finalnão certificados.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/A visual; diagnóstico mínimo, zero conteúdo sensível e semLovable ouPROD.
