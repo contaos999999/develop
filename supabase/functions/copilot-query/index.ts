@@ -269,7 +269,7 @@ Deno.serve(async(req:Request)=>{
         const criar=()=>{const q=userClient.from('sessoes_copiloto').select('id,titulo,status,escopo,criado_em,atualizado_em').eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).in('status',['ativa','encerrada']);return dataReferencia===null?q.is('escopo->>data_referencia',null):q.eq('escopo->>data_referencia',dataReferencia)}
         const data=await paginaC13(criar,cursor,limite,sinal)
         const rows=data.slice(0,limite)
-        return json({ok:true,sessoes:rows.map((s:any)=>({id:s.id,titulo:s.titulo??null,status:s.status,data_referencia:s.escopo?.data_referencia??null,criado_em:s.criado_em,atualizado_em:s.atualizado_em})),proximo_cursor:data.length>limite?novoCursor(escopo,rows[rows.length-1]):null})
+        return json({ok:true,sessoes:rows.map((s:any)=>({id:s.id,titulo:s.titulo==null?null:String(s.titulo).slice(0,120),status:s.status,data_referencia:s.escopo?.data_referencia??null,criado_em:s.criado_em,atualizado_em:s.atualizado_em})),proximo_cursor:data.length>limite?novoCursor(escopo,rows[rows.length-1]):null})
       }
       const {data:sessao,error:erroSessao}=await userClient.from('sessoes_copiloto').select('id,status,escopo').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
       if(erroSessao||!sessao||!['ativa','encerrada'].includes(sessao.status)||(sessao.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão não pertence ao contexto autorizado.')
@@ -277,7 +277,12 @@ Deno.serve(async(req:Request)=>{
         if(body.cursor!=null)return respostaErro(400,'DADOS_INVALIDOS','Revise a solicitação','Encerramento não utiliza cursor.')
         if(sessao.status==='ativa'){
           const {data:fechada,error}=await admin.from('sessoes_copiloto').update({status:'encerrada'}).eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).eq('status','ativa').select('id').maybeSingle()
-          if(error||!fechada)throw new Error('HISTORICO_FALHOU')
+          if(error)throw new Error('HISTORICO_FALHOU')
+          if(!fechada){
+            const {data:atual,error:ea}=await userClient.from('sessoes_copiloto').select('id,status,escopo').eq('id',idSessaoInformada).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',idContrato).eq('criado_por',userData.user.id).maybeSingle()
+            if(ea)throw new Error('HISTORICO_FALHOU')
+            if(!atual||atual.status!=='encerrada'||(atual.escopo?.data_referencia??null)!==dataReferencia)return respostaErro(403,'SESSAO_INVALIDA','Sessão não disponível','A sessão mudou durante o encerramento.')
+          }
         }
         return json({ok:true,id_sessao:idSessaoInformada,status:'encerrada'})
       }
