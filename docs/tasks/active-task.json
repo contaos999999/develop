@@ -1477,7 +1477,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Revisão e CI/Restore/backup do runner combinado; ativação operacional documental e recibos externos imutáveis antes de qualquer fixture/HML; frontend C13 somente após API_PASS_UI_PENDING.",
+  "next_step": "Após revisão/CI/Restore/backup e integração deste SHA: confirmar Edge/RLS/readbacks, emitir reciboPRE imutável fresco e executar API real; cleanup independente e reciboPOST/finalize obrigatórios; somente API_PASS_UI_PENDING libera PLAN/frontendC13.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -2203,7 +2203,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Reancorar e validar offline o runner API C13 sobre main9878, preservando RLS/Edge e histórico A/B; nenhuma execução HML por esta integração.",
+  "objective": "Executar prova API C13 real estritamente HML, com fixtures sintéticas próprias, orçamento fechado e recibos imutáveis; sem UI ou certificação final por esta etapa.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2608,7 +2608,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "OFFLINE_BUILD_NOT_HML_EXECUTION",
+    "state": "HML_EXECUTION_AUTHORIZED",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2663,6 +2663,41 @@
       "bundle_sha256": "112bc951fbb6e0e21c3bea531bdb67c4f34303d35bfacb54241fc862e80fec23",
       "readback_equal": true,
       "not_material_api_proof": true
+    },
+    "scope": "OWN_FIXTURES_ONLY",
+    "cleanup_authorized": true,
+    "max_actor_hour": 30,
+    "max_ui_material_queries": 24,
+    "max_c13_api_turns": 3,
+    "max_controlled_reservations": 2,
+    "max_fallbacks": 1,
+    "readback_mode": "EXTERNAL_MCP_RECEIPTS",
+    "active_proof_mode": "api_c13",
+    "ui_execution_authorized": false,
+    "certified": false,
+    "authorization_scope": {
+      "environment": "HML_ONLY",
+      "project": "gklhhhyosgasnyoxlrui",
+      "function_slug": "copilot-query",
+      "own_fixture_only": true,
+      "auth_admin_api_only": true,
+      "no_insert_auth_users": true,
+      "no_auth_configuration_change": true,
+      "no_global_rbac_change": true,
+      "no_foreign_data": true,
+      "no_ddl": true,
+      "no_edge_deploy": true,
+      "no_ui": true,
+      "actor_a_provider_turns_max": 3,
+      "actor_a_controlled_reservations_max": 2,
+      "actor_a_no_source_fallbacks_max": 1,
+      "actor_b_rate_fallbacks": 6,
+      "actor_b_seventh_must_be_denied": true,
+      "synthetic_serialization_orders": 2,
+      "synthetic_nonchat_control_only": true,
+      "jwt_expiry_natural_only": true,
+      "jwt_ttl_or_claim_changes_forbidden": true,
+      "independent_cleanup_and_post_receipt_required": true
     }
   }
 }
