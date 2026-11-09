@@ -441,7 +441,7 @@ async function closeFinalizerProof(e,f,actor,post,eligible){
    const persisted=JSON.parse(sql(e,`select json_build_object('status',(select status from public.sessoes_copiloto where id=${q(session)}),'messages',(select count(*) from public.mensagens_copiloto where id_sessao=${q(session)} and papel='assistente'),'returns',(select count(*) from public.retornos_modelo where id_consulta=${q(reserved.data.id_consulta)}));`));
    if(closeFirst)requireC(final.status===403&&final.error?.code==='42501'&&persisted.messages===0&&persisted.returns===0,'close-first prevents publication atomically');
    else{requireC(!final.error&&final.data?.id_mensagem&&persisted.messages===1&&persisted.returns===1,'finalizer-first publishes exactly once then closes');completed=true;}
-   requireC(persisted.status==='encerrada','same own session remains closed');rows.push({order:closeFirst?'CLOSE_FIRST':'FINALIZER_FIRST',queued_connections:2,...persisted,label:'SYNTHETIC_LOCKTEST_NO_PROVIDER'});
+   requireC(persisted.status==='encerrada','same own session remains closed');rows.push({order:closeFirst?'CLOSE_FIRST':'FINALIZER_FIRST',queued_connections:2,...persisted,label:'SYNTHETIC_LOCKTEST_NO_PROVIDER',chat_return_id:final.data?.id_retorno??null,chat_message_id:final.data?.id_mensagem??null});
   }finally{
    if(!completed){const released=await e.SDK.admin.rpc('worker_falhar_consulta_copiloto',{p_id_consulta:reserved.data.id_consulta,p_token:reserved.data.token,p_codigo:'FALHA_RECUPERACAO'});requireC(!released.error&&released.data===true,'own incomplete lock-test reservation released');}
   }
@@ -451,6 +451,42 @@ async function closeFinalizerProof(e,f,actor,post,eligible){
 export function canonicalFunctionBody(source,name){
  requireC(['privado.rbac_permite','privado.consultar_permissoes_efetivas','public.consultar_permissoes_efetivas'].includes(name),'closed permission functions');
  const start=source.indexOf('create function '+name+'(');requireC(start>=0,'canonical function exists');const suffix=source.slice(start),body=suffix.match(/^[\s\S]*?\bas \$\$([\s\S]*?)\$\$;/i)?.[1];requireC(typeof body==='string','canonical body delimiter');return body;
+}
+export function rawSDKResult(result,controlId=null){
+ requireC(result.status===200&&result.error===null&&Array.isArray(result.data),'raw SDK SELECT succeeds as array; permission/gateway errors are not privacy proof');
+ if(controlId===null){requireC(result.data.length===0,'raw chat rows are not visible');return;}
+ requireC(result.data.length===1&&result.data[0].id===controlId&&result.data[0].resposta?.marcador==='SYNTHETIC_RLS_CONTROL'&&result.data[0].resposta?.conteudo==='Controle sintético de visibilidade, sem inferência.'&&Array.isArray(result.data[0].fontes)&&result.data[0].fontes.length===0,'same-contract non-chat visibility preserved');
+}
+async function prepareRawControl(e,f,first,serialization,root){
+ const raw=JSON.parse(sql(e,`select json_build_object('message_id',m.id,'return_id',r.id,'session_id',m.id_sessao,'source_ids',(select coalesce(json_agg(s.id),'[]') from public.fontes_resposta_copiloto s where s.id_mensagem=m.id and s.id_organizacao=${q(f.org)} and s.id_contrato=${q(f.contract)})) from public.mensagens_copiloto m join public.retornos_modelo r on r.id=m.id_retorno_modelo where m.id=${q(first.id_mensagem)} and m.id_consulta_semantica=${q(first.id_consulta)} and m.id_sessao=${q(first.id_sessao)} and m.id_organizacao=${q(f.org)} and m.id_contrato=${q(f.contract)};`));
+ requireC(raw.message_id===first.id_mensagem&&raw.session_id===first.id_sessao&&raw.return_id&&raw.source_ids.length>0,'raw target IDs originate in actual positive OpenAI response');
+ const generic=serialization.rows.find(r=>r.order==='FINALIZER_FIRST');requireC(generic?.chat_return_id,'own generic synthetic chat lineage exists');raw.generic_chat_return_id=generic.chat_return_id;
+ // This record tests existing non-chat SELECT only. It is never a provider,
+ // document-worker, analysis or Trilha B positive certification claim.
+ f.nonchat_control=randomUUID();save(root,'fixture.json',f);
+ sql(e,`insert into public.retornos_modelo(id,id_organizacao,id_contrato,provedor,modelo,prompt_versao,resposta,fontes,status) values(${q(f.nonchat_control)},${q(f.org)},${q(f.contract)},'supabase','synthetic_locktest_no_provider','synthetic_locktest',${q(JSON.stringify({marcador:'SYNTHETIC_RLS_CONTROL',conteudo:'Controle sintético de visibilidade, sem inferência.',fixture_scope:f.scope,nonce:f.nonce,run_id:f.run_id,backend_head:f.backend_head,frontend_head:f.frontend_head}))}::jsonb,'[]'::jsonb,'concluido');`);
+ requireC(sql(e,`select a.modelo=b.modelo and a.prompt_versao=b.prompt_versao from public.retornos_modelo a join public.retornos_modelo b on b.id=${q(f.nonchat_control)} where a.id=${q(generic.chat_return_id)} and a.id_organizacao=${q(f.org)} and a.id_contrato=${q(f.contract)};`)==='t','chat/non-chat share exact generic model and prompt, not visibility');
+ raw.nonchat_control_id=f.nonchat_control;f.raw_ids=raw;save(root,'fixture.json',f);return raw;
+}
+async function rawSDKProof(actors,f,raw,phase){
+ const rows=[];
+ for(const [actor,label] of actors){
+  requireC(authRecognition(await actor.client.auth.getUser(actor.token),actor.user.id),'raw privacy actor has genuinely valid SDK Auth');
+  const scoped=table=>actor.client.from(table).select(table==='retornos_modelo'?'id,resposta,fontes':table==='mensagens_copiloto'?'id,conteudo':'id,trecho,fonte_id').eq('id_organizacao',f.org).eq('id_contrato',f.contract);
+  // Preserve a positive non-chat read through the very same JWT, role, tenant,
+  // contract and table. A broad denial cannot pass these privacy assertions.
+  rawSDKResult(await scoped('retornos_modelo').eq('id',raw.nonchat_control_id),raw.nonchat_control_id);
+  rawSDKResult(await scoped('retornos_modelo').in('id',[raw.return_id,raw.generic_chat_return_id]));
+  rawSDKResult(await scoped('mensagens_copiloto').eq('id_sessao',raw.session_id));
+  rawSDKResult(await scoped('fontes_resposta_copiloto').in('id',raw.source_ids));
+  rawSDKResult(await actor.client.from('retornos_modelo').select('id,resposta,fontes,mensagens_copiloto(id,conteudo,fontes_resposta_copiloto(id,trecho))').eq('id_organizacao',f.org).eq('id_contrato',f.contract).eq('id',raw.return_id));
+  const embedded=await actor.client.from('sessoes_copiloto').select('id,raw_messages:mensagens_copiloto(id,conteudo,retornos_modelo(id,resposta,fontes),fontes_resposta_copiloto(id,trecho))').eq('id',raw.session_id).eq('id_organizacao',f.org).eq('id_contrato',f.contract);
+  requireC(embedded.status===200&&embedded.error===null&&Array.isArray(embedded.data),'raw session embed is a successful array read');
+  if(label==='OWNER')requireC(embedded.data.length===1&&embedded.data[0].id===raw.session_id&&Array.isArray(embedded.data[0].raw_messages)&&embedded.data[0].raw_messages.length===0,'own session metadata preserved but raw child chat denied');
+  else requireC(embedded.data.length===0,'same-org peer and Master cannot read other session metadata or embed');
+  rows.push({phase,actor:label,auth_valid:true,raw_tables:['retornos_modelo','mensagens_copiloto','fontes_resposta_copiloto'],raw_status:200,raw_rows:0,embeds_verified:true,nonchat_status:200,nonchat_rows:1,control_label:'SYNTHETIC_RLS_CONTROL'});
+ }
+ return rows;
 }
 async function materialAPI(e,i,root,report){
  const expected=readdirSync('supabase/migrations').filter(n=>/^[0-9]{14}_.+\.sql$/.test(n)).map(n=>n.slice(0,14)).sort();
@@ -478,6 +514,8 @@ async function materialAPI(e,i,root,report){
   const branch=invalidAuthResult(kind,r);check('POST_AUTH_'+kind.toUpperCase()+'_DENIED_NO_EFFECT',sameCounts(before,counts()));report.negative_auth.push({kind,branch,status:r.status});
  }
 
+ const forgedBefore=counts(),forgedResponse=await post({...a,token:forgeOwnJWTSignature(a.token)},{...body,pergunta:'POST com assinatura inválida, sem autoridade'});
+ report.negative_auth.push({kind:'forged_signature',branch:expiredJWTResult(a.algorithm,forgedResponse),status:forgedResponse.status});check('POST_FORGED_SIGNATURE_DENIED_NO_EFFECT',sameCounts(forgedBefore,counts()));
  check('OPENAI_PERSISTED',sql(e,`select exists(select 1 from public.consultas_semanticas q join public.retornos_modelo r on r.id_consulta=q.id where q.id=${q(first.data.id_consulta)} and q.id_organizacao=${q(f.org)} and q.criado_por=${q(a.user.id)} and r.provedor='openai' and r.status='concluido' and jsonb_array_length(r.fontes)>0);`)==='t');
  const follow=await ask(a,{...body,id_sessao:session,pergunta:'Qual é o nome da revisão que defini na minha pergunta anterior sobre os comprovantes do relatório mensal?'},'c13_followup');
  check('C13_CONTEXTUAL_FOLLOWUP',follow.status===200&&follow.data?.ok===true&&follow.data.id_sessao===session&&/Plano Aurora/i.test(follow.data.resposta));
@@ -519,10 +557,8 @@ async function materialAPI(e,i,root,report){
  report.permissions_case={state:'N/A MATERIAL_CONFIG',reason:'10/10 canonical roles allow arquivos.consultar; no local negative override; no global mutation'};
  const lockEligible=first.data.fontes.filter(x=>x.fonte_tipo==='fragmento_documento').map(x=>x.fonte_id);
  report.serialization=await closeFinalizerProof(e,f,rev,post,lockEligible);check('NATIVE_CLOSE_FINALIZER_BOTH_COMMIT_ORDERS',true);
- const beforeRevocation=counts();sql(e,`delete from auth.sessions where id=${q(rev.sessionId)} and user_id=${q(rev.user.id)};`);
- check('OWN_SESSION_ABSENT',sql(e,`select not exists(select 1 from auth.sessions where id=${q(rev.sessionId)} and user_id=${q(rev.user.id)});`)==='t');
- const recognized=await rev.client.auth.getUser(rev.token),denied=await post(rev,{...body,pergunta:'Mesma credencial após revogação'});
- report.revocation_branch=revokedSessionResult(authRecognition(recognized,rev.user.id),denied);check('SAME_TOKEN_REVOKED_NO_EFFECT',sameCounts(beforeRevocation,counts()));
+ const raw=await prepareRawControl(e,f,first.data,report.serialization,root),rawActors=[[a,'OWNER'],[rev,'PEER_SAME_ORG_BEFORE_REVOCATION'],[master,'MASTER']];
+ report.raw_privacy={target_ids:raw,before_quarantine:await rawSDKProof(rawActors,f,raw,'BEFORE_QUARANTINE')};check('RAW_CHAT_OWNER_PEER_MASTER_DENIED_NONCHAT_PRESERVED',true);
  // Exactly two server reservations remain live while the third real JWT POST is denied.
  const eligible=first.data.fontes.filter(x=>x.fonte_tipo==='fragmento_documento').map(x=>x.fonte_id);
  requireC(eligible.length>0,'own eligible controlled reservation IDs');
@@ -537,6 +573,11 @@ async function materialAPI(e,i,root,report){
  sql(e,`update public.arquivos set status_seguranca='quarentena' where id=(select id_arquivo from public.versoes_documento where id=${q(f.document.id_versao)}) and id_organizacao=${q(f.org)} and id_contrato=${q(f.contract)};`);
  const redacted=await post(a,{...body,action:'historico',id_sessao:session,limite:20});validateHistoryPage(redacted.data,session,null);
  check('C13_REVOKED_SOURCE_REDACTS_ENTIRE_ASSISTANT',redacted.status===200&&redacted.data.mensagens.filter(m=>m.papel==='assistente').length===3&&redacted.data.mensagens.filter(m=>m.papel==='assistente').every(m=>m.conteudo===null&&m.fontes.length===0&&m.conteudo_disponivel===false&&m.motivo_indisponibilidade==='FONTE_INDISPONIVEL'));
+ report.raw_privacy.after_quarantine=await rawSDKProof(rawActors,f,raw,'AFTER_QUARANTINE');check('RAW_CHAT_AFTER_QUARANTINE_STILL_DENIED_NONCHAT_PRESERVED',true);
+ const beforeRevocation=counts();sql(e,`delete from auth.sessions where id=${q(rev.sessionId)} and user_id=${q(rev.user.id)};`);
+ check('OWN_SESSION_ABSENT',sql(e,`select not exists(select 1 from auth.sessions where id=${q(rev.sessionId)} and user_id=${q(rev.user.id)});`)==='t');
+ const recognized=await rev.client.auth.getUser(rev.token),denied=await post(rev,{...body,pergunta:'Mesma credencial após revogação'});
+ report.revocation_branch=revokedSessionResult(authRecognition(recognized,rev.user.id),denied);check('SAME_TOKEN_REVOKED_NO_EFFECT',sameCounts(beforeRevocation,counts()));
  // A new question without id_sessao creates a different own conversation. No source means no OpenAI.
  // At most 6 A reservations have occurred; respect the real minute window before the next one.
  await waitForActorWindow(e,a.user.id,1);
@@ -549,6 +590,10 @@ async function materialAPI(e,i,root,report){
  report.ledger=ledger.snapshot();report.sdk={version:e.SDK.version,source_frontend_head:i.frontend};
  report.limits.push('API/JWT proof only. Browser, responsive matrix, frontend C13 freshness, visual accessibility and UI certification are pending. Runtime-only provider-boundary race proofs are separate evidence, not reclassified as HML assertions.');
  report.material_checks_finished_at=new Date().toISOString();
+}
+export function forgeOwnJWTSignature(token){
+ requireC(typeof token==='string'&&/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token),'three-part own SDK JWT');
+ const [header,claims,signature]=token.split('.');return [header,claims,(signature[0]==='A'?'B':'A')+signature.slice(1)].join('.');
 }
 export function invalidAuthResult(kind,r){
  requireC(['missing','malformed'].includes(kind)&&r.status===401,'negative POST auth requires HTTP401');
@@ -772,6 +817,16 @@ async function selfTest(){
  assert.equal(typeof authRecognition,'function','revoked-token Auth branch cannot treat transport/provider errors as authentication rejection');
  assert.equal(authRecognition({data:{user:{id:'own'}},error:null},'own'),true);assert.equal(authRecognition({data:{user:null},error:{name:'AuthApiError',status:401}},'own'),false);
  assert.throws(()=>authRecognition({data:{user:null},error:{name:'AuthUnknownError',status:0}},'own'));assert.throws(()=>authRecognition({data:{user:null},error:{name:'AuthApiError',status:500}},'own'));assert.throws(()=>authRecognition({data:{user:{id:'foreign'}},error:null},'own'));
+
+ assert.equal(typeof forgeOwnJWTSignature,'function','forged-signature negative preserves legitimate header and claims but changes signature bytes');
+ const signed='eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJvd24ifQ.ZXhhbXBsZXNpZw';const forged=forgeOwnJWTSignature(signed);assert.equal(forged.split('.').slice(0,2).join('.'),'eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJvd24ifQ');assert.notEqual(Buffer.from(forged.split('.')[2],'base64url').toString('hex'),Buffer.from(signed.split('.')[2],'base64url').toString('hex'));assert.throws(()=>forgeOwnJWTSignature('not-a-jwt'));
+ assert.throws(()=>expiredJWTResult('ES256',{status:401,data:{},headers:new Headers()}),'generic401 cannot certify forged signature rejection');
+ assert.equal(expiredJWTResult('ES256',{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_ASYMMETRIC_JWT'})}),'GATEWAY_ES256');
+
+ assert.equal(typeof rawSDKResult,'function','raw Data API proof must require200empty arrays and preserve known non-chat control');
+ rawSDKResult({status:200,error:null,data:[]});
+ for(const bad of [{status:403,error:{code:'42501'},data:null},{status:401,error:{},data:[]},{status:200,error:null,data:[{id:'chat',resposta:{conteudo:'LEAK'}}]},{status:200,error:null,data:null}])assert.throws(()=>rawSDKResult(bad));
+ rawSDKResult({status:200,error:null,data:[{id:'control',resposta:{marcador:'SYNTHETIC_RLS_CONTROL',conteudo:'Controle sintético de visibilidade, sem inferência.'},fontes:[]}]},'control');assert.throws(()=>rawSDKResult({status:200,error:null,data:[]},'control'));assert.throws(()=>rawSDKResult({status:200,error:null,data:[{id:'foreign',resposta:{marcador:'SYNTHETIC_RLS_CONTROL'}}]},'control'));
  console.log('COPILOT_HML_SELF_TEST_PASS');
 }
 if(process.argv.includes('--self-test'))await selfTest();
