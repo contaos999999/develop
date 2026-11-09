@@ -144,7 +144,7 @@ async function idsElegiveis(client:any,contrato:any,podeHistorico:boolean,sinal:
   const candidatos=selecao?.fragmentos.length===0?[]:await paginarAutorizados(()=>{const q=client.from('fragmentos_documento').select('id,id_organizacao,id_contrato,id_versao_documento').eq('id_organizacao',org).eq('id_contrato',ct);return selecao?q.in('id',selecao.fragmentos):q},sinal)
   const versoesIds=[...new Set(candidatos.map((f:any)=>f.id_versao_documento))];const versoes=new Set<string>()
   for(let i=0;i<versoesIds.length;i+=TAMANHO_PAGINA){
-    const {data,error}=await client.from('versoes_documento').select('id,id_organizacao,id_contrato,arquivos!inner(id,id_organizacao,id_contrato,status_seguranca),processamentos_documento!inner(id_organizacao,id_contrato,etapa,status,concluido_em)').eq('id_organizacao',org).eq('id_contrato',ct).in('id',versoesIds.slice(i,i+TAMANHO_PAGINA)).limit(TAMANHO_PAGINA).abortSignal(sinal)
+    const {data,error}=await client.from('versoes_documento').select('id,id_organizacao,id_contrato,arquivos!versoes_documento_arquivo_org_contrato_fk!inner(id,id_organizacao,id_contrato,status_seguranca),processamentos_documento!inner(id_organizacao,id_contrato,etapa,status,concluido_em)').eq('id_organizacao',org).eq('id_contrato',ct).in('id',versoesIds.slice(i,i+TAMANHO_PAGINA)).limit(TAMANHO_PAGINA).abortSignal(sinal)
     if(error||!Array.isArray(data))throw new Error('FONTES_FALHOU')
     for(const v of data)if(versaoPermitida(v,org,ct))versoes.add(v.id)
   }
