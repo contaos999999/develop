@@ -138,9 +138,9 @@ function versaoPermitida(v:any,org:string,contrato:string){
   return v?.id_organizacao===org&&v?.id_contrato===contrato&&a?.id_organizacao===org&&a?.id_contrato===contrato&&a?.status_seguranca==='aprovado'
     &&Array.isArray(processos)&&processos.length>0&&processos.every((p:any)=>p.id_organizacao===org&&p.id_contrato===contrato&&p.status==='concluido')&&processos.some((p:any)=>p.etapa==='documents'&&p.concluido_em)
 }
-async function idsElegiveis(client:any,contrato:any,podeHistorico:boolean,sinal:AbortSignal){
+async function idsElegiveis(client:any,contrato:any,podeHistorico:boolean,sinal:AbortSignal,selecao?:{fragmentos:string[],precedentes:string[]}){
   const org=contrato.id_organizacao,ct=contrato.id
-  const candidatos=await paginarAutorizados(()=>client.from('fragmentos_documento').select('id,id_organizacao,id_contrato,id_versao_documento').eq('id_organizacao',org).eq('id_contrato',ct),sinal)
+  const candidatos=selecao?.fragmentos.length===0?[]:await paginarAutorizados(()=>{const q=client.from('fragmentos_documento').select('id,id_organizacao,id_contrato,id_versao_documento').eq('id_organizacao',org).eq('id_contrato',ct);return selecao?q.in('id',selecao.fragmentos):q},sinal)
   const versoesIds=[...new Set(candidatos.map((f:any)=>f.id_versao_documento))];const versoes=new Set<string>()
   for(let i=0;i<versoesIds.length;i+=TAMANHO_PAGINA){
     const {data,error}=await client.from('versoes_documento').select('id,id_organizacao,id_contrato,arquivos!inner(id,id_organizacao,id_contrato,status_seguranca),processamentos_documento!inner(id_organizacao,id_contrato,etapa,status,concluido_em)').eq('id_organizacao',org).eq('id_contrato',ct).in('id',versoesIds.slice(i,i+TAMANHO_PAGINA)).limit(TAMANHO_PAGINA).abortSignal(sinal)
@@ -150,7 +150,7 @@ async function idsElegiveis(client:any,contrato:any,podeHistorico:boolean,sinal:
   const fragmentos=candidatos.filter((f:any)=>f.id_organizacao===org&&f.id_contrato===ct&&versoes.has(f.id_versao_documento)).map((f:any)=>f.id)
   if(!podeHistorico)return {fragmentos,precedentes:[] as string[]}
   // O material do precedente é consultado pelo próprio ator/RLS; origens também precisam ser autorizadas.
-  const precs=await paginarAutorizados(()=>client.from('precedentes').select('id,id_organizacao,id_contratante,id_contrato_origem').eq('id_organizacao',org).eq('id_contratante',contrato.id_contratante).eq('status','ativo'),sinal)
+  const precs=selecao?.precedentes.length===0?[]:await paginarAutorizados(()=>{const q=client.from('precedentes').select('id,id_organizacao,id_contratante,id_contrato_origem').eq('id_organizacao',org).eq('id_contratante',contrato.id_contratante).eq('status','ativo');return selecao?q.in('id',selecao.precedentes):q},sinal)
   const origens=[...new Set(precs.map((p:any)=>p.id_contrato_origem))];const contratosVisiveis=new Set<string>()
   for(let i=0;i<origens.length;i+=TAMANHO_PAGINA){
     const {data,error}=await client.from('contratos').select('id,id_organizacao,id_contratante').eq('id_organizacao',org).eq('id_contratante',contrato.id_contratante).in('id',origens.slice(i,i+TAMANHO_PAGINA)).limit(TAMANHO_PAGINA).abortSignal(sinal)
@@ -265,6 +265,21 @@ Deno.serve(async(req:Request)=>{
     fontes=historicas.length&&documentais.length?[...documentais.slice(0,4),...historicas.slice(0,4)]:fontes.slice(0,8)
     fontes=fontes.map((f:any,i:number)=>({...f,metadados:{...f.metadados,referencia:`F${i+1}`}}))
     await validarLease()
+    // Revalidação fresca antes da saída externa: o finalizador não desfaz um envio ao provedor.
+    const podeAgora=await permissoesEfetivas(userClient,contrato.id_organizacao,idContrato)
+    if(!podeAgora('arquivos'))throw new Error('FONTE_REVOGADA')
+    const idsDocumentais=fontes.filter((f:any)=>f.fonte_tipo==='fragmento_documento').map((f:any)=>f.fonte_id)
+    const idsHistoricos=fontes.filter((f:any)=>f.fonte_tipo==='precedente').map((f:any)=>f.fonte_id)
+    const atuais=await idsElegiveis(userClient,contrato,podeAgora('historico'),sinal,{fragmentos:idsDocumentais,precedentes:idsHistoricos})
+    if(idsDocumentais.some((id:string)=>!atuais.fragmentos.includes(id))||idsHistoricos.some((id:string)=>!atuais.precedentes.includes(id)))throw new Error('FONTE_REVOGADA')
+    const [docsAgora,precsAgora]=await Promise.all([
+      admin.rpc('worker_buscar_fragmentos_copiloto',{p_id_organizacao:contrato.id_organizacao,p_id_contrato:idContrato,p_ids_fragmentos:idsDocumentais,p_embedding:emb,p_data_referencia:dataReferencia,p_limite:8}),
+      admin.rpc('worker_buscar_precedentes_copiloto',{p_id_organizacao:contrato.id_organizacao,p_id_contratante:contrato.id_contratante,p_id_contrato:idContrato,p_ids_precedentes:idsHistoricos,p_embedding:emb,p_limite:12})
+    ])
+    if(docsAgora.error||precsAgora.error||!Array.isArray(docsAgora.data)||!Array.isArray(precsAgora.data))throw new Error('FONTES_FALHOU')
+    if(idsDocumentais.some((id:string)=>!docsAgora.data.some((f:any)=>f.id===id))||idsHistoricos.some((id:string)=>!precsAgora.data.some((p:any)=>p.id===id)))throw new Error('FONTE_REVOGADA')
+    await validarLease()
+    sinal.throwIfAborted()
     // Nenhum identificador organizacional/contratual do resumo de UI é enviado ao provedor.
     const contextoIA=[dataReferencia?`Referência temporal: ${dataBR(dataReferencia)}.`:'Referência temporal atual.',conflito?'Fontes históricas divergentes; explicite conflito e revisão humana.':'',baixaConfianca?'Evidência insuficiente; não invente conclusão e recomende revisão humana.':'A decisão final exige revisão humana.'].join(' ')
     const respostaIA=await sintetizarComOpenAI(pergunta,fontes,contextoIA,sinal)
