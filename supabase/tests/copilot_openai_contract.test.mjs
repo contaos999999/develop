@@ -14,7 +14,7 @@ test('C-CHAT-001: segredo OpenAI e chamada somente na Edge',()=>{
 test('C-CHAT-001: autorização e escopo precedem chamada externa',()=>{
   const auth=source.indexOf('userClient.auth.getUser()');
   const contrato=source.indexOf("userClient.from('contratos')");
-  const rag=source.indexOf("admin.rpc('worker_buscar_fragmentos_copiloto'");
+  const rag=source.indexOf("admin.rpc('worker_buscar_fragmentos_copiloto'",source.indexOf('Deno.serve('));
   const chamada=source.search(/await sintetizarComOpenAI\(pergunta\s*,\s*fontes/);
   assert.ok(auth>=0 && auth<contrato && contrato<rag && rag<chamada);
   assert.match(source,/p_id_organizacao:contrato\.id_organizacao/);
@@ -47,12 +47,16 @@ function runtime(options={}) {
     return {
       auth:{getUser:async()=>{calls.push(['auth']);if(options.pauseAuth) await options.pauseAuth;return {data:{user:options.invalidAuth?null:{id:'synthetic-user'}},error:options.invalidAuth?{}:null};}},
       from(table){
-        const state={operation:'select',value:null,filters:{},after:null};
+        const state={operation:'select',value:null,filters:{},after:null,orders:[],inFilters:{},ltFilters:{},maximum:null,seek:null};
         const chain={};
-        for(const method of ['select','eq','insert','update','order','limit','gt','in','abortSignal']) chain[method]=(...args)=>{if(method==='insert'||method==='update'){state.operation=method;state.value=args[0];}if(method==='eq')state.filters[args[0]]=args[1];if(method==='gt')state.after=args[1];if(method==='in')state.many=true;calls.push([admin?'admin':'user',table,method,...args]);return chain;};
+        for(const method of ['select','eq','insert','update','order','limit','gt','lt','in','is','or','abortSignal']) chain[method]=(...args)=>{if(method==='insert'||method==='update'){state.operation=method;state.value=args[0];}if(method==='eq')state.filters[args[0]]=args[1];if(method==='gt')state.after=args[1];if(method==='in'){state.many=true;state.inFilters[args[0]]=args[1];}if(method==='lt')state.ltFilters[args[0]]=args[1];if(method==='is')state.filters[args[0]]=args[1];if(method==='order')state.orders.push([args[0],args[1]?.ascending!==false]);if(method==='limit')state.maximum=args[0];if(method==='or')state.seek=args[0];calls.push([admin?'admin':'user',table,method,...args]);return chain;};
+        function rows(input){let data=input.filter(row=>Object.entries(state.filters).every(([k,v])=>(k==='escopo->>data_referencia'?(row.escopo?.data_referencia??null):row[k])===v)&&Object.entries(state.inFilters).every(([k,values])=>values.includes(row[k]))&&Object.entries(state.ltFilters).every(([k,v])=>row[k]<v));if(state.seek){const m=state.seek.match(/^criado_em\.lt\.(.+),and\(criado_em\.eq\.(.+),id\.lt\.(.+)\)$/);if(!m)throw new Error('invalid test seek');data=data.filter(row=>row.criado_em<m[1]||row.criado_em===m[2]&&row.id<m[3]);}data.sort((a,b)=>{for(const [k,asc] of state.orders){if(a[k]===b[k])continue;return (a[k]<b[k]?-1:1)*(asc?1:-1);}return 0;});return state.maximum===null?data:data.slice(0,state.maximum);}
         function result(){
           if(admin&&table==='mensagens_copiloto'&&state.operation==='insert'){options.afterMessage?.();}
           if(!admin&&table==='sessoes_copiloto'&&options.foreignSession&&state.filters.criado_por) return {data:null,error:null};
+          if(!admin&&table==='sessoes_copiloto'){const found=options.sessions?rows(options.sessions):(state.filters.id?[{id:state.filters.id,status:options.closed?'encerrada':'ativa',escopo:{data_referencia:null}}]:[]);return {data:state.filters.id?(found[0]??null):found,error:null};}
+          if(admin&&table==='sessoes_copiloto'&&state.operation==='update'){const found=options.sessions?rows(options.sessions):[{id:state.filters.id}];for(const row of found)Object.assign(row,state.value);options.closed=true;return {data:found[0]??null,error:null};}
+          if(!admin&&table==='mensagens_copiloto')return {data:rows(options.messages??[]),error:null};
           if(!admin&&table==='fragmentos_documento') return {data:options.noSources||state.after?[]:[{id:'fragment',id_organizacao:'org',id_contrato:'contract',id_versao_documento:'version'}],error:null};
           if(!admin&&table==='versoes_documento') return {data:[{...versionRow,arquivos:{...versionRow.arquivos,status_seguranca:options.unsafeSource?'quarentena':'aprovado'},processamentos_documento:versionRow.processamentos_documento.map(p=>({...p,status:options.incompleteSource?'processando':'concluido'}))}],error:null};
           if(!admin&&table==='precedentes') return {data:options.noSources||state.after?[]:precRows.map(p=>({...p,id_organizacao:'org',id_contratante:'contractor'})).sort((a,b)=>a.id.localeCompare(b.id)),error:null};
@@ -68,7 +72,7 @@ function runtime(options={}) {
   }
   const compiled=stripTypeScriptTypes(source.replace(/^import .*\n/gm,''),{mode:'strip'});
   runInNewContext(compiled,{
-    Request,Response,Headers,TextDecoder,Uint8Array,AbortSignal,atob,
+    Request,Response,Headers,TextDecoder,TextEncoder,Uint8Array,AbortSignal,atob,btoa,
     Deno:{env:{get:key=>({SUPABASE_URL:'https://fixture.invalid',SUPABASE_ANON_KEY:'public-fixture',SUPABASE_SERVICE_ROLE_KEY:'private-fixture',OPENAI_API_KEY:options.noKey?'':'ai-fixture'})[key]},serve:fn=>{handler=fn;}},
     Supabase:{ai:{Session:class {async run(){calls.push(['embedding']);return [0.1,0.2];}}}},
     createClient:(_url,key)=>client(key==='private-fixture'),
@@ -122,3 +126,9 @@ test('runtime nonce e identificador contratual não alcançam provedor/browser',
 test('runtime sem permissão histórico exclui precedentes antes ranking',async()=>{const r=runtime({conflict:true,denyHistory:true});const response=await r.handler(r.request());assert.equal(response.status,200);const reserve=r.calls.find(c=>c[0]==='rpc'&&c[1]==='worker_reservar_consulta_copiloto');assert.equal(reserve[2].p_filtros.ids_precedentes.length,0);});
 
 for(const flag of ['denyHistory','deniedOrigin','unsafeSource','incompleteSource'])test(`runtime revogação ${flag} após ranking bloqueia envio externo`,async()=>{const options={conflict:true,afterRanking:()=>{options[flag]=true;},finalizeError:true};const r=runtime(options);const response=await r.handler(r.request());assert.equal(response.status,403);assert.equal(r.calls.filter(c=>c[0]==='fetch').length,0);assert.equal(r.calls.filter(c=>c[0]==='rpc'&&c[1]==='worker_concluir_consulta_copiloto').length,0);});
+
+test('C13 listar sessões próprias não inicia inferência ou reserva',async()=>{const r=runtime();const response=await r.handler(r.request('POST',ORIGINS[2],{},{action:'listar_sessoes',id_contrato:'contract'}));assert.equal(response.status,200);const body=await response.json();assert.equal(body.ok,true);assert.ok(Array.isArray(body.sessoes));assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch'||c[0]==='rpc'&&c[1]==='worker_reservar_consulta_copiloto').length,0);});
+test('C13 histórico próprio sem pergunta usa DTO paginado e nenhuma IA',async()=>{const r=runtime();const response=await r.handler(r.request('POST',ORIGINS[2],{},{action:'historico',id_contrato:'contract',id_sessao:'33333333-3333-4333-8333-333333333333'}));assert.equal(response.status,200);const body=await response.json();assert.equal(body.ok,true);assert.ok(Array.isArray(body.mensagens));assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
+test('C13 encerrar sessão é operação sem inferência',async()=>{const r=runtime();const response=await r.handler(r.request('POST',ORIGINS[2],{},{action:'encerrar_sessao',id_contrato:'contract',id_sessao:'33333333-3333-4333-8333-333333333333'}));assert.equal(response.status,200);assert.equal((await response.json()).status,'encerrada');assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
+for(const action of ['listar_sessoes','historico','encerrar_sessao'])test(`C13 ${action} contrato negado preserva403/CORS`,async()=>{const r=runtime({denied:true});const response=await r.handler(r.request('POST',ORIGINS[2],{},{action,id_contrato:'contract',id_sessao:'33333333-3333-4333-8333-333333333333'}));assert.equal(response.status,403);cors(response,ORIGINS[2]);assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
+test('C13 ação desconhecida não reutiliza perguntar',async()=>{const r=runtime();const response=await r.handler(r.request('POST',ORIGINS[2],{},{action:'administrar',id_contrato:'contract',pergunta:'Não executar'}));assert.equal(response.status,400);assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
