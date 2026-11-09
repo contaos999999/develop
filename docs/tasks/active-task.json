@@ -2433,6 +2433,8 @@
     "quota_actor_a_max_reservations_hour": 30,
     "quota_actor_b_max_reservations_minute": 6,
     "cleanup_independent_job_required": true,
-    "certified": false
+    "certified": false,
+    "receipt_frontend_repository": "contaos999999/contaos-hml-control",
+    "receipt_requires_same_frontend_pr_and_exact_head": true
   }
 }
