@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -1475,7 +1475,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Revisar e integrar GATE documental; depois RED/GREEN somente runner, CI/Restore/backup e revisão independente antes da integração. API HML pausada até nova ativação.",
+  "next_step": "Após integração desta retomada: CI/Restore/backup canônicos da main final, novo PRE/nonce, replay API completo, cleanup independente e pós-readback.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -1594,7 +1594,7 @@
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
   },
-  "phase": "BUILD_COPILOT_RUNNER_WORKER_BARRIER",
+  "phase": "BUILD_HML_COPILOT_PROOF",
   "upload_document_wrapper_gate": {
     "phase": "VERIFICADO_HML",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
@@ -2201,7 +2201,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Corrigir somente a barreira do runner: aguardar término dos jobs e filas do documento sintético próprio antes das contagens negativas, sem filtrar ou relaxar as contagens e sem mudar workers.",
+  "objective": "Executar api_c13 com todos os workers do documento próprio concluídos antes das contagens; validar controles e observar motivo fechado do fallback se ocorrer.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2234,7 +2234,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Nenhuma alteração/deploy Edge; diagnóstico v6 preservado. Somente runner próprio e dois documentos.",
+  "edge_function_change_scope": "Nenhuma mudança/deploy; Edgev6 e runner aprovado206 congelados nesta retomada.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2365,7 +2365,7 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "Trilha C: correção offline da barreira do worker documental próprio",
+  "title": "Replay API C13 após barreira dos workers próprios",
   "edge_function_changes_allowed": false,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
@@ -2550,7 +2550,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "Nenhum DML/DDL/RLS/Auth/Storage remoto nesta correção offline; somente leituras diagnósticas sintéticas próprias. Fixtures HML pausadas até ativação posterior.",
+  "database_change_scope": "Somente DML sintético próprio api_c13 nos limites194 e cleanup independente; nenhuma DDL/RLS/Authconfig, dado alheio ou invocação global de worker.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
@@ -2592,7 +2592,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-010-WORKER-BARRIER-FIX-20261109",
+  "id": "C-CHAT-011-OWN-WORKER-BARRIER-REPLAY-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2606,7 +2606,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "PAUSED_FOR_OWN_WORKER_BARRIER_FIX",
+    "state": "HML_EXECUTION_AUTHORIZED",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2745,6 +2745,16 @@
         "natural_jwt_expiry": "NOT_EXECUTED",
         "post_readback": "SKIPPED",
         "certified": false
+      },
+      {
+        "run": 42565938714,
+        "nonce": "440a5148ef4798ec38372201f9554691",
+        "pre_receipt": 6732769381,
+        "result": "FAIL_C13_CONTEXTUAL_FOLLOWUP",
+        "passed_checks": 10,
+        "cleanup": "QUARENTENA_VERIFICADA_BOTH_JOBS_AND_INDEPENDENT_SQL",
+        "natural_jwt_expiry": "NOT_EXECUTED",
+        "certified": false
       }
     ]
   },
@@ -2865,7 +2875,7 @@
     "behavior_unchanged": true
   },
   "copilot_worker_barrier_fix": {
-    "state": "GATE_BEFORE_SOURCE",
+    "state": "INTEGRATED_APPROVED_TESTED_RUNNER_ONLY",
     "failed_run": 42568344984,
     "artifact": 13652277702,
     "artifact_sha256": "61d50dd0ae3726d57ac6245121a134f6058fbb6bc97144ecdd7d237f95a9c287",
@@ -2881,6 +2891,27 @@
     "no_count_filter": true,
     "no_security_change": true,
     "red_green_required": true,
-    "certified": false
+    "certified": false,
+    "gate_pr": 205,
+    "gate_merge": "b6be6631209de7e5507443e735e6030141a6ea19",
+    "build_pr": 206,
+    "build_head": "52477b561feb4bc6f60f58020c25b0b811181d2c",
+    "runner_blob": "d8ed7590f54bf9a5f2a27dabc42ddc600a19ed90",
+    "runner_sha256": "c489106bb9f3468ab56efcfdb15206e636b256818658aaf5d5e757b60fc25047",
+    "tests": 564,
+    "review": "APPROVED_NO_FINDINGS",
+    "guard": 42569046747,
+    "restore_backup": 42569046761,
+    "build_merge": "6f6e32f040f55983858792d4dd0757385bf20f4d",
+    "restore_artifacts": [
+      {
+        "id": 13652084547,
+        "sha256": "acc63eac2b2c4dabfd72df07911946a3ba312ac44c8bb341b21ee54945e6a8e1"
+      },
+      {
+        "id": 13651938633,
+        "sha256": "8337b190831801f5bbe60dc00108a382c0aea0ea8f75dd676ba07ecdd7e84b36"
+      }
+    ]
   }
 }
