@@ -1,12 +1,12 @@
 {
-  "id": "C-CHAT-002-C13-HISTORY-BUILD-20261109",
-  "title": "BUILD C13: histórico próprio paginado e contexto limitado",
+  "id": "C-CHAT-003-RAW-READ-RLS-GATE-20261109",
+  "title": "PLAN/GATE: impedir leitura bruta de conversas fora da Edge autorizada",
   "status": "ativa",
-  "phase": "BUILD_C13_HISTORY",
+  "phase": "PLAN_C13_RAW_READ_RLS",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex Trilha C,25canônicos00..20+AGENTS+P0+manifesto e PLAN179 lidos integralmente",
+  "context_read_acknowledged_at": "2026-11-09",
+  "context_read_by": "Codex revisão independente:25canônicos00..20/blobs25/25,AGENTS,P0,manifesto,PLAN187f29c4440 eGATE138 lidos",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -35,12 +35,10 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Implementar somente contrato C13 fechado187 após triggers188 integrados, com TDD e sem SQL novo.",
+  "objective": "Fechar documentalmente lacuna de leitura Data API do chat; nenhum SQL, Edge, teste de implementação, fixture ou HML neste PR.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/functions/copilot-query/index.ts",
-    "supabase/tests/copilot_openai_contract.test.mjs"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
   ],
   "forbidden_paths": [
     "src/**",
@@ -50,7 +48,7 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": true,
+  "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -134,8 +132,8 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "TDD RED/GREEN C13 e revisão/CI/Restore/backup; nenhum merge/deploy/HML sem coordenação.",
-  "database_change_scope": "Documentação apenas; nenhuma alteração/aplicação SQL, RLS, grants ou fixtures.",
+  "next_step": "Revisão independente e CI deste GATE documental, integração coordenada; só depois ativação BUILD explícita com escopo fechado e TDD causal. Nenhum deployment neste gate.",
+  "database_change_scope": "PLAN somente; migration nova CLI identificada, corpo vazio fora do repositório. Migration137 aplicada imutável.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -431,7 +429,7 @@
     "frontend_regression": "1017/1017",
     "private_ui": "NAO_VERIFICADA"
   },
-  "auth_change_scope": "Somente identidades sintéticas próprias via Auth Admin API e quarentena/revogação das próprias sessões. Nenhuma configuração Auth/SMTP/provedores ou identidade preexistente.",
+  "auth_change_scope": "Nenhuma configuração, credencial, identidade ou sessão alterada; somente consulta de metadados públicos de catálogo.",
   "browser_proof_scope": {
     "frontend_repository": "contaos999999/contaos-hml-control",
     "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
@@ -2038,7 +2036,7 @@
       }
     ]
   },
-  "edge_function_change_scope": "PLAN C13/fase3 somente; BUILD futuro nos paths exatos do GATE, após ativação documental.",
+  "edge_function_change_scope": "PLAN somente; ajuste futuro C13 adminscoped condicionado a este GATE integrado e revisão/CI, sem habilitar source neste manifesto.",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2448,5 +2446,72 @@
       "full_ui"
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
+  },
+  "copilot_raw_read_rls_gate": {
+    "state": "PLAN_ONLY_NO_SOURCE_NO_HML",
+    "base_head": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
+    "base_active_task_blob": "1f98e4da6af4fbba4c89533f773bbf519398c74a",
+    "concurrent_c13": {
+      "pr": 189,
+      "activation_head": "0af1a9dbff22644e09b50f4806e5e02b955a8813",
+      "activation_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd",
+      "rule": "Preserve ledgers; reconcile manifest structurally after exact PR189 HEAD freezes, never overwrite concurrent task or copy source under this PLAN.",
+      "integrated_commit": "290613c977efb16fe512980db96a276dd897f97d",
+      "state": "PARTIAL_MERGE_NOT_CERTIFIED_REQUIRES_SUCCESSOR"
+    },
+    "migration_path": "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
+    "cli_version": "2.122.0",
+    "empty_skeleton_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build_allowed_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+      "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
+      "supabase/tests/copilot_scope_quota.sql",
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/copilot_catalog.test.mjs",
+      "supabase/functions/copilot-query/index.ts",
+      "supabase/tests/copilot_openai_contract.test.mjs"
+    ],
+    "raw_chat_read": "DENY_AUTHENTICATED_MESSAGES_SOURCES_CHAT_RETURNS_ONLY",
+    "non_chat_returns": "PRESERVE_EXISTING_ORG_CONTRACT_RLS",
+    "private_classifier": "privado.copilot_retorno_e_chat(p_id_retorno uuid,p_id_consulta uuid) returns boolean",
+    "classifier_conditions": [
+      "consulta namespace c_chat_v1",
+      "mensagens_copiloto.id_retorno_modelo=p_id_retorno",
+      "mensagens_copiloto.id_consulta_semantica=p_id_consulta when non-null",
+      "deny-only exact known chat prompt markers covering orphan legacy before assistant message"
+    ],
+    "metadata_evidence": {
+      "project": "gklhhhyosgasnyoxlrui",
+      "checked_at": "2026-11-09",
+      "user_rows_read": false,
+      "all_four_tables_rls": true,
+      "all_four_authenticated_select": true,
+      "all_four_anon_select": false,
+      "retornos_policy": "org+contract only; no owner/session/source predicate",
+      "messages_sources_policy": "org+own session only; no current source eligibility predicate"
+    },
+    "required_gates": [
+      "independent plan review",
+      "CI exact GATE HEAD and coordinated integration",
+      "separate BUILD activation",
+      "native RED/GREEN isolated SQL",
+      "full catalog exact policy/helper ACL/body checks",
+      "C13 runtime causal admin scoping and source revocation",
+      "regression non-chat A/B",
+      "Restore rebuild and synthetic backup same HEAD",
+      "source review and CI exact HEAD",
+      "HML separately authorized coordinated gate"
+    ],
+    "no_source_authorization_by_this_manifest": true,
+    "prod": false,
+    "legacy_deny_only_prompt_versions": [
+      "copiloto-temporal-pt-BR-v2",
+      "copiloto-openai-rag-v1",
+      "copiloto-temporal-pt-BR-v3-fenced",
+      "copiloto-openai-rag-v2-fenced"
+    ],
+    "reanchored_main": "290613c977efb16fe512980db96a276dd897f97d",
+    "reanchored_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd"
   }
 }
