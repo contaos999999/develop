@@ -19,6 +19,10 @@ function cabecalhosCors(origem:string|null,preflight=false){
 }
 
 // O modelo nunca recebe credenciais, UUIDs internos nem autoridade para alterar dados.
+function fallbackOpenAI(reason:'HTTP_INVALIDO'|'RESPOSTA_INCOMPLETA'|'FORMATO_INVALIDO'|'MENSAGEM_INVALIDA_OU_RECUSADA'|'SAIDA_VAZIA_OU_EXTENSA'|'SEM_CITACAO'|'CITACAO_INVALIDA'|'EXCECAO_OU_TIMEOUT',status?:number):null{
+  console.info(JSON.stringify({event:'COPILOT_PROVIDER_FALLBACK',reason,...(typeof status==='number'&&Number.isInteger(status)&&status>=100&&status<=599?{status}:{})}))
+  return null // fallback determinístico, sem conteúdo operacional privado
+}
 async function sintetizarComOpenAI(pergunta:string, fontes:Array<{fonte_tipo:string;trecho:string;pagina:number|null}>, resumo:string,sinal?:AbortSignal,historico:any[]=[]):Promise<string|null>{
   if(!OPENAI_API_KEY || fontes.length===0) return null
   const evidencias=fontes.slice(0,MAX_FONTE_COUNT).map((f,i)=>({
@@ -54,19 +58,22 @@ async function sintetizarComOpenAI(pergunta:string, fontes:Array<{fonte_tipo:str
       body:JSON.stringify(payload),
       signal:AbortSignal.any([AbortSignal.timeout(12000),...(sinal?[sinal]:[])]),
     })
-    if(!resp.ok) return null
+    if(!resp.ok) return fallbackOpenAI('HTTP_INVALIDO',resp.status)
     const json=await resp.json()
-    if(json.status!=='completed' || !Array.isArray(json.output)) return null
+    if(json.status!=='completed') return fallbackOpenAI('RESPOSTA_INCOMPLETA')
+    if(!Array.isArray(json.output)) return fallbackOpenAI('FORMATO_INVALIDO')
     const mensagens=json.output.filter((item:any)=>item.type==='message')
-    if(mensagens.length===0 || mensagens.some((item:any)=>item.status!=='completed' || !Array.isArray(item.content) || item.content.some((part:any)=>part.type==='refusal'))) return null
+    if(mensagens.length===0) return fallbackOpenAI('FORMATO_INVALIDO')
+    if(mensagens.some((item:any)=>item.status!=='completed' || !Array.isArray(item.content) || item.content.some((part:any)=>part.type==='refusal'))) return fallbackOpenAI('MENSAGEM_INVALIDA_OU_RECUSADA')
     const saida=json.output.flatMap((item:any)=>item.type==='message'?(item.content??[]):[])
       .filter((part:any)=>part.type==='output_text').map((part:any)=>String(part.text??'')).join('\n').trim()
-    if(!saida || saida.length>6000) return null
+    if(!saida || saida.length>6000) return fallbackOpenAI('SAIDA_VAZIA_OU_EXTENSA')
     const referencias=Array.from(saida.matchAll(/\bF(\d+)\b/g),m=>Number(m[1]))
-    if(referencias.length===0 || referencias.some(n=>!Number.isInteger(n)||n<1||n>evidencias.length)) return null
+    if(referencias.length===0) return fallbackOpenAI('SEM_CITACAO')
+    if(referencias.some(n=>!Number.isInteger(n)||n<1||n>evidencias.length)) return fallbackOpenAI('CITACAO_INVALIDA')
     return saida
   }catch{
-    return null // fallback determinístico, sem afetar transações nem exposição de erro interno
+    return fallbackOpenAI('EXCECAO_OU_TIMEOUT') // fallback determinístico, sem afetar transações nem exposição de erro interno
   }
 }
 
