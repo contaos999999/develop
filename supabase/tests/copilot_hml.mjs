@@ -23,7 +23,8 @@ export function inputs(e){
 }
 export function validateChecks(runs,head,restore){
  for(const name of ['ContaOS Zero-Drift','ContaOS Restore Isolado']){
-  requireC(runs.some(r=>r.name===name&&r.head_sha===head&&r.head_branch==='main'&&r.head_repository?.full_name===REPO&&r.event==='push'&&r.status==='completed'&&r.conclusion==='success'&&(name!=='ContaOS Restore Isolado'||String(r.id)===restore)),`required main push ${name}`);
+  const canonicalEvent=r=>r.event==='push'||name==='ContaOS Restore Isolado'&&r.event==='workflow_dispatch'&&r.path==='.github/workflows/restore-isolado.yml';
+  requireC(runs.some(r=>r.name===name&&r.head_sha===head&&r.head_branch==='main'&&r.head_repository?.full_name===REPO&&canonicalEvent(r)&&r.status==='completed'&&r.conclusion==='success'&&(name!=='ContaOS Restore Isolado'||String(r.id)===restore)),`required canonical main ${name}`);
  }
 }
 export function validateGuardSteps(jobs){
