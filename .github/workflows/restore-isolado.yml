@@ -323,7 +323,7 @@ jobs:
            sql("delete from public.retornos_modelo where id_consulta in(select id from public.consultas_semanticas where texto_consulta like '%s%%' and criado_por='%s');"%(PREFIX,U))
            sql("delete from public.consultas_semanticas where texto_consulta like '%s%%' and id_organizacao='%s' and criado_por='%s';"%(PREFIX,ORG,U))
            assert sql("select count(*) from public.consultas_semanticas where texto_consulta like '%s%%';"%PREFIX)=='0'
-          
+
            if race_session:sql("delete from public.sessoes_copiloto where id='%s' and criado_por='%s' and id_organizacao='%s';"%(race_session,U,ORG))
           PY
           grep -Fq 'COPILOT_QUOTA_CONCURRENCY_PASS:' restore-proof/copilot-quota-concurrency.txt

@@ -72,6 +72,10 @@ do $$declare org uuid;ct uuid;ver uuid;frag uuid;v extensions.vector;st text;f j
  perform pg_temp.assert_c(not privado.rbac_permite(org,'historico','consultar',ct),'canonical RBAC confirms effective history revocation');
  perform pg_temp.assert_c(privado.copilot_ator_permite(org,ct,'c7171717-0000-4000-8000-000000000001','c7171717-0000-4000-9000-000000000001'),'actor A scope valid');
  perform pg_temp.assert_c(privado.copilot_ator_permite(org,ct,'d7171717-0000-4000-8000-000000000001','d7171717-0000-4000-9000-000000000001'),'following actor B scope valid');
+ update public.vinculos_usuarios set ativo=false where id_organizacao=org and id_usuario='d7171717-0000-4000-8000-000000000001';
+ perform pg_temp.assert_c(not privado.copilot_ator_permite(org,ct,'d7171717-0000-4000-8000-000000000001','d7171717-0000-4000-9000-000000000001'),'B revoked in same A-authorized scope must not reuse A STABLE claims');
+ update public.vinculos_usuarios set ativo=true where id_organizacao=org and id_usuario='d7171717-0000-4000-8000-000000000001';
+
  perform pg_temp.assert_c(not privado.copilot_ator_permite(org,ct,'d7171717-0000-4000-8000-000000000001','c7171717-0000-4000-9000-000000000001'),'B with A session denied');
  perform pg_temp.assert_c(not privado.copilot_ator_permite((select id from c_ids where k='orgb'),(select id from c_ids where k='contractb'),'d7171717-0000-4000-8000-000000000001','d7171717-0000-4000-9000-000000000001'),'B foreign scope denied after A');
  perform pg_temp.assert_c(current_setting('request.jwt.claim.sub',true)='c7171717-0000-4000-8000-000000000001' and(current_setting('request.jwt.claims',true)::jsonb)->>'sub'='c7171717-0000-4000-8000-000000000001','A to B calls preserve previous caller claims');
