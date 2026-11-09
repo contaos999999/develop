@@ -398,7 +398,8 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/tests/copilot_hml.mjs"
+    "supabase/tests/copilot_hml.mjs",
+    ".github/workflows/copilot-c13-final-readback-recovery.yml"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -2962,5 +2963,14 @@
       }
     ],
     "material_effectiveness_verified": false
+  },
+  "c13_final_readback_recovery": {
+    "scope": "Read-only recovery of original C13 proof run 42571726664 attempt 1; exact material and cleanup SHA256, coordinator post-proof receipt; no material rerun",
+    "workflow": ".github/workflows/copilot-c13-final-readback-recovery.yml",
+    "original_backend_head": "5459536e7f7121e2f26758841acd520f84e0ad9d",
+    "original_frontend_head": "dd27b7e2f059cc71cff21c1d4dbe38a24e6d4261",
+    "original_nonce": "75706a06dd3734b42c34e226ffe18946",
+    "authorization": "User-requested P0 scoped exception; maintain all existing forbidden paths and auth/storage/RLS/PROD constraints",
+    "certified": false
   }
 }
