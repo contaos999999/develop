@@ -52,6 +52,23 @@ def reconcile_copilot_catalog(expected, actual, native):
   result['functions'].append(record)
  return result
 
+COPILOT_RAW_APPROVED = {'schema': 'privado', 'name': 'copilot_retorno_e_chat', 'args': 'p_id_retorno uuid, p_id_consulta uuid', 'owner': 'postgres', 'definer': True, 'config': ['search_path=""'], 'language': 'sql', 'returns': 'boolean', 'auth_exec': True, 'anon_exec': False, 'service_exec': False, 'public_exec': False, 'body_md5': '00d8c4583b2b5bb27ad872cd370dffba', 'acl': [{'grantee': 'authenticated', 'privilege': 'EXECUTE', 'grantable': False}, {'grantee': 'postgres', 'privilege': 'EXECUTE', 'grantable': False}]}
+COPILOT_RAW_POLICIES = [{'schemaname': 'public', 'tablename': 'retornos_modelo', 'policyname': 'copilot_raw_chat_select', 'permissive': 'RESTRICTIVE', 'roles': ['authenticated'], 'cmd': 'SELECT', 'qual': '(NOT privado.copilot_retorno_e_chat(id, id_consulta))', 'with_check': None}, {'schemaname': 'public', 'tablename': 'mensagens_copiloto', 'policyname': 'copilot_raw_chat_select', 'permissive': 'RESTRICTIVE', 'roles': ['authenticated'], 'cmd': 'SELECT', 'qual': 'false', 'with_check': None}, {'schemaname': 'public', 'tablename': 'fontes_resposta_copiloto', 'policyname': 'copilot_raw_chat_select', 'permissive': 'RESTRICTIVE', 'roles': ['authenticated'], 'cmd': 'SELECT', 'qual': 'false', 'with_check': None}]
+
+def reconcile_copilot_raw_catalog(expected, actual, native):
+ if native != [COPILOT_RAW_APPROVED]:
+  raise SystemExit('COPILOT_RAW_NATIVE_CATALOG_FAIL: exact helper signature/body/owner/ACL required')
+ result={**expected,'functions':list(expected['functions']),'policies':list(expected['policies'])}
+ record={k:COPILOT_RAW_APPROVED[k] for k in ('schema','name','args','definer','config','auth_exec','anon_exec')}
+ if actual['functions'].count(record)!=1 or record in result['functions']:
+  raise SystemExit('COPILOT_RAW_CATALOG_FAIL: exact unique helper required')
+ result['functions'].append(record)
+ for policy in COPILOT_RAW_POLICIES:
+  if actual['policies'].count(policy)!=1 or policy in result['policies']:
+   raise SystemExit('COPILOT_RAW_CATALOG_FAIL: exact unique restrictive policy required')
+  result['policies'].append(policy)
+ return result
+
 root=pathlib.Path(__file__).parent
 db=os.environ['DB_URL']
 assert '@127.0.0.1:' in db or '@localhost:' in db,'Isolated restore required'
@@ -67,6 +84,9 @@ for table in ('retornos_modelo','mensagens_copiloto','fontes_resposta_copiloto')
 copilot_query="set search_path='';select coalesce(jsonb_agg(jsonb_build_object('schema',n.nspname,'name',p.proname,'args',pg_get_function_identity_arguments(p.oid),'owner',pg_get_userbyid(p.proowner),'definer',p.prosecdef,'config',p.proconfig,'language',l.lanname,'returns',pg_get_function_result(p.oid),'auth_exec',has_function_privilege('authenticated',p.oid,'EXECUTE'),'anon_exec',has_function_privilege('anon',p.oid,'EXECUTE'),'service_exec',has_function_privilege('service_role',p.oid,'EXECUTE'),'public_exec',exists(select 1 from aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a where a.grantee=0 and a.privilege_type='EXECUTE'),'body_md5',md5(p.prosrc),'acl',(select jsonb_agg(jsonb_build_object('grantee',case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end,'privilege',a.privilege_type,'grantable',a.is_grantable) order by a.grantee::regrole::text,a.privilege_type,a.is_grantable) from aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a)) order by n.nspname,p.proname,pg_get_function_identity_arguments(p.oid)),'[]'::jsonb) from pg_proc p join pg_namespace n on n.oid=p.pronamespace join pg_language l on l.oid=p.prolang where (n.nspname,p.proname) in (('privado','copilot_versao_elegivel'),('privado','copilot_precedente_elegivel'),('public','worker_buscar_fragmentos_copiloto'),('public','worker_buscar_precedentes_copiloto'),('privado','copilot_ator_permite'),('public','worker_reservar_consulta_copiloto'),('public','worker_falhar_consulta_copiloto'),('public','worker_validar_lease_copiloto'),('public','worker_concluir_consulta_copiloto'));"
 copilot_native=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',copilot_query],text=True))
 expected=reconcile_copilot_catalog(expected,actual,copilot_native)
+raw_query=copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]+"where n.nspname='privado' and p.proname='copilot_retorno_e_chat';"
+raw_native=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',raw_query],text=True))
+expected=reconcile_copilot_raw_catalog(expected,actual,raw_native)
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
 expected=reconcile_document_vigency_wrapper(expected,actual)
@@ -104,5 +124,5 @@ for section in expected:
 if differences:
  print(json.dumps(differences,ensure_ascii=False,indent=2))
  raise SystemExit('HISTORY_CATALOG_FAIL: metadata differs from HML baseline beyond approved RBAC objects')
-print('HISTORY_CATALOG_PASS: 120 tables,1520 columns,283 application function contracts/ACLs,186 original policies; exact additive Copilot contracts, explicit RBAC deltas and one hosted DDL-only helper compared')
+print('HISTORY_CATALOG_PASS: 120 tables,1520 columns,283 application function contracts/ACLs,186 original policies; exact additive Copilot and raw-chat privacy contracts/policies, explicit RBAC deltas and one hosted DDL-only helper compared')
 

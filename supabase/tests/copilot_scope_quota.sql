@@ -175,6 +175,21 @@ select pg_temp.raw_actor(1);
 select pg_temp.raw_probe('OWNER_AFTER_QUARANTINE');
 reset role;
 do $$begin if exists(select 1 from c_raw_fail)then raise exception 'COPILOT_RAW_RLS_RED: %',(select string_agg(label,',')from c_raw_fail);end if;end$$;
+-- Native grants and fail-closed private classification; never expose a public wrapper.
+select pg_temp.assert_c((select count(*)=3 from pg_policies where schemaname='public' and tablename in('retornos_modelo','mensagens_copiloto','fontes_resposta_copiloto') and policyname='copilot_raw_chat_select' and permissive='RESTRICTIVE' and cmd='SELECT' and roles=array['authenticated']::name[]),'three exact role-scoped restrictive policies');
+select pg_temp.assert_c((select p.prosecdef and p.proconfig=array['search_path=""'] and pg_get_userbyid(p.proowner)='postgres' and p.prorettype='boolean'::regtype and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE') and not has_function_privilege('service_role',p.oid,'EXECUTE') and not exists(select 1 from aclexplode(p.proacl)a where a.grantee=0) from pg_proc p where p.oid='privado.copilot_retorno_e_chat(uuid,uuid)'::regprocedure),'private helper exact owner/path/return/minimum grants');
+set local role authenticated;
+select pg_temp.raw_actor(2);
+select pg_temp.assert_c(privado.copilot_retorno_e_chat(null,null),'null row denied classification');
+select pg_temp.assert_c(privado.copilot_retorno_e_chat(gen_random_uuid(),null),'unknown row denied classification');
+select pg_temp.assert_c(not privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat'),null),'known non-chat null query preserved');
+select pg_temp.assert_c(not privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat-query'),(select id from c_ids where k='raw-nonchat-query')),'known non-chat query preserved');
+select pg_temp.assert_c(privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat-query'),null),'forged omitted query fails closed');
+select pg_temp.assert_c(privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat'),(select id from c_ids where k='raw-nonchat-query')),'forged query fails closed');
+select pg_temp.assert_c((select bool_and(privado.copilot_retorno_e_chat(r.id,r.id_consulta))from c_raw_expected x join public.retornos_modelo r on r.id=x.id where x.is_chat) is null,'authenticated cannot recover chat through joins');
+reset role;
+select pg_temp.assert_c((select bool_and(privado.copilot_retorno_e_chat(r.id,r.id_consulta))from c_raw_expected x join public.retornos_modelo r on r.id=x.id where x.is_chat),'owner classifier covers all chat lineage and legacy orphan fixtures');
+
 
 rollback;
 select 'COPILOT_SCOPE_QUOTA_SQL_PASS';

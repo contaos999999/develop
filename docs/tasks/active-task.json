@@ -2525,6 +2525,83 @@
     "gate_ci": 42547397969,
     "sql_owner": "review_c13_backend",
     "edge_owner": "backend_cors_runtime",
-    "remote_execution_allowed": false
+    "remote_execution_allowed": false,
+    "migration_sha256": "dd20e79993b6faffc96bb001b1dd119b164b60b7e80fae36846c017bb368f10c",
+    "approved_helper": {
+      "schema": "privado",
+      "name": "copilot_retorno_e_chat",
+      "args": "p_id_retorno uuid, p_id_consulta uuid",
+      "owner": "postgres",
+      "definer": true,
+      "config": [
+        "search_path=\"\""
+      ],
+      "language": "sql",
+      "returns": "boolean",
+      "auth_exec": true,
+      "anon_exec": false,
+      "service_exec": false,
+      "public_exec": false,
+      "body_md5": "00d8c4583b2b5bb27ad872cd370dffba",
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "privilege": "EXECUTE",
+          "grantable": false
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "EXECUTE",
+          "grantable": false
+        }
+      ]
+    },
+    "approved_policies": [
+      {
+        "schemaname": "public",
+        "tablename": "retornos_modelo",
+        "policyname": "copilot_raw_chat_select",
+        "permissive": "RESTRICTIVE",
+        "roles": [
+          "authenticated"
+        ],
+        "cmd": "SELECT",
+        "qual": "(NOT privado.copilot_retorno_e_chat(id, id_consulta))",
+        "with_check": null
+      },
+      {
+        "schemaname": "public",
+        "tablename": "mensagens_copiloto",
+        "policyname": "copilot_raw_chat_select",
+        "permissive": "RESTRICTIVE",
+        "roles": [
+          "authenticated"
+        ],
+        "cmd": "SELECT",
+        "qual": "false",
+        "with_check": null
+      },
+      {
+        "schemaname": "public",
+        "tablename": "fontes_resposta_copiloto",
+        "policyname": "copilot_raw_chat_select",
+        "permissive": "RESTRICTIVE",
+        "roles": [
+          "authenticated"
+        ],
+        "cmd": "SELECT",
+        "qual": "false",
+        "with_check": null
+      }
+    ],
+    "native_red": {
+      "head": "04298775d54d5b283f17e856b04cbf0c6807d3a1",
+      "run": 42547852152,
+      "job": 128936642806,
+      "assertion": "COPILOT_RAW_RLS_RED",
+      "leaks": 10,
+      "artifact": 13643704961,
+      "artifact_sha256": "bab3a2cdeb20849ef55f7b163e8860fc7de8e6b7382b45887edf96c1c9eb845a"
+    }
   }
 }
