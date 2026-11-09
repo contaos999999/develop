@@ -220,8 +220,11 @@ async function mensagemC13(m:any,client:any,admin:any,contrato:any,ref:string|nu
   return dto
 }
 function consultaMensagensC13(admin:any,contrato:any,sessao:string){return admin.from('mensagens_copiloto').select('id,id_organizacao,id_contrato,id_sessao,papel,conteudo,criado_em,id_consulta_semantica,id_retorno_modelo').eq('id_sessao',sessao).eq('id_organizacao',contrato.id_organizacao).eq('id_contrato',contrato.id).in('papel',['usuario','assistente'])}
-async function vincularMensagensC13(admin:any,contrato:any,sessao:string,linhas:any[],sinal:AbortSignal){
+function validarEscopoMensagensC13(contrato:any,sessao:string,linhas:any[]){
   if(linhas.length>50||linhas.some(m=>!UUID_C13.test(m.id)||m.id_organizacao!==contrato.id_organizacao||m.id_contrato!==contrato.id||m.id_sessao!==sessao||!['usuario','assistente'].includes(m.papel))||new Set(linhas.map(m=>m.id)).size!==linhas.length)throw new Error('FONTE_REVOGADA')
+}
+async function vincularMensagensC13(admin:any,contrato:any,sessao:string,linhas:any[],sinal:AbortSignal){
+  validarEscopoMensagensC13(contrato,sessao,linhas)
   if(linhas.length===0)return []
   const ids=linhas.map(m=>m.id),retornos=[...new Set(linhas.map(m=>m.id_retorno_modelo).filter(Boolean))]
   const [f,r]=await Promise.all([
@@ -247,31 +250,39 @@ function textoContextoC13(m:any,contrato:any){
   return texto.replace(/\bF\d+\b/gi,'referência histórica sem autoridade')
 }
 async function contextoC13(client:any,admin:any,contrato:any,sessao:string|null,ref:string|null,sinal:AbortSignal){
-  const vazio={mensagens:[] as any[],dependencias:[] as any[][]}
-  if(!sessao)return vazio
-  const {data,error}=await consultaMensagensC13(admin,contrato,sessao).order('criado_em',{ascending:false}).order('id',{ascending:false}).limit(50).abortSignal(sinal)
-  if(error||!Array.isArray(data)||data.length>50)throw new Error('HISTORICO_FALHOU')
-  const vinculadas=await vincularMensagensC13(admin,contrato,sessao,data,sinal)
-  const grupos=new Map<string,{usuario:any[],assistente:any[]}>()
-  for(const m of vinculadas){
-    if(typeof m.id_consulta_semantica!=='string'||!m.id_consulta_semantica||!['usuario','assistente'].includes(m.papel))continue
-    let g=grupos.get(m.id_consulta_semantica);if(!g){g={usuario:[],assistente:[]};grupos.set(m.id_consulta_semantica,g)}
-    g[m.papel as 'usuario'|'assistente'].push(m)
-  }
-  const pares=[...grupos.values()].filter(g=>g.usuario.length===1&&g.assistente.length===1).sort((a,b)=>{
-    const x=a.assistente[0],y=b.assistente[0]
-    return x.criado_em===y.criado_em?String(y.id).localeCompare(String(x.id)):String(y.criado_em).localeCompare(String(x.criado_em))
-  })
-  const escolhidos:any[]=[];let bytes=0
-  for(const par of pares){
+  const escolhidos:any[]=[];let bytes=0,cursor:any=null
+  if(!sessao)return {mensagens:[],dependencias:[]}
+  // Páginas de assistentes ancoram cada par; consultas de até três linhas detectam
+  // pares incompletos/duplicados sem acumular órfãos ou todo o histórico em memória.
+  while(escolhidos.length<6){
     sinal.throwIfAborted()
-    const mensagens=[par.usuario[0],par.assistente[0]].map(m=>({papel:m.papel,conteudo:textoContextoC13(m,contrato)}))
-    const tamanho=mensagens.reduce((n,m)=>n+UTF8.encode(m.conteudo).length,0)
-    if(tamanho+bytes>8000)continue
-    const fontes=par.assistente[0].fontes_resposta_copiloto??[]
-    try{await fontesC13(client,admin,contrato,fontes,ref,sinal)}catch(e){if(e instanceof Error&&e.message==='FONTE_REVOGADA')continue;throw e}
-    escolhidos.unshift({mensagens,fontes});bytes+=tamanho
-    if(escolhidos.length===6)break
+    const candidatas=await paginaC13(()=>consultaMensagensC13(admin,contrato,sessao).eq('papel','assistente'),cursor,50,sinal)
+    if(candidatas.length>51)throw new Error('HISTORICO_FALHOU')
+    const pagina=candidatas.slice(0,50)
+    validarEscopoMensagensC13(contrato,sessao,pagina)
+    if(pagina.some((m:any)=>m.papel!=='assistente'))throw new Error('FONTE_REVOGADA')
+    for(const ancora of pagina){
+      sinal.throwIfAborted()
+      if(typeof ancora.id_consulta_semantica!=='string'||!ancora.id_consulta_semantica)continue
+      const {data,error}=await consultaMensagensC13(admin,contrato,sessao).eq('id_consulta_semantica',ancora.id_consulta_semantica).order('criado_em',{ascending:false}).order('id',{ascending:false}).limit(3).abortSignal(sinal)
+      if(error||!Array.isArray(data)||data.length>3)throw new Error('HISTORICO_FALHOU')
+      validarEscopoMensagensC13(contrato,sessao,data)
+      if(data.some((m:any)=>m.id_consulta_semantica!==ancora.id_consulta_semantica))throw new Error('FONTE_REVOGADA')
+      const usuarios=data.filter((m:any)=>m.papel==='usuario'),assistentes=data.filter((m:any)=>m.papel==='assistente')
+      if(data.length!==2||usuarios.length!==1||assistentes.length!==1||assistentes[0].id!==ancora.id)continue
+      const mensagens=[usuarios[0],assistentes[0]].map(m=>({papel:m.papel,conteudo:textoContextoC13(m,contrato)}))
+      const tamanho=mensagens.reduce((n,m)=>n+UTF8.encode(m.conteudo).length,0)
+      if(tamanho+bytes>8000)continue
+      const vinculadas=await vincularMensagensC13(admin,contrato,sessao,data,sinal)
+      const fontes=vinculadas.find((m:any)=>m.id===ancora.id).fontes_resposta_copiloto
+      try{await fontesC13(client,admin,contrato,fontes,ref,sinal)}catch(e){if(e instanceof Error&&e.message==='FONTE_REVOGADA')continue;throw e}
+      escolhidos.unshift({mensagens,fontes});bytes+=tamanho
+      if(escolhidos.length===6)break
+    }
+    if(escolhidos.length===6||candidatas.length<=50)break
+    const ultima=pagina[pagina.length-1]
+    if(!ultima||!instanteCursor(ultima.criado_em)||cursor&&(ultima.criado_em>cursor.criado_em||ultima.criado_em===cursor.criado_em&&ultima.id>=cursor.id))throw new Error('HISTORICO_FALHOU')
+    cursor={criado_em:ultima.criado_em,id:ultima.id}
   }
   return {mensagens:escolhidos.flatMap(p=>p.mensagens),dependencias:escolhidos.map(p=>p.fontes)}
 }
@@ -365,7 +376,6 @@ Deno.serve(async(req:Request)=>{
     }
     const pode=await permissoesEfetivas(userClient,contrato.id_organizacao,idContrato)
     if(!pode('arquivos'))return respostaErro(403,'AUTH_ACESSO_NEGADO','Acesso não permitido','Você não possui permissão para consultar arquivos deste contrato.')
-    const historico=await contextoC13(userClient,admin,contrato,idSessao,dataReferencia,sinal)
     const ids=await idsElegiveis(userClient,contrato,pode('historico'),sinal)
     const {data:reservada,error:erroReserva}=await admin.rpc('worker_reservar_consulta_copiloto',{p_id_organizacao:contrato.id_organizacao,p_id_contrato:idContrato,p_id_usuario:userData.user.id,p_texto:pergunta,p_filtros:{session_id:sessionId,data_referencia:dataReferencia,ids_fragmentos:ids.fragmentos,ids_precedentes:ids.precedentes},p_modelo:'Supabase/gte-small-384+ranking-v4'})
     if(erroReserva){if(erroReserva.code==='42501')return respostaErro(403,'AUTH_ACESSO_NEGADO','Acesso não permitido','Sua sessão ou permissão mudou. Entre novamente e repita a consulta.');throw new Error('RESERVA_FALHOU')}
@@ -377,6 +387,7 @@ Deno.serve(async(req:Request)=>{
     reserva=reservada;const consulta={id:reserva.id_consulta}
     const validarLease=async()=>{const {data,error}=await admin.rpc('worker_validar_lease_copiloto',{p_id_consulta:consulta.id,p_token:reserva.token});if(error||data!==true)throw new Error('LEASE_INVALIDA')}
     await validarLease()
+    const historico=await contextoC13(userClient,admin,contrato,idSessao,dataReferencia,sinal)
     if(!idSessao){
       const {data:s,error:es}=await admin.from('sessoes_copiloto').insert({id_organizacao:contrato.id_organizacao,id_contrato:idContrato,titulo:pergunta.slice(0,120),escopo:{data_referencia:dataReferencia},status:'ativa',criado_por:userData.user.id}).select('id').single()
       if(es||!s)throw new Error('SESSAO_FALHOU');idSessao=s.id
