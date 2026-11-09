@@ -718,6 +718,10 @@ async function main(){
  console.log(report.state);
 }
 async function selfTest(){
+ const recoveryFixture={PROOF_MODE:'api_c13',FRONTEND_PR:'379',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REPOSITORY:REPO,GITHUB_REF:'refs/heads/main',GITHUB_SHA:'b'.repeat(40),TESTED_HEAD:'a'.repeat(40),FRONTEND_HEAD:'c'.repeat(40),ORIGINAL_RUN_ID:'42571726664',GITHUB_RUN_ID:'99999999999',GITHUB_WORKFLOW_REF:REPO+'/.github/workflows/copilot-c13-final-readback-recovery.yml@refs/heads/main',RESTORE_RUN_ID:'42571349135',DEPLOYMENT_RECEIPT_COMMENT_ID:'6733569504',EDGE_VERSION:'7',EDGE_SOURCE_SHA256:'d'.repeat(64),EDGE_BUNDLE_SHA256:'e'.repeat(64),NONCE:'f'.repeat(32)};
+ assert.equal(inputs(recoveryFixture,{recovery:true}).head,recoveryFixture.TESTED_HEAD,'recovery preserves original tested HEAD without equating new GITHUB_SHA');
+ assert.throws(()=>inputs(recoveryFixture),'normal material proof must reject changed SHA');
+ for(const bad of [{GITHUB_WORKFLOW_REF:REPO+'/.github/workflows/other.yml@refs/heads/main'},{ORIGINAL_RUN_ID:'99999999999'},{GITHUB_SHA:'not-a-sha'},{GITHUB_REF:'refs/heads/other'}])assert.throws(()=>inputs({...recoveryFixture,...bad},{recovery:true}),'recovery must fail closed on provenance');
  const documentComplete={ready:true,fragments:1,documents_complete:true,embeddings_complete:true,ai_complete:true,unfinished_jobs:0,failed_jobs:0,queue_messages:0};
  let documentReads=0,documentClock=0;
  await waitOwnDocumentReady(async()=>++documentReads===1?{...documentComplete,ai_complete:false,unfinished_jobs:1}:documentComplete,{now:()=>documentClock,delay:async ms=>{documentClock+=ms;}});
