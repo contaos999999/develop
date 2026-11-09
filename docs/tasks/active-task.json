@@ -1477,7 +1477,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Ativação documental/CI/revisão; REDPGRST201→GREENmínimoEdge/teste, regressão/CI/Restore/backup/review; integrar/deploysomenteEdgeexistente e readback; reativação API com novononce/PRE apóscontroles. Não reutilizar ensaioFAIL.",
+  "next_step": "Integrar a retomada documental após revisão/CI, conferir Restore/backup na main final, novo nonce/PRE e executar prova API; exigir cleanup independente e readback final, sem certificar UI/P0.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -2203,7 +2203,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Corrigir somente embed PostgREST ambíguo de versões→arquivos usando FKcomposta existente, preservando JWT/RLS/contrato/DTO e fail-closed; semDDL ou materialHML nesta etapa.",
+  "objective": "Executar somente api_c13 em HML com fixtures próprias e limites já aprovados, após CI/Restore/backup no SHA main exato e novo PRE imutável. Fontes e harness congelados; UI e certificação bloqueadas.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2236,7 +2236,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Somente hint explícito da FKexistente versoes_documento_arquivo_org_contrato_fk no embedarquivos e testes causais PostgREST; sem fallbackadmin/global ou mudança de contrato.",
+  "edge_function_change_scope": "Edge v5 já implantada e readback integral igual à fonte197. Nenhuma alteração de fonte ou novo deploy nesta retomada; JWT obrigatório e demais Edges preservadas.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2552,7 +2552,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "NenhumaDDL/migration/RLS/grant/corpoSQL ou dadoHML nesta fase.",
+  "database_change_scope": "Somente DML das fixtures sintéticas próprias autorizadas pelo protocolo api_c13, com intents e quarentena independentes. Nenhuma DDL/RLS/grant/configuração ou dado alheio; proteção RLS138 e Trilhas A/B preservadas.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
