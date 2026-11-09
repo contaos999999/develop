@@ -1,0 +1,225 @@
+name: ContaOS Copiloto HML manual
+on:
+  workflow_dispatch:
+    inputs:
+      proof_mode:
+        description: API C13 only; full UI is a separate future phase
+        required: true
+        default: api_c13
+        type: choice
+        options: [api_c13]
+      frontend_pr:
+        description: Exact reviewed frontend PR provenance
+        required: true
+        type: string
+      tested_head:
+        description: Exact approved live main SHA40
+        required: true
+        type: string
+      frontend_head:
+        description: Approved frontend SHA40 with green checks
+        required: true
+        type: string
+      restore_run_id:
+        description: Same SHA main push Restore and backup run
+        required: true
+        type: string
+      edge_source_sha256:
+        description: Approved local source SHA256
+        required: true
+        type: string
+      edge_bundle_sha256:
+        description: Approved Management bundle SHA256
+        required: true
+        type: string
+      edge_version:
+        description: Approved deployed Edge version
+        required: true
+        type: string
+      deployment_receipt_comment_id:
+        description: Strict JSON copilot deployment receipt comment
+        required: true
+        type: string
+      nonce:
+        description: Unique authorized fixture nonce, lowercase hex32
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: contaos-copilot-hml
+  cancel-in-progress: false
+env:
+  PROOF_MODE: ${{ inputs.proof_mode }}
+  FRONTEND_PR: ${{ inputs.frontend_pr }}
+  TESTED_HEAD: ${{ inputs.tested_head }}
+  FRONTEND_HEAD: ${{ inputs.frontend_head }}
+  RESTORE_RUN_ID: ${{ inputs.restore_run_id }}
+  EDGE_SOURCE_SHA256: ${{ inputs.edge_source_sha256 }}
+  EDGE_BUNDLE_SHA256: ${{ inputs.edge_bundle_sha256 }}
+  EDGE_VERSION: ${{ inputs.edge_version }}
+  DEPLOYMENT_RECEIPT_COMMENT_ID: ${{ inputs.deployment_receipt_comment_id }}
+  NONCE: ${{ inputs.nonce }}
+jobs:
+  readiness:
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'contaos999999/develop' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      issues: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Offline runner negatives and live gates before HML environment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TESTED_HEAD"
+          node supabase/tests/copilot_hml.mjs --self-test
+          node supabase/tests/copilot_hml.mjs --gate
+  proof:
+    needs: readiness
+    if: needs.readiness.result == 'success'
+    environment: hml
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      issues: read
+    steps:
+      - name: Prepare isolated runner paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'CONTAOS_TEST_PRIVATE_DIR=%s\n' "$RUNNER_TEMP/copilot-private-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          printf 'SDK_DIR=%s\n' "$RUNNER_TEMP/copilot-sdk" >> "$GITHUB_ENV"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Repeat live main CAS before material work
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node supabase/tests/copilot_hml.mjs --gate
+      - name: Approved SDK install before any administrative environment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node supabase/tests/copilot_hml.mjs --install-sdk
+      - name: Real own-fixture HML evidence, no deploy or migration application
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY }}
+        run: node supabase/tests/copilot_hml.mjs --run
+      - name: Same-job own-fixture cleanup after material failure
+        if: always()
+        env:
+          DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY }}
+        run: node supabase/tests/copilot_hml.mjs --cleanup
+      - name: Sanitized material evidence only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: copilot-material-${{ github.run_id }}-${{ github.run_attempt }}
+          path: copilot-proof/
+          if-no-files-found: warn
+          retention-days: 30
+
+  cleanup:
+    needs: [readiness, proof]
+    if: always() && needs.readiness.result == 'success' && needs.proof.result != 'skipped'
+    environment: hml
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      issues: read
+    steps:
+      - name: Prepare isolated runner paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'CONTAOS_TEST_PRIVATE_DIR=%s\n' "$RUNNER_TEMP/copilot-recovery-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_ENV"
+          printf 'SDK_DIR=%s\n' "$RUNNER_TEMP/copilot-sdk" >> "$GITHUB_ENV"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Exact recovery scope before administrative credentials
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$TESTED_HEAD"
+          node supabase/tests/copilot_hml.mjs --self-test
+          node supabase/tests/copilot_hml.mjs --install-sdk
+      - name: Recover all own intents without private material-job files
+        env:
+          DATABASE_URL: ${{ secrets.CONTAOS_HML_DATABASE_URL }}
+          AUTH_ADMIN_KEY: ${{ secrets.CONTAOS_HML_AUTH_ADMIN_KEY }}
+        run: node supabase/tests/copilot_hml.mjs --cleanup
+      - name: Sanitized independent cleanup report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: copilot-cleanup-${{ github.run_id }}-${{ github.run_attempt }}
+          path: copilot-proof/cleanup.json
+          if-no-files-found: error
+          retention-days: 30
+  final-readback:
+    needs: [readiness, proof, cleanup]
+    if: always() && needs.readiness.result == 'success' && needs.proof.result == 'success' && needs.cleanup.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      issues: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Same-run sanitized material and independent recovery evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "copilot-material-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --dir copilot-proof
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "copilot-cleanup-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --dir copilot-cleanup
+      - name: Wait for immutable coordinator post-proof readback; API only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node supabase/tests/copilot_hml.mjs --finalize
+      - name: API evidence with UI explicitly pending
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: copilot-final-${{ github.run_id }}-${{ github.run_attempt }}
+          path: copilot-proof/
+          if-no-files-found: error
+          retention-days: 30
