@@ -76,7 +76,7 @@ function runtime(options={}) {
     Deno:{env:{get:key=>({SUPABASE_URL:'https://fixture.invalid',SUPABASE_ANON_KEY:'public-fixture',SUPABASE_SERVICE_ROLE_KEY:'private-fixture',OPENAI_API_KEY:options.noKey?'':'ai-fixture'})[key]},serve:fn=>{handler=fn;}},
     Supabase:{ai:{Session:class {async run(){calls.push(['embedding']);return [0.1,0.2];}}}},
     createClient:(_url,key)=>client(key==='private-fixture'),
-    fetch:async(url,init)=>{calls.push(['fetch',url,JSON.parse(init.body),init]);if(options.fetchError) throw new Error('private provider error');return Response.json(options.output??{status:'completed',output:[{type:'message',status:'completed',role:'assistant',content:[{type:'output_text',text:'A fonte registra obrigação documental [F1].',annotations:[]}]}]},{status:options.providerStatus??200});},
+    fetch:async(url,init)=>{options.afterProvider?.();calls.push(['fetch',url,JSON.parse(init.body),init]);if(options.fetchError) throw new Error('private provider error');return Response.json(options.output??{status:'completed',output:[{type:'message',status:'completed',role:'assistant',content:[{type:'output_text',text:'A fonte registra obrigação documental [F1].',annotations:[]}]}]},{status:options.providerStatus??200});},
   });
   const request=(method='POST',origin=ORIGINS[2],extra={},body={id_contrato:'contract',pergunta:'Quais obrigações?'})=>new Request('https://fixture.invalid/copilot-query',{method,headers:{...(origin===null?{}:{origin}),...(method==='POST'?{authorization:'Bearer '+btoa(JSON.stringify({alg:'HS256'}))+'.'+btoa(JSON.stringify({sub:'synthetic-user',role:'authenticated',session_id:'22222222-2222-4222-8222-222222222222',exp:Math.floor(Date.now()/1000)+3600}))+'.fixture-signature','content-type':'application/json'}:{}),...extra},...(method==='POST'?{body:typeof body==='string'?body:JSON.stringify(body)}:{})});
   return {handler,calls,request};
@@ -132,3 +132,13 @@ test('C13 histórico próprio sem pergunta usa DTO paginado e nenhuma IA',async(
 test('C13 encerrar sessão é operação sem inferência',async()=>{const r=runtime();const response=await r.handler(r.request('POST',ORIGINS[2],{},{action:'encerrar_sessao',id_contrato:'contract',id_sessao:'33333333-3333-4333-8333-333333333333'}));assert.equal(response.status,200);assert.equal((await response.json()).status,'encerrada');assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
 for(const action of ['listar_sessoes','historico','encerrar_sessao'])test(`C13 ${action} contrato negado preserva403/CORS`,async()=>{const r=runtime({denied:true});const response=await r.handler(r.request('POST',ORIGINS[2],{},{action,id_contrato:'contract',id_sessao:'33333333-3333-4333-8333-333333333333'}));assert.equal(response.status,403);cors(response,ORIGINS[2]);assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
 test('C13 ação desconhecida não reutiliza perguntar',async()=>{const r=runtime();const response=await r.handler(r.request('POST',ORIGINS[2],{},{action:'administrar',id_contrato:'contract',pergunta:'Não executar'}));assert.equal(response.status,400);assert.equal(r.calls.filter(c=>c[0]==='embedding'||c[0]==='fetch').length,0);});
+
+
+for(const flag of ['denyHistory','deniedOrigin','unsafeSource','incompleteSource'])test(`C13 revogação ${flag} durante provedor impede publicação`,async()=>{
+ const options={conflict:true,afterProvider:()=>{options[flag]=true;}};
+ const r=runtime(options);const response=await r.handler(r.request());
+ assert.equal(r.calls.filter(c=>c[0]==='fetch').length,1);
+ assert.equal(response.status,403);
+ assert.equal(r.calls.filter(c=>c[0]==='rpc'&&c[1]==='worker_concluir_consulta_copiloto').length,0);
+ assert.doesNotMatch(await response.text(),/A fonte registra obrigação documental/);
+});
