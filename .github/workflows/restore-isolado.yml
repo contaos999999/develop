@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'supabase/tests/copilot_hml.mjs'
+      - 'supabase/functions/copilot-query/index.ts'
+      - 'supabase/tests/copilot_openai_contract.test.mjs'
+      - '.github/workflows/copilot-hml.yml'
       - 'supabase/tests/worker_api_boundary*'
       - 'supabase/tests/worker_client_privileges*'
       - 'supabase/migrations/**'
@@ -26,6 +30,10 @@ on:
   push:
     branches: [main]
     paths:
+      - 'supabase/tests/copilot_hml.mjs'
+      - 'supabase/functions/copilot-query/index.ts'
+      - 'supabase/tests/copilot_openai_contract.test.mjs'
+      - '.github/workflows/copilot-hml.yml'
       - 'supabase/tests/worker_api_boundary*'
       - 'supabase/tests/worker_client_privileges*'
       - 'supabase/config.toml'
