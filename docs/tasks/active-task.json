@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -1475,7 +1475,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Gate documental CI/revisão/merge; RED/GREEN runner, CI/Restore/backup/revisão; integrar e reativar API com novo PRE/nonce após controles.",
+  "next_step": "CI/revisão/merge documental, Restore/backup e Zero-Drift na main final; PRE/nonce novos, prova API real, cleanup independente e recibo pós-material.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -2201,7 +2201,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Corrigir somente classificação do erro SDK após revogação, com RED/GREEN e SDK real offline; sem material HML, Edge, DDL/RLS/Authconfig.",
+  "objective": "Executar api_c13 limitado a fixtures próprias após gates main e novo PRE/nonce; runner/Edge congelados, UI e certificação bloqueadas.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2330,7 +2330,7 @@
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
   },
-  "previous_task_id": "C-CHAT-005-HML-API-RETRY-20261109",
+  "previous_task_id": "C-CHAT-006-SDK-REVOCATION-FIX-20261109",
   "fence_document_barrier": {
     "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
     "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
@@ -2365,7 +2365,7 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "Correção causal do runner: AuthSessionMissingError após revogação própria",
+  "title": "Retomada API após classificador SDK corrigido e verificado",
   "edge_function_changes_allowed": false,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
@@ -2550,7 +2550,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "Nenhuma DDL/RLS/grant/configuração/DML HML nesta correção offline de runner.",
+  "database_change_scope": "Somente DML próprio do protocolo api_c13 nos limites aprovados, intents e quarentena independentes; nenhuma DDL/RLS/grant/Authconfig/dado alheio.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
@@ -2592,7 +2592,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-006-SDK-REVOCATION-FIX-20261109",
+  "id": "C-CHAT-007-HML-SDK-RETRY-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2606,7 +2606,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "PAUSED_FOR_RUNNER_AUTH_CONTRACT_FIX",
+    "state": "HML_EXECUTION_AUTHORIZED",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2698,16 +2698,16 @@
       "independent_cleanup_and_post_receipt_required": true
     },
     "last_material_run": {
-      "run": 42553694889,
-      "state": "FAIL",
-      "nonce": "06451483d0fec06da22eebfaed900607",
-      "pre_receipt": 6731129800,
-      "first_failure": "AUTHORIZED_OPENAI_SOURCES",
-      "cause": "PGRST201_HTTP300_versoes_documento_arquivos_ambiguous_before_reservation",
-      "openai_reached": false,
-      "cleanup": "QUARENTENA_VERIFICADA_SAME_JOB_AND_INDEPENDENT",
-      "artifact": 13646726347,
-      "artifact_sha256": "c05a9d88653a28635a428382cfef7c96717119de7c7458308f9e1a70e4719db5"
+      "run": 42556492600,
+      "result": "FAIL_SDK_AUTH_RECOGNITION_CLASSIFIER",
+      "nonce": "662bb3fea781644f1b4f065eef0511a4",
+      "pre_receipt": 6731497251,
+      "material_checks_passed": 45,
+      "openai_turns": 3,
+      "cleanup": "QUARENTENA_VERIFICADA_BOTH_JOBS_AND_INDEPENDENT_SQL",
+      "natural_jwt_expiry": "NOT_EXECUTED",
+      "post_readback": "SKIPPED",
+      "certified": false
     },
     "retry_requires": {
       "new_nonce": true,
@@ -2715,8 +2715,26 @@
       "new_immutable_pre_receipt": true,
       "exact_final_main_ci_restore_backup": true,
       "post_material_readback": true,
-      "ui_forbidden": true
-    }
+      "ui_forbidden": true,
+      "consumed_nonces": [
+        "06451483d0fec06da22eebfaed900607",
+        "662bb3fea781644f1b4f065eef0511a4"
+      ]
+    },
+    "material_history": [
+      {
+        "run": 42553694889,
+        "state": "FAIL",
+        "nonce": "06451483d0fec06da22eebfaed900607",
+        "pre_receipt": 6731129800,
+        "first_failure": "AUTHORIZED_OPENAI_SOURCES",
+        "cause": "PGRST201_HTTP300_versoes_documento_arquivos_ambiguous_before_reservation",
+        "openai_reached": false,
+        "cleanup": "QUARENTENA_VERIFICADA_SAME_JOB_AND_INDEPENDENT",
+        "artifact": 13646726347,
+        "artifact_sha256": "c05a9d88653a28635a428382cfef7c96717119de7c7458308f9e1a70e4719db5"
+      }
+    ]
   },
   "copilot_postgrest_fk_fix": {
     "state": "INTEGRATED_DEPLOYED_HML_READBACK_EXACT",
@@ -2747,7 +2765,7 @@
     "independent_review": "APPROVED_NO_FINDINGS_RED_GREEN_REPRODUCED"
   },
   "copilot_sdk_revocation_fix": {
-    "state": "DOCUMENTARY_GATE_BEFORE_SOURCE",
+    "state": "INTEGRATED_APPROVED_TESTED_RUNNER_ONLY",
     "failed_run": 42556492600,
     "artifact": 13648006263,
     "artifact_sha256": "9573e6e4beb5a0ecdcac0e768568deac8d35ad3e7ddbe69cf2947c26524082a8",
@@ -2760,6 +2778,27 @@
     "real_sdk_offline_contract_required": true,
     "new_nonce_pre_required": true,
     "forbidden_reuse_nonce": "662bb3fea781644f1b4f065eef0511a4",
-    "certified": false
+    "certified": false,
+    "build_pr": 200,
+    "build_head": "dfe4338f8dd0e2db1ab53cf5dcdfb3e80f7bf07c",
+    "build_merge": "8cdd98a5035f7a365ece5c8e6f0e49d8146e472c",
+    "runner_blob": "57db8fce325f29e1e64ef15a46e64aeda1e9cff9",
+    "runner_sha256": "4cf02673a0751acfbef1d04f858c9176bb37ce50e4336a9d6ebcc71d39e9e1f8",
+    "guard": 42564838412,
+    "restore_backup": 42564838449,
+    "local_suite": 554,
+    "sdk_real_offline": "PASS_2.118.0_HTTP403_SESSION_NOT_FOUND",
+    "independent_review": "APPROVED_NO_FINDINGS",
+    "post_cleanup_sql": {
+      "own_users": 4,
+      "all_banned": true,
+      "sessions": 0,
+      "memberships": 0,
+      "master": 0,
+      "own_orgs": 2,
+      "all_inactive": true,
+      "jobs": 0,
+      "processing": 0
+    }
   }
 }
