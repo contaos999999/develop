@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": true,
+  "storage_test_fixtures_allowed": false,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": true,
+  "database_test_fixtures_allowed": false,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -2201,7 +2201,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Executar api_c13 próprio com orçamento existente para validar todos os controles e diagnosticar fallback se ocorrer; fonte/harness congelados, UI/certificação bloqueadas.",
+  "objective": "Corrigir somente a barreira do runner: aguardar término dos jobs e filas do documento sintético próprio antes das contagens negativas, sem filtrar ou relaxar as contagens e sem mudar workers.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2592,7 +2592,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-009-PROVIDER-DIAGNOSTIC-REPLAY-20261109",
+  "id": "C-CHAT-010-WORKER-BARRIER-FIX-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2606,7 +2606,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "HML_EXECUTION_AUTHORIZED",
+    "state": "PAUSED_FOR_OWN_WORKER_BARRIER_FIX",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2698,11 +2698,11 @@
       "independent_cleanup_and_post_receipt_required": true
     },
     "last_material_run": {
-      "run": 42565938714,
-      "nonce": "440a5148ef4798ec38372201f9554691",
-      "pre_receipt": 6732769381,
-      "result": "FAIL_C13_CONTEXTUAL_FOLLOWUP",
-      "passed_checks": 10,
+      "run": 42568344984,
+      "nonce": "cf24e96fbf9e9b5cb0eca865eb3351d7",
+      "pre_receipt": 6733056599,
+      "result": "FAIL_CONCURRENT_OWN_DOCUMENT_WORKER_COUNT",
+      "passed_checks": 8,
       "cleanup": "QUARENTENA_VERIFICADA_BOTH_JOBS_AND_INDEPENDENT_SQL",
       "natural_jwt_expiry": "NOT_EXECUTED",
       "certified": false
@@ -2717,7 +2717,8 @@
       "consumed_nonces": [
         "06451483d0fec06da22eebfaed900607",
         "662bb3fea781644f1b4f065eef0511a4",
-        "440a5148ef4798ec38372201f9554691"
+        "440a5148ef4798ec38372201f9554691",
+        "cf24e96fbf9e9b5cb0eca865eb3351d7"
       ]
     },
     "material_history": [
@@ -2862,5 +2863,24 @@
     "focal_tests": 136,
     "review": "APPROVED_NO_FINDINGS",
     "behavior_unchanged": true
+  },
+  "copilot_worker_barrier_fix": {
+    "state": "GATE_BEFORE_SOURCE",
+    "failed_run": 42568344984,
+    "artifact": 13652277702,
+    "artifact_sha256": "61d50dd0ae3726d57ac6245121a134f6058fbb6bc97144ecdd7d237f95a9c287",
+    "cause": "document returns after embedding eligibility while own extrair_documento AI worker still active; legitimate non-chat return changes all-own-org counts during denied JWT",
+    "jwt_forged_status": 401,
+    "jwt_branch": "GATEWAY_ES256",
+    "chat_return_at": "2026-11-09T05:38:19.806348Z",
+    "worker_return_at": "2026-11-09T05:38:20.697839Z",
+    "worker_finished_at": "2026-11-09T05:38:20.792919Z",
+    "scope": "runner only: bounded read-only own org/contract/document jobs/queues barrier before first query; all job stages concluded and own queue empty, fail closed on timeout; preserve complete counts",
+    "no_worker_change": true,
+    "no_global_invocation": true,
+    "no_count_filter": true,
+    "no_security_change": true,
+    "red_green_required": true,
+    "certified": false
   }
 }
