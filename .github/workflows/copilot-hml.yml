@@ -21,7 +21,7 @@ on:
         required: true
         type: string
       restore_run_id:
-        description: Same SHA main push Restore and backup run
+        description: Same SHA canonical main Restore and backup run
         required: true
         type: string
       edge_source_sha256:
