@@ -2400,7 +2400,9 @@
     "cursor_max_bytes": 2048,
     "any_ineligible_source_redacts_entire_assistant": true,
     "persisted_risk_flags": true,
-    "certified": false
+    "certified": false,
+    "requires_restore_trigger_pr_merged_before_source": true,
+    "requires_historical_source_recheck_after_provider": true
   },
   "copilot_hml_proof_gate": {
     "state": "PLAN_ONLY_NO_RUNNER_SOURCE",
@@ -2435,6 +2437,11 @@
     "cleanup_independent_job_required": true,
     "certified": false,
     "receipt_frontend_repository": "contaos999999/contaos-hml-control",
-    "receipt_requires_same_frontend_pr_and_exact_head": true
+    "receipt_requires_same_frontend_pr_and_exact_head": true,
+    "proof_modes": [
+      "api_c13",
+      "full_ui"
+    ],
+    "api_mode_requires_frontend_checkout_or_c13_freshness": false
   }
 }
