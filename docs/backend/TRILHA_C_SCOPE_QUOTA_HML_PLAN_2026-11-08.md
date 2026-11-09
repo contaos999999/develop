@@ -334,3 +334,14 @@ Escopo de BUILD posterior: somente supabase/tests/copilot_hml.mjs e estes dois d
 Gate documental antes de fonte, RED/GREEN preservados, revisão independente, CI/Restore/backup no HEAD exato e guards. Rollback via revert da alteração de runner, sem tocar segurança ou provas. API pausada e fixtures false até retomada documental posterior; nonce662bb3fea781644f1b4f065eef0511a4/PRE6731497251 consumidos. Preservar45PASS e cleanup, exigir novo PRE/nonce e controles finais sem promover prova anterior a PASS.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/A visual; três caminhos fechados, delta mínimo do harness, sem Lovable/deploy. C13/P0 não certificados.
+
+
+## Retomada API após correção SDK integrada, 09/11/2026
+
+Gate199 integrado9b1a885a7d4467c774d2dce35a0c869a164c7472; BUILD200 HEADdfe4338f8dd0e2db1ab53cf5dcdfb3e80f7bf07c integrado8cdd98a5035f7a365ece5c8e6f0e49d8146e472c. Runnerblob57db8fce325f29e1e64ef15a46e64aeda1e9cff9 SHA2564cf02673a0751acfbef1d04f858c9176bb37ce50e4336a9d6ebcc71d39e9e1f8; Edgev5/fonte8757464c.../bundle66cad55a... inalterados. REDfc047b59 reproduzido com SDKreal, GREENselftest eSDKoficial2.118.0/HTTP403/session_not_found,554/554unit e10guards PASS, revisão independente semfindings. CI42564838412/Restore42564838449 SUCCESS nosdoisjobs128988997761/128988998118; artefatos13650877985 SHA256c77a1e98821a2a0b9eed747dc9559f3f22bd97c58cbeae45ed1af805aea09d84 e13650752493 SHA2560dad2212bb5166eeb76c6ecc2014506a0700d21e8a8fdcccf8b571e68fd98eff.
+
+Readback SQL independente do nonce662bb3fea781644f1b4f065eef0511a4 confirmou4usuários todosbloqueados/0sessões/0vínculos/0Masterativos/2organizaçõesinativas/0jobs/0processamentospendentes.45checks materiaisPASS do ensaio42556492600 preservados, incluindo RLS/tenancy/quota/histórico/3turnosOpenAI; erro posterior de classificação não promove o conjunto aPASS. Expiração JWT natural ainda pendente.
+
+Retomada documental somenteapi_c13, mesmosbudgets194:4identidades/2orgs,3turnosOpenAIA,2reservascontroladas,1fallbackA,6fallbacksB/sétimonegado; semfrontend/UI/novoDeploy/DDL/RLS/Authconfig. Exigir guards/Restore/backup canônicos na main final e novos PRE/nonce; ambosnonces06451483d0fec06da22eebfaed900607/662bb3fea781644f1b4f065eef0511a4 ePREs6731129800/6731497251 consumidos. SDKcontractoffline devepassarantesadmin; erro de transporte/5xx não é revogação. JWToriginal expira naturalmente, semrefresh/TTL/claims alterados. Cleanupindependente e pós-readback imutável obrigatórios; resultado máximo API_PASS_UI_PENDING. Fonte/harness congelados nesta retomada. P0/C13UI continuamnão certificados.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/A visual; preservarA/B/PROD, semrepetição deimplementações certificadas ou bypass.
