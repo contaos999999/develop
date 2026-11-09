@@ -1,13 +1,10 @@
 {
-  "id": "C-CHAT-003-SCOPED-ADMIN-EDGE-BUILD-20261109",
-  "title": "BUILD Edge: leitura interna estritamente escopada após Gate191",
-  "status": "ativa",
-  "phase": "BUILD_C13_SCOPED_ADMIN_READ",
-  "context_pack_version": "4.1",
   "context_read_acknowledged": true,
+  "previous_task_snapshot_commit": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
   "context_read_acknowledged_at": "2026-11-09",
-  "context_read_by": "Codex revisão independente:25canônicos00..20/blobs25/25,AGENTS,P0,manifesto,PLAN187f29c4440 eGATE138 lidos",
-  "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
+  "prompt_policy": {
+    "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE"
+  },
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
     "01_PRD_MESTRE_4_1.md",
@@ -35,7 +32,369 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Adaptar somente Edge/runtime à negação rawchat; SQL/RLS em PR separado, semHML.",
+  "auth_changes_allowed": false,
+  "storage_changes_allowed": false,
+  "storage_test_fixtures_allowed": false,
+  "rbac_inventory_reconciliation": {
+    "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
+    "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
+    "previous_guard_failure": "42305029003: arquivo documental fora da allowlist",
+    "current_evidence": "Contagens históricas não substituem provas posteriores de RBAC ou certificação V1"
+  },
+  "version_wrapper_guard": {
+    "state": "RESUME_PENDING_VERIFIED_HML",
+    "signature": "public.adicionar_versao_documento_contrato(uuid,uuid,text,text)",
+    "old_body_md5": "6d0c5926f4b25fd0e9562b0c010174ef",
+    "private_body_md5": "10698cb96e7de1de5a88b25960b341e5",
+    "migration": "20261108122815_fix_document_version_wrapper.sql",
+    "planned_build_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md",
+      "supabase/migrations/20261108122815_fix_document_version_wrapper.sql",
+      "supabase/tests/upload_document_version_wrapper.test.mjs",
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/hml_acceptance.sql",
+      "supabase/tests/p0_crud_global_hml.py",
+      "supabase/tests/p0_crud_global_protocol.test.mjs"
+    ],
+    "only_product_delta": "SECURITY DEFINER on exact existing public wrapper; preserve body/owner/search_path/ACL/private RBAC",
+    "no_prod": true,
+    "no_frontend": true,
+    "no_edges": true,
+    "gate_pr": 163,
+    "gate_merge": "b7ea3d8e6605f5a4636c24ae36731f2efd471e5a",
+    "migration_sha256": "da346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f",
+    "local_tests": 343,
+    "pre_auth_cases": 33,
+    "real_rpc_sql_cases_pending": 13
+  },
+  "document_material_resume": {
+    "state": "PENDENTE_DEPENDENCIA_164_HML_E_CI_PROPRIO",
+    "backend_source": "601922fbf59accc7606b8ce4c697b6ece961f23e",
+    "pr139": {
+      "head": "2fcd7bae534e070607410689e5b582c2a142e581",
+      "merge": "a58689e1cd0d414abd503e674832aa4a1e4b2c37",
+      "guard": 42449196158,
+      "restore": 42449196348,
+      "probe": 42449196146,
+      "probe_artifact": 13604378113,
+      "probe_sha256": "ef57f6f10fbc9754f9c44e8646cf906a1cf24379ef3188421c0f5a6a32b38366",
+      "independent_review": 5816705849
+    },
+    "concurrent_pr145": {
+      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
+      "head": "a475479dcd6853da22a70026a9649e579077010c",
+      "merge": "b8003019fe937c8dad436fae3a0334aee23f2453",
+      "guard": 42449646955,
+      "restore": 42449952690,
+      "third_origin_gate": 144
+    },
+    "hml": {
+      "project": "gklhhhyosgasnyoxlrui",
+      "upload_version": 8,
+      "download_version": 6,
+      "verify_jwt": true,
+      "source_parity": "EXACT_OFFICIAL_FILE_CONTENT_MATCH_CURRENT_INTEGRATED_SOURCE",
+      "upload_bundle_sha256": "940e854c213c399c0f5c08d99278f8bb6a8f4d3676acc189bb5e1a67fbd3d5a4",
+      "download_bundle_sha256": "d641c940614865bcbe6eb0b75c8e95a0531b69f62a6d64ff0183fd18c09be025",
+      "original_origins_http_cases_passed": 12,
+      "negative_origin_method_header_and_no_jwt_passed": true
+    },
+    "proof_partition": {
+      "published_txt_first": 1,
+      "local_uploads": 4,
+      "files": 5,
+      "documents": 3,
+      "versions": 5,
+      "published_frontend_head": null,
+      "published_source_parity": "NAO_VERIFICADA",
+      "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269"
+    },
+    "limits": {
+      "per_file_seconds": 300,
+      "total_seconds": 900,
+      "timer_starts_before_published": true
+    },
+    "no_global_worker_invocation": true,
+    "own_quarantine_and_receipts_only": true,
+    "new_ddl_or_auth_storage_configuration": false,
+    "global_complete": false,
+    "v1_certified": false,
+    "prod": false,
+    "local_tests": 341,
+    "new_safety_regression": "Expired global deadline during backend proof blocks published credentials and local uploads",
+    "trigger": "Existing protocol test path triggers Restore PR/push and public-probe PR; no workflow changes or fabricated events",
+    "previous_blocker": {
+      "pr": 147,
+      "known_failure": "P0001_CONFIRMAR_UPLOAD_ARQUIVO_EXTENSION",
+      "ownership": "OTHER_EXECUTOR_MIGRATION_NO_DUPLICATE",
+      "independent_hml_select_cases": 7,
+      "material_never_started": true
+    },
+    "sql_repair": {
+      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
+      "pr": 147,
+      "head": "5297f1316b4a8d1fbfaeff0330f195da3300cdf8",
+      "merge": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
+      "migration_version": "20261108053000",
+      "canonical_deploy_run": 42450754658,
+      "canonical_deploy_state": "SUCCESS",
+      "hml_history_statement_count": 1,
+      "hml_private_body_md5": "a0c3d54699ca5ac54e0caf718b7426d1",
+      "hml_public_wrapper_body_md5": "2671383869a4df20e454b7b6a7556261",
+      "acl_search_path_security_preserved": true,
+      "material_proof": "PENDENTE"
+    },
+    "document_wrapper_repair": {
+      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
+      "gate_prs": [
+        149,
+        151
+      ],
+      "build_pr": 150,
+      "head": "46a7b821a4e06cf5b5162513c82e3afc5d9b93a2",
+      "state": "INTEGRADO_APLICADO_HML_VERIFICADO_READONLY",
+      "first_restore_failure": 42451142640,
+      "first_restore_failure_artifact": 13605617457,
+      "first_restore_failure_sha256": "8733dbc0a9e3fb7d55ca4098ab65bd66f42176ad6cf22c22ddbb45b529039878",
+      "expected_public_body_md5": "76a15744ab7c8e4e2fb11f3e6477e661",
+      "expected_private_body_md5": "4bd3d0edebe2522b9ced4e1d6c482e9d",
+      "independent_actual_catalog_helper_cases": 12,
+      "anon_execute_must_remain": false,
+      "private_authenticated_execute_must_remain": false,
+      "merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
+      "guard": 42451502833,
+      "restore": 42451502838,
+      "canonical_deploy_run": 42451722019,
+      "canonical_deploy_state": "SUCCESS",
+      "migration_version": "20261108054500",
+      "migration_sha256": "5798d972d1592b48c25139e7e489e900831af8fe3ce74c9057b1da7fadbb0f5d",
+      "hml_history_statement_count": 1,
+      "public_definer": true,
+      "private_definer": true,
+      "owner_search_path_bodies_and_acl_preserved": true,
+      "material_proof": "PENDENTE"
+    },
+    "previous_local_tests": 323,
+    "independent_review": "341/341 Node,10 guards,diff PASS; sem Critical/Important no HEAD reancorado; nova CI obrigatória",
+    "latest_actual_receipt": {
+      "head": "ce30d485518b2b077575fc967746ea2000a9da92",
+      "run": 42479943135,
+      "job": 128729514650,
+      "state": "FAIL",
+      "artifact": 13616839267,
+      "artifact_sha256": "1119397b14c337aacf5add6bf011f256c113a7f006ef1d97d4a85fa49196e9b9",
+      "published_smoke": "PASS_SMOKE",
+      "published_modules": 114,
+      "published_frontend_head": null,
+      "published_source_parity": "NAO_VERIFICADA",
+      "local_stage": "DOCUMENT_LOCAL_TXT_V2_WAIT_REGISTER_DOCUMENT",
+      "version_register_http": 403,
+      "cleanup": "QUARENTENA_VERIFICADA",
+      "own_users": 4,
+      "preserved_files": 3,
+      "active_jobs": 0,
+      "sql_independently_confirmed": true,
+      "global_complete": false
+    },
+    "retry_dependency": {
+      "pr": 164,
+      "head": "4705cd45bf8f7f9fba23c0fa066f0c5da938b14b",
+      "migration": "20261108122815",
+      "migration_sha256": "da346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f",
+      "must_be_integrated_applied_verified_before_this_merge": true,
+      "new_nonce_only": true,
+      "forbidden_reuse_nonce": "949b267631c24181b8edb34b8563f9fa",
+      "no_backend_product_delta_vs_164": true,
+      "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
+    }
+  },
+  "database_test_fixtures_allowed": false,
+  "copilot_raw_read_rls_gate": {
+    "legacy_deny_only_prompt_versions": [
+      "copiloto-temporal-pt-BR-v2",
+      "copiloto-openai-rag-v1",
+      "copiloto-temporal-pt-BR-v3-fenced",
+      "copiloto-openai-rag-v2-fenced"
+    ],
+    "remote_execution_allowed": false,
+    "migration_sha256": "dd20e79993b6faffc96bb001b1dd119b164b60b7e80fae36846c017bb368f10c",
+    "raw_chat_read": "DENY_AUTHENTICATED_MESSAGES_SOURCES_CHAT_RETURNS_ONLY",
+    "non_chat_returns": "PRESERVE_EXISTING_ORG_CONTRACT_RLS",
+    "reanchored_main": "290613c977efb16fe512980db96a276dd897f97d",
+    "approved_helper": {
+      "schema": "privado",
+      "name": "copilot_retorno_e_chat",
+      "args": "p_id_retorno uuid, p_id_consulta uuid",
+      "owner": "postgres",
+      "definer": true,
+      "config": [
+        "search_path=\"\""
+      ],
+      "language": "sql",
+      "returns": "boolean",
+      "auth_exec": true,
+      "anon_exec": false,
+      "service_exec": false,
+      "public_exec": false,
+      "body_md5": "00d8c4583b2b5bb27ad872cd370dffba",
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "privilege": "EXECUTE",
+          "grantable": false
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "EXECUTE",
+          "grantable": false
+        }
+      ]
+    },
+    "gate_pr": 191,
+    "native_red": {
+      "head": "04298775d54d5b283f17e856b04cbf0c6807d3a1",
+      "run": 42547852152,
+      "job": 128936642806,
+      "assertion": "COPILOT_RAW_RLS_RED",
+      "leaks": 10,
+      "artifact": 13643704961,
+      "artifact_sha256": "bab3a2cdeb20849ef55f7b163e8860fc7de8e6b7382b45887edf96c1c9eb845a"
+    },
+    "concurrent_c13": {
+      "pr": 189,
+      "activation_head": "0af1a9dbff22644e09b50f4806e5e02b955a8813",
+      "activation_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd",
+      "rule": "Preserve ledgers; reconcile manifest structurally after exact PR189 HEAD freezes, never overwrite concurrent task or copy source under this PLAN.",
+      "integrated_commit": "290613c977efb16fe512980db96a276dd897f97d",
+      "state": "PARTIAL_MERGE_NOT_CERTIFIED_REQUIRES_SUCCESSOR"
+    },
+    "required_gates": [
+      "independent plan review",
+      "CI exact GATE HEAD and coordinated integration",
+      "separate BUILD activation",
+      "native RED/GREEN isolated SQL",
+      "full catalog exact policy/helper ACL/body checks",
+      "C13 runtime causal admin scoping and source revocation",
+      "regression non-chat A/B",
+      "Restore rebuild and synthetic backup same HEAD",
+      "source review and CI exact HEAD",
+      "HML separately authorized coordinated gate"
+    ],
+    "prod": false,
+    "gate_head": "2bea085a63f192ab3f0b2e7246f9ab80d717ece4",
+    "gate_ci": 42547397969,
+    "reanchored_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd",
+    "integrated_gate_commit": "eea93e73834ab8bbb92fc7738e6b2a7250b00cb7",
+    "migration_path": "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
+    "base_head": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
+    "cli_version": "2.122.0",
+    "empty_skeleton_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sql_owner": "review_c13_backend",
+    "classifier_conditions": [
+      "consulta namespace c_chat_v1",
+      "mensagens_copiloto.id_retorno_modelo=p_id_retorno",
+      "mensagens_copiloto.id_consulta_semantica=p_id_consulta when non-null",
+      "deny-only exact known chat prompt markers covering orphan legacy before assistant message"
+    ],
+    "edge_owner": "backend_cors_runtime",
+    "private_classifier": "privado.copilot_retorno_e_chat(p_id_retorno uuid,p_id_consulta uuid) returns boolean",
+    "base_active_task_blob": "1f98e4da6af4fbba4c89533f773bbf519398c74a",
+    "state": "EDGE_BUILD_AUTHORIZED_SQL_RLS_SEPARATE_PR",
+    "no_source_authorization_by_this_manifest": true,
+    "build_allowed_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+      "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
+      "supabase/tests/copilot_scope_quota.sql",
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/copilot_catalog.test.mjs",
+      "supabase/functions/copilot-query/index.ts",
+      "supabase/tests/copilot_openai_contract.test.mjs"
+    ],
+    "approved_policies": [
+      {
+        "schemaname": "public",
+        "tablename": "retornos_modelo",
+        "policyname": "copilot_raw_chat_select",
+        "permissive": "RESTRICTIVE",
+        "roles": [
+          "authenticated"
+        ],
+        "cmd": "SELECT",
+        "qual": "(NOT privado.copilot_retorno_e_chat(id, id_consulta))",
+        "with_check": null
+      },
+      {
+        "schemaname": "public",
+        "tablename": "mensagens_copiloto",
+        "policyname": "copilot_raw_chat_select",
+        "permissive": "RESTRICTIVE",
+        "roles": [
+          "authenticated"
+        ],
+        "cmd": "SELECT",
+        "qual": "false",
+        "with_check": null
+      },
+      {
+        "schemaname": "public",
+        "tablename": "fontes_resposta_copiloto",
+        "policyname": "copilot_raw_chat_select",
+        "permissive": "RESTRICTIVE",
+        "roles": [
+          "authenticated"
+        ],
+        "cmd": "SELECT",
+        "qual": "false",
+        "with_check": null
+      }
+    ],
+    "metadata_evidence": {
+      "project": "gklhhhyosgasnyoxlrui",
+      "checked_at": "2026-11-09",
+      "user_rows_read": false,
+      "all_four_tables_rls": true,
+      "all_four_authenticated_select": true,
+      "all_four_anon_select": false,
+      "retornos_policy": "org+contract only; no owner/session/source predicate",
+      "messages_sources_policy": "org+own session only; no current source eligibility predicate"
+    },
+    "gate_merge": "eea93e73834ab8bbb92fc7738e6b2a7250b00cb7",
+    "inherited_sql_193_commit": "19cd7b520d744a247c625949b21a0fd5adf0ba57",
+    "combined_source_owners": {
+      "Edge/runtime": "backend_cors_runtime",
+      "SQL/catalog": "review_c13_backend"
+    }
+  },
+  "copilot_c13_history_gate": {
+    "state": "BUILD_AUTHORIZED_AFTER_GATES_187_188",
+    "source_base": "8dc073d7ad4344231f99169a2180465a3354fe4c",
+    "edge_integrated_commit": "635c46dcd04c344d005a5cee8ca6c1cb0a8593dd",
+    "edge_source_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
+    "fixture_snapshot_integrated_commit": "8dc073d7ad4344231f99169a2180465a3354fe4c",
+    "build_allowed_paths": [
+      "docs/tasks/active-task.json",
+      "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+      "supabase/functions/copilot-query/index.ts",
+      "supabase/tests/copilot_openai_contract.test.mjs"
+    ],
+    "ddl": false,
+    "page_default": 20,
+    "page_max": 50,
+    "history_order": "criado_em DESC,id DESC",
+    "cursor_preserves_pg_microseconds": true,
+    "history_context_max_messages": 12,
+    "history_context_max_utf8_bytes": 8000,
+    "response_max_utf8_bytes": 131072,
+    "cursor_max_bytes": 2048,
+    "any_ineligible_source_redacts_entire_assistant": true,
+    "persisted_risk_flags": true,
+    "certified": false,
+    "requires_restore_trigger_pr_merged_before_source": true,
+    "requires_historical_source_recheck_after_provider": true,
+    "restore_trigger_integrated_commit": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63"
+  },
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
@@ -46,88 +405,7 @@
     "supabase/functions/copilot-query/index.ts",
     "supabase/tests/copilot_openai_contract.test.mjs"
   ],
-  "forbidden_paths": [
-    "src/**",
-    "public/**",
-    "AI_CONTEXT_MANIFEST.md",
-    "PROD/**"
-  ],
-  "database_changes_allowed": false,
-  "rls_changes_allowed": false,
-  "edge_function_changes_allowed": true,
-  "auth_changes_allowed": false,
-  "storage_changes_allowed": false,
-  "authorization": {
-    "by": "titular",
-    "date": "2026-11-08",
-    "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
-  },
-  "brand_context": "ContaOS Brand v1.0",
   "prompt_000_brand_01_read": true,
-  "prompt_policy": {
-    "required_section": "ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE"
-  },
-  "prompt_crosswalk": {
-    "regular_prompt_id": "31",
-    "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
-    "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
-    "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
-    "atomic_original_sha256": "d9faaae47de4b697b18ad7fb71e4738384514936813cd5b18779f4cb8aed83b8",
-    "archive_sha256": "5ee115d12e263d98068288b6bb722f5f303f2d19e1e4c0b5e930e69da03621da",
-    "regular_range_verified": "00-99 (100/100)",
-    "atomic_range_verified": "000-096 (97/97)",
-    "direct_atomic_ids": [
-      "000",
-      "001",
-      "002",
-      "004",
-      "005",
-      "015",
-      "016",
-      "017",
-      "018",
-      "019",
-      "087",
-      "088"
-    ],
-    "additional_transversal_atomic_ids": [
-      "089",
-      "090",
-      "091",
-      "092",
-      "093",
-      "094",
-      "095",
-      "096"
-    ],
-    "direct_requirement_ids": [
-      "V1-CON-001",
-      "V1-CON-002",
-      "V1-CON-004",
-      "V1-CON-005",
-      "V1-DOC-001",
-      "V1-DOC-002",
-      "V1-DOC-003",
-      "V1-DOC-004",
-      "V1-DOC-005",
-      "NFR-003",
-      "NFR-004"
-    ],
-    "additional_transversal_requirement_ids": [
-      "NFR-005",
-      "NFR-007",
-      "NFR-008",
-      "NFR-009",
-      "NFR-010"
-    ],
-    "status": "PLAN_PROVA_PARCIAL_V110_SEM_CERTIFICACAO_DOS_ATOMICOS",
-    "source_evidence_missing": false,
-    "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
-    "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
-  },
-  "previous_task_id": "C-CHAT-002-RESTORE-TRIGGERS-BUILD-20261109",
-  "previous_task_snapshot_commit": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
-  "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
     "CAS de execução, resultado e hash; 409 após concorrência",
@@ -138,8 +416,6 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "TDD adminread com JWT/RLSsessãoown e permissões antes de conteúdo; revisão/CI conjunta com SQLRLS separado antesdeploy.",
-  "database_change_scope": "PLAN somente; migration nova CLI identificada, corpo vazio fora do repositório. Migration137 aplicada imutável.",
   "evidence": {
     "test_pr": 52,
     "valid_assertions": 133,
@@ -381,283 +657,6 @@
       "frontend_local_tests": 1128
     }
   },
-  "restore_synthetic_plan": {
-    "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
-    "context_pack_version": "4.1",
-    "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
-    "scope": "Somente runner local GitHub Actions: duas instâncias Supabase CLI sequenciais, dados de uma organização fictícia em public.organizacoes; zero HML remoto/PROD/DDL externo",
-    "allowed_paths": [
-      ".github/workflows/restore-isolado.yml",
-      "docs/backend/P0_V1_RESTAURACAO_SINTETICA_PLAN_2026-11-06.md",
-      "scripts/p0-v1-synthetic-data-restore.sh",
-      "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md"
-    ],
-    "authorization": "Titular autorizou fechamento integral V1 sem PROD; PLAN antes do BUILD; sem mudança de Auth/RLS/Edge/Storage.",
-    "evidence_requirement": "PR PLAN CI verde + merge; PR BUILD CI Zero-Drift e restore job green + script/sha, row/rls/migration hashes, cleanup, resultado fiel.",
-    "last_verified_build_merge": "0b790304ae3fd7d8e44dd6cfca1ca6e0a9a64a7f",
-    "zero_drift_run": "42168969380",
-    "restore_run": "42168969390",
-    "artifact_id": "13480626051",
-    "criteria_proved": {
-      "one_synthetic_row_restored": true,
-      "distinct_local_containers": true,
-      "migration_versions_matching": 126,
-      "rls_matching": true,
-      "row_sha256_matching": true,
-      "cleanup_verified": true
-    },
-    "scope_limit": "PASS apenas restore de uma tabela sintética com migrations locais; RPO/RTO/PITR, Storage, restore integral HML e disponibilidade NÃO VERIFICADOS",
-    "prior_failure": "run42168549551: second container ID stale after db reset; fixed in 5cffdd1028; failure preserved"
-  },
-  "rbac_inventory_reconciliation": {
-    "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
-    "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
-    "previous_guard_failure": "42305029003: arquivo documental fora da allowlist",
-    "current_evidence": "Contagens históricas não substituem provas posteriores de RBAC ou certificação V1"
-  },
-  "crud_cadastros_concluido": {
-    "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
-    "deploy": 42314729963,
-    "jwt": 42314717439,
-    "assertions": 50,
-    "passed": 50,
-    "quarantine": {
-      "banned": 4,
-      "sessions": 0,
-      "master": 0,
-      "memberships": 0,
-      "orgs_inactive": 2
-    },
-    "report_sha256": "14a9fc945e6785341df28f768ce4965423565d1a3edb33823e9e75f8d7aef5f8",
-    "frontend_pr": 248,
-    "frontend_merge": "23d120f94e295f8031ade24ab785eaa39343c070",
-    "frontend_ci": 42316728042,
-    "frontend_regression": "1017/1017",
-    "private_ui": "NAO_VERIFICADA"
-  },
-  "auth_change_scope": "Nenhuma configuração, credencial, identidade ou sessão alterada; somente consulta de metadados públicos de catálogo.",
-  "browser_proof_scope": {
-    "frontend_repository": "contaos999999/contaos-hml-control",
-    "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
-    "environment": "hml",
-    "no_deploy": true,
-    "no_schema_changes": true,
-    "official_auth_fixtures_only": true,
-    "widths": [
-      1440,
-      1280,
-      768,
-      390
-    ],
-    "themes": [
-      "light",
-      "dark"
-    ],
-    "tokens_artifact": false,
-    "separate_gate_required": true,
-    "gate": {
-      "plan_pr": 100,
-      "plan_head": "7e46c6cc4060e294c49027c7b607d1da33961a3a",
-      "plan_merge": "6e53e57ee80ae8506e0acb947553f4fec57acc95",
-      "guard": "SUCCESS",
-      "review": "Fonte frontend exata com CI e ancestralidade antes de execução; nenhum secret no browser; própria sessão GoTrue; finally e always para quarentena; sem deploy ou alteração de backend de produto.",
-      "gate_pr": 101,
-      "gate_merge": "937bd9b0792b57b5e2677223eab95deb74154761"
-    },
-    "red": "node arquivo ainda inexistente, MODULE_NOT_FOUND; não é prova HML",
-    "protocol_self_test": "PASS_LOCAL",
-    "frontend_dependency_pr": 284,
-    "capture_mode": "VIEWPORT_FIXED_DRAWER_TOP_REVIEW_ACTIONS",
-    "frontend_previous_head": "f537dadf9fefca79eb800de10a3b68d4e3fe3a3c"
-  },
-  "timeout_scope": {
-    "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
-    "no_product_changes": true,
-    "no_timeout_increase": true,
-    "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
-    "steps": [
-      "PLAN guard e merge",
-      "GATE separado guard e merge",
-      "instrumentação allowlist de subetapas e HTTP numérico sem payloads",
-      "prova real para localizar falha",
-      "TDD e correção mínima após evidência",
-      "GREEN restore/probe e prova privada/quarentena",
-      "retomar PLAN103 após PASS completo"
-    ],
-    "gate": {
-      "plan_pr": 112,
-      "plan_merge": "4c6cff4196cdda779a436f47fd0875fab319496e",
-      "review": "PASS: subetapas constantes/booleanos/HTTP sem dados privados; negação tenant, waits 30s e cleanup preservados; diagnóstico antes de correção; sem produto/PROD",
-      "gate_pr": 113,
-      "gate_merge": "929ef4b99bb5860b7243504a1557ca1c408fa74b"
-    },
-    "root_cause": {
-      "run": 42390984573,
-      "backend_head": "ea7ea6bdbb9725669daf84d877435fecf6580e7b",
-      "artifact": 13582175253,
-      "artifact_sha256": "1842b6a412780b4b98eadd8f84fa5246f80320f29619e36ff3e2ba7544df3811",
-      "stage": "CROSS_TENANT_LOGIN_REDIRECT",
-      "denied_login_form_bound": false,
-      "login_http_emitted": false,
-      "conclusion": "Segundo login interage com SSR antes do binding React, sem emissão de login; primeiro aguarda binding e funciona."
-    },
-    "red": "self-test: login readiness predicate must exist, actual undefined; depois casos SSR/inexistente/handler inválido/handler real GREEN",
-    "green": "node --check, protocolo self-test e 17 testes guard locais PASS; prova HML pendente",
-    "final_proof": {
-      "state": "PASS",
-      "run": 42391662453,
-      "job": 128460335194,
-      "backend_head": "2943e8ea7e1fa53ecddb70c5614eb0c9e46a5e6e",
-      "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
-      "http_assertions": 40,
-      "browser_assertions": 43,
-      "failed": 0,
-      "artifact": 13581497168,
-      "sha256": "477361181d1dbc5ad0e5a19e1173cb68dec734cc6ad1770bb31b51d2b6a2d704",
-      "cleanup": {
-        "state": "QUARENTENA_VERIFICADA",
-        "own_users": 8
-      },
-      "v1_certified": false
-    }
-  },
-  "workflow_routing_plan": {
-    "failed_run": 42369440188,
-    "failed_job": 128394319186,
-    "cause": "Listas recebeu tarefa V117 e falhou fechado antes de deploy",
-    "scope": "Skip explícito fora da tarefa/fase, sem enfraquecer SHA/hash/CI/cleanup",
-    "gate_separado": true,
-    "paths": [
-      ".github/workflows/p0-crud-listas-hml.yml",
-      ".github/workflows/p0-v117-revisao-hml.yml",
-      ".github/workflows/p0-v117-browser-hml.yml",
-      "supabase/tests/p0_workflow_routing.test.mjs",
-      ".github/workflows/restore-isolado.yml"
-    ],
-    "prod": false,
-    "database": false,
-    "auth": false,
-    "gate": {
-      "pr": 117,
-      "head": "b453b2c75457d29e3272aaaa0f98d8fe5a7b99cb",
-      "merge": "8f48e37317c711c6736a33e9a34421c3967326d3",
-      "guard": "SUCCESS"
-    },
-    "red": {
-      "command": "node --test supabase/tests/p0_workflow_routing.test.mjs",
-      "passed": 4,
-      "failed": 9,
-      "cause": "scope read-only ausente nos3workflows; testes originais de checks/cleanup já PASS"
-    },
-    "phase_mapping": {
-      "list_deploy": "P0-CRUD-LISTAS-20261107/BUILD_EM_VALIDACAO",
-      "review_deploy": "P0-V117-REVISAO-20261107/BUILD_EM_VALIDACAO",
-      "private_browser": "P0-V117-REVISAO-20261107/BUILD_PROVA_PRIVADA_FRONTEND"
-    },
-    "status": "PASS_ESCOPO_ROTEAMENTO",
-    "build": {
-      "pr": 118,
-      "head": "545231b2ea47198b089085c50c38eb77f93f359a",
-      "merge": "2ebb9e3a639ea837430f3d9f1b4e7acfdbb8bb35",
-      "local_suite": {
-        "passed": 30,
-        "failed": 0
-      },
-      "focused": {
-        "passed": 13,
-        "failed": 0
-      },
-      "review": "SemCritical/Important; minor cobertura regex/JS e checkoutrefsemassertion específica registrado",
-      "ci": {
-        "guard": 42393190669,
-        "restore": 42393190805,
-        "public_probe": 42393190673,
-        "all_required_same_head": "SUCCESS"
-      },
-      "main_restore": 42393429340
-    },
-    "live_proof": [
-      {
-        "id": 42393625175,
-        "name": "ContaOS CRUD Listas HML",
-        "jobs": [
-          {
-            "id": 128466217848,
-            "name": "scope",
-            "status": "completed",
-            "conclusion": "success"
-          },
-          {
-            "id": 128466249496,
-            "name": "canonical-deploy",
-            "status": "completed",
-            "conclusion": "skipped"
-          },
-          {
-            "id": 128466249648,
-            "name": "real-jwt",
-            "status": "completed",
-            "conclusion": "skipped"
-          }
-        ]
-      },
-      {
-        "id": 42393625123,
-        "name": "ContaOS Revisão V117 HML",
-        "jobs": [
-          {
-            "id": 128466217768,
-            "name": "scope",
-            "status": "completed",
-            "conclusion": "success"
-          },
-          {
-            "id": 128466247984,
-            "name": "canonical-deploy",
-            "status": "completed",
-            "conclusion": "skipped"
-          },
-          {
-            "id": 128466248525,
-            "name": "real-jwt",
-            "status": "completed",
-            "conclusion": "skipped"
-          }
-        ]
-      },
-      {
-        "id": 42393625096,
-        "name": "ContaOS V117 Navegador Privado HML",
-        "jobs": [
-          {
-            "id": 128466217565,
-            "name": "scope",
-            "status": "completed",
-            "conclusion": "success"
-          },
-          {
-            "id": 128466218545,
-            "name": "public-probe",
-            "status": "completed",
-            "conclusion": "skipped"
-          },
-          {
-            "id": 128466249394,
-            "name": "private-browser",
-            "status": "completed",
-            "conclusion": "skipped"
-          }
-        ]
-      }
-    ],
-    "live_proof_reason": "Três logs scope conferidos: NOT_APPLICABLE_TASK_OR_PHASE: material jobs skipped",
-    "limitations": [
-      "PASS somente roteamento e preservação de controles; nenhuma nova prova funcional de deploy/JWT/HML",
-      "Teste de configuração usa extração restrita de YAML por regex/expressões JS; GitHub validou configuração e skips reais",
-      "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
-    ]
-  },
-  "database_test_fixtures_allowed": false,
   "crud_global_proof": {
     "matrix_repository": "contaos999999/contaos-hml-control",
     "matrix_path": "docs/frontend/auditorias/P0_CRUD_GLOBAL_MATRIZ_2026-11-07.json",
@@ -979,318 +978,238 @@
       "cleanup": "QUARENTENA_VERIFICADA;4users/2org;0objetos/jobs"
     }
   },
-  "storage_test_fixtures_allowed": false,
-  "technical_subtask": {
-    "id": "P0-CORS-DOCUMENTAL-HML-20261107",
-    "phase": "BUILD",
-    "state": "BUILD_INTEGRADO_IMPLANTADO_HML_TRANSPORTE_VERIFICADO",
-    "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
-    "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
-    "frontend_dependency": {
-      "pr": 309,
-      "head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
-      "merge": "b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5",
-      "ci": 42421827969,
-      "lock": 42421827973,
-      "state": "SUCCESS_SAME_HEAD_PUBLIC_SCOPE_ONLY"
-    },
-    "origins": [
-      "http://127.0.0.1:4173",
-      "https://scope-and-approval-keeper.lovable.app"
-    ],
-    "future_build_paths": [
-      "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
-      "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
-      "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
-      "docs/tasks/active-task.json",
-      "supabase/functions/storage-sign-upload/index.ts",
-      "supabase/functions/storage-sign-download/index.ts",
-      "supabase/tests/storage_document_cors.test.mjs",
-      "supabase/tests/p0_crud_global_browser.mjs",
-      "supabase/tests/p0_crud_global_protocol.test.mjs",
-      "supabase/tests/p0_crud_global_hml.py"
-    ],
-    "verify_jwt_must_remain": true,
-    "hml_project": "gklhhhyosgasnyoxlrui",
-    "material_crud_disabled": false,
-    "independent_review": "Sem Critical/Important para PLAN; completed_scopes condicionado a PASS real; reancorar HEAD antes de publicar",
-    "baseline_local_tests": "node --test:60/60 PASS em a672f44",
-    "authorization": "Continuidade expressa do titular para correções HML por PLAN/GATE/BUILD; sem PROD ou ampliação de permissão",
-    "published_source_parity": "NAO_VERIFICADA; smoke separado frontend_head=null, sem substituir quatro provas no pin",
-    "evidence": {
-      "run": 42420832115,
-      "job": 128548730992,
-      "artifact": 13593945672,
-      "sha256": "f9f192a04b0a629ecdb07aa885b7d4dc0768a81020a6086293f814181b53f7d6",
-      "log_window_utc": [
-        "2026-11-07T22:29:00Z",
-        "2026-11-07T22:32:00Z"
-      ],
-      "method": "OPTIONS",
-      "status": 405,
-      "cleanup": "QUARENTENA_VERIFICADA"
-    },
-    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT ou interceptação/mock para converter FAIL em PASS. Contenção nativa DENY e CORS/GET parciais dependem do complemento documental e dos checks próprios.",
-    "proof_partition": {
-      "local_uploads": 4,
-      "published_smoke_uploads": 1,
-      "total_files": 5,
-      "total_documents": 3,
-      "total_versions": 5,
-      "published_frontend_head": null,
-      "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
-      "cleanup": "União exata de recibos e namespace próprio; sem atribuir publicado ao pin"
-    },
-    "gate": "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
-    "plan_merge": "5743453e729362d4fa841aad16b357b9926c5688",
-    "transport_contract": {
-      "methods": [
-        "POST",
-        "OPTIONS"
-      ],
-      "request_headers": [
-        "authorization",
-        "x-client-info",
-        "apikey",
-        "content-type"
-      ],
-      "preflight_success": 204,
-      "unknown_origin_allowed": false,
-      "cookies_allowed": false,
-      "verify_jwt": true
-    },
-    "published_credential_fence": "Backend efetivo deve ser inequivocamente gklhhhyosgasnyoxlrui antes de preencher credenciais; falha/ambiguidade bloqueia. Não confundir com SHA.",
-    "sdk_proof": {
-      "version": "2.118.0",
-      "runtime": "bun install --frozen-lockfile no runner canônico",
-      "source_blobs": [
-        "a92fec00afaa5d81638df2a56bec46c50839fe85",
-        "803f6948701fed3997ce7037d663c1b645cf3465",
-        "8c194c8cb6489db78ed8cd9f98c5c48639e8e69c"
-      ],
-      "local_node_modules_not_pin": "2.119.0"
-    },
-    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea",
-    "popup_safety_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "policy": "DENY_NEW_WEB_CONTENTS",
-      "material_enabled": false,
-      "source_head": "2454c855975fa2e5df4a4d6d97226975989504f8",
-      "source_run": 42436054090,
-      "popup_rendering": "NAO_CERTIFICADO",
-      "partial_proofs": [
-        "EDGE_CORS_UI_REAL",
-        "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
-      ],
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 140,
-      "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
-      "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
-      "build_state": "EM_VALIDACAO",
-      "browser_worker_policy": {
-        "dedicated": "UNEXPECTED_FAIL_CLOSED_HTTP_BLOB_DATA_ZERO_EFFECTS_REQUIRED",
-        "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
-        "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
-      }
-    },
-    "browser_worker_csp_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "APPEND_DOCUMENT_CSP_WORKER_SRC_NONE",
-      "source_head": "f94595306886c358c73400a3a83424344fb75180",
-      "source_run": 42440477002,
-      "artifact": 13600703885,
-      "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
-      "browser_workers": "NAO_CERTIFICADOS",
-      "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 141,
-      "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
-      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO",
-      "build_state": "EM_VALIDACAO_CI_REAL",
-      "local_tdd": {
-        "red": "51PASS/1FAIL helper absent",
-        "green_protocol": 52,
-        "green_full": 258
-      }
-    },
-    "native_destination_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "NATIVE_CONTEXT_PROXY_DENY_EXACT_ORIGIN_BYPASS",
-      "source_head": "2447807580249d57b0e8215c4a078e9b2ae4a0cf",
-      "source_run": 42441727347,
-      "artifact": 13601469706,
-      "sha256": "27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721",
-      "no_forwarding": true,
-      "no_direct_fallback": true,
-      "browser_workers": "NAO_CERTIFICADOS",
-      "unexpected_product_worker": "FAIL",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 142,
-      "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
-      "state": "INTEGRADO_ANTES_BUILD",
-      "build_state": "EM_VALIDACAO_CI_REAL",
-      "local_tdd": {
-        "red": "52PASS/2FAIL proxy helpers absent",
-        "worker_latch_red": "53PASS/1FAIL finalizer absent",
-        "green_protocol": 55,
-        "green_full": 261,
-        "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained",
-        "data_origin_red": "54PASS/1FAIL validator absent"
-      }
-    },
-    "paused_document_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "EXACT_PAUSED_DOCUMENT_FULL_GRAPH_AST_BEFORE_CONTINUE",
-      "source_head": "544026099abbe613b39f8ec0f6142ce47208653b",
-      "source_run": 42444107587,
-      "artifact": 13603076801,
-      "sha256": "a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34",
-      "no_normalization": true,
-      "no_self_hash_without_ast": true,
-      "published_source_parity": "NAO_VERIFICADA",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 143,
-      "gate_merge": "f53304fbdab7570fa0f5167a9bcd0c76cded6be6",
-      "state": "INTEGRADO_ANTES_BUILD"
-    },
-    "paused_document_build": {
-      "state": "EM_VALIDACAO_CI_REAL",
-      "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
-      "local_protocol": 63,
-      "local_full_suite": 269,
-      "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
-      "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
-      "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
-      "material_enabled": false,
-      "global_complete": false,
-      "first_ci": {
-        "head": "7bf439d6dc439ff29c69cd197648363276db0a6b",
-        "run": 42448576211,
-        "artifact": 13604377240,
-        "sha256": "6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2",
-        "state": "FAIL_CHANGED_SCRIPT",
-        "local_red": "failure latch false before awaited native abort; fixed synchronously"
-      },
-      "second_ci": {
-        "head": "49275f778cf2a5551e41be8a3f40dd55bf14f353",
-        "run": 42448737328,
-        "artifact": 13604452311,
-        "sha256": "809fbc88de08da0e2106dbd87b8ab8ebdf3122911de31f9b132148054f4da85f",
-        "state": "FAIL_BEFORE_FIRST_PAUSED_FIXTURE_EVIDENCE",
-        "local_reproduction": "Node inert fetch keeps1idleTCP after1100ms; original fixture server Connection:close drains0 naturally; no socket destroy"
-      },
-      "first_public_success": {
-        "head": "2b2bb2cf172d654966ec76d7764b215a37326d00",
-        "run": 42448929569,
-        "artifact": 13604249723,
-        "sha256": "e3bd0eb6e147afe93991596bfc70d07df39460ecfdf193124b4320b5b8be62e4",
-        "assertions": 12,
-        "document_modules": 114,
-        "loaded_script_hashes": 49,
-        "material_enabled": false
-      },
-      "late_fence_fix": "Finalizers capture original provenance and persist/reject failed snapshot after browser/deny close; RED helper absent then63/63protocol269/269suite"
-    }
-  },
-  "auth_configuration_changes_allowed": false,
-  "vercel_upload_origin_gate": {
-    "phase": "VERIFICADO_HML",
-    "origin": "https://contaos-41-hml.vercel.app",
+  "remaining_certification": {
     "project": "gklhhhyosgasnyoxlrui",
-    "authorization": "Titular determinou resolver upload e executar deploy/teste HML; autorização específica da origem Vercel já usada no HML",
-    "future_build_paths": [
-      "supabase/functions/storage-sign-upload/index.ts",
-      "supabase/functions/storage-sign-download/index.ts",
-      "supabase/tests/storage_document_cors.test.mjs"
+    "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
+    "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
+    "domains_to_run": [
+      "apresentacao"
     ],
-    "pr139_prerequisite": "Reutilizar BUILD139 integrado e checks no mesmoHEAD, sem duplicar harness",
-    "verify_jwt": true,
-    "prod": false,
-    "material_certified": false,
-    "gate_pr": 144,
-    "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
-    "gate_ci": 42449528794
-  },
-  "upload_extension_gate": {
-    "phase": "VERIFICADO_HML",
-    "base": "b8003019fe937c8dad436fae3a0334aee23f2453",
-    "reason": "Titular autorizou corrigir upload HML; reteste real comprova P0001 por extração incorreta da extensão",
-    "future_build_paths": [
-      "supabase/migrations/20261108053000_fix_upload_extension_extraction.sql",
-      "supabase/tests/hml_acceptance.sql",
-      "supabase/tests/upload_extension.test.mjs",
-      "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
-      "docs/tasks/active-task.json"
+    "pending_domains": [
+      "parecer",
+      "apresentacao",
+      "protocolo"
     ],
-    "database_changes_allowed": false,
-    "prod": false,
-    "gate_pr": 146,
-    "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
-    "gate_ci": 42450339687
-  },
-  "upload_document_wrapper_gate": {
-    "phase": "VERIFICADO_HML",
-    "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
-    "authorization": "Titular determinou resolver upload e autorizou correções necessárias no HML; preservar autorização material backend",
-    "future_build_paths": [
-      "supabase/migrations/20261108054500_fix_document_upload_wrapper.sql",
-      "supabase/tests/hml_acceptance.sql",
-      "supabase/tests/upload_document_wrapper.test.mjs",
-      "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
-      "docs/tasks/active-task.json"
-    ],
-    "database_changes_allowed": false,
-    "rls_changes_allowed": false,
-    "auth_configuration_changes_allowed": false,
-    "prod": false,
-    "gate_pr": 149,
-    "gate_merge": "7406e9c187ddb9c788e0b80258d470ec5451ce50",
-    "gate_ci": 42450959313,
-    "catalog_complement": {
-      "phase": "VERIFICADO_CI",
-      "ci_failure_head": "d8d368aceb513ae80c3c86dd0976e7c40905c223",
-      "restore": 42451142640,
-      "future_build_path": "supabase/tests/history_catalog_compare.py",
-      "policy": "Assert exact full prior/approved wrapper metadata records once; substitute only definer False→True in expected copy; retain actual and compare every other field/object without exclusion",
-      "gate_pr": 151,
-      "gate_merge": "ff090938de5a2cd7d8dec856e965a49f2db2ce09",
-      "gate_ci": 42451366023
-    }
-  },
-  "upload_material_proof": {
-    "date": "2026-11-08",
-    "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
-    "build_pr": 150,
-    "tested_head": "46a7b821a4e06cf5b5162513c82e3afc5d9b93a2",
-    "guard": 42451502833,
-    "restore": 42451502838,
-    "deploy": 42451722019,
-    "origin": "https://contaos-41-hml.vercel.app",
-    "contract": "be89ef7e-d839-46c0-9cfb-4da81edf8b74",
-    "file": "8cc6ac08-7f5b-469c-ab50-7b33d5a12379",
-    "document": "525e54fc-feec-4dc0-b540-1510a3c52485",
-    "version": "2ea42a44-db27-4c4e-801f-9fc5227c2458",
-    "sha256": "773eb577ba88a260247803d37dced4f5469e8c39347dd3fe7c58c4d9f4681103",
-    "bytes": 285,
-    "objects": 1,
-    "files": 1,
-    "documents": 1,
-    "versions": 1,
-    "list_after_reload": true,
-    "detail_verified": true,
-    "security_status": "aprovado",
-    "processing": "concluido",
-    "full_v1_certification": false,
-    "prod": false,
-    "before_worker_repair": {
-      "security_status": "pendente",
-      "processing": "na_fila"
+    "no_regression_premise": "Corrigir um domínio não pode regredir o que já funciona; evidência anterior só permanece válida se dependências materiais forem preservadas; qualquer delta exige teste direcionado de regressão.",
+    "preserved_documental": {
+      "tested_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
+      "run": 42502405227,
+      "artifact": 13625479020,
+      "sha256": "aa14586205ad8f133c46e9e2e188c828b95e11f2e82bd9cbc321b6b8337bf8ba",
+      "scope": "DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL",
+      "global_complete": false,
+      "protected_sha256": {
+        "supabase/tests/p0_crud_global_browser.mjs": "6b8f052cd0a3084a145db5c9243e87d22bf1c6b1caf57eb07d701fa079bf74bc",
+        "supabase/tests/p0_crud_global_hml.py": "f337dd6857c0185c00b92e13f71641d1faf5d35c15a712404eb6b64d2c4ea055",
+        "supabase/tests/p0_crud_global_protocol.test.mjs": "1d16584f3a0571471d09ec71e924c9b21fb79b2a00b6b32682baa96b620b595a",
+        "supabase/functions/storage-sign-upload/index.ts": "f1653f2de4e7300f3e75c3427819c721a6453bfdd6f83f41af9475c33774f97c",
+        "supabase/functions/storage-sign-download/index.ts": "538f3a014316e05f44ecd47f113080ee6ab00a2aaad1b2cf3bf6c76b7c1cda9a"
+      }
     },
-    "worker_build_pr": 155,
-    "worker_deploy": 42475332474
+    "authorization": "Titular autoriza executar automaticamente plano único e correções, sem novas aprovações rotineiras; HML apenas, sem alterar frontend317/PROD, sem dispensar CI/segurança.",
+    "global_complete": false,
+    "preserved_domain_runs": [
+      {
+        "domain": "base_normativa",
+        "head": "43b3dfcbf7998fd2b4a1beeeb9a7116236d30559",
+        "run": 42506755544,
+        "job": 128810963312,
+        "artifact": 13627767634,
+        "sha256": "d06e144e38d17567be0ccde23b4e917532df98fbd00584c16690ac53ebe9d979",
+        "assertions": 38,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "competencias",
+        "head": "43b3dfcbf7998fd2b4a1beeeb9a7116236d30559",
+        "run": 42506755544,
+        "job": 128810963309,
+        "artifact": 13627369092,
+        "sha256": "c970d54f36b32112f63e002072fbea49a314bdc5df6d794f79688f03cd883712",
+        "assertions": 39,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "orcamento",
+        "head": "f8f6b414e63761c21f95e6839ba757d49786b808",
+        "run": 42507974749,
+        "job": 128814675501,
+        "artifact": 13628630866,
+        "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26",
+        "assertions": 44,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "regras_preventivas",
+        "head": "d82d13c2bcd81474ae6cdcc00a12a84407d26bb6",
+        "run": 42508721712,
+        "job": 128816954505,
+        "artifact": 13627484987,
+        "sha256": "d610b22fc618fb01a53582f042c5b6079075d3ca673eaefe46b9629e19c0c603",
+        "assertions": 29,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "documentos_competencia",
+        "head": "d82d13c2bcd81474ae6cdcc00a12a84407d26bb6",
+        "run": 42508721712,
+        "job": 128816954467,
+        "artifact": 13628801647,
+        "sha256": "758062dc0e58c4d7b5d80fb7d42c88cfb1a4a115dbc948d1208cebc997345816",
+        "assertions": 47,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "documento_detalhe",
+        "head": "7c8fdb1644058831cc2a7d1bacd931eee18cd997",
+        "run": 42514704055,
+        "job": 128835084228,
+        "artifact": 13631305509,
+        "sha256": "856dfbb70d545fb08eab96cb24c1b92267493408712d45e1c1bee4027eb205cf",
+        "assertions": 59,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA"
+      },
+      {
+        "domain": "historico",
+        "head": "d063b0b65362fdd71473571dd1069866c9263172",
+        "run": 42516277443,
+        "job": 128839908915,
+        "artifact": 13631248955,
+        "sha256": "eb1b05adfe863a203b964f8437baa55c2f214a84c11e6bb921803fe9a56ec8f5",
+        "assertions": 41,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA",
+        "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
+      },
+      {
+        "domain": "administracao",
+        "head": "d063b0b65362fdd71473571dd1069866c9263172",
+        "run": 42516277443,
+        "job": 128839908936,
+        "artifact": 13631043127,
+        "sha256": "f71183ce00a135f2f15e6813191d92858b5226cf2024f9aee5596e25c3cfba8d",
+        "assertions": 56,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA",
+        "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
+      },
+      {
+        "domain": "documento_detalhe",
+        "head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
+        "run": 42519982869,
+        "attempt": 2,
+        "job": 128852148966,
+        "artifact": 13632763978,
+        "sha256": "4d0acc715960ab6ac1dab3ce2a7dbfbdab0228fa911d729b24cfbfc80f3480ce",
+        "assertions": 59,
+        "state": "PASS_DOMAIN",
+        "cleanup": "QUARENTENA_VERIFICADA",
+        "ai_worker_version": 5,
+        "ai_worker_source_sha256": {
+          "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
+          "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
+        }
+      }
+    ],
+    "orcamento_retry": {
+      "pr": 171,
+      "head": "56a080177881b48d487d41057dce4712a2c9454c",
+      "merge": "f8f6b414e63761c21f95e6839ba757d49786b808",
+      "state": "PASS_DOMAIN_44_CHECKS",
+      "prevent_phase2_merge_until_budget_job_terminal": true,
+      "run": 42507974749,
+      "artifact": 13628630866,
+      "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26"
+    },
+    "archived_reviewed_migrations": [
+      {
+        "proof": {
+          "file": "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql",
+          "version": "20261108184219",
+          "sha256": "7d5ea8651d9df4324f78ac029df3155cb71d6178c34866fb495965bfaff40323",
+          "scope": "REVIEWED_METADATA_APPEND_ONLY_NO_HISTORICAL_MUTATION",
+          "gate": "Exact approved HEAD, manifest, guard, Restore/rebuild/backup before official CLI; exact application catalog before and after; only this migration pending; before Auth fixtures"
+        },
+        "merge": "7c8fdb1644058831cc2a7d1bacd931eee18cd997",
+        "state": "APPLIED_AND_EXACT_PARITY",
+        "migration_count": 136,
+        "receipt_artifact": 13631305509,
+        "receipt_sha256": "856dfbb70d545fb08eab96cb24c1b92267493408712d45e1c1bee4027eb205cf",
+        "prior_catalog_sha256": "fa28ac5435af92f9a6b0f935688294be2f679077e612a8e16d7cafcf76152926",
+        "after_catalog_sha256": "fe277a2b54fba16f1b728e6217cb00a1787c6aa411a893dda133f2db532d5937"
+      }
+    ],
+    "remaining_domain_limits": [
+      "backend HML only; source UI parity and manual WCAG not certified",
+      "SMTP delivery not certified; own existing-user invitation lookup only",
+      "synthetic own scope is not real-party regulatory certification",
+      "global_complete stays false until all applicable evidence is verified"
+    ],
+    "catalog_parity_verified": {
+      "head": "d063b0b65362fdd71473571dd1069866c9263172",
+      "restore_run": 42516052448,
+      "restore_artifact": 13631486447,
+      "restore_artifact_sha256": "87afb8e12dcc8c594e2fea14bf21d73da9725fc810ebe3ff96dcdeb1dff84a37",
+      "normalized_sha256": "bed1cc8f7bde59c75f4d0e96468cd42e0fecc312521c93309fd4e046fd70916b",
+      "equivalence_rules": [
+        "POSTGRES_OWNER_IMPLICIT_GRANT_OPTION",
+        "EXACT_HOSTED_DDL_HELPER"
+      ],
+      "raw_expected_sha256": "0cdd256da69c2b24c8b012233b7a775e9601d33239307c3918283b5a161bc48f",
+      "raw_actual_sha256": "fd207fd0020dc5c1520c2708a2a980668c714fc25dc2ae9d11f4ad7115b03f9e",
+      "physical_raw_acl_identity_claimed": false
+    },
+    "affected_domain_regression": [],
+    "uncertified_ai_consumers": [
+      "consulta_semantica (no handler, fail closed)",
+      "extrair_diligencia/revalidar_apontamento/minuta_contestacao/aprendizado_desfecho (contract tests only, material proofs not claimed)"
+    ],
+    "approved_ai_worker_runtime": {
+      "project": "gklhhhyosgasnyoxlrui",
+      "function_slug": "queue-worker-ai",
+      "expected_version": 5,
+      "verify_jwt": false,
+      "source_sha256": {
+        "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
+        "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
+      },
+      "expected_bundle_sha256": "63eed432eef3b7b0a859f5a4a2c73673e2d9a96c2b270f010d58f6bff8d75ff8",
+      "expected_deployed_at": "2026-11-08T20:27:09Z",
+      "origin_backend_head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
+      "origin_receipt_comment_id": 6726699971,
+      "origin_approval": {
+        "project": "gklhhhyosgasnyoxlrui",
+        "function_slug": "queue-worker-ai",
+        "from_version": 4,
+        "expected_version": 5,
+        "verify_jwt": false,
+        "prior_source_sha256": "4dcd7031ee37747fa5aa42a78616ffb682149edafd9a435efff6b009c7b9da14",
+        "prior_bundle_sha256": "7025f81502cd2cda045a8d2149a22d6a543123721bf3796edfdbe2774e6e3b00",
+        "rollback_source_commit": "7f91937419ff4f9ddb1642f5cb4e6f2aaff98ac1",
+        "source_sha256": {
+          "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
+          "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
+        },
+        "gate": "Review and required CI exact HEAD; normal merge and main CI; HML-only AI deployment and exact Management source/version readback with zero active AI jobs; closed JSON receipt in GATE138. runtime-ready blocks before HML environment until unique current-HEAD receipt and same-HEAD push Restore succeed. Resume only failed readiness and dependents through standard GitHub rerun, or explicit exact-HEAD manual dispatch."
+      },
+      "gate": "No deploy. Re-read existing HML Management version/bundle/two sources after current-HEAD CI, require exact origin deployment identity and current source SHA, fresh runtime.v1 receipt bound to current live HEAD/CI. Old HEAD is provenance only, not current authorization."
+    },
+    "archived_ai_worker_deployments": [
+      {
+        "head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
+        "receipt_comment_id": 6726699971,
+        "version": 5,
+        "verified_at": "2026-11-08T20:27:30Z",
+        "deployed_at": "2026-11-08T20:27:09Z",
+        "state": "DEPLOYED_AND_SOURCE_READBACK_EXACT"
+      }
+    ]
   },
   "document_worker_runtime_gate": {
     "phase": "VERIFICADO_HML",
@@ -1544,6 +1463,88 @@
       "prod": false
     }
   },
+  "upload_extension_gate": {
+    "phase": "VERIFICADO_HML",
+    "base": "b8003019fe937c8dad436fae3a0334aee23f2453",
+    "reason": "Titular autorizou corrigir upload HML; reteste real comprova P0001 por extração incorreta da extensão",
+    "future_build_paths": [
+      "supabase/migrations/20261108053000_fix_upload_extension_extraction.sql",
+      "supabase/tests/hml_acceptance.sql",
+      "supabase/tests/upload_extension.test.mjs",
+      "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
+      "docs/tasks/active-task.json"
+    ],
+    "database_changes_allowed": false,
+    "prod": false,
+    "gate_pr": 146,
+    "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
+    "gate_ci": 42450339687
+  },
+  "next_step": "TDD adminread com JWT/RLSsessãoown e permissões antes de conteúdo; revisão/CI conjunta com SQLRLS separado antesdeploy.",
+  "rls_changes_allowed": true,
+  "timeout_scope": {
+    "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
+    "no_product_changes": true,
+    "no_timeout_increase": true,
+    "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+    "steps": [
+      "PLAN guard e merge",
+      "GATE separado guard e merge",
+      "instrumentação allowlist de subetapas e HTTP numérico sem payloads",
+      "prova real para localizar falha",
+      "TDD e correção mínima após evidência",
+      "GREEN restore/probe e prova privada/quarentena",
+      "retomar PLAN103 após PASS completo"
+    ],
+    "gate": {
+      "plan_pr": 112,
+      "plan_merge": "4c6cff4196cdda779a436f47fd0875fab319496e",
+      "review": "PASS: subetapas constantes/booleanos/HTTP sem dados privados; negação tenant, waits 30s e cleanup preservados; diagnóstico antes de correção; sem produto/PROD",
+      "gate_pr": 113,
+      "gate_merge": "929ef4b99bb5860b7243504a1557ca1c408fa74b"
+    },
+    "root_cause": {
+      "run": 42390984573,
+      "backend_head": "ea7ea6bdbb9725669daf84d877435fecf6580e7b",
+      "artifact": 13582175253,
+      "artifact_sha256": "1842b6a412780b4b98eadd8f84fa5246f80320f29619e36ff3e2ba7544df3811",
+      "stage": "CROSS_TENANT_LOGIN_REDIRECT",
+      "denied_login_form_bound": false,
+      "login_http_emitted": false,
+      "conclusion": "Segundo login interage com SSR antes do binding React, sem emissão de login; primeiro aguarda binding e funciona."
+    },
+    "red": "self-test: login readiness predicate must exist, actual undefined; depois casos SSR/inexistente/handler inválido/handler real GREEN",
+    "green": "node --check, protocolo self-test e 17 testes guard locais PASS; prova HML pendente",
+    "final_proof": {
+      "state": "PASS",
+      "run": 42391662453,
+      "job": 128460335194,
+      "backend_head": "2943e8ea7e1fa53ecddb70c5614eb0c9e46a5e6e",
+      "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+      "http_assertions": 40,
+      "browser_assertions": 43,
+      "failed": 0,
+      "artifact": 13581497168,
+      "sha256": "477361181d1dbc5ad0e5a19e1173cb68dec734cc6ad1770bb31b51d2b6a2d704",
+      "cleanup": {
+        "state": "QUARENTENA_VERIFICADA",
+        "own_users": 8
+      },
+      "v1_certified": false
+    }
+  },
+  "database_changes_allowed": true,
+  "edge_build_dependency": {
+    "sql_pr": 182,
+    "head": "aed72f7a095e5d6a552a1ffe5261f7d1d6fe2af7",
+    "restore": 42538570697,
+    "rebuild_job": 128908231330,
+    "backup_job": 128908231416,
+    "state": "SQL_GREEN_NOT_DEPLOYED",
+    "reuse_edge_pr": 180,
+    "reuse_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97"
+  },
+  "context_read_by": "Codex revisão independente:25canônicos00..20/blobs25/25,AGENTS,P0,manifesto,PLAN187f29c4440 eGATE138 lidos",
   "worker_client_attack_surface": {
     "base": "39cb9ef93f319056be4161f344d705ecd5a7ec1f",
     "scope": "Adicionar catálogo read-only ao preflight existente antes de qualquer Auth ou DDL; preserve GATE158, sem modificar branch155",
@@ -1552,506 +1553,6 @@
     "no_secrets_or_queue_rows_read": true,
     "integrated_base": "79aec0002712df1a2262bdee9185cc406ba21eb2",
     "checkpoint_preserved": "a1ecb48546e1298d1d35e4f4e4d8b76d4eb59e57"
-  },
-  "null_pagination_guard": {
-    "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
-    "cli": "2.81.3",
-    "generated_version": "20261108114652",
-    "old_body_md5": {
-      "privado.obter_documentos_competencia_v115": "76611a9a23e0d9bebf09aa1e0aa44093",
-      "public.obter_analise_competencia_v116": "84aaf91cce67651a5cbb3ecd16f8eaa2"
-    },
-    "scope": "Somente rejeitar NULL nos10argumentosinteiros mantendoRBAC/tenant/owner/ACL/assinaturas/payloads",
-    "prod": false,
-    "new_edges": false,
-    "password_leak_protection": "EXCLUDED_BY_USER",
-    "hml_apply_only_after_same_head_checks": true,
-    "ci_install_repair": {
-      "reason": "setup-cli HTTP504 reproduced in attempts1/2",
-      "version": "2.122.0",
-      "source": "official npm supabase@2.122.0",
-      "scripts": "disabled",
-      "all_checks_preserved": true
-    },
-    "verified_receipt": {
-      "head": "2c92956ee331c8929768185a0130137c7758e809",
-      "merge": "601922fbf59accc7606b8ce4c697b6ece961f23e",
-      "guard": 42478754408,
-      "public": 42478754463,
-      "restore": 42478754441,
-      "deploy_hml": 42479062553,
-      "migration": "20261108114652",
-      "migration_sha256": "f3b8150532949b4842a3319f76875a3acbd276387c705d5fd5e4c800e6c7431c",
-      "post_hml_body_md5": [
-        "554d62877bb4482763ef38cf20f2956b",
-        "6f864780e95f9d62113cdcedffb13ccc"
-      ],
-      "owner_acl_search_path_preserved": true,
-      "node": 340,
-      "postgres_predicates": 29,
-      "real_rpc_local_sql": 14,
-      "http_hml_no_credentials": 10,
-      "global_complete": false
-    }
-  },
-  "document_material_resume": {
-    "state": "PENDENTE_DEPENDENCIA_164_HML_E_CI_PROPRIO",
-    "backend_source": "601922fbf59accc7606b8ce4c697b6ece961f23e",
-    "pr139": {
-      "head": "2fcd7bae534e070607410689e5b582c2a142e581",
-      "merge": "a58689e1cd0d414abd503e674832aa4a1e4b2c37",
-      "guard": 42449196158,
-      "restore": 42449196348,
-      "probe": 42449196146,
-      "probe_artifact": 13604378113,
-      "probe_sha256": "ef57f6f10fbc9754f9c44e8646cf906a1cf24379ef3188421c0f5a6a32b38366",
-      "independent_review": 5816705849
-    },
-    "concurrent_pr145": {
-      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
-      "head": "a475479dcd6853da22a70026a9649e579077010c",
-      "merge": "b8003019fe937c8dad436fae3a0334aee23f2453",
-      "guard": 42449646955,
-      "restore": 42449952690,
-      "third_origin_gate": 144
-    },
-    "hml": {
-      "project": "gklhhhyosgasnyoxlrui",
-      "upload_version": 8,
-      "download_version": 6,
-      "verify_jwt": true,
-      "source_parity": "EXACT_OFFICIAL_FILE_CONTENT_MATCH_CURRENT_INTEGRATED_SOURCE",
-      "upload_bundle_sha256": "940e854c213c399c0f5c08d99278f8bb6a8f4d3676acc189bb5e1a67fbd3d5a4",
-      "download_bundle_sha256": "d641c940614865bcbe6eb0b75c8e95a0531b69f62a6d64ff0183fd18c09be025",
-      "original_origins_http_cases_passed": 12,
-      "negative_origin_method_header_and_no_jwt_passed": true
-    },
-    "proof_partition": {
-      "published_txt_first": 1,
-      "local_uploads": 4,
-      "files": 5,
-      "documents": 3,
-      "versions": 5,
-      "published_frontend_head": null,
-      "published_source_parity": "NAO_VERIFICADA",
-      "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269"
-    },
-    "limits": {
-      "per_file_seconds": 300,
-      "total_seconds": 900,
-      "timer_starts_before_published": true
-    },
-    "no_global_worker_invocation": true,
-    "own_quarantine_and_receipts_only": true,
-    "new_ddl_or_auth_storage_configuration": false,
-    "global_complete": false,
-    "v1_certified": false,
-    "prod": false,
-    "local_tests": 341,
-    "new_safety_regression": "Expired global deadline during backend proof blocks published credentials and local uploads",
-    "trigger": "Existing protocol test path triggers Restore PR/push and public-probe PR; no workflow changes or fabricated events",
-    "previous_blocker": {
-      "pr": 147,
-      "known_failure": "P0001_CONFIRMAR_UPLOAD_ARQUIVO_EXTENSION",
-      "ownership": "OTHER_EXECUTOR_MIGRATION_NO_DUPLICATE",
-      "independent_hml_select_cases": 7,
-      "material_never_started": true
-    },
-    "sql_repair": {
-      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
-      "pr": 147,
-      "head": "5297f1316b4a8d1fbfaeff0330f195da3300cdf8",
-      "merge": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
-      "migration_version": "20261108053000",
-      "canonical_deploy_run": 42450754658,
-      "canonical_deploy_state": "SUCCESS",
-      "hml_history_statement_count": 1,
-      "hml_private_body_md5": "a0c3d54699ca5ac54e0caf718b7426d1",
-      "hml_public_wrapper_body_md5": "2671383869a4df20e454b7b6a7556261",
-      "acl_search_path_security_preserved": true,
-      "material_proof": "PENDENTE"
-    },
-    "document_wrapper_repair": {
-      "ownership": "OTHER_EXECUTOR_NOT_ATTRIBUTED_TO_THIS_RUN",
-      "gate_prs": [
-        149,
-        151
-      ],
-      "build_pr": 150,
-      "head": "46a7b821a4e06cf5b5162513c82e3afc5d9b93a2",
-      "state": "INTEGRADO_APLICADO_HML_VERIFICADO_READONLY",
-      "first_restore_failure": 42451142640,
-      "first_restore_failure_artifact": 13605617457,
-      "first_restore_failure_sha256": "8733dbc0a9e3fb7d55ca4098ab65bd66f42176ad6cf22c22ddbb45b529039878",
-      "expected_public_body_md5": "76a15744ab7c8e4e2fb11f3e6477e661",
-      "expected_private_body_md5": "4bd3d0edebe2522b9ced4e1d6c482e9d",
-      "independent_actual_catalog_helper_cases": 12,
-      "anon_execute_must_remain": false,
-      "private_authenticated_execute_must_remain": false,
-      "merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
-      "guard": 42451502833,
-      "restore": 42451502838,
-      "canonical_deploy_run": 42451722019,
-      "canonical_deploy_state": "SUCCESS",
-      "migration_version": "20261108054500",
-      "migration_sha256": "5798d972d1592b48c25139e7e489e900831af8fe3ce74c9057b1da7fadbb0f5d",
-      "hml_history_statement_count": 1,
-      "public_definer": true,
-      "private_definer": true,
-      "owner_search_path_bodies_and_acl_preserved": true,
-      "material_proof": "PENDENTE"
-    },
-    "previous_local_tests": 323,
-    "independent_review": "341/341 Node,10 guards,diff PASS; sem Critical/Important no HEAD reancorado; nova CI obrigatória",
-    "latest_actual_receipt": {
-      "head": "ce30d485518b2b077575fc967746ea2000a9da92",
-      "run": 42479943135,
-      "job": 128729514650,
-      "state": "FAIL",
-      "artifact": 13616839267,
-      "artifact_sha256": "1119397b14c337aacf5add6bf011f256c113a7f006ef1d97d4a85fa49196e9b9",
-      "published_smoke": "PASS_SMOKE",
-      "published_modules": 114,
-      "published_frontend_head": null,
-      "published_source_parity": "NAO_VERIFICADA",
-      "local_stage": "DOCUMENT_LOCAL_TXT_V2_WAIT_REGISTER_DOCUMENT",
-      "version_register_http": 403,
-      "cleanup": "QUARENTENA_VERIFICADA",
-      "own_users": 4,
-      "preserved_files": 3,
-      "active_jobs": 0,
-      "sql_independently_confirmed": true,
-      "global_complete": false
-    },
-    "retry_dependency": {
-      "pr": 164,
-      "head": "4705cd45bf8f7f9fba23c0fa066f0c5da938b14b",
-      "migration": "20261108122815",
-      "migration_sha256": "da346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f",
-      "must_be_integrated_applied_verified_before_this_merge": true,
-      "new_nonce_only": true,
-      "forbidden_reuse_nonce": "949b267631c24181b8edb34b8563f9fa",
-      "no_backend_product_delta_vs_164": true,
-      "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
-    }
-  },
-  "version_wrapper_guard": {
-    "state": "RESUME_PENDING_VERIFIED_HML",
-    "signature": "public.adicionar_versao_documento_contrato(uuid,uuid,text,text)",
-    "old_body_md5": "6d0c5926f4b25fd0e9562b0c010174ef",
-    "private_body_md5": "10698cb96e7de1de5a88b25960b341e5",
-    "migration": "20261108122815_fix_document_version_wrapper.sql",
-    "planned_build_paths": [
-      "docs/tasks/active-task.json",
-      "docs/backend/P0_DOCUMENT_VERSION_WRAPPER_HML_2026-11-08.md",
-      "supabase/migrations/20261108122815_fix_document_version_wrapper.sql",
-      "supabase/tests/upload_document_version_wrapper.test.mjs",
-      "supabase/tests/history_catalog_compare.py",
-      "supabase/tests/hml_acceptance.sql",
-      "supabase/tests/p0_crud_global_hml.py",
-      "supabase/tests/p0_crud_global_protocol.test.mjs"
-    ],
-    "only_product_delta": "SECURITY DEFINER on exact existing public wrapper; preserve body/owner/search_path/ACL/private RBAC",
-    "no_prod": true,
-    "no_frontend": true,
-    "no_edges": true,
-    "gate_pr": 163,
-    "gate_merge": "b7ea3d8e6605f5a4636c24ae36731f2efd471e5a",
-    "migration_sha256": "da346e512e0888a61c52a6653e7a99d44fe93da9b765c07df9f5e18ea458e56f",
-    "local_tests": 343,
-    "pre_auth_cases": 33,
-    "real_rpc_sql_cases_pending": 13
-  },
-  "fence_document_barrier": {
-    "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
-    "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
-    "incident_run": 42482714141,
-    "artifact": 13618595331,
-    "artifact_sha256": "6411d21d820d9eac37bf2fda57c4e302504e5d7c0fc5d359cb18385218492103",
-    "scope": "Somente harness/manifesto/plano; sem backend produto, migrations, Edges, frontend317, Auth, dados HML ou PROD",
-    "material_enabled": false,
-    "incident_root_cause": "PENDENTE_DIAGNOSTICO_FECHADO",
-    "global_complete": false
-  },
-  "document_head_authorization": {
-    "mode": "EXACT_CHECKED_OUT_HEAD_AND_LIVE_MAIN",
-    "task": "P0-CRUD-GLOBAL-HML-20261107",
-    "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
-    "project": "gklhhhyosgasnyoxlrui",
-    "fixture_scope": "OWN_NEW_NONCE_ONLY",
-    "required_checks": [
-      "guard",
-      "reconstruir-banco-do-zero",
-      "prova-backup-dados-sinteticos-duas-instancias"
-    ],
-    "authorization": "Titular autoriza retomada integral HML e correção automática, preservando checks, manifesto e CAS",
-    "global_complete": false,
-    "last_attempt": {
-      "head": "9c35f6f62f295a628d2e8444a9e8da1dc0448411",
-      "run": 42499476089,
-      "artifact": 13624619281,
-      "sha256": "3c7eb23dafc7b5aca6dd6bc596a5857ad9c00cf5b892c3ff4a710d65bdf003be",
-      "state": "FAIL_AFTER_FIVE_UPLOADS_BEFORE_ISOLATION",
-      "nonce": "7a98911bd10743a09536af3cb684b86b",
-      "cleanup": "QUARENTENA_VERIFICADA",
-      "root_cause": "Harness filled draft filter without submitting Aplicar filtros; expected2 local rows while all3 documents remain visible"
-    },
-    "visual_blocker": {
-      "run": 42500742625,
-      "head": "6121798c961a91df8c8e9275966ff3b439766a55",
-      "artifact": 13624574567,
-      "sha256": "c52ddb36bccbdc435d9f46545759bef0251208d9e884feba828d278757ebe140",
-      "rule": "color-contrast",
-      "impact": "serious",
-      "nodes": 3,
-      "stage": "DOCUMENT_VISUAL_1440_DARK",
-      "global_pass": false,
-      "frontend_changes_forbidden": true
-    }
-  },
-  "remaining_certification": {
-    "project": "gklhhhyosgasnyoxlrui",
-    "mode": "DOMAIN_ISOLATED_REAL_JWT_SQL_RECEIPTS",
-    "base_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
-    "domains_to_run": [
-      "apresentacao"
-    ],
-    "pending_domains": [
-      "parecer",
-      "apresentacao",
-      "protocolo"
-    ],
-    "no_regression_premise": "Corrigir um domínio não pode regredir o que já funciona; evidência anterior só permanece válida se dependências materiais forem preservadas; qualquer delta exige teste direcionado de regressão.",
-    "preserved_documental": {
-      "tested_head": "3ef22a371c38e552f9f3c862646eee3242f02411",
-      "run": 42502405227,
-      "artifact": 13625479020,
-      "sha256": "aa14586205ad8f133c46e9e2e188c828b95e11f2e82bd9cbc321b6b8337bf8ba",
-      "scope": "DOCUMENTOS_UPLOAD_VERSION_WORKER_UI_EDGE_AND_SIGNED_GET_PARTIAL",
-      "global_complete": false,
-      "protected_sha256": {
-        "supabase/tests/p0_crud_global_browser.mjs": "6b8f052cd0a3084a145db5c9243e87d22bf1c6b1caf57eb07d701fa079bf74bc",
-        "supabase/tests/p0_crud_global_hml.py": "f337dd6857c0185c00b92e13f71641d1faf5d35c15a712404eb6b64d2c4ea055",
-        "supabase/tests/p0_crud_global_protocol.test.mjs": "1d16584f3a0571471d09ec71e924c9b21fb79b2a00b6b32682baa96b620b595a",
-        "supabase/functions/storage-sign-upload/index.ts": "f1653f2de4e7300f3e75c3427819c721a6453bfdd6f83f41af9475c33774f97c",
-        "supabase/functions/storage-sign-download/index.ts": "538f3a014316e05f44ecd47f113080ee6ab00a2aaad1b2cf3bf6c76b7c1cda9a"
-      }
-    },
-    "authorization": "Titular autoriza executar automaticamente plano único e correções, sem novas aprovações rotineiras; HML apenas, sem alterar frontend317/PROD, sem dispensar CI/segurança.",
-    "global_complete": false,
-    "preserved_domain_runs": [
-      {
-        "domain": "base_normativa",
-        "head": "43b3dfcbf7998fd2b4a1beeeb9a7116236d30559",
-        "run": 42506755544,
-        "job": 128810963312,
-        "artifact": 13627767634,
-        "sha256": "d06e144e38d17567be0ccde23b4e917532df98fbd00584c16690ac53ebe9d979",
-        "assertions": 38,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA"
-      },
-      {
-        "domain": "competencias",
-        "head": "43b3dfcbf7998fd2b4a1beeeb9a7116236d30559",
-        "run": 42506755544,
-        "job": 128810963309,
-        "artifact": 13627369092,
-        "sha256": "c970d54f36b32112f63e002072fbea49a314bdc5df6d794f79688f03cd883712",
-        "assertions": 39,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA"
-      },
-      {
-        "domain": "orcamento",
-        "head": "f8f6b414e63761c21f95e6839ba757d49786b808",
-        "run": 42507974749,
-        "job": 128814675501,
-        "artifact": 13628630866,
-        "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26",
-        "assertions": 44,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA"
-      },
-      {
-        "domain": "regras_preventivas",
-        "head": "d82d13c2bcd81474ae6cdcc00a12a84407d26bb6",
-        "run": 42508721712,
-        "job": 128816954505,
-        "artifact": 13627484987,
-        "sha256": "d610b22fc618fb01a53582f042c5b6079075d3ca673eaefe46b9629e19c0c603",
-        "assertions": 29,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA"
-      },
-      {
-        "domain": "documentos_competencia",
-        "head": "d82d13c2bcd81474ae6cdcc00a12a84407d26bb6",
-        "run": 42508721712,
-        "job": 128816954467,
-        "artifact": 13628801647,
-        "sha256": "758062dc0e58c4d7b5d80fb7d42c88cfb1a4a115dbc948d1208cebc997345816",
-        "assertions": 47,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA"
-      },
-      {
-        "domain": "documento_detalhe",
-        "head": "7c8fdb1644058831cc2a7d1bacd931eee18cd997",
-        "run": 42514704055,
-        "job": 128835084228,
-        "artifact": 13631305509,
-        "sha256": "856dfbb70d545fb08eab96cb24c1b92267493408712d45e1c1bee4027eb205cf",
-        "assertions": 59,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA"
-      },
-      {
-        "domain": "historico",
-        "head": "d063b0b65362fdd71473571dd1069866c9263172",
-        "run": 42516277443,
-        "job": 128839908915,
-        "artifact": 13631248955,
-        "sha256": "eb1b05adfe863a203b964f8437baa55c2f214a84c11e6bb921803fe9a56ec8f5",
-        "assertions": 41,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA",
-        "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
-      },
-      {
-        "domain": "administracao",
-        "head": "d063b0b65362fdd71473571dd1069866c9263172",
-        "run": 42516277443,
-        "job": 128839908936,
-        "artifact": 13631043127,
-        "sha256": "f71183ce00a135f2f15e6813191d92858b5226cf2024f9aee5596e25c3cfba8d",
-        "assertions": 56,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA",
-        "catalog_parity": "PASS_EXACT_APPLICATION_CATALOG"
-      },
-      {
-        "domain": "documento_detalhe",
-        "head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
-        "run": 42519982869,
-        "attempt": 2,
-        "job": 128852148966,
-        "artifact": 13632763978,
-        "sha256": "4d0acc715960ab6ac1dab3ce2a7dbfbdab0228fa911d729b24cfbfc80f3480ce",
-        "assertions": 59,
-        "state": "PASS_DOMAIN",
-        "cleanup": "QUARENTENA_VERIFICADA",
-        "ai_worker_version": 5,
-        "ai_worker_source_sha256": {
-          "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
-          "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
-        }
-      }
-    ],
-    "orcamento_retry": {
-      "pr": 171,
-      "head": "56a080177881b48d487d41057dce4712a2c9454c",
-      "merge": "f8f6b414e63761c21f95e6839ba757d49786b808",
-      "state": "PASS_DOMAIN_44_CHECKS",
-      "prevent_phase2_merge_until_budget_job_terminal": true,
-      "run": 42507974749,
-      "artifact": 13628630866,
-      "sha256": "043e04370c4a3fe04451d7fc7d83d831998566fdd00c3576f8f6ad3c90cb6d26"
-    },
-    "archived_reviewed_migrations": [
-      {
-        "proof": {
-          "file": "supabase/migrations/20261108184219_fix_reviewed_metadata_append_version.sql",
-          "version": "20261108184219",
-          "sha256": "7d5ea8651d9df4324f78ac029df3155cb71d6178c34866fb495965bfaff40323",
-          "scope": "REVIEWED_METADATA_APPEND_ONLY_NO_HISTORICAL_MUTATION",
-          "gate": "Exact approved HEAD, manifest, guard, Restore/rebuild/backup before official CLI; exact application catalog before and after; only this migration pending; before Auth fixtures"
-        },
-        "merge": "7c8fdb1644058831cc2a7d1bacd931eee18cd997",
-        "state": "APPLIED_AND_EXACT_PARITY",
-        "migration_count": 136,
-        "receipt_artifact": 13631305509,
-        "receipt_sha256": "856dfbb70d545fb08eab96cb24c1b92267493408712d45e1c1bee4027eb205cf",
-        "prior_catalog_sha256": "fa28ac5435af92f9a6b0f935688294be2f679077e612a8e16d7cafcf76152926",
-        "after_catalog_sha256": "fe277a2b54fba16f1b728e6217cb00a1787c6aa411a893dda133f2db532d5937"
-      }
-    ],
-    "remaining_domain_limits": [
-      "backend HML only; source UI parity and manual WCAG not certified",
-      "SMTP delivery not certified; own existing-user invitation lookup only",
-      "synthetic own scope is not real-party regulatory certification",
-      "global_complete stays false until all applicable evidence is verified"
-    ],
-    "catalog_parity_verified": {
-      "head": "d063b0b65362fdd71473571dd1069866c9263172",
-      "restore_run": 42516052448,
-      "restore_artifact": 13631486447,
-      "restore_artifact_sha256": "87afb8e12dcc8c594e2fea14bf21d73da9725fc810ebe3ff96dcdeb1dff84a37",
-      "normalized_sha256": "bed1cc8f7bde59c75f4d0e96468cd42e0fecc312521c93309fd4e046fd70916b",
-      "equivalence_rules": [
-        "POSTGRES_OWNER_IMPLICIT_GRANT_OPTION",
-        "EXACT_HOSTED_DDL_HELPER"
-      ],
-      "raw_expected_sha256": "0cdd256da69c2b24c8b012233b7a775e9601d33239307c3918283b5a161bc48f",
-      "raw_actual_sha256": "fd207fd0020dc5c1520c2708a2a980668c714fc25dc2ae9d11f4ad7115b03f9e",
-      "physical_raw_acl_identity_claimed": false
-    },
-    "affected_domain_regression": [],
-    "uncertified_ai_consumers": [
-      "consulta_semantica (no handler, fail closed)",
-      "extrair_diligencia/revalidar_apontamento/minuta_contestacao/aprendizado_desfecho (contract tests only, material proofs not claimed)"
-    ],
-    "approved_ai_worker_runtime": {
-      "project": "gklhhhyosgasnyoxlrui",
-      "function_slug": "queue-worker-ai",
-      "expected_version": 5,
-      "verify_jwt": false,
-      "source_sha256": {
-        "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
-        "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
-      },
-      "expected_bundle_sha256": "63eed432eef3b7b0a859f5a4a2c73673e2d9a96c2b270f010d58f6bff8d75ff8",
-      "expected_deployed_at": "2026-11-08T20:27:09Z",
-      "origin_backend_head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
-      "origin_receipt_comment_id": 6726699971,
-      "origin_approval": {
-        "project": "gklhhhyosgasnyoxlrui",
-        "function_slug": "queue-worker-ai",
-        "from_version": 4,
-        "expected_version": 5,
-        "verify_jwt": false,
-        "prior_source_sha256": "4dcd7031ee37747fa5aa42a78616ffb682149edafd9a435efff6b009c7b9da14",
-        "prior_bundle_sha256": "7025f81502cd2cda045a8d2149a22d6a543123721bf3796edfdbe2774e6e3b00",
-        "rollback_source_commit": "7f91937419ff4f9ddb1642f5cb4e6f2aaff98ac1",
-        "source_sha256": {
-          "supabase/functions/queue-worker-ai/index.ts": "634300b7f1a3447dfebea0ff344b28fd26033439301e7cdf46d2c944e33838ab",
-          "supabase/functions/queue-worker-ai/job-envelope.mjs": "9bc449aa5f7f577b380b00fca6903bc67215b1a73c968b377245782100536748"
-        },
-        "gate": "Review and required CI exact HEAD; normal merge and main CI; HML-only AI deployment and exact Management source/version readback with zero active AI jobs; closed JSON receipt in GATE138. runtime-ready blocks before HML environment until unique current-HEAD receipt and same-HEAD push Restore succeed. Resume only failed readiness and dependents through standard GitHub rerun, or explicit exact-HEAD manual dispatch."
-      },
-      "gate": "No deploy. Re-read existing HML Management version/bundle/two sources after current-HEAD CI, require exact origin deployment identity and current source SHA, fresh runtime.v1 receipt bound to current live HEAD/CI. Old HEAD is provenance only, not current authorization."
-    },
-    "archived_ai_worker_deployments": [
-      {
-        "head": "a06b97eb0a2110dd727e66ebe98e91c593e4528b",
-        "receipt_comment_id": 6726699971,
-        "version": 5,
-        "verified_at": "2026-11-08T20:27:30Z",
-        "deployed_at": "2026-11-08T20:27:09Z",
-        "state": "DEPLOYED_AND_SOURCE_READBACK_EXACT"
-      }
-    ]
-  },
-  "edge_function_change_scope": "PLAN somente; ajuste futuro C13 adminscoped condicionado a este GATE integrado e revisão/CI, sem habilitar source neste manifesto.",
-  "handoff": {
-    "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
-    "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
-    "source_status_at_snapshot": "ativa",
-    "source_phase_at_snapshot": "BUILD_CERTIFICACAO_DOMINIOS_RESTANTES",
-    "source_v1_certified_flag": false,
-    "closure_scope": "Encerramento do controle ativo da tarefa anterior, sem afirmar certificação integral da V1 ou eliminar pendências registradas",
-    "checkpoint_pr": 138,
-    "plan_pr": 179
   },
   "copilot_scope_quota_hml_gate": {
     "state": "PLAN_ONLY_NO_IMPLEMENTATION",
@@ -2096,6 +1597,73 @@
       "request_deadline_seconds": 45,
       "lease_seconds": 90,
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
+    }
+  },
+  "phase": "BUILD_C13_COMBINED_INTEGRATION",
+  "upload_document_wrapper_gate": {
+    "phase": "VERIFICADO_HML",
+    "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
+    "authorization": "Titular determinou resolver upload e autorizou correções necessárias no HML; preservar autorização material backend",
+    "future_build_paths": [
+      "supabase/migrations/20261108054500_fix_document_upload_wrapper.sql",
+      "supabase/tests/hml_acceptance.sql",
+      "supabase/tests/upload_document_wrapper.test.mjs",
+      "docs/backend/P0_UPLOAD_EXTENSION_HML_2026-11-08.md",
+      "docs/tasks/active-task.json"
+    ],
+    "database_changes_allowed": false,
+    "rls_changes_allowed": false,
+    "auth_configuration_changes_allowed": false,
+    "prod": false,
+    "gate_pr": 149,
+    "gate_merge": "7406e9c187ddb9c788e0b80258d470ec5451ce50",
+    "gate_ci": 42450959313,
+    "catalog_complement": {
+      "phase": "VERIFICADO_CI",
+      "ci_failure_head": "d8d368aceb513ae80c3c86dd0976e7c40905c223",
+      "restore": 42451142640,
+      "future_build_path": "supabase/tests/history_catalog_compare.py",
+      "policy": "Assert exact full prior/approved wrapper metadata records once; substitute only definer False→True in expected copy; retain actual and compare every other field/object without exclusion",
+      "gate_pr": 151,
+      "gate_merge": "ff090938de5a2cd7d8dec856e965a49f2db2ce09",
+      "gate_ci": 42451366023
+    }
+  },
+  "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
+  "document_head_authorization": {
+    "mode": "EXACT_CHECKED_OUT_HEAD_AND_LIVE_MAIN",
+    "task": "P0-CRUD-GLOBAL-HML-20261107",
+    "phase": "BUILD_PROVA_PRIVADA_CRUD_GLOBAL",
+    "project": "gklhhhyosgasnyoxlrui",
+    "fixture_scope": "OWN_NEW_NONCE_ONLY",
+    "required_checks": [
+      "guard",
+      "reconstruir-banco-do-zero",
+      "prova-backup-dados-sinteticos-duas-instancias"
+    ],
+    "authorization": "Titular autoriza retomada integral HML e correção automática, preservando checks, manifesto e CAS",
+    "global_complete": false,
+    "last_attempt": {
+      "head": "9c35f6f62f295a628d2e8444a9e8da1dc0448411",
+      "run": 42499476089,
+      "artifact": 13624619281,
+      "sha256": "3c7eb23dafc7b5aca6dd6bc596a5857ad9c00cf5b892c3ff4a710d65bdf003be",
+      "state": "FAIL_AFTER_FIVE_UPLOADS_BEFORE_ISOLATION",
+      "nonce": "7a98911bd10743a09536af3cb684b86b",
+      "cleanup": "QUARENTENA_VERIFICADA",
+      "root_cause": "Harness filled draft filter without submitting Aplicar filtros; expected2 local rows while all3 documents remain visible"
+    },
+    "visual_blocker": {
+      "run": 42500742625,
+      "head": "6121798c961a91df8c8e9275966ff3b439766a55",
+      "artifact": 13624574567,
+      "sha256": "c52ddb36bccbdc435d9f46545759bef0251208d9e884feba828d278757ebe140",
+      "rule": "color-contrast",
+      "impact": "serious",
+      "nodes": 3,
+      "stage": "DOCUMENT_VISUAL_1440_DARK",
+      "global_pass": false,
+      "frontend_changes_forbidden": true
     }
   },
   "copilot_catalog_gate": {
@@ -2358,61 +1926,375 @@
       "native_error": "COPILOT_SQL_SECURITY_REPRO: PRECEDENTE_A_VERSAO_B_ACCEPTED,HISTORICO_PERMISSION_REVOCATION_ACCEPTED"
     }
   },
-  "edge_build_dependency": {
-    "sql_pr": 182,
-    "head": "aed72f7a095e5d6a552a1ffe5261f7d1d6fe2af7",
-    "restore": 42538570697,
-    "rebuild_job": 128908231330,
-    "backup_job": 128908231416,
-    "state": "SQL_GREEN_NOT_DEPLOYED",
-    "reuse_edge_pr": 180,
-    "reuse_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97"
-  },
-  "governance_b_fixture_snapshot_gate": {
-    "status": "BUILD_AUTHORIZED_AFTER_GATE185",
-    "source_dependency_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
-    "build_path": "supabase/tests/p0_crud_global_remaining.test.mjs",
-    "exact_test_titles": [
-      "remaining selection and immutable documentary evidence fail closed",
-      "real gate rejects missing check, failed check and advanced HEAD before Auth"
+  "prompt_crosswalk": {
+    "regular_prompt_id": "31",
+    "regular_source": "06_PROMPTS_COPIAR_COLAR/Manual_Mestre_Prompts_4_1_100_PRD.docx",
+    "regular_original_sha256": "8a15d96568d021ac86fdd45e79038e2cb969d69c12b2edb84f012a6129b8940e",
+    "atomic_source": "06_PROMPTS_COPIAR_COLAR/Caderno_97_Prompts_Atomicos_000_096_PRD_BRAND_v1_1.docx",
+    "atomic_original_sha256": "d9faaae47de4b697b18ad7fb71e4738384514936813cd5b18779f4cb8aed83b8",
+    "archive_sha256": "5ee115d12e263d98068288b6bb722f5f303f2d19e1e4c0b5e930e69da03621da",
+    "regular_range_verified": "00-99 (100/100)",
+    "atomic_range_verified": "000-096 (97/97)",
+    "direct_atomic_ids": [
+      "000",
+      "001",
+      "002",
+      "004",
+      "005",
+      "015",
+      "016",
+      "017",
+      "018",
+      "019",
+      "087",
+      "088"
     ],
-    "immutable_snapshot_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
-    "immutable_snapshot_sha256": "6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606",
-    "red_log_sha256": "2dc1ba6ac72629219ac6b478a5b3a2523e63cfcb49ec035b3dfb438d2b5d07ac",
-    "requires_gate_ci_and_merge_before_source": true,
-    "preserve_assertions_and_routing": true,
-    "requires_false_fixture_flags_simulation": true,
-    "additional_preapproved_181_path": "supabase/tests/remaining_domains/ai_envelope.test.mjs",
-    "additional_preapproved_181_title": "actual routing limits explicit manual resume to exact main inputs"
+    "additional_transversal_atomic_ids": [
+      "089",
+      "090",
+      "091",
+      "092",
+      "093",
+      "094",
+      "095",
+      "096"
+    ],
+    "direct_requirement_ids": [
+      "V1-CON-001",
+      "V1-CON-002",
+      "V1-CON-004",
+      "V1-CON-005",
+      "V1-DOC-001",
+      "V1-DOC-002",
+      "V1-DOC-003",
+      "V1-DOC-004",
+      "V1-DOC-005",
+      "NFR-003",
+      "NFR-004"
+    ],
+    "additional_transversal_requirement_ids": [
+      "NFR-005",
+      "NFR-007",
+      "NFR-008",
+      "NFR-009",
+      "NFR-010"
+    ],
+    "status": "PLAN_PROVA_PARCIAL_V110_SEM_CERTIFICACAO_DOS_ATOMICOS",
+    "source_evidence_missing": false,
+    "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
+    "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "copilot_c13_history_gate": {
-    "state": "BUILD_AUTHORIZED_AFTER_GATES_187_188",
-    "source_base": "8dc073d7ad4344231f99169a2180465a3354fe4c",
-    "edge_integrated_commit": "635c46dcd04c344d005a5cee8ca6c1cb0a8593dd",
-    "edge_source_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
-    "fixture_snapshot_integrated_commit": "8dc073d7ad4344231f99169a2180465a3354fe4c",
-    "build_allowed_paths": [
+  "auth_change_scope": "Nenhuma configuração, credencial, identidade ou sessão alterada; somente consulta de metadados públicos de catálogo.",
+  "technical_subtask": {
+    "id": "P0-CORS-DOCUMENTAL-HML-20261107",
+    "phase": "BUILD",
+    "state": "BUILD_INTEGRADO_IMPLANTADO_HML_TRANSPORTE_VERIFICADO",
+    "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
+    "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
+    "frontend_dependency": {
+      "pr": 309,
+      "head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
+      "merge": "b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5",
+      "ci": 42421827969,
+      "lock": 42421827973,
+      "state": "SUCCESS_SAME_HEAD_PUBLIC_SCOPE_ONLY"
+    },
+    "origins": [
+      "http://127.0.0.1:4173",
+      "https://scope-and-approval-keeper.lovable.app"
+    ],
+    "future_build_paths": [
+      "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
+      "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
+      "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
       "docs/tasks/active-task.json",
-      "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-      "supabase/functions/copilot-query/index.ts",
-      "supabase/tests/copilot_openai_contract.test.mjs"
+      "supabase/functions/storage-sign-upload/index.ts",
+      "supabase/functions/storage-sign-download/index.ts",
+      "supabase/tests/storage_document_cors.test.mjs",
+      "supabase/tests/p0_crud_global_browser.mjs",
+      "supabase/tests/p0_crud_global_protocol.test.mjs",
+      "supabase/tests/p0_crud_global_hml.py"
     ],
-    "ddl": false,
-    "page_default": 20,
-    "page_max": 50,
-    "history_order": "criado_em DESC,id DESC",
-    "cursor_preserves_pg_microseconds": true,
-    "history_context_max_messages": 12,
-    "history_context_max_utf8_bytes": 8000,
-    "response_max_utf8_bytes": 131072,
-    "cursor_max_bytes": 2048,
-    "any_ineligible_source_redacts_entire_assistant": true,
-    "persisted_risk_flags": true,
-    "certified": false,
-    "requires_restore_trigger_pr_merged_before_source": true,
-    "requires_historical_source_recheck_after_provider": true,
-    "restore_trigger_integrated_commit": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63"
+    "verify_jwt_must_remain": true,
+    "hml_project": "gklhhhyosgasnyoxlrui",
+    "material_crud_disabled": false,
+    "independent_review": "Sem Critical/Important para PLAN; completed_scopes condicionado a PASS real; reancorar HEAD antes de publicar",
+    "baseline_local_tests": "node --test:60/60 PASS em a672f44",
+    "authorization": "Continuidade expressa do titular para correções HML por PLAN/GATE/BUILD; sem PROD ou ampliação de permissão",
+    "published_source_parity": "NAO_VERIFICADA; smoke separado frontend_head=null, sem substituir quatro provas no pin",
+    "evidence": {
+      "run": 42420832115,
+      "job": 128548730992,
+      "artifact": 13593945672,
+      "sha256": "f9f192a04b0a629ecdb07aa885b7d4dc0768a81020a6086293f814181b53f7d6",
+      "log_window_utc": [
+        "2026-11-07T22:29:00Z",
+        "2026-11-07T22:32:00Z"
+      ],
+      "method": "OPTIONS",
+      "status": 405,
+      "cleanup": "QUARENTENA_VERIFICADA"
+    },
+    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT ou interceptação/mock para converter FAIL em PASS. Contenção nativa DENY e CORS/GET parciais dependem do complemento documental e dos checks próprios.",
+    "proof_partition": {
+      "local_uploads": 4,
+      "published_smoke_uploads": 1,
+      "total_files": 5,
+      "total_documents": 3,
+      "total_versions": 5,
+      "published_frontend_head": null,
+      "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
+      "cleanup": "União exata de recibos e namespace próprio; sem atribuir publicado ao pin"
+    },
+    "gate": "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
+    "plan_merge": "5743453e729362d4fa841aad16b357b9926c5688",
+    "transport_contract": {
+      "methods": [
+        "POST",
+        "OPTIONS"
+      ],
+      "request_headers": [
+        "authorization",
+        "x-client-info",
+        "apikey",
+        "content-type"
+      ],
+      "preflight_success": 204,
+      "unknown_origin_allowed": false,
+      "cookies_allowed": false,
+      "verify_jwt": true
+    },
+    "published_credential_fence": "Backend efetivo deve ser inequivocamente gklhhhyosgasnyoxlrui antes de preencher credenciais; falha/ambiguidade bloqueia. Não confundir com SHA.",
+    "sdk_proof": {
+      "version": "2.118.0",
+      "runtime": "bun install --frozen-lockfile no runner canônico",
+      "source_blobs": [
+        "a92fec00afaa5d81638df2a56bec46c50839fe85",
+        "803f6948701fed3997ce7037d663c1b645cf3465",
+        "8c194c8cb6489db78ed8cd9f98c5c48639e8e69c"
+      ],
+      "local_node_modules_not_pin": "2.119.0"
+    },
+    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea",
+    "popup_safety_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "policy": "DENY_NEW_WEB_CONTENTS",
+      "material_enabled": false,
+      "source_head": "2454c855975fa2e5df4a4d6d97226975989504f8",
+      "source_run": 42436054090,
+      "popup_rendering": "NAO_CERTIFICADO",
+      "partial_proofs": [
+        "EDGE_CORS_UI_REAL",
+        "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
+      ],
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 140,
+      "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
+      "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
+      "build_state": "EM_VALIDACAO",
+      "browser_worker_policy": {
+        "dedicated": "UNEXPECTED_FAIL_CLOSED_HTTP_BLOB_DATA_ZERO_EFFECTS_REQUIRED",
+        "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
+        "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
+      }
+    },
+    "browser_worker_csp_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "APPEND_DOCUMENT_CSP_WORKER_SRC_NONE",
+      "source_head": "f94595306886c358c73400a3a83424344fb75180",
+      "source_run": 42440477002,
+      "artifact": 13600703885,
+      "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
+      "browser_workers": "NAO_CERTIFICADOS",
+      "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 141,
+      "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
+      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO",
+      "build_state": "EM_VALIDACAO_CI_REAL",
+      "local_tdd": {
+        "red": "51PASS/1FAIL helper absent",
+        "green_protocol": 52,
+        "green_full": 258
+      }
+    },
+    "native_destination_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "NATIVE_CONTEXT_PROXY_DENY_EXACT_ORIGIN_BYPASS",
+      "source_head": "2447807580249d57b0e8215c4a078e9b2ae4a0cf",
+      "source_run": 42441727347,
+      "artifact": 13601469706,
+      "sha256": "27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721",
+      "no_forwarding": true,
+      "no_direct_fallback": true,
+      "browser_workers": "NAO_CERTIFICADOS",
+      "unexpected_product_worker": "FAIL",
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 142,
+      "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
+      "state": "INTEGRADO_ANTES_BUILD",
+      "build_state": "EM_VALIDACAO_CI_REAL",
+      "local_tdd": {
+        "red": "52PASS/2FAIL proxy helpers absent",
+        "worker_latch_red": "53PASS/1FAIL finalizer absent",
+        "green_protocol": 55,
+        "green_full": 261,
+        "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained",
+        "data_origin_red": "54PASS/1FAIL validator absent"
+      }
+    },
+    "paused_document_gate": {
+      "phase": "GATE_COMPLEMENTAR",
+      "material_enabled": false,
+      "policy": "EXACT_PAUSED_DOCUMENT_FULL_GRAPH_AST_BEFORE_CONTINUE",
+      "source_head": "544026099abbe613b39f8ec0f6142ce47208653b",
+      "source_run": 42444107587,
+      "artifact": 13603076801,
+      "sha256": "a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34",
+      "no_normalization": true,
+      "no_self_hash_without_ast": true,
+      "published_source_parity": "NAO_VERIFICADA",
+      "full_document_crud_v1_certification": false,
+      "gate_pr": 143,
+      "gate_merge": "f53304fbdab7570fa0f5167a9bcd0c76cded6be6",
+      "state": "INTEGRADO_ANTES_BUILD"
+    },
+    "paused_document_build": {
+      "state": "EM_VALIDACAO_CI_REAL",
+      "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
+      "local_protocol": 63,
+      "local_full_suite": 269,
+      "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
+      "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
+      "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
+      "material_enabled": false,
+      "global_complete": false,
+      "first_ci": {
+        "head": "7bf439d6dc439ff29c69cd197648363276db0a6b",
+        "run": 42448576211,
+        "artifact": 13604377240,
+        "sha256": "6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2",
+        "state": "FAIL_CHANGED_SCRIPT",
+        "local_red": "failure latch false before awaited native abort; fixed synchronously"
+      },
+      "second_ci": {
+        "head": "49275f778cf2a5551e41be8a3f40dd55bf14f353",
+        "run": 42448737328,
+        "artifact": 13604452311,
+        "sha256": "809fbc88de08da0e2106dbd87b8ab8ebdf3122911de31f9b132148054f4da85f",
+        "state": "FAIL_BEFORE_FIRST_PAUSED_FIXTURE_EVIDENCE",
+        "local_reproduction": "Node inert fetch keeps1idleTCP after1100ms; original fixture server Connection:close drains0 naturally; no socket destroy"
+      },
+      "first_public_success": {
+        "head": "2b2bb2cf172d654966ec76d7764b215a37326d00",
+        "run": 42448929569,
+        "artifact": 13604249723,
+        "sha256": "e3bd0eb6e147afe93991596bfc70d07df39460ecfdf193124b4320b5b8be62e4",
+        "assertions": 12,
+        "document_modules": 114,
+        "loaded_script_hashes": 49,
+        "material_enabled": false
+      },
+      "late_fence_fix": "Finalizers capture original provenance and persist/reject failed snapshot after browser/deny close; RED helper absent then63/63protocol269/269suite"
+    }
   },
+  "forbidden_paths": [
+    "src/**",
+    "public/**",
+    "AI_CONTEXT_MANIFEST.md",
+    "PROD/**"
+  ],
+  "objective": "Integrar somente SQL193 já aprovado e Edge190 sob GATE191; nenhuma nova alteração SQL/DDL ou HML autorizada nesta etapa.",
+  "upload_material_proof": {
+    "date": "2026-11-08",
+    "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
+    "build_pr": 150,
+    "tested_head": "46a7b821a4e06cf5b5162513c82e3afc5d9b93a2",
+    "guard": 42451502833,
+    "restore": 42451502838,
+    "deploy": 42451722019,
+    "origin": "https://contaos-41-hml.vercel.app",
+    "contract": "be89ef7e-d839-46c0-9cfb-4da81edf8b74",
+    "file": "8cc6ac08-7f5b-469c-ab50-7b33d5a12379",
+    "document": "525e54fc-feec-4dc0-b540-1510a3c52485",
+    "version": "2ea42a44-db27-4c4e-801f-9fc5227c2458",
+    "sha256": "773eb577ba88a260247803d37dced4f5469e8c39347dd3fe7c58c4d9f4681103",
+    "bytes": 285,
+    "objects": 1,
+    "files": 1,
+    "documents": 1,
+    "versions": 1,
+    "list_after_reload": true,
+    "detail_verified": true,
+    "security_status": "aprovado",
+    "processing": "concluido",
+    "full_v1_certification": false,
+    "prod": false,
+    "before_worker_repair": {
+      "security_status": "pendente",
+      "processing": "na_fila"
+    },
+    "worker_build_pr": 155,
+    "worker_deploy": 42475332474
+  },
+  "edge_function_change_scope": "Edge/runtime C13 e única passagem corretiva de review sob GATE191; SQL/catalog autoria separada.",
+  "crud_cadastros_concluido": {
+    "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
+    "deploy": 42314729963,
+    "jwt": 42314717439,
+    "assertions": 50,
+    "passed": 50,
+    "quarantine": {
+      "banned": 4,
+      "sessions": 0,
+      "master": 0,
+      "memberships": 0,
+      "orgs_inactive": 2
+    },
+    "report_sha256": "14a9fc945e6785341df28f768ce4965423565d1a3edb33823e9e75f8d7aef5f8",
+    "frontend_pr": 248,
+    "frontend_merge": "23d120f94e295f8031ade24ab785eaa39343c070",
+    "frontend_ci": 42316728042,
+    "frontend_regression": "1017/1017",
+    "private_ui": "NAO_VERIFICADA"
+  },
+  "browser_proof_scope": {
+    "frontend_repository": "contaos999999/contaos-hml-control",
+    "frontend_head": "266acf39f3a653137adbd3583add540d4de5f770",
+    "environment": "hml",
+    "no_deploy": true,
+    "no_schema_changes": true,
+    "official_auth_fixtures_only": true,
+    "widths": [
+      1440,
+      1280,
+      768,
+      390
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "tokens_artifact": false,
+    "separate_gate_required": true,
+    "gate": {
+      "plan_pr": 100,
+      "plan_head": "7e46c6cc4060e294c49027c7b607d1da33961a3a",
+      "plan_merge": "6e53e57ee80ae8506e0acb947553f4fec57acc95",
+      "guard": "SUCCESS",
+      "review": "Fonte frontend exata com CI e ancestralidade antes de execução; nenhum secret no browser; própria sessão GoTrue; finally e always para quarentena; sem deploy ou alteração de backend de produto.",
+      "gate_pr": 101,
+      "gate_merge": "937bd9b0792b57b5e2677223eab95deb74154761"
+    },
+    "red": "node arquivo ainda inexistente, MODULE_NOT_FOUND; não é prova HML",
+    "protocol_self_test": "PASS_LOCAL",
+    "frontend_dependency_pr": 284,
+    "capture_mode": "VIEWPORT_FIXED_DRAWER_TOP_REVIEW_ACTIONS",
+    "frontend_previous_head": "f537dadf9fefca79eb800de10a3b68d4e3fe3a3c"
+  },
+  "prod_untouched": true,
   "copilot_hml_proof_gate": {
     "state": "PLAN_ONLY_NO_RUNNER_SOURCE",
     "phase3_allowed_paths": [
@@ -2453,74 +2335,279 @@
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
   },
-  "copilot_raw_read_rls_gate": {
-    "state": "EDGE_BUILD_AUTHORIZED_SQL_RLS_SEPARATE_PR",
-    "base_head": "39e7baeeec3990b664ca54c6f3ae09e9f7ea3e63",
-    "base_active_task_blob": "1f98e4da6af4fbba4c89533f773bbf519398c74a",
-    "concurrent_c13": {
-      "pr": 189,
-      "activation_head": "0af1a9dbff22644e09b50f4806e5e02b955a8813",
-      "activation_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd",
-      "rule": "Preserve ledgers; reconcile manifest structurally after exact PR189 HEAD freezes, never overwrite concurrent task or copy source under this PLAN.",
-      "integrated_commit": "290613c977efb16fe512980db96a276dd897f97d",
-      "state": "PARTIAL_MERGE_NOT_CERTIFIED_REQUIRES_SUCCESSOR"
+  "previous_task_id": "C-CHAT-002-RESTORE-TRIGGERS-BUILD-20261109",
+  "fence_document_barrier": {
+    "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
+    "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
+    "incident_run": 42482714141,
+    "artifact": 13618595331,
+    "artifact_sha256": "6411d21d820d9eac37bf2fda57c4e302504e5d7c0fc5d359cb18385218492103",
+    "scope": "Somente harness/manifesto/plano; sem backend produto, migrations, Edges, frontend317, Auth, dados HML ou PROD",
+    "material_enabled": false,
+    "incident_root_cause": "PENDENTE_DIAGNOSTICO_FECHADO",
+    "global_complete": false
+  },
+  "governance_b_fixture_snapshot_gate": {
+    "status": "BUILD_AUTHORIZED_AFTER_GATE185",
+    "source_dependency_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
+    "build_path": "supabase/tests/p0_crud_global_remaining.test.mjs",
+    "exact_test_titles": [
+      "remaining selection and immutable documentary evidence fail closed",
+      "real gate rejects missing check, failed check and advanced HEAD before Auth"
+    ],
+    "immutable_snapshot_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
+    "immutable_snapshot_sha256": "6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606",
+    "red_log_sha256": "2dc1ba6ac72629219ac6b478a5b3a2523e63cfcb49ec035b3dfb438d2b5d07ac",
+    "requires_gate_ci_and_merge_before_source": true,
+    "preserve_assertions_and_routing": true,
+    "requires_false_fixture_flags_simulation": true,
+    "additional_preapproved_181_path": "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+    "additional_preapproved_181_title": "actual routing limits explicit manual resume to exact main inputs"
+  },
+  "authorization": {
+    "by": "titular",
+    "date": "2026-11-08",
+    "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
+  },
+  "auth_configuration_changes_allowed": false,
+  "title": "BUILD Edge: leitura interna estritamente escopada após Gate191",
+  "edge_function_changes_allowed": true,
+  "context_pack_version": "4.1",
+  "restore_synthetic_plan": {
+    "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
+    "context_pack_version": "4.1",
+    "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
+    "scope": "Somente runner local GitHub Actions: duas instâncias Supabase CLI sequenciais, dados de uma organização fictícia em public.organizacoes; zero HML remoto/PROD/DDL externo",
+    "allowed_paths": [
+      ".github/workflows/restore-isolado.yml",
+      "docs/backend/P0_V1_RESTAURACAO_SINTETICA_PLAN_2026-11-06.md",
+      "scripts/p0-v1-synthetic-data-restore.sh",
+      "docs/backend/P0_V1_RESTAURACAO_SINTETICA_RESULTADO_2026-11-06.md"
+    ],
+    "authorization": "Titular autorizou fechamento integral V1 sem PROD; PLAN antes do BUILD; sem mudança de Auth/RLS/Edge/Storage.",
+    "evidence_requirement": "PR PLAN CI verde + merge; PR BUILD CI Zero-Drift e restore job green + script/sha, row/rls/migration hashes, cleanup, resultado fiel.",
+    "last_verified_build_merge": "0b790304ae3fd7d8e44dd6cfca1ca6e0a9a64a7f",
+    "zero_drift_run": "42168969380",
+    "restore_run": "42168969390",
+    "artifact_id": "13480626051",
+    "criteria_proved": {
+      "one_synthetic_row_restored": true,
+      "distinct_local_containers": true,
+      "migration_versions_matching": 126,
+      "rls_matching": true,
+      "row_sha256_matching": true,
+      "cleanup_verified": true
     },
-    "migration_path": "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
-    "cli_version": "2.122.0",
-    "empty_skeleton_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "build_allowed_paths": [
-      "docs/tasks/active-task.json",
-      "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-      "supabase/migrations/20261109014019_c_chat_raw_read_hardening.sql",
-      "supabase/tests/copilot_scope_quota.sql",
-      "supabase/tests/history_catalog_compare.py",
-      "supabase/tests/copilot_catalog.test.mjs",
-      "supabase/functions/copilot-query/index.ts",
-      "supabase/tests/copilot_openai_contract.test.mjs"
+    "scope_limit": "PASS apenas restore de uma tabela sintética com migrations locais; RPO/RTO/PITR, Storage, restore integral HML e disponibilidade NÃO VERIFICADOS",
+    "prior_failure": "run42168549551: second container ID stale after db reset; fixed in 5cffdd1028; failure preserved"
+  },
+  "workflow_routing_plan": {
+    "failed_run": 42369440188,
+    "failed_job": 128394319186,
+    "cause": "Listas recebeu tarefa V117 e falhou fechado antes de deploy",
+    "scope": "Skip explícito fora da tarefa/fase, sem enfraquecer SHA/hash/CI/cleanup",
+    "gate_separado": true,
+    "paths": [
+      ".github/workflows/p0-crud-listas-hml.yml",
+      ".github/workflows/p0-v117-revisao-hml.yml",
+      ".github/workflows/p0-v117-browser-hml.yml",
+      "supabase/tests/p0_workflow_routing.test.mjs",
+      ".github/workflows/restore-isolado.yml"
     ],
-    "raw_chat_read": "DENY_AUTHENTICATED_MESSAGES_SOURCES_CHAT_RETURNS_ONLY",
-    "non_chat_returns": "PRESERVE_EXISTING_ORG_CONTRACT_RLS",
-    "private_classifier": "privado.copilot_retorno_e_chat(p_id_retorno uuid,p_id_consulta uuid) returns boolean",
-    "classifier_conditions": [
-      "consulta namespace c_chat_v1",
-      "mensagens_copiloto.id_retorno_modelo=p_id_retorno",
-      "mensagens_copiloto.id_consulta_semantica=p_id_consulta when non-null",
-      "deny-only exact known chat prompt markers covering orphan legacy before assistant message"
-    ],
-    "metadata_evidence": {
-      "project": "gklhhhyosgasnyoxlrui",
-      "checked_at": "2026-11-09",
-      "user_rows_read": false,
-      "all_four_tables_rls": true,
-      "all_four_authenticated_select": true,
-      "all_four_anon_select": false,
-      "retornos_policy": "org+contract only; no owner/session/source predicate",
-      "messages_sources_policy": "org+own session only; no current source eligibility predicate"
-    },
-    "required_gates": [
-      "independent plan review",
-      "CI exact GATE HEAD and coordinated integration",
-      "separate BUILD activation",
-      "native RED/GREEN isolated SQL",
-      "full catalog exact policy/helper ACL/body checks",
-      "C13 runtime causal admin scoping and source revocation",
-      "regression non-chat A/B",
-      "Restore rebuild and synthetic backup same HEAD",
-      "source review and CI exact HEAD",
-      "HML separately authorized coordinated gate"
-    ],
-    "no_source_authorization_by_this_manifest": true,
     "prod": false,
-    "legacy_deny_only_prompt_versions": [
-      "copiloto-temporal-pt-BR-v2",
-      "copiloto-openai-rag-v1",
-      "copiloto-temporal-pt-BR-v3-fenced",
-      "copiloto-openai-rag-v2-fenced"
+    "database": false,
+    "auth": false,
+    "gate": {
+      "pr": 117,
+      "head": "b453b2c75457d29e3272aaaa0f98d8fe5a7b99cb",
+      "merge": "8f48e37317c711c6736a33e9a34421c3967326d3",
+      "guard": "SUCCESS"
+    },
+    "red": {
+      "command": "node --test supabase/tests/p0_workflow_routing.test.mjs",
+      "passed": 4,
+      "failed": 9,
+      "cause": "scope read-only ausente nos3workflows; testes originais de checks/cleanup já PASS"
+    },
+    "phase_mapping": {
+      "list_deploy": "P0-CRUD-LISTAS-20261107/BUILD_EM_VALIDACAO",
+      "review_deploy": "P0-V117-REVISAO-20261107/BUILD_EM_VALIDACAO",
+      "private_browser": "P0-V117-REVISAO-20261107/BUILD_PROVA_PRIVADA_FRONTEND"
+    },
+    "status": "PASS_ESCOPO_ROTEAMENTO",
+    "build": {
+      "pr": 118,
+      "head": "545231b2ea47198b089085c50c38eb77f93f359a",
+      "merge": "2ebb9e3a639ea837430f3d9f1b4e7acfdbb8bb35",
+      "local_suite": {
+        "passed": 30,
+        "failed": 0
+      },
+      "focused": {
+        "passed": 13,
+        "failed": 0
+      },
+      "review": "SemCritical/Important; minor cobertura regex/JS e checkoutrefsemassertion específica registrado",
+      "ci": {
+        "guard": 42393190669,
+        "restore": 42393190805,
+        "public_probe": 42393190673,
+        "all_required_same_head": "SUCCESS"
+      },
+      "main_restore": 42393429340
+    },
+    "live_proof": [
+      {
+        "id": 42393625175,
+        "name": "ContaOS CRUD Listas HML",
+        "jobs": [
+          {
+            "id": 128466217848,
+            "name": "scope",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 128466249496,
+            "name": "canonical-deploy",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 128466249648,
+            "name": "real-jwt",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      },
+      {
+        "id": 42393625123,
+        "name": "ContaOS Revisão V117 HML",
+        "jobs": [
+          {
+            "id": 128466217768,
+            "name": "scope",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 128466247984,
+            "name": "canonical-deploy",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 128466248525,
+            "name": "real-jwt",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      },
+      {
+        "id": 42393625096,
+        "name": "ContaOS V117 Navegador Privado HML",
+        "jobs": [
+          {
+            "id": 128466217565,
+            "name": "scope",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 128466218545,
+            "name": "public-probe",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 128466249394,
+            "name": "private-browser",
+            "status": "completed",
+            "conclusion": "skipped"
+          }
+        ]
+      }
     ],
-    "reanchored_main": "290613c977efb16fe512980db96a276dd897f97d",
-    "reanchored_task_blob": "37da46c7bc0eecc7b9430ebb61b7b5039fb1cffd",
-    "integrated_gate_commit": "eea93e73834ab8bbb92fc7738e6b2a7250b00cb7",
-    "edge_owner": "backend_cors_runtime",
-    "sql_owner": "review_c13_backend"
-  }
+    "live_proof_reason": "Três logs scope conferidos: NOT_APPLICABLE_TASK_OR_PHASE: material jobs skipped",
+    "limitations": [
+      "PASS somente roteamento e preservação de controles; nenhuma nova prova funcional de deploy/JWT/HML",
+      "Teste de configuração usa extração restrita de YAML por regex/expressões JS; GitHub validou configuração e skips reais",
+      "V1 não certificada; falhas históricas e contraste transitório anterior preservados"
+    ]
+  },
+  "vercel_upload_origin_gate": {
+    "phase": "VERIFICADO_HML",
+    "origin": "https://contaos-41-hml.vercel.app",
+    "project": "gklhhhyosgasnyoxlrui",
+    "authorization": "Titular determinou resolver upload e executar deploy/teste HML; autorização específica da origem Vercel já usada no HML",
+    "future_build_paths": [
+      "supabase/functions/storage-sign-upload/index.ts",
+      "supabase/functions/storage-sign-download/index.ts",
+      "supabase/tests/storage_document_cors.test.mjs"
+    ],
+    "pr139_prerequisite": "Reutilizar BUILD139 integrado e checks no mesmoHEAD, sem duplicar harness",
+    "verify_jwt": true,
+    "prod": false,
+    "material_certified": false,
+    "gate_pr": 144,
+    "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
+    "gate_ci": 42449528794
+  },
+  "database_change_scope": "Somente herança normal da migration SQL193 aprovada; nenhum SQL adicional nesta branchEdge.",
+  "null_pagination_guard": {
+    "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
+    "cli": "2.81.3",
+    "generated_version": "20261108114652",
+    "old_body_md5": {
+      "privado.obter_documentos_competencia_v115": "76611a9a23e0d9bebf09aa1e0aa44093",
+      "public.obter_analise_competencia_v116": "84aaf91cce67651a5cbb3ecd16f8eaa2"
+    },
+    "scope": "Somente rejeitar NULL nos10argumentosinteiros mantendoRBAC/tenant/owner/ACL/assinaturas/payloads",
+    "prod": false,
+    "new_edges": false,
+    "password_leak_protection": "EXCLUDED_BY_USER",
+    "hml_apply_only_after_same_head_checks": true,
+    "ci_install_repair": {
+      "reason": "setup-cli HTTP504 reproduced in attempts1/2",
+      "version": "2.122.0",
+      "source": "official npm supabase@2.122.0",
+      "scripts": "disabled",
+      "all_checks_preserved": true
+    },
+    "verified_receipt": {
+      "head": "2c92956ee331c8929768185a0130137c7758e809",
+      "merge": "601922fbf59accc7606b8ce4c697b6ece961f23e",
+      "guard": 42478754408,
+      "public": 42478754463,
+      "restore": 42478754441,
+      "deploy_hml": 42479062553,
+      "migration": "20261108114652",
+      "migration_sha256": "f3b8150532949b4842a3319f76875a3acbd276387c705d5fd5e4c800e6c7431c",
+      "post_hml_body_md5": [
+        "554d62877bb4482763ef38cf20f2956b",
+        "6f864780e95f9d62113cdcedffb13ccc"
+      ],
+      "owner_acl_search_path_preserved": true,
+      "node": 340,
+      "postgres_predicates": 29,
+      "real_rpc_local_sql": 14,
+      "http_hml_no_credentials": 10,
+      "global_complete": false
+    }
+  },
+  "id": "C-CHAT-003-SCOPED-ADMIN-EDGE-BUILD-20261109",
+  "handoff": {
+    "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
+    "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
+    "source_status_at_snapshot": "ativa",
+    "source_phase_at_snapshot": "BUILD_CERTIFICACAO_DOMINIOS_RESTANTES",
+    "source_v1_certified_flag": false,
+    "closure_scope": "Encerramento do controle ativo da tarefa anterior, sem afirmar certificação integral da V1 ou eliminar pendências registradas",
+    "checkpoint_pr": 138,
+    "plan_pr": 179
+  },
+  "status": "ativa",
+  "brand_context": "ContaOS Brand v1.0"
 }

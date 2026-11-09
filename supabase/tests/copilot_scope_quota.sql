@@ -118,5 +118,78 @@ do $$declare org uuid;ct uuid;ver uuid;frag uuid;v extensions.vector;st text;f j
  perform pg_temp.assert_c(public.worker_reservar_consulta_copiloto(org,ct,'d7171717-0000-4000-8000-000000000001','Tenant-active9',jsonb_build_object('session_id','d7171717-0000-4000-9000-000000000001'),'fixture')->>'codigo'='COPILOTO_LIMITE_CONCORRENCIA','tenant eight active denies second actor with zero own active');
  if exists(select 1 from c_failed) then raise exception 'COPILOT_SQL_SECURITY_REPRO: %',(select string_agg(n,',') from c_failed);end if;
 end$$;
+
+-- GATE191: real PostgreSQL RLS, three distinct synthetic actors; rollback only.
+insert into auth.users(id,aud,role,email,created_at,updated_at)
+select ('c1310000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'authenticated','authenticated','copilot-raw-'||n||'@example.invalid',now(),now() from generate_series(1,3)n;
+insert into auth.sessions(id,user_id,created_at,updated_at,aal,not_after)
+select ('c1310000-0000-4000-9000-'||lpad(n::text,12,'0'))::uuid,('c1310000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,now(),now(),'aal1',now()+interval '1 hour' from generate_series(1,3)n;
+insert into public.vinculos_usuarios(id_organizacao,id_usuario,perfil,escopo_todos_contratos,ativo)
+select (select id from c_ids where k='org'),('c1310000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,'administrador',true,true from generate_series(1,2)n;
+insert into privado.administradores_master(id_usuario,motivo) values('c1310000-0000-4000-8000-000000000003','Isolated GATE191 raw chat RLS');
+insert into c_ids(k)values('raw-session'),('raw-query'),('raw-legacy-query'),('raw-nonchat-query'),('raw-return-linked'),('raw-return-query-linked'),('raw-return-namespace'),('raw-return-nonchat'),('raw-return-nonchat-query');
+insert into public.sessoes_copiloto(id,id_organizacao,id_contrato,criado_por)
+values((select id from c_ids where k='raw-session'),(select id from c_ids where k='org'),(select id from c_ids where k='contract'),'c1310000-0000-4000-8000-000000000001');
+insert into public.consultas_semanticas(id,id_organizacao,id_contrato,escopo,texto_consulta,criado_por,status,filtros)
+select x.id,(select id from c_ids where k='org'),(select id from c_ids where k='contract'),'contrato','raw isolated','c1310000-0000-4000-8000-000000000001','concluida',case when x.k='raw-query' then '{"copilot":{"namespace":"c_chat_v1"}}'::jsonb else '{}'::jsonb end from c_ids x where k in('raw-query','raw-legacy-query','raw-nonchat-query');
+create temp table c_raw_expected(id uuid primary key,label text,is_chat boolean);
+insert into c_raw_expected select id,k,k not like 'raw-return-nonchat%' from c_ids where k like 'raw-return-%';
+insert into public.retornos_modelo(id,id_organizacao,id_contrato,id_consulta,provedor,modelo,prompt_versao,resposta,fontes)
+select x.id,(select id from c_ids where k='org'),(select id from c_ids where k='contract'),case x.label when 'raw-return-namespace' then(select id from c_ids where k='raw-query')when 'raw-return-query-linked' then(select id from c_ids where k='raw-legacy-query')when 'raw-return-nonchat-query' then(select id from c_ids where k='raw-nonchat-query')end,'supabase','shared-model','shared-prompt','{"conteudo":"Raw isolated"}','[]' from c_raw_expected x;
+insert into public.mensagens_copiloto(id_organizacao,id_contrato,id_sessao,papel,conteudo,id_retorno_modelo)
+values((select id from c_ids where k='org'),(select id from c_ids where k='contract'),(select id from c_ids where k='raw-session'),'assistente','raw linked',(select id from c_ids where k='raw-return-linked'));
+insert into public.mensagens_copiloto(id_organizacao,id_contrato,id_sessao,papel,conteudo,id_consulta_semantica)
+values((select id from c_ids where k='org'),(select id from c_ids where k='contract'),(select id from c_ids where k='raw-session'),'usuario','raw query linked',(select id from c_ids where k='raw-legacy-query'));
+insert into public.fontes_resposta_copiloto(id_organizacao,id_contrato,id_mensagem,fonte_tipo,fonte_id,id_versao_documento,trecho)
+select (select id from c_ids where k='org'),(select id from c_ids where k='contract'),m.id,'fragmento_documento',(select id from c_ids where k='fragment'),(select id from c_ids where k='version'),'raw retained evidence' from public.mensagens_copiloto m where m.id_sessao=(select id from c_ids where k='raw-session') and m.papel='assistente';
+with orphan as(insert into public.retornos_modelo(id_organizacao,id_contrato,provedor,prompt_versao,resposta)select (select id from c_ids where k='org'),(select id from c_ids where k='contract'),'openai',v,'{"conteudo":"orphan legacy"}' from unnest(array['copiloto-temporal-pt-BR-v2','copiloto-openai-rag-v1','copiloto-temporal-pt-BR-v3-fenced','copiloto-openai-rag-v2-fenced'])v returning id,prompt_versao)insert into c_raw_expected select id,prompt_versao,true from orphan;
+create temp table c_raw_fail(label text);
+grant select on c_ids,c_raw_expected to authenticated;
+grant insert,select on c_raw_fail to authenticated;
+create function pg_temp.raw_actor(n integer)returns void language plpgsql as $$begin
+ perform set_config('request.jwt.claim.sub','c1310000-0000-4000-8000-'||lpad(n::text,12,'0'),true);
+ perform set_config('request.jwt.claims',jsonb_build_object('sub','c1310000-0000-4000-8000-'||lpad(n::text,12,'0'),'session_id','c1310000-0000-4000-9000-'||lpad(n::text,12,'0'),'role','authenticated')::text,true);
+end$$;
+create function pg_temp.raw_probe(label text)returns void language plpgsql security invoker as $$begin
+ perform pg_temp.assert_c((select count(*)=2 from public.retornos_modelo r join c_raw_expected x on x.id=r.id where not x.is_chat),'nonchat org/contract SELECT unchanged '||label);
+ if exists(select 1 from public.retornos_modelo r join c_raw_expected x on x.id=r.id where x.is_chat)then insert into c_raw_fail values(label||':CHAT_RETURN_RAW_VISIBLE');end if;
+ if exists(select 1 from public.mensagens_copiloto where id_sessao=(select id from c_ids where k='raw-session'))then insert into c_raw_fail values(label||':CHAT_MESSAGE_RAW_VISIBLE');end if;
+ if exists(select 1 from public.fontes_resposta_copiloto where id_organizacao=(select id from c_ids where k='org'))then insert into c_raw_fail values(label||':CHAT_SOURCE_RAW_VISIBLE');end if;
+ if exists(select 1 from public.retornos_modelo r join public.mensagens_copiloto m on m.id_retorno_modelo=r.id where m.id_sessao=(select id from c_ids where k='raw-session'))then insert into c_raw_fail values(label||':CHAT_JOIN_RAW_VISIBLE');end if;
+end$$;
+set local role authenticated;
+select pg_temp.raw_actor(1);
+select pg_temp.assert_c((select count(*)=1 from public.sessoes_copiloto where id=(select id from c_ids where k='raw-session')),'own session metadata remains visible');
+select pg_temp.raw_probe('OWNER');
+select pg_temp.raw_actor(2);
+select pg_temp.assert_c((select count(*)=0 from public.sessoes_copiloto where id=(select id from c_ids where k='raw-session')),'same-org actor cannot read other session metadata');
+select pg_temp.raw_probe('OTHER_ACTOR');
+select pg_temp.raw_actor(3);
+select pg_temp.assert_c(privado.usuario_e_administrador_master(),'third raw actor really is Master');
+select pg_temp.assert_c((select count(*)=0 from public.sessoes_copiloto where id=(select id from c_ids where k='raw-session')),'Master cannot read other session metadata');
+select pg_temp.raw_probe('MASTER');
+reset role;
+update public.arquivos set status_seguranca='quarentena' where id=(select id from c_ids where k='file');
+set local role authenticated;
+select pg_temp.raw_actor(1);
+select pg_temp.raw_probe('OWNER_AFTER_QUARANTINE');
+reset role;
+do $$begin if exists(select 1 from c_raw_fail)then raise exception 'COPILOT_RAW_RLS_RED: %',(select string_agg(label,',')from c_raw_fail);end if;end$$;
+-- Native grants and fail-closed private classification; never expose a public wrapper.
+select pg_temp.assert_c((select count(*)=3 from pg_policies where schemaname='public' and tablename in('retornos_modelo','mensagens_copiloto','fontes_resposta_copiloto') and policyname='copilot_raw_chat_select' and permissive='RESTRICTIVE' and cmd='SELECT' and roles=array['authenticated']::name[]),'three exact role-scoped restrictive policies');
+select pg_temp.assert_c((select p.prosecdef and p.proconfig=array['search_path=""'] and pg_get_userbyid(p.proowner)='postgres' and p.prorettype='boolean'::regtype and has_function_privilege('authenticated',p.oid,'EXECUTE') and not has_function_privilege('anon',p.oid,'EXECUTE') and not has_function_privilege('service_role',p.oid,'EXECUTE') and not exists(select 1 from aclexplode(p.proacl)a where a.grantee=0) from pg_proc p where p.oid='privado.copilot_retorno_e_chat(uuid,uuid)'::regprocedure),'private helper exact owner/path/return/minimum grants');
+set local role authenticated;
+select pg_temp.raw_actor(2);
+select pg_temp.assert_c(privado.copilot_retorno_e_chat(null,null),'null row denied classification');
+select pg_temp.assert_c(privado.copilot_retorno_e_chat(gen_random_uuid(),null),'unknown row denied classification');
+select pg_temp.assert_c(not privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat'),null),'known non-chat null query preserved');
+select pg_temp.assert_c(not privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat-query'),(select id from c_ids where k='raw-nonchat-query')),'known non-chat query preserved');
+select pg_temp.assert_c(privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat-query'),null),'forged omitted query fails closed');
+select pg_temp.assert_c(privado.copilot_retorno_e_chat((select id from c_ids where k='raw-return-nonchat'),(select id from c_ids where k='raw-nonchat-query')),'forged query fails closed');
+select pg_temp.assert_c((select bool_and(privado.copilot_retorno_e_chat(r.id,r.id_consulta))from c_raw_expected x join public.retornos_modelo r on r.id=x.id where x.is_chat) is null,'authenticated cannot recover chat through joins');
+reset role;
+select pg_temp.assert_c((select bool_and(privado.copilot_retorno_e_chat(r.id,r.id_consulta))from c_raw_expected x join public.retornos_modelo r on r.id=x.id where x.is_chat),'owner classifier covers all chat lineage and legacy orphan fixtures');
+
+
 rollback;
 select 'COPILOT_SCOPE_QUOTA_SQL_PASS';
