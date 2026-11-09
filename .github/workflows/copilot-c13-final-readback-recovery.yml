@@ -1,0 +1,79 @@
+name: ContaOS C13 final-readback recovery (original evidence only)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: contaos-copilot-hml
+  cancel-in-progress: false
+jobs:
+  final-readback-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+      issues: read
+    env:
+      PROOF_MODE: api_c13
+      FRONTEND_PR: '379'
+      TESTED_HEAD: 5459536e7f7121e2f26758841acd520f84e0ad9d
+      FRONTEND_HEAD: dd27b7e2f059cc71cff21c1d4dbe38a24e6d4261
+      RESTORE_RUN_ID: '42571349135'
+      EDGE_SOURCE_SHA256: 6c1ee9d5a87077ffd8120cd118bbe6ca9b1ab49380be99ae46b8b6bfd8bd80d9
+      EDGE_BUNDLE_SHA256: 89844a77b91d8be69dfc186208ac46055c361eeadfa6ca37a3ea2655a1b4c30d
+      EDGE_VERSION: '7'
+      DEPLOYMENT_RECEIPT_COMMENT_ID: '6733569504'
+      NONCE: 75706a06dd3734b42c34e226ffe18946
+      ORIGINAL_RUN_ID: '42571726664'
+      ORIGINAL_ATTEMPT: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 5459536e7f7121e2f26758841acd520f84e0ad9d
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Fail closed on original proof provenance and exact artifact digests
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = contaos999999/develop
+          test "$GITHUB_REF" = refs/heads/main
+          test "$(git rev-parse HEAD)" = "$TESTED_HEAD"
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$TESTED_HEAD"
+          test "$(gh api repos/$GITHUB_REPOSITORY/actions/runs/$ORIGINAL_RUN_ID --jq .head_sha)" = "$TESTED_HEAD"
+          for job in readiness proof cleanup; do
+            test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ORIGINAL_RUN_ID/jobs?per_page=100" --jq ".jobs[] | select(.name==\"$job\") | .conclusion")" = success
+          done
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ORIGINAL_RUN_ID/artifacts?per_page=100" > /tmp/c13-artifacts.json
+          node -e '
+            const fs=require("fs"),a=JSON.parse(fs.readFileSync("/tmp/c13-artifacts.json")).artifacts;
+            const expected={
+              ["copilot-material-"+process.env.ORIGINAL_RUN_ID+"-"+process.env.ORIGINAL_ATTEMPT]:"sha256:4744298f6c1c5f550d04434402a55e438a8a9a0c7d09a6454958b9463780b69f",
+              ["copilot-cleanup-"+process.env.ORIGINAL_RUN_ID+"-"+process.env.ORIGINAL_ATTEMPT]:"sha256:80181ea31265a91322d548d73cd65e978c42c80758bd67f85982aa523e69fced"
+            };
+            for(const [name,digest] of Object.entries(expected)){const m=a.filter(x=>x.name===name&&!x.expired&&x.digest===digest);if(m.length!==1)process.exit(1);}
+          '
+      - name: Download immutable original-attempt artifacts only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh run download "$ORIGINAL_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "copilot-material-$ORIGINAL_RUN_ID-$ORIGINAL_ATTEMPT" --dir copilot-proof
+          gh run download "$ORIGINAL_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "copilot-cleanup-$ORIGINAL_RUN_ID-$ORIGINAL_ATTEMPT" --dir copilot-cleanup
+      - name: Validate coordinator post-proof receipt against original run and nonce
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_RUN_ID: '42571726664'
+        run: node supabase/tests/copilot_hml.mjs --finalize
+      - name: Publish sanitized final-only result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: copilot-final-readback-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: copilot-proof/
+          if-no-files-found: error
+          retention-days: 30
