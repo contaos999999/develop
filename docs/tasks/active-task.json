@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-002-C13-HISTORY-PLAN-20261109",
-  "title": "Trilha C PLAN/GATE: histórico próprio paginado e continuidade C13",
+  "id": "C-CHAT-002-RESTORE-TRIGGERS-BUILD-20261109",
+  "title": "BUILD: quatro triggers Restore antes de SRC C13",
   "status": "ativa",
-  "phase": "PLAN_C13_HISTORY",
+  "phase": "BUILD_C13_RESTORE_TRIGGERS",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -35,10 +35,11 @@
     "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
     "20_PROMPT_000_BRAND_01.md"
   ],
-  "objective": "Fechar contrato C13 e controles fase3 documentalmente antes de qualquer implementação/execução.",
+  "objective": "Acrescentar somente quatro paths exatos aos filtros Restore, preservando todos os controles.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+    ".github/workflows/restore-isolado.yml"
   ],
   "forbidden_paths": [
     "src/**",
@@ -119,8 +120,8 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "previous_task_id": "C-CHAT-002-B-FIXTURE-BUILD-20261109",
-  "previous_task_snapshot_commit": "8dc073d7ad4344231f99169a2180465a3354fe4c",
+  "previous_task_id": "C-CHAT-002-C13-HISTORY-PLAN-20261109",
+  "previous_task_snapshot_commit": "1a08988ebf58a38c0647d497725fd713aa7be90c",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -132,7 +133,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "Revisão/CI e integração deste GATE; ativação BUILD documental fechada antes de SRC C13 ou fase3.",
+  "next_step": "CI/Restore/backup e integração deste PR antes de ativar SRC C13.",
   "database_change_scope": "Documentação apenas; nenhuma alteração/aplicação SQL, RLS, grants ou fixtures.",
   "evidence": {
     "test_pr": 52,
