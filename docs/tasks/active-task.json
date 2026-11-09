@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": false,
+  "storage_test_fixtures_allowed": true,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": false,
+  "database_test_fixtures_allowed": true,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -398,8 +398,7 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/functions/copilot-query/index.ts",
-    "supabase/tests/copilot_openai_contract.test.mjs"
+    "supabase/tests/copilot_hml.mjs"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -1476,7 +1475,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Revisar/integrar GATE; RED/GREEN no contrato de prompt pelo handler real, regressão/CI/Restore/backup/revisão antes de integrar e implantar somente a Edge existente; nova ativação/PRE/nonce para prova.",
+  "next_step": "Após CI/revisão/integração documental: Restore/backup/Zero-Drift da main final, novo PRE/nonce e prova API completa; cleanup independente e pós-readback antes de API_PASS_UI_PENDING.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -1595,7 +1594,7 @@
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
   },
-  "phase": "BUILD_EDGE_CONTEXTUAL_CITATION_FIX",
+  "phase": "BUILD_HML_COPILOT_PROOF",
   "upload_document_wrapper_gate": {
     "phase": "VERIFICADO_HML",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
@@ -2202,7 +2201,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Corrigir orientação ao modelo para responder dado conversacional atribuído ao usuário e manter fundamentação atual com citação obrigatória; não afrouxar validação.",
+  "objective": "Validar em HML a resposta contextual com fundamentação atual obrigatória, mantendo todas as provas de JWT, quotas, isolamento, revogação e limpeza.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2235,7 +2234,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Somente orientação do prompt em copilot-query existente e teste focal: separar nome informado pelo usuário de fatos documentais, exigindo ao menos uma relação factual citada nas fontes atuais; não alterar validação, payload, modelo, timeout, retry, DTO, RLS ou JWT.",
+  "edge_function_change_scope": "Nenhuma alteração ou deploy nesta retomada; Edge e runner aprovados ficam congelados.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2366,8 +2365,8 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "Trilha C: alinhar orientação contextual e citação obrigatória",
-  "edge_function_changes_allowed": true,
+  "title": "Replay API C13 após alinhamento da orientação contextual",
+  "edge_function_changes_allowed": false,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
     "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
@@ -2551,7 +2550,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "Nenhuma DDL/DML/RLS/grant/Authconfig ou dado alheio neste BUILD; leituras sintéticas próprias para diagnóstico apenas.",
+  "database_change_scope": "Somente DML sintético próprio api_c13 nos limites194 e cleanup independente; sem DDL/RLS/Authconfig, dados alheios ou invocação global de worker.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
@@ -2593,7 +2592,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-012-CONTEXTUAL-CITATION-FIX-20261109",
+  "id": "C-CHAT-013-CONTEXTUAL-CITATION-REPLAY-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2607,7 +2606,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "PAUSED_FOR_CONTEXTUAL_CITATION_FIX",
+    "state": "HML_EXECUTION_AUTHORIZED",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2656,10 +2655,10 @@
     "c13_backend_merge": "9878b7a5bbb29b5aded791b942ece96c4b7acd2d",
     "raw_rls_deploy_run": 42549348642,
     "technical_edge_readback": {
-      "version": 6,
+      "version": 7,
       "verify_jwt": true,
-      "source_sha256": "9092f15344496db84af6127b0aed287120433e97fc6f37c30838399adc31593f",
-      "bundle_sha256": "9bc0a47741a772a356c0fe76ae787fe507b1073232789c0b3b855d2eda0a844f",
+      "source_sha256": "6c1ee9d5a87077ffd8120cd118bbe6ca9b1ab49380be99ae46b8b6bfd8bd80d9",
+      "bundle_sha256": "89844a77b91d8be69dfc186208ac46055c361eeadfa6ca37a3ea2655a1b4c30d",
       "readback_equal": true,
       "not_material_api_proof": true
     },
@@ -2927,7 +2926,7 @@
     ]
   },
   "copilot_contextual_citation_fix": {
-    "state": "GATE_BEFORE_SOURCE",
+    "state": "INTEGRATED_DEPLOYED_HML_READBACK_EXACT_EFFECTIVENESS_PENDING",
     "failed_run": 42570066986,
     "artifact": 13653186185,
     "artifact_sha256": "d5b7dbd0e6299d26e4c6bb1c05775ee65755b8e8ce0605435435cbd692ac6a49",
@@ -2941,6 +2940,27 @@
     "no_new_retry": true,
     "no_model_timeout_payload_change": true,
     "no_harness_change": true,
-    "certified": false
+    "certified": false,
+    "build_pr": 209,
+    "build_head": "c1497ea344af8f80f2f19730e92477e2ecf0b102",
+    "source_blob": "09c3995e1f17bb3b7bfd112872d4f1461ab7e3cb",
+    "source_sha256": "6c1ee9d5a87077ffd8120cd118bbe6ca9b1ab49380be99ae46b8b6bfd8bd80d9",
+    "tests": 568,
+    "focal_tests": 140,
+    "review": "APPROVED_NO_FINDINGS",
+    "guard": 42570684026,
+    "restore_backup": 42570683993,
+    "build_merge": "2f39ec84963bfbcb1a81cdf99ce92500777c8e7a",
+    "restore_artifacts": [
+      {
+        "id": 13653605781,
+        "sha256": "df0d3e623d186abb83ce629057ce2cbd6d791b72f04ccccaeb83f9cebe401a83"
+      },
+      {
+        "id": 13653336862,
+        "sha256": "bcb1cf2ee4044a1a871a8c1f6e648191be9a981c53dbf20d7b00c01aa15bd93e"
+      }
+    ],
+    "material_effectiveness_verified": false
   }
 }

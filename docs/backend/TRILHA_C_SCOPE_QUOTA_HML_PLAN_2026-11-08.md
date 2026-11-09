@@ -402,3 +402,14 @@ RED/GREEN executandohandlerreal confere contrato enviado ao provider: atribuiç�
 Cleanup42570066986samejob/independenteSUCCESS eSQL4banned/0sessions/vínculos/Master/2orginactive/0jobs/processing. Nonce27b1ec868c251d90784e7144893a2858/PRE6733342134consumidos. API/fixturespausadas atéretomadaposterior. Falhasanteriores e45/10/8/10PASSpreservados; JWTnatural eUIpendentes, máximofuturoAPI_PASS_UI_PENDING.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual;4pathsfechados,semLovable/tokens/assets/tipos/backendA/B/PROD.
+
+
+## Replay API após orientação contextual alinhada, 09/11/2026
+
+Gate208 integrado84ea3b4419d0afacb2cd7eae7f9a0e8ef0b0a5af eCI42570433416SUCCESS. BUILD209 HEADc1497ea344af8f80f2f19730e92477e2ecf0b102 integrado2f39ec84963bfbcb1a81cdf99ce92500777c8e7a. RED487ed1cb139PASS1FAIL, GREEN140focais/568totais18files/10guardsPASS e revisão independente semfindings. CI42570684026 eRestore42570683993 jobs129007095144/129007095330SUCCESS. Artefatos13653605781 SHAdf0d3e623d186abb83ce629057ce2cbd6d791b72f04ccccaeb83f9cebe401a83 e13653336862 SHAbcb1cf2ee4044a1a871a8c1f6e648191be9a981c53dbf20d7b00c01aa15bd93e.
+
+EdgeHMLv7ACTIVEverify_jwttrue, readback integral igualao blob09c3995e1f17bb3b7bfd112872d4f1461ab7e3cb, fonteSHA6c1ee9d5a87077ffd8120cd118bbe6ca9b1ab49380be99ae46b8b6bfd8bd80d9/bundleSHA89844a77b91d8be69dfc186208ac46055c361eeadfa6ca37a3ea2655a1b4c30d. Sóorientação mudou; validatorF/fallback/payload/modelo/timeout/retry/runnerd8ed7590/SHA c489106bb9f3468ab56efcfdb15206e636b256818658aaf5d5e757b60fc25047/RLS193 preservados. Deploy/readbackeunitários não comprovam eficácia doLLM.
+
+Retoma somenteapi_c13 com budgets194inalterados:4usuários/2orgs/3turnosA/2reservascontroladas/1fallbackA/6fallbacksB/sétimonegado. Preparaçãoaguarda3estágios/filaspróprias. Fonte/runnercongelados; semnovoDeploy/DDL/RLS/Authconfig/UI/workerinvocationglobal. NovoPRE/nonce eCI/Restore/backup canônicos da mainfinal obrigatórios antesmaterial;5noncesanterioresconsumidos, inclusive27b1ec868c251d90784e7144893a2858/PRE6733342134. Perguntamaterialinalterada, semfabricarcitação/ajustartesteparaPASS. ExpiraçãoJWTnatural,cleanupindependente/pós-readbackobrigatórios. Logsfechados sómotivo/status sefalhar, semtexto privado. Resultado máximofuturoAPI_PASS_UI_PENDING;frontend379/UIautenticada/P0nãocertificados.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual;preservarA/B/PROD eativos/tipos,semLovable.
