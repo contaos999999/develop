@@ -65,7 +65,12 @@ head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
 for event,patch,ok,applicable in [('workflow_run',{},True,True),('workflow_dispatch',{},True,True),('workflow_dispatch',{'REQUESTED_HEAD':'0'*40},False,False),('workflow_dispatch',{'RESTORE_RUN_ID':'bad'},False,False),('workflow_dispatch',{'DEPLOY_RECEIPT_COMMENT_ID':''},False,False),('workflow_dispatch',{'GITHUB_REF':'refs/heads/foreign'},False,False)]:
  with tempfile.TemporaryDirectory() as d:
   env={'PATH':os.environ['PATH'],'GITHUB_OUTPUT':d+'/out','GITHUB_SHA':head,'REQUESTED_HEAD':head,'GITHUB_EVENT_NAME':event,'GITHUB_REF':'refs/heads/main','RESTORE_RUN_ID':'11','DEPLOY_RECEIPT_COMMENT_ID':'22',**patch}
-  r=subprocess.run(['bash','-e','-o','pipefail','-c',script],env=env,capture_output=True,text=True)
+  fixture=pathlib.Path(d)/'fixture';fixture.mkdir()
+  for name in ['supabase','.github','.git']:(fixture/name).symlink_to(pathlib.Path(name).resolve(),target_is_directory=name!='.git')
+  (fixture/'docs/tasks').mkdir(parents=True)
+  task=json.loads(pathlib.Path('docs/tasks/active-task.json').read_text());task['id']='P0-CRUD-GLOBAL-HML-20261107';task['phase']='BUILD_CERTIFICACAO_DOMINIOS_RESTANTES'
+  (fixture/'docs/tasks/active-task.json').write_text(json.dumps(task))
+  r=subprocess.run(['bash','-e','-o','pipefail','-c',script],env=env,cwd=fixture,capture_output=True,text=True)
   assert (r.returncode==0)==ok,(event,patch,r.stderr)
   if ok:assert ('applicable='+str(applicable).lower()) in pathlib.Path(d+'/out').read_text()
 `;

@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-003-CATALOG-ADDITIVE-GATE-20261108",
-  "title": "Trilha C GATE: comparação exata das nove funções aditivas no Restore",
+  "id": "C-CHAT-002-SCOPE-QUOTA-SQL-BUILD-20261108",
+  "title": "Trilha C BUILD: RPCs elegíveis, reserva atômica e provas SQL",
   "status": "ativa",
-  "phase": "PLAN_GATE_CATALOG",
+  "phase": "BUILD_SQL",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -38,7 +38,18 @@
   "objective": "Aprovar exclusivamente documentação do fechamento seguro RAG/quota/prova HML, sem implementar ou aplicar SQL/Edge/harness neste PR.",
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md"
+    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
+    "supabase/migrations/20261108232731_c_chat_scope_quota.sql",
+    "supabase/functions/copilot-query/index.ts",
+    "supabase/tests/copilot_openai_contract.test.mjs",
+    "supabase/tests/copilot_scope_quota.sql",
+    "supabase/tests/copilot_hml.mjs",
+    "supabase/tests/p0_crud_global_remaining.test.mjs",
+    "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+    ".github/workflows/copilot-hml.yml",
+    ".github/workflows/restore-isolado.yml",
+    "supabase/tests/history_catalog_compare.py",
+    "supabase/tests/copilot_catalog.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -46,7 +57,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "database_changes_allowed": false,
+  "database_changes_allowed": true,
   "rls_changes_allowed": false,
   "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
@@ -132,7 +143,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "CI/revisão/integração desteGATEdocumental; depoisBUILD182podealterarsomenteosdoispathsexatosdecatálogo,semexcluirfunçãogenéricaourelaxarcomparativohistórico.",
+  "next_step": "TDD SQL real no Restore isolado; código Edge e runner em PRs posteriores, sem SQL remoto/deploy.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2049,7 +2060,7 @@
   },
   "copilot_scope_quota_hml_gate": {
     "state": "PLAN_ONLY_NO_IMPLEMENTATION",
-    "build_enabled": false,
+    "build_enabled": true,
     "edge_dependency_pr": 180,
     "edge_dependency_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97",
     "blockers": [
@@ -2093,13 +2104,8 @@
     }
   },
   "copilot_catalog_gate": {
-    "state": "DOCUMENT_ONLY_NO_SQL_IMPLEMENTATION",
-    "build_enabled": false,
-    "additional_future_build_paths": [
-      "supabase/tests/history_catalog_compare.py",
-      "supabase/tests/copilot_catalog.test.mjs"
-    ],
-    "migration_sha256": "8057aa5f5ff82b7b36ad305f19a29a9067ce3cf3fcb8603ed32f6bfd6c2fa667",
+    "gate_pr": 183,
+    "merge": "4bda8189de1e3b3d18ffe74e1db5574d8405284c",
     "functions": [
       {
         "schema": "privado",
@@ -2116,7 +2122,14 @@
         "anon_exec": false,
         "service_exec": false,
         "public_exec": false,
-        "body_md5": "802dccbc6b41c244ea7dd57b3719feac"
+        "body_md5": "802dccbc6b41c244ea7dd57b3719feac",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "privado",
@@ -2133,7 +2146,14 @@
         "anon_exec": false,
         "service_exec": false,
         "public_exec": false,
-        "body_md5": "d2bcc6291453a42f96bfb4ffc664b7d8"
+        "body_md5": "d2bcc6291453a42f96bfb4ffc664b7d8",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "public",
@@ -2150,7 +2170,19 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "58268b61ee1b83a0e9ac8693ebee4ed8"
+        "body_md5": "58268b61ee1b83a0e9ac8693ebee4ed8",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "public",
@@ -2167,7 +2199,19 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "67a23d26ebc9608da48d576d33bf6ec6"
+        "body_md5": "67a23d26ebc9608da48d576d33bf6ec6",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "privado",
@@ -2184,7 +2228,14 @@
         "anon_exec": false,
         "service_exec": false,
         "public_exec": false,
-        "body_md5": "364955d7b3eee1325d8691dde52dc3db"
+        "body_md5": "364955d7b3eee1325d8691dde52dc3db",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "public",
@@ -2201,7 +2252,19 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "b68f1ad83a5b68d6bd13d4782fdd1e4b"
+        "body_md5": "b68f1ad83a5b68d6bd13d4782fdd1e4b",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "public",
@@ -2218,7 +2281,19 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "8a1ca3751651956c646d9d8d9a2277d9"
+        "body_md5": "679b4fc3ab8a03d2f11f3b5b694c32d4",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "public",
@@ -2235,7 +2310,19 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "12a3a6349ed40ad9452473bc3c96b7d8"
+        "body_md5": "12a3a6349ed40ad9452473bc3c96b7d8",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       },
       {
         "schema": "public",
@@ -2252,10 +2339,28 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "0cfce0ca3da751f82391606a631d79a5"
+        "body_md5": "89f0e4cb991822e0cc229b489670e5b0",
+        "acl": [
+          {
+            "grantee": "postgres",
+            "privilege": "EXECUTE",
+            "grantable": false
+          },
+          {
+            "grantee": "service_role",
+            "privilege": "EXECUTE",
+            "grantable": false
+          }
+        ]
       }
     ],
-    "owner_privilege": "postgres EXECUTE owner-only, no grant option; public worker RPCs additionally service_role EXECUTE without grant option; no PUBLIC/anon/authenticated or unknown role grants",
-    "comparison": "Append exact nine approved contract records to expected baseline; retain all actual records; independently compare native owner/result/language/definer/config/body_md5/effective EXECUTE and raw ACL rows. Every original comparison remains unchanged."
+    "migration_sha256": "9ca1de7ede1a7a3a7362fc923f8a332eebec37e199c2d3ef024504cecffd264c",
+    "state": "BUILD_NATIVE_PROOF_PENDING",
+    "review_fix_red": {
+      "head": "d6bd5395e3608068dbd9698b4d5d297b9ea06777",
+      "run": 42537766045,
+      "job": 128905777482,
+      "native_error": "COPILOT_SQL_SECURITY_REPRO: PRECEDENTE_A_VERSAO_B_ACCEPTED,HISTORICO_PERMISSION_REVOCATION_ACCEPTED"
+    }
   }
 }
