@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 const run=code=>spawnSync('python3',['-c',"import sys;sys.path.insert(0,'supabase/tests')\n"+code],{encoding:'utf8'});
 test('remaining selection and immutable documentary evidence fail closed',()=>{
- const r=run(`import json,copy,tempfile,pathlib,shutil
+ const r=run(`import json,copy,tempfile,pathlib,shutil,hashlib
 import p0_crud_global_remaining_hml as m
-t=json.load(open('docs/tasks/active-task.json'));t['id']='P0-CRUD-GLOBAL-HML-20261107';t['phase']='BUILD_CERTIFICACAO_DOMINIOS_RESTANTES';t['remaining_certification']['domains_to_run']=['base_normativa','orcamento','competencias']
+raw=pathlib.Path('docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json').read_bytes();assert hashlib.sha256(raw).hexdigest()=='6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606'
+t=json.loads(raw);t['id']='P0-CRUD-GLOBAL-HML-20261107';t['phase']='BUILD_CERTIFICACAO_DOMINIOS_RESTANTES';t['remaining_certification']['domains_to_run']=['base_normativa','orcamento','competencias']
 assert m.selected_domains(t)==['base_normativa','orcamento','competencias']
 m.assert_preserved(pathlib.Path('.'),t)
 for change in [{'project':'foreign'},{'domains_to_run':['../../attack']},{'domains_to_run':['base_normativa','base_normativa']},{'domains_to_run':[]}]:
@@ -56,6 +57,7 @@ for domain,required in m.REQUIRED.items():
  else:raise AssertionError('HTTP500 interpreted as denial')
 print('INCOMPLETE_DOMAIN_NEVER_PASS')`);assert.equal(r.status,0,r.stderr);assert.match(r.stdout,/INCOMPLETE_DOMAIN_NEVER_PASS/);
 });
+import {createHash} from 'node:crypto';
 import {readFileSync,mkdtempSync,mkdirSync,writeFileSync,chmodSync,copyFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
@@ -74,7 +76,8 @@ test('remaining routing is before HML environment and closes foreign/failed/PR o
 test('real gate rejects missing check, failed check and advanced HEAD before Auth',()=>{
  const root=resolve('.'),dir=mkdtempSync(join(tmpdir(),'remaining-gate-'));
  try{
-  const task=JSON.parse(readFileSync('docs/tasks/active-task.json','utf8'));const protectedPaths=Object.keys(task.remaining_certification.preserved_documental.protected_sha256);
+  const snapshot=readFileSync('docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json');assert.equal(createHash('sha256').update(snapshot).digest('hex'),'6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606');
+  const task=JSON.parse(snapshot);const protectedPaths=Object.keys(task.remaining_certification.preserved_documental.protected_sha256);
   for(const p of [...protectedPaths,'supabase/tests/p0_crud_global_remaining_hml.py','docs/tasks/active-task.json']){mkdirSync(join(dir,p,'..'),{recursive:true});copyFileSync(p,join(dir,p));}
   task.id='P0-CRUD-GLOBAL-HML-20261107';task.phase='BUILD_CERTIFICACAO_DOMINIOS_RESTANTES';delete task.remaining_certification.approved_ai_worker_deploy;delete task.remaining_certification.approved_ai_worker_runtime;task.remaining_certification.domains_to_run=['base_normativa'];writeFileSync(join(dir,'docs/tasks/active-task.json'),JSON.stringify(task));
   mkdirSync(join(dir,'bin'));

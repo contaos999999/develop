@@ -1,8 +1,8 @@
 {
-  "id": "C-CHAT-002-EDGE-BUILD-20261109",
-  "title": "Trilha C BUILD Edge: RLS de fontes, reserva e persistência fenced",
+  "id": "C-CHAT-002-B-FIXTURE-BUILD-20261109",
+  "title": "BUILD: snapshot B completo nas duas fixtures unitárias",
   "status": "ativa",
-  "phase": "BUILD_EDGE",
+  "phase": "BUILD_B_FIXTURE_SNAPSHOT",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
   "context_read_acknowledged_at": "2026-11-08",
@@ -39,9 +39,7 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/functions/copilot-query/index.ts",
-    "supabase/tests/copilot_openai_contract.test.mjs",
-    ".github/workflows/restore-isolado.yml"
+    "supabase/tests/p0_crud_global_remaining.test.mjs"
   ],
   "forbidden_paths": [
     "src/**",
@@ -51,7 +49,7 @@
   ],
   "database_changes_allowed": false,
   "rls_changes_allowed": false,
-  "edge_function_changes_allowed": true,
+  "edge_function_changes_allowed": false,
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
   "authorization": {
@@ -122,8 +120,8 @@
     "reviewer": "ChatGPT/Codex, textos originais da pasta 06_PROMPTS_COPIAR_COLAR e matriz canônica 08A-08D",
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
-  "previous_task_id": "P0-CRUD-GLOBAL-HML-20261107",
-  "previous_task_snapshot_commit": "1d444e17467993bdf6a2c150184058196029f446",
+  "previous_task_id": "C-CHAT-002-EDGE-BUILD-20261109",
+  "previous_task_snapshot_commit": "65767bfe58c5c9818824ab0ada38d9f412c19054",
   "prod_untouched": true,
   "acceptance": [
     "append-only e nenhuma remoção de histórico",
@@ -135,7 +133,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "TDD runtime Edge sobre SQL182congelado;semDDL/deploy/HMLharness.",
+  "next_step": "Duas fixtures com snapshotB hash fixo; provar GREEN atual e C13false isolado, sem mudar assertions/routing.",
   "database_change_scope": "No DDL delta. Read-only full application catalog comparison against independent same-HEAD Restore; scoped synthetic fixtures remain separately authorized.",
   "evidence": {
     "test_pr": 52,
@@ -2366,7 +2364,7 @@
     "reuse_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97"
   },
   "governance_b_fixture_snapshot_gate": {
-    "status": "PLAN_ONLY_NO_SOURCE",
+    "status": "BUILD_AUTHORIZED_AFTER_GATE185",
     "source_dependency_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
     "build_path": "supabase/tests/p0_crud_global_remaining.test.mjs",
     "exact_test_titles": [
