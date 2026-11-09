@@ -67,7 +67,6 @@ jobs:
       - name: Validate coordinator post-proof receipt against original run and nonce
         env:
           GH_TOKEN: ${{ github.token }}
-          GITHUB_RUN_ID: '42571726664'
         run: node supabase/tests/copilot_hml.mjs --finalize
       - name: Publish sanitized final-only result
         if: always()
