@@ -88,3 +88,16 @@ Baseaed72SQLvalidadoRestore42538570697/rebuild128908231330+backup128908231416. R
 Validação Edge local: runtime 54/54 e suíte Node supabase/tests/*.test.mjs 436/436, sem skips. RED adicional confirmou abort e revogação após INSERT da mensagem antes do embedding; validação de lease e sinal repetidas imediatamente antes de run. Datas ISO reais estritas, competência da sessão imutável e contexto externo sem número/identificadores contratuais. Nenhuma prova HML ou C13 alegada.
 
 Revisão Edge184: quatro RED causais (58 total:54 PASS/4 FAIL) comprovaram envio externo após revogação de histórico, origem, segurança ou processamento entre ranking e provider. Fix revalida apenas F1..Fn por RLS/permissões canônicas e RPCs SQL materiais imediatamente antes do provedor; qualquer fonte indisponível aborta403 sem envio, persistência de resposta parcial ou renumeração. Finalizador mantém revalidação própria. GREEN58/58 focal e440/440 supabase, sem skips; nenhum HML.
+
+## Emenda documental: isolamento completo das fixtures de governança B
+
+Nenhuma fonte alterada neste GATE. Preservar integralmente manifesto, fase BUILD_EDGE e flags atuais; esta emenda não executa fixtures/HML nem autoriza alterar routing/assertions B. A futura fase documental C13 terá flags de fixtures false. Simulação local desse manifesto reproduziu duas falhas de unidade causais porque os testes restauram somente id/phase do manifesto ativo, deixando flags C em vez do estado B certificado. Log RED SHA256 2dc1ba6ac72629219ac6b478a5b3a2523e63cfcb49ec035b3dfb438d2b5d07ac:391 testes,389 PASS/2 FAIL; não é falha funcional C13 nem prova HML.
+
+Autorizar BUILD posterior exclusivamente em supabase/tests/p0_crud_global_remaining.test.mjs, nestes dois testes exatos:
+
+1. remaining selection and immutable documentary evidence fail closed
+2. real gate rejects missing check, failed check and advanced HEAD before Auth
+
+Ambos devem carregar snapshot B completo já existente e imutável docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json, SHA256 6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606, validando o hash antes de uso. Nenhuma escrita/mudança no snapshot. Manter todas as mutações negativas específicas e assertions existentes, seleção de domínios e checks/HEAD gate/routing originais intactos. Não substituir flags atuais por true para fabricar GREEN; somente fixtures unitárias usam o estado B certificado isolado. Runtime/runner/workflow de produto não mudam.
+
+Sequência fechada: este GATE documental com CI verde e integração; depois ativação BUILD documental permitindo exatamente docs/tasks/active-task.json, este documento e supabase/tests/p0_crud_global_remaining.test.mjs; então alteração do teste. Provar RED causal preservado e GREEN com manifesto atual e em cópia isolada simulando PLAN_C13_HISTORY com database_test_fixtures_allowed/storage_test_fixtures_allowed=false, além da regressão completa. Nenhum skip, relaxamento ou alteração das expectativas negativas. Somente depois publicar PLAN C13 com flags false. Sem nova tabela, SQL, Edge, RLS, Auth, Storage ou execução remota.
