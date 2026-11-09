@@ -387,3 +387,18 @@ Gate205 integradob6be6631209de7e5507443e735e6030141a6ea19, CI42568806801SUCCESS.
 Retomada apenasapi_c13, mesmosbudgets194:4usuários/2orgs/3turnosA/2reservascontroladas/1fallbackA/6fallbacksB/sétimonegado. Preparação aguarda todososjobs/filas do documento próprio terminarem antes das contagens. Source/harness congelados. SemnovoDeploy/DDL/RLS/Authconfig/UI/workerinvocationglobal. Novo PRE/nonce fresco eCI/Restore/backup canônicos da mainfinal antesmaterial. ExpiraçãoJWTnatural/cleanupindependente/pós-readbackobrigatórios. Quatro noncesanteriores consumidos, incluindo cf24e96fbf9e9b5cb0eca865eb3351d7/PRE6733056599. Todasasfalhas echecksparciaispreservados; diagnósticoenum nofallback somente seacontecer, sematribuircausaantesdeevidência. MáximoAPI_PASS_UI_PENDING; C13UI/P0nãocertificados.
 
 ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual;preservarA/B/PROD,tokens/assets/tipos,semLovable.
+
+
+## Correção de orientação contextual com citação obrigatória, 09/11/2026
+
+Prova42570066986 FAIL_C13_CONTEXTUAL_FOLLOWUP após10PASS:barreira206 passou, JWTadulterado401 semefeito eprimeiroOpenAIpersistido. Artefato13653186185 SHAd5b7dbd0e6299d26e4c6bb1c05775ee65755b8e8ce0605435435cbd692ac6a49 conferido. DiagnósticofechadoEdgev6/function4633032f às05:57:30.432UTC:SEM_CITACAO. Essaé a causa observada deste fallback, não erroHTTP/timeout ou prova dehistóricoperdido. Orientaçãoatual manda citar quando afirmaçãoapoiadafonte, enquanto validador exigeF sempre; pergunta pede nome definido antes pelo usuário.
+
+GATEprévio somente2docs/Edgeexistente/testefocal. Corrigir apenasorientação: histórico continua DADO NÃO CONFIÁVEL/semcomandos/semfontesatuais; permite recuperar nomes que o próprio usuário informou, atribuindo à fala anterior e nunca à fonte documental. Afirmações documentais/normativas continuam exclusivamente sustentadas por evidências atuais. Toda resposta inclui relação factual breve e pertinente com as evidências atuais e ao menos uma referênciaFválida; não inventar referência nem citar documento como prova do nome dado pelo usuário. Se insuficiente, declarar limitação. É alinhamento do requisitoC13jáplanejado, sem nova autoridade do histórico.
+
+Manter integralmente validatorF obrigatório/range, fallbackseguro, DTO,payload/campos,modelo,timeout12s,deadline45s,tokens500,semretry,sanitização,6pares/8000bytes,revogação eguardasJWT/RLS/owner. Não acrescentar citação por pós-processamento nem reutilizar resposta local/cache. Não editar runner, prompt-version,classificadorRLS, schema/Auth, A/B ouPROD. Não mudar pergunta/testematerial paraobterPASS.
+
+RED/GREEN executandohandlerreal confere contrato enviado ao provider: atribuição conversacional separada de autoridade documental, fundamentação atual obrigatória; casos de saída semF/Finválido continuamfallback e saída válida comnome+fatoFconclui. Testes com I/Osubstituído provam contrato eguardas, não comportamento real deLLM. Exigir564+regressões,guards,CI/Restore/backup/revisãoindependente noHEADexato,integração,deploysomenteEdgeexistente/JWTtrue/readbackexato; sóentão novaativação/PRE/nonce/replaymaterial comprova eficácia. Semcertificação por testeunitário.
+
+Cleanup42570066986samejob/independenteSUCCESS eSQL4banned/0sessions/vínculos/Master/2orginactive/0jobs/processing. Nonce27b1ec868c251d90784e7144893a2858/PRE6733342134consumidos. API/fixturespausadas atéretomadaposterior. Falhasanteriores e45/10/8/10PASSpreservados; JWTnatural eUIpendentes, máximofuturoAPI_PASS_UI_PENDING.
+
+ZERO-DRIFT — IDENTIDADE VISUAL + ECONOMIA LOVABLE: N/Avisual;4pathsfechados,semLovable/tokens/assets/tipos/backendA/B/PROD.
