@@ -399,7 +399,9 @@
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
     "supabase/tests/copilot_hml.mjs",
-    ".github/workflows/copilot-c13-final-readback-recovery.yml"
+    ".github/workflows/copilot-c13-final-readback-recovery.yml",
+    "plans/c13-hml-cors-origin-20261109.md",
+    "supabase/functions/copilot-query/index.ts"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -2367,7 +2369,7 @@
   },
   "auth_configuration_changes_allowed": false,
   "title": "Replay API C13 após alinhamento da orientação contextual",
-  "edge_function_changes_allowed": false,
+  "edge_function_changes_allowed": true,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
     "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
@@ -2972,5 +2974,11 @@
     "original_nonce": "75706a06dd3734b42c34e226ffe18946",
     "authorization": "User-requested P0 scoped exception; maintain all existing forbidden paths and auth/storage/RLS/PROD constraints",
     "certified": false
+  },
+  "c13_hml_cors_hotfix": {
+    "plan": "plans/c13-hml-cors-origin-20261109.md",
+    "origin": "https://contaos-41-nygkrrbkq-contaos9999.vercel.app",
+    "scope": "Only exact CORS allowlist; HML only; preserve JWT RLS",
+    "review_required": true
   }
 }
