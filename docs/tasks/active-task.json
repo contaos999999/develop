@@ -1475,7 +1475,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "CI/revisão/merge documental, Restore/backup/Zero-Drift main final, novo PRE/nonce e replay API com cleanup independente e post-readback.",
+  "next_step": "Revisar e integrar GATE documental; depois RED/GREEN somente runner, CI/Restore/backup e revisão independente antes da integração. API HML pausada até nova ativação.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -1594,7 +1594,7 @@
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
   },
-  "phase": "BUILD_HML_COPILOT_PROOF",
+  "phase": "BUILD_COPILOT_RUNNER_WORKER_BARRIER",
   "upload_document_wrapper_gate": {
     "phase": "VERIFICADO_HML",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
@@ -2234,7 +2234,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Nenhuma mudança ou deploy nesta retomada; Edgev6 e runner57db8fce congelados.",
+  "edge_function_change_scope": "Nenhuma alteração/deploy Edge; diagnóstico v6 preservado. Somente runner próprio e dois documentos.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2365,7 +2365,7 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "Replay API C13 com diagnóstico fechado do provedor",
+  "title": "Trilha C: correção offline da barreira do worker documental próprio",
   "edge_function_changes_allowed": false,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
@@ -2550,7 +2550,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "Somente DML sintético próprio do protocolo api_c13 autorizado, nos limites194 e com quarentena independente; nenhumaDDL/RLS/grant/config/dadoalheio.",
+  "database_change_scope": "Nenhum DML/DDL/RLS/Auth/Storage remoto nesta correção offline; somente leituras diagnósticas sintéticas próprias. Fixtures HML pausadas até ativação posterior.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
