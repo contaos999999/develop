@@ -44,7 +44,7 @@ jobs:
               # The Supabase JWT gateway can reject before Edge CORS middleware.
               # A 401 may have no ACAO; if present it must match the allowed origin.
               if [[ -n "$cors" && "$cors" != "$allowed" ]]; then
-                echo "Unauthenticated 401 exposed unexpected CORS origin"; exit 1
+                printf "Unauthenticated 401 CORS mismatch: observed=%q expected=%q (gateway may respond before Edge)\n" "$cors" "$allowed"; exit 1
               fi
             fi
           }
