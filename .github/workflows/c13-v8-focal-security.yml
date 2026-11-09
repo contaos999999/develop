@@ -30,7 +30,7 @@ jobs:
             code=$(curl "${args[@]}" "$url")
             echo "$label status=$code expected=$expected"
             test "$code" = "$expected"
-            if [[ "$label" == allowed ]]; then
+            if [[ "$origin" == "$allowed" ]]; then
               grep -iq "^access-control-allow-origin: $allowed" /tmp/c13-headers
             else
               if grep -iq '^access-control-allow-origin:' /tmp/c13-headers; then
