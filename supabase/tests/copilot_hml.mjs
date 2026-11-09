@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict';
-import {readFileSync,writeFileSync,mkdirSync,chmodSync,existsSync,readdirSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,chmodSync,existsSync,readdirSync,mkdtempSync,rmSync} from 'node:fs';
 import {createHash,randomUUID,randomBytes} from 'node:crypto';
 import {spawnSync,spawn} from 'node:child_process';
 import {resolve,join,relative} from 'node:path';
+import {tmpdir} from 'node:os';
+import {createRequire} from 'node:module';
 const sha40=/^[0-9a-f]{40}$/;
 const sha64=/^[0-9a-f]{64}$/;
 const PROJECT='gklhhhyosgasnyoxlrui',REPO='contaos999999/develop',URL=`https://${PROJECT}.supabase.co`;
@@ -71,6 +73,10 @@ export function ownFixture(i,runId){
  for(const label of ['org','org_b','contract','contract_b','contractor','contractor_b'])f[label]=id(label);
  for(const profile of ['administrator','foreign','revoked','master'])f.users.push({profile,intent:id('intent:'+profile),email:`copilot-${i.nonce}-${profile}@example.invalid`});
  return f;
+}
+export function authRecognition(result,userId){
+ if(!result.error){requireC(result.data?.user?.id===userId,'Auth confirms exact own user');return true;}
+ requireC(result.error.name==='AuthApiError'&&[401,403].includes(result.error.status)&&!result.data?.user,'Auth rejects credential, not transport/provider failure');return false;
 }
 export function revokedSessionResult(authRecognizes,r){
  requireC(r.data?.ok===false&&r.status===(authRecognizes?403:401)&&r.data.codigo===(authRecognizes?'AUTH_ACESSO_NEGADO':'AUTH_SESSAO_INVALIDA'),'exact same-token revoked-session branch');
@@ -153,11 +159,12 @@ async function setupSDK(e,i){
  const npmLock=JSON.parse(readFileSync(join(dir,'package-lock.json')));requireC(npmLock.packages['node_modules/@supabase/supabase-js']?.integrity===lock.integrity,'SDK tarball integrity equals approved frontend lock');
  npm(['ci','--ignore-scripts','--no-audit','--no-fund']);writeFileSync(join(dir,'approved.json'),JSON.stringify({frontend:i.frontend,...lock}));
 }
+export async function sdkConstructor(dir){const {createClient}=createRequire(join(dir,'package.json'))('@supabase/supabase-js');requireC(typeof createClient==='function','approved SDK createClient export');return createClient;}
 async function loadSDK(e,i,{cleanupOnly=false}={}){
  const dir=resolve(e.SDK_DIR),approved=JSON.parse(readFileSync(join(dir,'approved.json')));
  requireC(approved.frontend===i.frontend,'same approved frontend SDK');
  const pkg=JSON.parse(readFileSync(join(dir,'node_modules/@supabase/supabase-js/package.json')));requireC(pkg.version===approved.version,'installed approved SDK version');
- const {createClient}=await import(join(dir,'node_modules/@supabase/supabase-js/dist/main/index.js'));
+ const createClient=await sdkConstructor(dir);
  const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{fetch:async(input,init={})=>{
   const target=new globalThis.URL(typeof input==='string'?input:input.url);requireC(target.origin===URL,'SDK fixed HML origin');
   return fetch(input,{...init,redirect:'error',signal:AbortSignal.any([AbortSignal.timeout(e.CLEANUP_MODE?10000:50000),...(!e.CLEANUP_MODE&&materialDeadline?[materialDeadline.signal]:[])])});
@@ -200,10 +207,11 @@ export async function cleanupCausal(f,ops){
  if(result.errors.length)result.state='CLEANUP_FAILED';
  return result;
 }
-async function api(e,path,{token,admin=false,method='POST',body}={}){
+async function api(e,path,{token,admin=false,method='POST',body,malformedAuth=false}={}){
+ requireC(!malformedAuth||(!token&&!admin&&path==='/functions/v1/copilot-query'),'bounded malformed-header negative');
  requireC(path.startsWith('/auth/v1/')||path.startsWith('/rest/v1/')||path.startsWith('/functions/v1/'),'fixed project path');
  requireC(!admin||path.startsWith('/auth/v1/admin/users'),'Auth Admin restricted');
- const r=await fetch(URL+path,{method,headers:{apikey:admin?e.AUTH_ADMIN_KEY:e.SUPABASE_PUBLISHABLE_KEY,...(token||admin?{Authorization:`Bearer ${admin?e.AUTH_ADMIN_KEY:token}`} :{}),'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),redirect:'error',signal:AbortSignal.any([AbortSignal.timeout(e.CLEANUP_MODE?10000:50000),...(!e.CLEANUP_MODE&&materialDeadline?[materialDeadline.signal]:[])])});
+ const r=await fetch(URL+path,{method,headers:{apikey:admin?e.AUTH_ADMIN_KEY:e.SUPABASE_PUBLISHABLE_KEY,...(malformedAuth?{Authorization:'NotBearer invalid'}:token||admin?{Authorization:`Bearer ${admin?e.AUTH_ADMIN_KEY:token}`} :{}),'Content-Type':'application/json'},...(body===undefined?{}:{body:JSON.stringify(body)}),redirect:'error',signal:AbortSignal.any([AbortSignal.timeout(e.CLEANUP_MODE?10000:50000),...(!e.CLEANUP_MODE&&materialDeadline?[materialDeadline.signal]:[])])});
  let data;try{data=await r.json();}catch{data=null;}return {status:r.status,data,headers:r.headers};
 }
 function privateRoot(e){const root=resolve(e.CONTAOS_TEST_PRIVATE_DIR),base=resolve(e.RUNNER_TEMP);requireC(relative(base,root)&&!relative(base,root).startsWith('..'),'private runner directory');mkdirSync(root,{recursive:true,mode:0o700});chmodSync(root,0o700);return root;}
@@ -450,7 +458,7 @@ async function materialAPI(e,i,root,report){
  const f=await prepare(e,i,root),sessions={};for(const u of f.users)sessions[u.profile]=await login(e,u);
  const a=sessions.administrator,b=sessions.foreign,rev=sessions.revoked,master=sessions.master,ledger=createLedger();
  const check=(name,passed)=>{report.checks.push({name,passed});requireC(passed,name);};
- const counts=()=>JSON.parse(sql(e,`select json_build_object('reservations',(select count(*) from public.consultas_semanticas where id_organizacao in(${q(f.org)},${q(f.org_b)})),'returns',(select count(*) from public.retornos_modelo where id_organizacao in(${q(f.org)},${q(f.org_b)})),'sources',(select count(*) from public.fontes_resposta_copiloto where id_organizacao in(${q(f.org)},${q(f.org_b)})));`));
+ const counts=()=>JSON.parse(sql(e,`select json_build_object('reservations',(select count(*) from public.consultas_semanticas where id_organizacao in(${q(f.org)},${q(f.org_b)})),'returns',(select count(*) from public.retornos_modelo where id_organizacao in(${q(f.org)},${q(f.org_b)})),'sources',(select count(*) from public.fontes_resposta_copiloto where id_organizacao in(${q(f.org)},${q(f.org_b)})),'messages',(select count(*) from public.mensagens_copiloto where id_organizacao in(${q(f.org)},${q(f.org_b)})));`));
  const sameCounts=(x,y)=>JSON.stringify(x)===JSON.stringify(y);
  const post=(actor,body)=>api(e,'/functions/v1/copilot-query',{token:actor.token,body});
  const body={id_contrato:f.contract,data_referencia:null};
@@ -464,6 +472,12 @@ async function materialAPI(e,i,root,report){
  const first=await ask(a,{...body,pergunta:'Vou chamar esta revisão de Plano Aurora. Quais comprovantes devem acompanhar o relatório mensal?'},'c13_initial');
  check('AUTHORIZED_OPENAI_SOURCES',first.status===200&&first.data?.ok===true&&first.data.fontes?.length>0&&/\bF1\b/.test(first.data.resposta));
  const session=first.data.id_sessao;report.own_session=session;
+ report.negative_auth=[];
+ for(const kind of ['missing','malformed']){
+  const before=counts(),r=await api(e,'/functions/v1/copilot-query',{body:{...body,pergunta:'POST sem autoridade autenticada'},malformedAuth:kind==='malformed'});
+  const branch=invalidAuthResult(kind,r);check('POST_AUTH_'+kind.toUpperCase()+'_DENIED_NO_EFFECT',sameCounts(before,counts()));report.negative_auth.push({kind,branch,status:r.status});
+ }
+
  check('OPENAI_PERSISTED',sql(e,`select exists(select 1 from public.consultas_semanticas q join public.retornos_modelo r on r.id_consulta=q.id where q.id=${q(first.data.id_consulta)} and q.id_organizacao=${q(f.org)} and q.criado_por=${q(a.user.id)} and r.provedor='openai' and r.status='concluido' and jsonb_array_length(r.fontes)>0);`)==='t');
  const follow=await ask(a,{...body,id_sessao:session,pergunta:'Qual é o nome da revisão que defini na minha pergunta anterior sobre os comprovantes do relatório mensal?'},'c13_followup');
  check('C13_CONTEXTUAL_FOLLOWUP',follow.status===200&&follow.data?.ok===true&&follow.data.id_sessao===session&&/Plano Aurora/i.test(follow.data.resposta));
@@ -508,7 +522,7 @@ async function materialAPI(e,i,root,report){
  const beforeRevocation=counts();sql(e,`delete from auth.sessions where id=${q(rev.sessionId)} and user_id=${q(rev.user.id)};`);
  check('OWN_SESSION_ABSENT',sql(e,`select not exists(select 1 from auth.sessions where id=${q(rev.sessionId)} and user_id=${q(rev.user.id)});`)==='t');
  const recognized=await rev.client.auth.getUser(rev.token),denied=await post(rev,{...body,pergunta:'Mesma credencial após revogação'});
- report.revocation_branch=revokedSessionResult(!recognized.error&&recognized.data?.user?.id===rev.user.id,denied);check('SAME_TOKEN_REVOKED_NO_EFFECT',sameCounts(beforeRevocation,counts()));
+ report.revocation_branch=revokedSessionResult(authRecognition(recognized,rev.user.id),denied);check('SAME_TOKEN_REVOKED_NO_EFFECT',sameCounts(beforeRevocation,counts()));
  // Exactly two server reservations remain live while the third real JWT POST is denied.
  const eligible=first.data.fontes.filter(x=>x.fonte_tipo==='fragmento_documento').map(x=>x.fonte_id);
  requireC(eligible.length>0,'own eligible controlled reservation IDs');
@@ -535,6 +549,13 @@ async function materialAPI(e,i,root,report){
  report.ledger=ledger.snapshot();report.sdk={version:e.SDK.version,source_frontend_head:i.frontend};
  report.limits.push('API/JWT proof only. Browser, responsive matrix, frontend C13 freshness, visual accessibility and UI certification are pending. Runtime-only provider-boundary race proofs are separate evidence, not reclassified as HML assertions.');
  report.material_checks_finished_at=new Date().toISOString();
+}
+export function invalidAuthResult(kind,r){
+ requireC(['missing','malformed'].includes(kind)&&r.status===401,'negative POST auth requires HTTP401');
+ const edge=kind==='missing'?'AUTH_NAO_AUTENTICADO':'AUTH_SESSAO_INVALIDA';
+ if(r.data?.ok===false&&r.data.codigo===edge)return 'EDGE_'+edge;
+ const gateway=kind==='missing'?'UNAUTHORIZED_NO_AUTH_HEADER':'UNAUTHORIZED_INVALID_JWT_FORMAT';
+ requireC(r.headers.get('sb-error-code')===gateway,'exact missing/malformed platform auth rejection');return 'GATEWAY_'+gateway;
 }
 export function expiredJWTResult(algorithm,r){
  requireC(r.status===401,'expired JWT requires HTTP401');
@@ -733,6 +754,24 @@ async function selfTest(){
 
  assert.equal(typeof canonicalFunctionBody,'function','N/A requires exact canonical runtime permission bodies, not only default role rows');
  assert.equal(canonicalFunctionBody('create function privado.rbac_permite(x uuid) returns boolean language sql as $$ select true $$;','privado.rbac_permite'),' select true ');assert.throws(()=>canonicalFunctionBody('create function privado.foreign(x uuid) returns boolean as $$ select true $$;','privado.rbac_permite'));
+
+ const sdkFixture=mkdtempSync(join(tmpdir(),'copilot-sdk-contract-'));
+ try{
+  const base=join(sdkFixture,'node_modules/@supabase/supabase-js');mkdirSync(join(base,'dist'),{recursive:true});writeFileSync(join(sdkFixture,'package.json'),'{"private":true}');writeFileSync(join(base,'package.json'),JSON.stringify({name:'@supabase/supabase-js',version:'2.118.0',main:'dist/index.cjs',exports:{'.':{require:{default:'./dist/index.cjs'},import:{default:'./dist/index.mjs'}}}}));writeFileSync(join(base,'dist/index.cjs'),"exports.createClient=()=> 'SDK_ENTRY_RESOLVED';");
+  let constructor;await assert.doesNotReject(async()=>{constructor=await sdkConstructor(sdkFixture);},'SDK must resolve package entrypoint, not nonexistent legacy dist/main/index.js');assert.equal(constructor(),'SDK_ENTRY_RESOLVED');
+ }finally{rmSync(sdkFixture,{recursive:true,force:true});}
+
+ assert.equal(typeof invalidAuthResult,'function','missing/malformed POST auth needs exact platform or Edge rejection');
+ assert.equal(invalidAuthResult('missing',{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_NO_AUTH_HEADER'})}),'GATEWAY_UNAUTHORIZED_NO_AUTH_HEADER');
+ assert.equal(invalidAuthResult('malformed',{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_INVALID_JWT_FORMAT'})}),'GATEWAY_UNAUTHORIZED_INVALID_JWT_FORMAT');
+ assert.equal(invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_NAO_AUTENTICADO'},headers:new Headers()}),'EDGE_AUTH_NAO_AUTENTICADO');
+ assert.equal(invalidAuthResult('malformed',{status:401,data:{ok:false,codigo:'AUTH_SESSAO_INVALIDA'},headers:new Headers()}),'EDGE_AUTH_SESSAO_INVALIDA');
+ for(const bad of [{status:500,data:{},headers:new Headers()},{status:401,data:{},headers:new Headers()},{status:401,data:{},headers:new Headers({'sb-error-code':'UNAUTHORIZED_LEGACY_JWT'})}])assert.throws(()=>invalidAuthResult('missing',bad));
+ assert.throws(()=>invalidAuthResult('missing',{status:401,data:{ok:false,codigo:'AUTH_SESSAO_INVALIDA'},headers:new Headers()}));
+
+ assert.equal(typeof authRecognition,'function','revoked-token Auth branch cannot treat transport/provider errors as authentication rejection');
+ assert.equal(authRecognition({data:{user:{id:'own'}},error:null},'own'),true);assert.equal(authRecognition({data:{user:null},error:{name:'AuthApiError',status:401}},'own'),false);
+ assert.throws(()=>authRecognition({data:{user:null},error:{name:'AuthUnknownError',status:0}},'own'));assert.throws(()=>authRecognition({data:{user:null},error:{name:'AuthApiError',status:500}},'own'));assert.throws(()=>authRecognition({data:{user:{id:'foreign'}},error:null},'own'));
  console.log('COPILOT_HML_SELF_TEST_PASS');
 }
 if(process.argv.includes('--self-test'))await selfTest();
