@@ -2364,5 +2364,20 @@
     "state": "SQL_GREEN_NOT_DEPLOYED",
     "reuse_edge_pr": 180,
     "reuse_head": "7494f06576be81e6c3136e2bbe0683a9c9ebeb97"
+  },
+  "governance_b_fixture_snapshot_gate": {
+    "status": "PLAN_ONLY_NO_SOURCE",
+    "source_dependency_head": "cc4ad9158402db6ca7396b5313b148d8d8d625b2",
+    "build_path": "supabase/tests/p0_crud_global_remaining.test.mjs",
+    "exact_test_titles": [
+      "remaining selection and immutable documentary evidence fail closed",
+      "real gate rejects missing check, failed check and advanced HEAD before Auth"
+    ],
+    "immutable_snapshot_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
+    "immutable_snapshot_sha256": "6d83a56f35d87dfdb10fb75db560f3ee0b2e7614a77e928003dcda45f1106606",
+    "red_log_sha256": "2dc1ba6ac72629219ac6b478a5b3a2523e63cfcb49ec035b3dfb438d2b5d07ac",
+    "requires_gate_ci_and_merge_before_source": true,
+    "preserve_assertions_and_routing": true,
+    "requires_false_fixture_flags_simulation": true
   }
 }
