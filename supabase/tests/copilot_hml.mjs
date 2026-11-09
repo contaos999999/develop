@@ -12,11 +12,12 @@ let materialDeadline=null;
 const privatePasswords=new Map();
 const digest=b=>createHash('sha256').update(b).digest('hex');
 function requireC(v,name){assert.ok(v,name);}
-export function inputs(e){
+export function inputs(e,{recovery=false}={}){
  requireC(e.PROOF_MODE==='api_c13','only API C13 is activated; full UI requires its later BUILD');
  requireC(/^[1-9][0-9]{0,8}$/.test(e.FRONTEND_PR),'exact frontend PR');
  requireC(e.GITHUB_EVENT_NAME==='workflow_dispatch'&&e.GITHUB_REPOSITORY===REPO&&e.GITHUB_REF==='refs/heads/main','manual main only');
- requireC(sha40.test(e.TESTED_HEAD)&&sha40.test(e.FRONTEND_HEAD)&&e.GITHUB_SHA===e.TESTED_HEAD,'exact heads');
+ requireC(sha40.test(e.TESTED_HEAD)&&sha40.test(e.FRONTEND_HEAD)&&sha40.test(e.GITHUB_SHA)&&(recovery||e.GITHUB_SHA===e.TESTED_HEAD),'exact heads');
+ if(recovery){requireC(/^[1-9][0-9]{0,19}$/.test(e.ORIGINAL_RUN_ID)&&e.ORIGINAL_RUN_ID!==e.GITHUB_RUN_ID,'distinct original run');requireC(e.GITHUB_WORKFLOW_REF?.includes('/.github/workflows/copilot-c13-final-readback-recovery.yml@refs/heads/main'),'dedicated recovery workflow only');}
  for(const k of ['RESTORE_RUN_ID','DEPLOYMENT_RECEIPT_COMMENT_ID','EDGE_VERSION'])requireC(/^[1-9][0-9]{0,19}$/.test(e[k]),k);
  requireC(sha64.test(e.EDGE_SOURCE_SHA256)&&sha64.test(e.EDGE_BUNDLE_SHA256)&&/^[0-9a-f]{32}$/.test(e.NONCE),'hashes and own nonce');
  return {mode:e.PROOF_MODE,frontendPr:Number(e.FRONTEND_PR),head:e.TESTED_HEAD,frontend:e.FRONTEND_HEAD,restore:e.RESTORE_RUN_ID,comment:e.DEPLOYMENT_RECEIPT_COMMENT_ID,version:Number(e.EDGE_VERSION),source:e.EDGE_SOURCE_SHA256,bundle:e.EDGE_BUNDLE_SHA256,nonce:e.NONCE};
@@ -667,21 +668,23 @@ export function finalState(report,independentCleanup,postReceipt,i){
  return 'API_PASS_UI_PENDING';
 }
 async function finalReadback(e,i){
- const report=JSON.parse(readFileSync('copilot-proof/report.json')),independent=JSON.parse(readFileSync('copilot-cleanup/cleanup.json'));i.runId=e.GITHUB_RUN_ID;
- requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===i.head,'final stable main CAS');
+ const originalRunId=e.ORIGINAL_RUN_ID||e.GITHUB_RUN_ID;
+ if(e.ORIGINAL_RUN_ID){const original=await gh(`/repos/${REPO}/actions/runs/${originalRunId}`,e);requireC(original.head_sha===i.head&&original.event==='workflow_dispatch'&&original.conclusion==='failure'&&original.run_attempt>=1,'original failed run provenance');const ancestry=await gh(`/repos/${REPO}/compare/${i.head}...${e.GITHUB_SHA}`,e);requireC(['ahead','identical'].includes(ancestry.status)&&ancestry.base_commit?.sha===i.head,'recovery main must descend from original proof HEAD');}
+ const report=JSON.parse(readFileSync('copilot-proof/report.json')),independent=JSON.parse(readFileSync('copilot-cleanup/cleanup.json'));i.runId=originalRunId;
+ requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===(e.ORIGINAL_RUN_ID?e.GITHUB_SHA:i.head),'final stable main CAS');
  validateFrontendPR(await gh(`/repos/contaos999999/contaos-hml-control/pulls/${i.frontendPr}`,e),i);
  const initial=await gh(`/repos/${REPO}/issues/comments/${i.comment}`,e);requireC(JSON.stringify(JSON.parse(initial.body))===JSON.stringify(report.pre_receipt),'initial receipt body unchanged');validateComment(initial,report.pre_receipt,i,{now:Date.parse(report.material_started_at)});
  const started=Date.now();let final;
  while(Date.now()-started<720000){
   const comments=[];for(let page=1;page<=10;page++){const rows=await gh(`/repos/${REPO}/issues/138/comments?per_page=100&since=${encodeURIComponent(report.material_started_at)}&page=${page}`,e);comments.push(...rows);if(rows.length<100)break;requireC(page<10,'bounded final receipt catalog complete');}
   const matches=[];
-  for(const comment of comments){let receipt;try{receipt=JSON.parse(comment.body);}catch{continue;}if(receipt?.schema==='contaos.copilot.deployment.v1'&&receipt.phase==='post-proof'&&String(receipt.run_id)===String(e.GITHUB_RUN_ID)&&receipt.nonce===i.nonce)matches.push({comment,receipt});}
+  for(const comment of comments){let receipt;try{receipt=JSON.parse(comment.body);}catch{continue;}if(receipt?.schema==='contaos.copilot.deployment.v1'&&receipt.phase==='post-proof'&&String(receipt.run_id)===String(originalRunId)&&receipt.nonce===i.nonce)matches.push({comment,receipt});}
   requireC(matches.length<=1,'one immutable final receipt');
-  if(matches.length){const {comment,receipt}=matches[0];validateComment(comment,receipt,i,{phase:'post-proof',runId:e.GITHUB_RUN_ID,materialFinishedAt:report.material_finished_at});final={comment_id:comment.id,receipt};break;}
+  if(matches.length){const {comment,receipt}=matches[0];validateComment(comment,receipt,i,{phase:'post-proof',runId:originalRunId,materialFinishedAt:report.material_finished_at});final={comment_id:comment.id,receipt};break;}
   await new Promise(r=>setTimeout(r,5000));
  }
  requireC(final,'post-proof coordinator readback absent; no final pass');
- requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===i.head,'main stable through final receipt');
+ requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===(e.ORIGINAL_RUN_ID?e.GITHUB_SHA:i.head),'main stable through final receipt');
  report.state=finalState(report,independent,final.receipt,i);report.post_receipt=final;report.independent_cleanup=independent;report.global_complete=false;
  report.ui_state='PENDING_SEPARATE_FULL_UI_BUILD_AND_PROOF';writeFileSync('copilot-proof/final.json',JSON.stringify(report,null,2));
  console.log('API_PASS_UI_PENDING');
@@ -689,7 +692,7 @@ async function finalReadback(e,i){
 async function main(){
  const e={...process.env},mode=process.argv[2];
  if(mode==='--gate'){await gate(e);console.log('COPILOT_PRE_ENVIRONMENT_GATE_PASS');return;}
- const i=inputs(e);
+ const i=inputs(e,{recovery:mode==='--finalize'&&!!e.ORIGINAL_RUN_ID});
  if(mode==='--install-sdk'){await setupSDK(e,i);console.log('COPILOT_APPROVED_SDK_READY');return;}
  if(mode==='--finalize'){await finalReadback(e,i);return;}
  const root=privateRoot(e);mkdirSync('copilot-proof',{recursive:true});
@@ -715,6 +718,10 @@ async function main(){
  console.log(report.state);
 }
 async function selfTest(){
+ const recoveryFixture={PROOF_MODE:'api_c13',FRONTEND_PR:'379',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_REPOSITORY:REPO,GITHUB_REF:'refs/heads/main',GITHUB_SHA:'b'.repeat(40),TESTED_HEAD:'a'.repeat(40),FRONTEND_HEAD:'c'.repeat(40),ORIGINAL_RUN_ID:'42571726664',GITHUB_RUN_ID:'99999999999',GITHUB_WORKFLOW_REF:REPO+'/.github/workflows/copilot-c13-final-readback-recovery.yml@refs/heads/main',RESTORE_RUN_ID:'42571349135',DEPLOYMENT_RECEIPT_COMMENT_ID:'6733569504',EDGE_VERSION:'7',EDGE_SOURCE_SHA256:'d'.repeat(64),EDGE_BUNDLE_SHA256:'e'.repeat(64),NONCE:'f'.repeat(32)};
+ assert.equal(inputs(recoveryFixture,{recovery:true}).head,recoveryFixture.TESTED_HEAD,'recovery preserves original tested HEAD without equating new GITHUB_SHA');
+ assert.throws(()=>inputs(recoveryFixture),'normal material proof must reject changed SHA');
+ for(const bad of [{GITHUB_WORKFLOW_REF:REPO+'/.github/workflows/other.yml@refs/heads/main'},{ORIGINAL_RUN_ID:'99999999999'},{GITHUB_SHA:'not-a-sha'},{GITHUB_REF:'refs/heads/other'}])assert.throws(()=>inputs({...recoveryFixture,...bad},{recovery:true}),'recovery must fail closed on provenance');
  const documentComplete={ready:true,fragments:1,documents_complete:true,embeddings_complete:true,ai_complete:true,unfinished_jobs:0,failed_jobs:0,queue_messages:0};
  let documentReads=0,documentClock=0;
  await waitOwnDocumentReady(async()=>++documentReads===1?{...documentComplete,ai_complete:false,unfinished_jobs:1}:documentComplete,{now:()=>documentClock,delay:async ms=>{documentClock+=ms;}});
