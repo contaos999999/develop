@@ -77,7 +77,8 @@ export function ownFixture(i,runId){
 }
 export function authRecognition(result,userId){
  if(!result.error){requireC(result.data?.user?.id===userId,'Auth confirms exact own user');return true;}
- requireC(result.error.name==='AuthApiError'&&[401,403].includes(result.error.status)&&!result.data?.user,'Auth rejects credential, not transport/provider failure');return false;
+ const missingSession=result.error.name==='AuthSessionMissingError'&&result.error.status===400&&result.error.__isAuthError===true;
+ requireC((result.error.name==='AuthApiError'&&[401,403].includes(result.error.status)||missingSession)&&!result.data?.user,'Auth rejects credential, not transport/provider failure');return false;
 }
 // Characterize the approved real SDK at its HTTP boundary, without HML/Auth I/O.
 export async function sdkRevocationContract(createClient){
