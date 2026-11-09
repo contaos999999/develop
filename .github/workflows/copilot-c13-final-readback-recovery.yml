@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: 5459536e7f7121e2f26758841acd520f84e0ad9d
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
@@ -42,8 +42,8 @@ jobs:
           set -euo pipefail
           test "$GITHUB_REPOSITORY" = contaos999999/develop
           test "$GITHUB_REF" = refs/heads/main
-          test "$(git rev-parse HEAD)" = "$TESTED_HEAD"
-          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$TESTED_HEAD"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
           test "$(gh api repos/$GITHUB_REPOSITORY/actions/runs/$ORIGINAL_RUN_ID --jq .head_sha)" = "$TESTED_HEAD"
           for job in readiness proof cleanup; do
             test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ORIGINAL_RUN_ID/jobs?per_page=100" --jq ".jobs[] | select(.name==\"$job\") | .conclusion")" = success
