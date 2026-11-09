@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": true,
+  "storage_test_fixtures_allowed": false,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": true,
+  "database_test_fixtures_allowed": false,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -398,9 +398,8 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/tests/copilot_hml.mjs",
-    ".github/workflows/copilot-hml.yml",
-    ".github/workflows/restore-isolado.yml"
+    "supabase/functions/copilot-query/index.ts",
+    "supabase/tests/copilot_openai_contract.test.mjs"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -1477,7 +1476,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Após revisão/CI/Restore/backup e integração deste SHA: confirmar Edge/RLS/readbacks, emitir reciboPRE imutável fresco e executar API real; cleanup independente e reciboPOST/finalize obrigatórios; somente API_PASS_UI_PENDING libera PLAN/frontendC13.",
+  "next_step": "Ativação documental/CI/revisão; REDPGRST201→GREENmínimoEdge/teste, regressão/CI/Restore/backup/review; integrar/deploysomenteEdgeexistente e readback; reativação API com novononce/PRE apóscontroles. Não reutilizar ensaioFAIL.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -1596,7 +1595,7 @@
       "scope": "TECHNICAL_HML_BUILD_CONFIGURATION_NOT_CANONICAL_LOAD_OR_FINANCIAL_CERTIFICATION"
     }
   },
-  "phase": "BUILD_HML_COPILOT_PROOF",
+  "phase": "BUILD_EDGE_POSTGREST_FK",
   "upload_document_wrapper_gate": {
     "phase": "VERIFICADO_HML",
     "base": "ff4e0d83d2d8010d08753b8f0460044b11e813b3",
@@ -2203,7 +2202,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Executar prova API C13 real estritamente HML, com fixtures sintéticas próprias, orçamento fechado e recibos imutáveis; sem UI ou certificação final por esta etapa.",
+  "objective": "Corrigir somente embed PostgREST ambíguo de versões→arquivos usando FKcomposta existente, preservando JWT/RLS/contrato/DTO e fail-closed; semDDL ou materialHML nesta etapa.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2236,7 +2235,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Nenhuma alteração ou deploy Edge nesta fase runner; preservar código C13 de main9878 e readback técnico v4.",
+  "edge_function_change_scope": "Somente hint explícito da FKexistente versoes_documento_arquivo_org_contrato_fk no embedarquivos e testes causais PostgREST; sem fallbackadmin/global ou mudança de contrato.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2367,8 +2366,8 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "BUILD fase3: runner HML próprio com recibos externos e cleanup",
-  "edge_function_changes_allowed": false,
+  "title": "BUILD corretivo Edge: desambiguar FK de arquivo em versões",
+  "edge_function_changes_allowed": true,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
     "status": "PASS_LOCAL_ONE_TABLE_RESTORE_ONLY",
@@ -2552,7 +2551,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "Nenhuma DDL ou aplicação SQL nesta fase runner; proteção RLS138 integrada e aplicada em HML com readback no GATE138.",
+  "database_change_scope": "NenhumaDDL/migration/RLS/grant/corpoSQL ou dadoHML nesta fase.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
@@ -2594,7 +2593,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-002-HML-PROOF-BUILD-20261109",
+  "id": "C-CHAT-004-POSTGREST-FK-BUILD-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2608,7 +2607,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "HML_EXECUTION_AUTHORIZED",
+    "state": "PAUSED_FOR_EDGE_FK_FIX",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2626,7 +2625,7 @@
     "requires_trigger_188_merged_before_ready": true,
     "requires_backend_c13_api_pass_before_ui": true,
     "hml_execution_requires_coordinator": true,
-    "hml_executed": false,
+    "hml_executed": true,
     "fixture_authorization": {
       "auth_admin_api_only": true,
       "no_insert_auth_users": true,
@@ -2698,6 +2697,35 @@
       "jwt_expiry_natural_only": true,
       "jwt_ttl_or_claim_changes_forbidden": true,
       "independent_cleanup_and_post_receipt_required": true
+    },
+    "last_material_run": {
+      "run": 42553694889,
+      "state": "FAIL",
+      "nonce": "06451483d0fec06da22eebfaed900607",
+      "pre_receipt": 6731129800,
+      "first_failure": "AUTHORIZED_OPENAI_SOURCES",
+      "cause": "PGRST201_HTTP300_versoes_documento_arquivos_ambiguous_before_reservation",
+      "openai_reached": false,
+      "cleanup": "QUARENTENA_VERIFICADA_SAME_JOB_AND_INDEPENDENT",
+      "artifact": 13646726347,
+      "artifact_sha256": "c05a9d88653a28635a428382cfef7c96717119de7c7458308f9e1a70e4719db5"
     }
+  },
+  "copilot_postgrest_fk_fix": {
+    "state": "DOCUMENTARY_ACTIVATION_BEFORE_SOURCE",
+    "native_foreign_keys": [
+      "versoes_documento_id_arquivo_fkey",
+      "versoes_documento_arquivo_org_fk",
+      "versoes_documento_arquivo_org_contrato_fk"
+    ],
+    "selected_existing_fk": "versoes_documento_arquivo_org_contrato_fk",
+    "source_paths": [
+      "supabase/functions/copilot-query/index.ts",
+      "supabase/tests/copilot_openai_contract.test.mjs"
+    ],
+    "ddl": false,
+    "raw_rls_preserved": true,
+    "admin_fallback_forbidden": true,
+    "final_jwt_hml_replay_required": true
   }
 }
