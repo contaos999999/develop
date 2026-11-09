@@ -77,7 +77,21 @@ export function ownFixture(i,runId){
 }
 export function authRecognition(result,userId){
  if(!result.error){requireC(result.data?.user?.id===userId,'Auth confirms exact own user');return true;}
- requireC(result.error.name==='AuthApiError'&&[401,403].includes(result.error.status)&&!result.data?.user,'Auth rejects credential, not transport/provider failure');return false;
+ const missingSession=result.error.name==='AuthSessionMissingError'&&result.error.status===400&&result.error.__isAuthError===true;
+ requireC((result.error.name==='AuthApiError'&&[401,403].includes(result.error.status)||missingSession)&&!result.data?.user,'Auth rejects credential, not transport/provider failure');return false;
+}
+// Characterize the approved real SDK at its HTTP boundary, without HML/Auth I/O.
+export async function sdkRevocationContract(createClient){
+ let requests=0;
+ const client=createClient('https://fixture.invalid','fixture-public-key',{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{fetch:async(input,init)=>{
+  const target=new globalThis.URL(typeof input==='string'?input:input.url);
+  assert.equal(target.origin,'https://fixture.invalid');assert.equal(target.pathname,'/auth/v1/user');assert.equal(init?.method,'GET');requests++;
+  return Response.json({code:'session_not_found',message:'Session not found'},{status:403,headers:{'x-supabase-api-version':'2024-01-01'}});
+ }}});
+ const result=await client.auth.getUser('synthetic-own-token');
+ assert.equal(requests,1);assert.equal(result.error?.name,'AuthSessionMissingError');assert.equal(result.error?.status,400);assert.equal(result.data?.user,null);
+ assert.equal(authRecognition(result,'own'),false);
+ assert.equal(revokedSessionResult(false,{status:401,data:{ok:false,codigo:'AUTH_SESSAO_INVALIDA'}}),'AUTH_REJECTED');
 }
 export function revokedSessionResult(authRecognizes,r){
  requireC(r.data?.ok===false&&r.status===(authRecognizes?403:401)&&r.data.codigo===(authRecognizes?'AUTH_ACESSO_NEGADO':'AUTH_SESSAO_INVALIDA'),'exact same-token revoked-session branch');
@@ -159,6 +173,8 @@ async function setupSDK(e,i){
  npm(['install','--package-lock-only','--ignore-scripts','--no-audit','--no-fund']);
  const npmLock=JSON.parse(readFileSync(join(dir,'package-lock.json')));requireC(npmLock.packages['node_modules/@supabase/supabase-js']?.integrity===lock.integrity,'SDK tarball integrity equals approved frontend lock');
  npm(['ci','--ignore-scripts','--no-audit','--no-fund']);writeFileSync(join(dir,'approved.json'),JSON.stringify({frontend:i.frontend,...lock}));
+ await sdkRevocationContract(await sdkConstructor(dir));
+ console.log('COPILOT_SDK_REVOCATION_CONTRACT_PASS');
 }
 export async function sdkConstructor(dir){const {createClient}=createRequire(join(dir,'package.json'))('@supabase/supabase-js');requireC(typeof createClient==='function','approved SDK createClient export');return createClient;}
 async function loadSDK(e,i,{cleanupOnly=false}={}){
@@ -824,6 +840,9 @@ async function selfTest(){
 
  assert.equal(typeof authRecognition,'function','revoked-token Auth branch cannot treat transport/provider errors as authentication rejection');
  assert.equal(authRecognition({data:{user:{id:'own'}},error:null},'own'),true);assert.equal(authRecognition({data:{user:null},error:{name:'AuthApiError',status:401}},'own'),false);
+ assert.equal(authRecognition({data:{user:null},error:{name:'AuthSessionMissingError',status:400,__isAuthError:true}},'own'),false,'SDK normalizes HTTP403 session_not_found to a missing-session error with internal400');
+ for(const error of [{name:'AuthApiError',status:400},{name:'AuthSessionMissingError',status:401,__isAuthError:true},{name:'AuthSessionMissingError',status:400,__isAuthError:false},{name:'AuthSessionMissingError',status:500,__isAuthError:true}])assert.throws(()=>authRecognition({data:{user:null},error},'own'));
+ assert.throws(()=>authRecognition({data:{user:{id:'own'}},error:{name:'AuthSessionMissingError',status:400,__isAuthError:true}},'own'));
  assert.throws(()=>authRecognition({data:{user:null},error:{name:'AuthUnknownError',status:0}},'own'));assert.throws(()=>authRecognition({data:{user:null},error:{name:'AuthApiError',status:500}},'own'));assert.throws(()=>authRecognition({data:{user:{id:'foreign'}},error:null},'own'));
 
  assert.equal(typeof forgeOwnJWTSignature,'function','forged-signature negative preserves legitimate header and claims but changes signature bytes');
