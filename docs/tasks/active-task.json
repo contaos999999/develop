@@ -2104,13 +2104,8 @@
     }
   },
   "copilot_catalog_gate": {
-    "state": "BUILD_NATIVE_PROOF_PENDING",
-    "build_enabled": false,
-    "additional_future_build_paths": [
-      "supabase/tests/history_catalog_compare.py",
-      "supabase/tests/copilot_catalog.test.mjs"
-    ],
-    "migration_sha256": "9015181ae955d334274a3981ab0337cf6ecf29868cbc1b3b54ef310523a33f15",
+    "gate_pr": 183,
+    "merge": "4bda8189de1e3b3d18ffe74e1db5574d8405284c",
     "functions": [
       {
         "schema": "privado",
@@ -2344,7 +2339,7 @@
         "anon_exec": false,
         "service_exec": true,
         "public_exec": false,
-        "body_md5": "eaab7197409f1eed625dbd7e626ab81c",
+        "body_md5": "89f0e4cb991822e0cc229b489670e5b0",
         "acl": [
           {
             "grantee": "postgres",
@@ -2359,9 +2354,13 @@
         ]
       }
     ],
-    "owner_privilege": "postgres EXECUTE owner-only, no grant option; public worker RPCs additionally service_role EXECUTE without grant option; no PUBLIC/anon/authenticated or unknown role grants",
-    "comparison": "Append exact nine approved contract records to expected baseline; retain all actual records; independently compare native owner/result/language/definer/config/body_md5/effective EXECUTE and raw ACL rows. Every original comparison remains unchanged.",
-    "gate_pr": 183,
-    "merge": "4bda8189de1e3b3d18ffe74e1db5574d8405284c"
+    "migration_sha256": "9ca1de7ede1a7a3a7362fc923f8a332eebec37e199c2d3ef024504cecffd264c",
+    "state": "BUILD_NATIVE_PROOF_PENDING",
+    "review_fix_red": {
+      "head": "d6bd5395e3608068dbd9698b4d5d297b9ea06777",
+      "run": 42537766045,
+      "job": 128905777482,
+      "native_error": "COPILOT_SQL_SECURITY_REPRO: PRECEDENTE_A_VERSAO_B_ACCEPTED,HISTORICO_PERMISSION_REVOCATION_ACCEPTED"
+    }
   }
 }

@@ -131,7 +131,7 @@ grant execute on function public.worker_validar_lease_copiloto(uuid,uuid) to ser
 
 create function public.worker_concluir_consulta_copiloto(p_id_consulta uuid,p_token uuid,p_id_sessao uuid,p_retorno jsonb,p_fontes jsonb)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare v public.consultas_semanticas%rowtype;v_s public.sessoes_copiloto%rowtype;v_f jsonb;v_fid uuid;v_vid uuid;v_msg uuid;v_ret uuid;v_hash text;v_contratante uuid;v_origem uuid;v_data date;
+declare v public.consultas_semanticas%rowtype;v_s public.sessoes_copiloto%rowtype;v_f jsonb;v_fid uuid;v_vid uuid;v_msg uuid;v_ret uuid;v_hash text;v_contratante uuid;v_origem uuid;v_data date;v_claims text;v_sub text;v_historico boolean;
 begin
  if p_retorno is null or jsonb_typeof(p_retorno)<>'object' or p_fontes is null or jsonb_typeof(p_fontes)<>'array' or jsonb_array_length(p_fontes)>18 or length(coalesce(p_retorno->>'conteudo','')) not between 1 and 12000 or coalesce(p_retorno->>'provedor','') not in('openai','supabase') then raise exception using errcode='22023',message='Resposta inválida.';end if;
  select * into v from public.consultas_semanticas q where q.id=p_id_consulta for update;
@@ -150,8 +150,21 @@ begin
   if v_f->>'fonte_tipo'='fragmento_documento' then
    if not(coalesce(v.filtros->'ids_fragmentos','[]'::jsonb) ? v_fid::text) or not exists(select 1 from public.fragmentos_documento f where f.id=v_fid and f.id_versao_documento=v_vid and f.id_organizacao=v.id_organizacao and f.id_contrato=v.id_contrato and privado.copilot_versao_elegivel(f.id_versao_documento,v.id_organizacao,v.id_contrato,v_data)) then raise exception using errcode='42501',message='Fonte documental não autorizada.';end if;
   elsif v_f->>'fonte_tipo'='precedente' then
+   if coalesce(v_f->'id_versao_documento','null'::jsonb)<>'null'::jsonb then raise exception using errcode='42501',message='Precedente não aceita versão documental independente.';end if;
    select p.id_contrato_origem into v_origem from public.precedentes p where p.id=v_fid and p.id_organizacao=v.id_organizacao and p.id_contratante=v_contratante;
    if not(coalesce(v.filtros->'ids_precedentes','[]'::jsonb) ? v_fid::text) or not privado.copilot_precedente_elegivel(v_fid,v.id_organizacao,v_contratante) or not privado.copilot_ator_permite(v.id_organizacao,v_origem,v.criado_por,privado.uuid_seguro(v.filtros#>>'{copilot,session_id}')) then raise exception using errcode='42501',message='Precedente não autorizado.';end if;
+   -- Autoridade canônica por usuário/sessão; não reproduz regras nem remove o Master.
+   v_claims:=current_setting('request.jwt.claims',true);v_sub:=current_setting('request.jwt.claim.sub',true);
+   begin
+    perform set_config('request.jwt.claim.sub',v.criado_por::text,true);
+    perform set_config('request.jwt.claims',jsonb_build_object('sub',v.criado_por,'session_id',v.filtros#>>'{copilot,session_id}','role','authenticated')::text,true);
+    v_historico:=privado.rbac_permite(v.id_organizacao,'historico','consultar',v_origem);
+   exception when others then
+    perform set_config('request.jwt.claim.sub',coalesce(v_sub,''),true);perform set_config('request.jwt.claims',coalesce(v_claims,''),true);raise;
+   end;
+   perform set_config('request.jwt.claim.sub',coalesce(v_sub,''),true);perform set_config('request.jwt.claims',coalesce(v_claims,''),true);
+   if not coalesce(v_historico,false) then raise exception using errcode='42501',message='Histórico não autorizado neste contexto.';end if;
+
   else raise exception using errcode='22023',message='Tipo de fonte inválido.';end if;
  end loop;
  insert into public.retornos_modelo(id_organizacao,id_contrato,id_consulta,provedor,modelo,prompt_versao,resposta,uso_tokens,status,fontes)
