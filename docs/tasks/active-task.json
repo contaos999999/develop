@@ -34,7 +34,7 @@
   ],
   "auth_changes_allowed": false,
   "storage_changes_allowed": false,
-  "storage_test_fixtures_allowed": true,
+  "storage_test_fixtures_allowed": false,
   "rbac_inventory_reconciliation": {
     "purpose": "Reintegrar inventário histórico de 05/11 sem retroceder manifesto/RBAC atuais",
     "scope": "Apenas documento de inventário e allowlist exata; sem DB/RLS/RPC/Auth/PROD",
@@ -209,7 +209,7 @@
       "extra_harness_guard": "Require exactly one canonical migration20261108122815 history row before Auth/fixtures"
     }
   },
-  "database_test_fixtures_allowed": true,
+  "database_test_fixtures_allowed": false,
   "copilot_raw_read_rls_gate": {
     "legacy_deny_only_prompt_versions": [
       "copiloto-temporal-pt-BR-v2",
@@ -398,9 +398,7 @@
   "allowed_paths": [
     "docs/tasks/active-task.json",
     "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/tests/copilot_hml.mjs",
-    ".github/workflows/copilot-hml.yml",
-    ".github/workflows/restore-isolado.yml"
+    "supabase/tests/copilot_hml.mjs"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -1477,7 +1475,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Integrar a retomada documental após revisão/CI, conferir Restore/backup na main final, novo nonce/PRE e executar prova API; exigir cleanup independente e readback final, sem certificar UI/P0.",
+  "next_step": "Gate documental CI/revisão/merge; RED/GREEN runner, CI/Restore/backup/revisão; integrar e reativar API com novo PRE/nonce após controles.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -2203,7 +2201,7 @@
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Executar somente api_c13 em HML com fixtures próprias e limites já aprovados, após CI/Restore/backup no SHA main exato e novo PRE imutável. Fontes e harness congelados; UI e certificação bloqueadas.",
+  "objective": "Corrigir somente classificação do erro SDK após revogação, com RED/GREEN e SDK real offline; sem material HML, Edge, DDL/RLS/Authconfig.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2236,7 +2234,7 @@
     "worker_build_pr": 155,
     "worker_deploy": 42475332474
   },
-  "edge_function_change_scope": "Edge v5 já implantada e readback integral igual à fonte197. Nenhuma alteração de fonte ou novo deploy nesta retomada; JWT obrigatório e demais Edges preservadas.",
+  "edge_function_change_scope": "Nenhuma mudança ou deploy Edge; v5/fonte e JWT obrigatório preservados.",
   "crud_cadastros_concluido": {
     "head": "bfd741d5758e77f89de626fdb691ea4bebb943d5",
     "deploy": 42314729963,
@@ -2332,7 +2330,7 @@
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
   },
-  "previous_task_id": "C-CHAT-004-POSTGREST-FK-BUILD-20261109",
+  "previous_task_id": "C-CHAT-005-HML-API-RETRY-20261109",
   "fence_document_barrier": {
     "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
     "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
@@ -2367,7 +2365,7 @@
     "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
   },
   "auth_configuration_changes_allowed": false,
-  "title": "Retomada API C13 após correção FK verificada",
+  "title": "Correção causal do runner: AuthSessionMissingError após revogação própria",
   "edge_function_changes_allowed": false,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
@@ -2552,7 +2550,7 @@
     "gate_merge": "ea48a5350cfc1ca031cb69ed60cd7e11f3300138",
     "gate_ci": 42449528794
   },
-  "database_change_scope": "Somente DML das fixtures sintéticas próprias autorizadas pelo protocolo api_c13, com intents e quarentena independentes. Nenhuma DDL/RLS/grant/configuração ou dado alheio; proteção RLS138 e Trilhas A/B preservadas.",
+  "database_change_scope": "Nenhuma DDL/RLS/grant/configuração/DML HML nesta correção offline de runner.",
   "null_pagination_guard": {
     "base": "a9abcdf54099c9d3fba8681ccca1b5c9180aef95",
     "cli": "2.81.3",
@@ -2594,7 +2592,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-005-HML-API-RETRY-20261109",
+  "id": "C-CHAT-006-SDK-REVOCATION-FIX-20261109",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
@@ -2608,7 +2606,7 @@
   "status": "ativa",
   "brand_context": "ContaOS Brand v1.0",
   "copilot_hml": {
-    "state": "HML_EXECUTION_AUTHORIZED",
+    "state": "PAUSED_FOR_RUNNER_AUTH_CONTRACT_FIX",
     "project": "gklhhhyosgasnyoxlrui",
     "function_slug": "copilot-query",
     "verify_jwt": true,
@@ -2747,5 +2745,21 @@
     "local_tests": 554,
     "focal_tests": 126,
     "independent_review": "APPROVED_NO_FINDINGS_RED_GREEN_REPRODUCED"
+  },
+  "copilot_sdk_revocation_fix": {
+    "state": "DOCUMENTARY_GATE_BEFORE_SOURCE",
+    "failed_run": 42556492600,
+    "artifact": 13648006263,
+    "artifact_sha256": "9573e6e4beb5a0ecdcac0e768568deac8d35ad3e7ddbe69cf2947c26524082a8",
+    "passed_material_checks": 45,
+    "last_pass": "OWN_SESSION_ABSENT",
+    "cause": "Auth HTTP403 session_not_found => SDK2.118.0 AuthSessionMissingError/status400; harness only accepts AuthApiError401/403",
+    "edge_denial_http": 401,
+    "source_path": "supabase/tests/copilot_hml.mjs",
+    "scope": "accept only branded AuthSessionMissingError400 with no user; preserve exact Edge401 and all transport/5xx negatives",
+    "real_sdk_offline_contract_required": true,
+    "new_nonce_pre_required": true,
+    "forbidden_reuse_nonce": "662bb3fea781644f1b4f065eef0511a4",
+    "certified": false
   }
 }
