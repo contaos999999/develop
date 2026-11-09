@@ -334,6 +334,15 @@ async function quarantineJobs(e,f,ownOrgs){
  }while(Date.now()-started<300000);
  throw Error('Own job quarantine incomplete');
 }
+export async function waitOwnDocumentReady(read,{now=Date.now,delay=ms=>new Promise(r=>setTimeout(r,ms)),signal}={}){
+ const start=now();
+ while(now()-start<300000){
+  signal?.throwIfAborted();const state=await read();
+  if(state.ready&&state.fragments>0)return;
+  await delay(2000);
+ }
+ throw Error('own normal worker not ready');
+}
 async function document(e,f,token,root){
  const bytes=Buffer.from(`Documento sintético do ContaOS, sem dados pessoais. O relatório mensal deve conter a relação de despesas e comprovantes. Marcador ${f.nonce}.`),name=`copilot-${f.nonce}.txt`;
  const signed=await api(e,'/functions/v1/storage-sign-upload',{token,body:{id_organizacao:f.org,id_contrato:f.contract,nome_arquivo:name,mime:'text/plain',tamanho:bytes.length}});
@@ -344,13 +353,7 @@ async function document(e,f,token,root){
  const confirmed=await api(e,'/rest/v1/rpc/confirmar_upload_arquivo',{token,body:{p_id_organizacao:f.org,p_id_contrato:f.contract,p_path:signed.data.path,p_nome_original:name,p_mime:'text/plain',p_tamanho:bytes.length,p_sha256:digest(bytes),p_origem:'upload_usuario'}});requireC(confirmed.status===200&&typeof confirmed.data==='string','official confirm upload');
  const created=await api(e,'/rest/v1/rpc/criar_documento_contrato_completo',{token,body:{p_id_contrato:f.contract,p_tipo:'outro',p_titulo:'Own copilot source '+f.nonce,p_categoria:'original',p_vigencia_inicio:'2026-01-01',p_vigencia_fim:null,p_observacoes:'Synthetic own source',p_id_arquivo:confirmed.data,p_chave_idempotencia:randomUUID()}});
  requireC(created.status===200&&created.data?.id_versao&&created.data?.id_job,'official create document');f.document=created.data;save(root,'fixture.json',f);
- const start=Date.now();
- while(Date.now()-start<300000){
-  const state=JSON.parse(sql(e,`select json_build_object('ready',privado.copilot_versao_elegivel(${q(f.document.id_versao)},${q(f.org)},${q(f.contract)},null),'fragments',(select count(*) from public.fragmentos_documento where id_versao_documento=${q(f.document.id_versao)} and embedding is not null));`));
-  if(state.ready&&state.fragments>0)return;
-  await new Promise(r=>setTimeout(r,2000));
- }
- throw Error('own normal worker not ready');
+ await waitOwnDocumentReady(()=>JSON.parse(sql(e,`select json_build_object('ready',privado.copilot_versao_elegivel(${q(f.document.id_versao)},${q(f.org)},${q(f.contract)},null),'fragments',(select count(*) from public.fragmentos_documento where id_versao_documento=${q(f.document.id_versao)} and embedding is not null));`)),{signal:materialDeadline.signal});
 }
 // Inherited full-UI groundwork is unreachable in this API-only BUILD.
 // It does not produce screenshots or visual certification in api_c13.
@@ -705,6 +708,10 @@ async function main(){
  console.log(report.state);
 }
 async function selfTest(){
+ const documentComplete={ready:true,fragments:1,documents_complete:true,embeddings_complete:true,ai_complete:true,unfinished_jobs:0,failed_jobs:0,queue_messages:0};
+ let documentReads=0,documentClock=0;
+ await waitOwnDocumentReady(async()=>++documentReads===1?{...documentComplete,ai_complete:false,unfinished_jobs:1}:documentComplete,{now:()=>documentClock,delay:async ms=>{documentClock+=ms;}});
+ assert.equal(documentReads,2,'eligible embedded document must wait for concurrent own AI extraction before negative counts');
  const e={PROOF_MODE:'api_c13',FRONTEND_PR:'379',TESTED_HEAD:'a'.repeat(40),FRONTEND_HEAD:'b'.repeat(40),RESTORE_RUN_ID:'123',DEPLOYMENT_RECEIPT_COMMENT_ID:'456',EDGE_SOURCE_SHA256:'c'.repeat(64),EDGE_BUNDLE_SHA256:'d'.repeat(64),EDGE_VERSION:'9',NONCE:'e'.repeat(32),GITHUB_REPOSITORY:'contaos999999/develop',GITHUB_REF:'refs/heads/main',GITHUB_EVENT_NAME:'workflow_dispatch',GITHUB_SHA:'a'.repeat(40)};
  assert.equal(inputs(e).head,e.TESTED_HEAD);
  assert.equal(inputs(e).mode,'api_c13','API mode must be explicit and does not need a checkout');
