@@ -12,7 +12,7 @@ const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY') ?? ''
 const OPENAI_CHAT_MODEL = Deno.env.get('OPENAI_CHAT_MODEL') ?? 'gpt-4.1-mini'
 const MAX_FONTE_CHARS = 600
 const MAX_FONTE_COUNT = 8
-const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app','https://contaos-41-hml.vercel.app']
+const ORIGENS_CORS=['http://127.0.0.1:4173','https://scope-and-approval-keeper.lovable.app','https://contaos-41-hml.vercel.app','https://contaos-41-nygkrrbkq-contaos9999.vercel.app']
 const HEADERS_CORS=['authorization','x-client-info','apikey','content-type']
 function cabecalhosCors(origem:string|null,preflight=false){
   return {'cache-control':'no-store','x-content-type-options':'nosniff','vary':preflight?'Origin, Access-Control-Request-Method, Access-Control-Request-Headers':'Origin',...(origem?{'access-control-allow-origin':origem}:{})}
