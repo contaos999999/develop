@@ -5,8 +5,8 @@
   "phase": "BUILD_C13_HISTORY",
   "context_pack_version": "4.1",
   "context_read_acknowledged": true,
-  "context_read_acknowledged_at": "2026-11-08",
-  "context_read_by": "Codex Trilha C,25canônicos00..20+AGENTS+P0+manifesto e PLAN179 lidos integralmente",
+  "context_read_acknowledged_at": "2026-11-09",
+  "context_read_by": "Codex: 25 documentos canônicos 00..20, AGENTS, P0, manifesto e plano C13 lidos nesta execução",
   "context_manifest_sha256": "c5dc0a97dd3a371fbdfbbd425c3fd31089e2d82f7c51a7458f0ecaedc2330088",
   "context_documents_read": [
     "00_AI_LEIA_ANTES_DE_ALTERAR.md",
@@ -134,7 +134,7 @@
     "JWT real via Auth Admin API, nunca INSERT em auth.users no HML",
     "frontend só após backend PASS; V1 não certificada"
   ],
-  "next_step": "TDD RED/GREEN C13 e revisão/CI/Restore/backup; nenhum merge/deploy/HML sem coordenação.",
+  "next_step": "Complemento C13 após merge189: reproduzir e fechar revogação durante retorno do provedor com TDD; preservar escopo quatro paths. Multi-turn, prova HML e UI continuam pendentes.",
   "database_change_scope": "Documentação apenas; nenhuma alteração/aplicação SQL, RLS, grants ou fixtures.",
   "evidence": {
     "test_pr": 52,
