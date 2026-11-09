@@ -16,7 +16,7 @@ export function inputs(e,{recovery=false}={}){
  requireC(e.PROOF_MODE==='api_c13','only API C13 is activated; full UI requires its later BUILD');
  requireC(/^[1-9][0-9]{0,8}$/.test(e.FRONTEND_PR),'exact frontend PR');
  requireC(e.GITHUB_EVENT_NAME==='workflow_dispatch'&&e.GITHUB_REPOSITORY===REPO&&e.GITHUB_REF==='refs/heads/main','manual main only');
- requireC(sha40.test(e.TESTED_HEAD)&&sha40.test(e.FRONTEND_HEAD)&&e.GITHUB_SHA===e.TESTED_HEAD,'exact heads');
+ requireC(sha40.test(e.TESTED_HEAD)&&sha40.test(e.FRONTEND_HEAD)&&sha40.test(e.GITHUB_SHA)&&(recovery||e.GITHUB_SHA===e.TESTED_HEAD),'exact heads');
  if(recovery){requireC(/^[1-9][0-9]{0,19}$/.test(e.ORIGINAL_RUN_ID)&&e.ORIGINAL_RUN_ID!==e.GITHUB_RUN_ID,'distinct original run');requireC(e.GITHUB_WORKFLOW_REF?.includes('/.github/workflows/copilot-c13-final-readback-recovery.yml@refs/heads/main'),'dedicated recovery workflow only');}
  for(const k of ['RESTORE_RUN_ID','DEPLOYMENT_RECEIPT_COMMENT_ID','EDGE_VERSION'])requireC(/^[1-9][0-9]{0,19}$/.test(e[k]),k);
  requireC(sha64.test(e.EDGE_SOURCE_SHA256)&&sha64.test(e.EDGE_BUNDLE_SHA256)&&/^[0-9a-f]{32}$/.test(e.NONCE),'hashes and own nonce');
@@ -669,9 +669,9 @@ export function finalState(report,independentCleanup,postReceipt,i){
 }
 async function finalReadback(e,i){
  const originalRunId=e.ORIGINAL_RUN_ID||e.GITHUB_RUN_ID;
- if(e.ORIGINAL_RUN_ID){const original=await gh(`/repos/${REPO}/actions/runs/${originalRunId}`,e);requireC(original.head_sha===i.head&&original.event==='workflow_dispatch'&&original.conclusion==='failure'&&original.run_attempt>=1,'original failed run provenance');}
+ if(e.ORIGINAL_RUN_ID){const original=await gh(`/repos/${REPO}/actions/runs/${originalRunId}`,e);requireC(original.head_sha===i.head&&original.event==='workflow_dispatch'&&original.conclusion==='failure'&&original.run_attempt>=1,'original failed run provenance');const ancestry=await gh(`/repos/${REPO}/compare/${i.head}...${e.GITHUB_SHA}`,e);requireC(['ahead','identical'].includes(ancestry.status)&&ancestry.base_commit?.sha===i.head,'recovery main must descend from original proof HEAD');}
  const report=JSON.parse(readFileSync('copilot-proof/report.json')),independent=JSON.parse(readFileSync('copilot-cleanup/cleanup.json'));i.runId=originalRunId;
- requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===i.head,'final stable main CAS');
+ requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===(e.ORIGINAL_RUN_ID?e.GITHUB_SHA:i.head),'final stable main CAS');
  validateFrontendPR(await gh(`/repos/contaos999999/contaos-hml-control/pulls/${i.frontendPr}`,e),i);
  const initial=await gh(`/repos/${REPO}/issues/comments/${i.comment}`,e);requireC(JSON.stringify(JSON.parse(initial.body))===JSON.stringify(report.pre_receipt),'initial receipt body unchanged');validateComment(initial,report.pre_receipt,i,{now:Date.parse(report.material_started_at)});
  const started=Date.now();let final;
@@ -684,7 +684,7 @@ async function finalReadback(e,i){
   await new Promise(r=>setTimeout(r,5000));
  }
  requireC(final,'post-proof coordinator readback absent; no final pass');
- requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===i.head,'main stable through final receipt');
+ requireC((await gh(`/repos/${REPO}/git/ref/heads/main`,e)).object.sha===(e.ORIGINAL_RUN_ID?e.GITHUB_SHA:i.head),'main stable through final receipt');
  report.state=finalState(report,independent,final.receipt,i);report.post_receipt=final;report.independent_cleanup=independent;report.global_complete=false;
  report.ui_state='PENDING_SEPARATE_FULL_UI_BUILD_AND_PROOF';writeFileSync('copilot-proof/final.json',JSON.stringify(report,null,2));
  console.log('API_PASS_UI_PENDING');
