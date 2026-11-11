@@ -397,12 +397,9 @@
   },
   "allowed_paths": [
     "docs/tasks/active-task.json",
-    "docs/backend/TRILHA_C_SCOPE_QUOTA_HML_PLAN_2026-11-08.md",
-    "supabase/tests/copilot_hml.mjs",
-    ".github/workflows/copilot-c13-final-readback-recovery.yml",
-    "plans/c13-hml-cors-origin-20261109.md",
-    "supabase/functions/copilot-query/index.ts",
-    ".github/workflows/c13-v8-focal-security.yml"
+    "docs/executor/STATE_PROTOCOL_V1.md",
+    "scripts/executor-state-controller.mjs",
+    "scripts/executor-state-controller.test.mjs"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -1479,7 +1476,7 @@
     "gate_merge": "b432417ac3e9f17d8f75803443f343c84517b8ec",
     "gate_ci": 42450339687
   },
-  "next_step": "Após CI/revisão/integração documental: Restore/backup/Zero-Drift da main final, novo PRE/nonce e prova API completa; cleanup independente e pós-readback antes de API_PASS_UI_PENDING.",
+  "next_step": "Revisar GATE e conflito de ownership com C13 antes de qualquer merge; BUILD #219 somente depois da autorização integrada.",
   "rls_changes_allowed": false,
   "timeout_scope": {
     "objective": "Diagnosticar timeout CROSS_TENANT_DENIAL run42388972023 e corrigir causa comprovada no harness, sem reduzir negação tenant ou waits de segurança",
@@ -1984,228 +1981,14 @@
     "note": "Regular31 e atômicos001/002/004/005/015–019/087/088 lidos literalmente no ZIP conferido;000BRANDjá lido. TXT/PDF não aprovam todosformatos, multipart/retomada, classificação/metadadosIA ou átomos integrais. Plano somente de harness, sem produto."
   },
   "auth_change_scope": "Nenhuma configuração, credencial, identidade ou sessão alterada; somente consulta de metadados públicos de catálogo.",
-  "technical_subtask": {
-    "id": "P0-CORS-DOCUMENTAL-HML-20261107",
-    "phase": "BUILD",
-    "state": "BUILD_INTEGRADO_IMPLANTADO_HML_TRANSPORTE_VERIFICADO",
-    "plan": "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
-    "backend_base": "a672f44cdeebd3e0a1d3f2bc5b445a9a283e7ba0",
-    "frontend_dependency": {
-      "pr": 309,
-      "head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
-      "merge": "b0e22f5ab7a479ebb8a3c9bd2d907d5052ec81c5",
-      "ci": 42421827969,
-      "lock": 42421827973,
-      "state": "SUCCESS_SAME_HEAD_PUBLIC_SCOPE_ONLY"
-    },
-    "origins": [
-      "http://127.0.0.1:4173",
-      "https://scope-and-approval-keeper.lovable.app"
-    ],
-    "future_build_paths": [
-      "docs/backend/P0_CORS_DOCUMENTAL_HML_PLAN_2026-11-07.md",
-      "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
-      "docs/backend/P0_CORS_DOCUMENTAL_HML_RESULTADO_2026-11-07.md",
-      "docs/tasks/active-task.json",
-      "supabase/functions/storage-sign-upload/index.ts",
-      "supabase/functions/storage-sign-download/index.ts",
-      "supabase/tests/storage_document_cors.test.mjs",
-      "supabase/tests/p0_crud_global_browser.mjs",
-      "supabase/tests/p0_crud_global_protocol.test.mjs",
-      "supabase/tests/p0_crud_global_hml.py"
-    ],
-    "verify_jwt_must_remain": true,
-    "hml_project": "gklhhhyosgasnyoxlrui",
-    "material_crud_disabled": false,
-    "independent_review": "Sem Critical/Important para PLAN; completed_scopes condicionado a PASS real; reancorar HEAD antes de publicar",
-    "baseline_local_tests": "node --test:60/60 PASS em a672f44",
-    "authorization": "Continuidade expressa do titular para correções HML por PLAN/GATE/BUILD; sem PROD ou ampliação de permissão",
-    "published_source_parity": "NAO_VERIFICADA; smoke separado frontend_head=null, sem substituir quatro provas no pin",
-    "evidence": {
-      "run": 42420832115,
-      "job": 128548730992,
-      "artifact": 13593945672,
-      "sha256": "f9f192a04b0a629ecdb07aa885b7d4dc0768a81020a6086293f814181b53f7d6",
-      "log_window_utc": [
-        "2026-11-07T22:29:00Z",
-        "2026-11-07T22:32:00Z"
-      ],
-      "method": "OPTIONS",
-      "status": 405,
-      "cleanup": "QUARENTENA_VERIFICADA"
-    },
-    "scope_limits": "Sem PROD, JWT/RBAC/RLS/Auth/Storageconfig/schema/workflows/novas origens ou funções. Sem extração de JWT ou interceptação/mock para converter FAIL em PASS. Contenção nativa DENY e CORS/GET parciais dependem do complemento documental e dos checks próprios.",
-    "proof_partition": {
-      "local_uploads": 4,
-      "published_smoke_uploads": 1,
-      "total_files": 5,
-      "total_documents": 3,
-      "total_versions": 5,
-      "published_frontend_head": null,
-      "local_frontend_head": "164b10b44eaf5b553efcc7ab4e053b86c4d3b269",
-      "cleanup": "União exata de recibos e namespace próprio; sem atribuir publicado ao pin"
-    },
-    "gate": "docs/backend/P0_CORS_DOCUMENTAL_HML_GATE_2026-11-07.md",
-    "plan_merge": "5743453e729362d4fa841aad16b357b9926c5688",
-    "transport_contract": {
-      "methods": [
-        "POST",
-        "OPTIONS"
-      ],
-      "request_headers": [
-        "authorization",
-        "x-client-info",
-        "apikey",
-        "content-type"
-      ],
-      "preflight_success": 204,
-      "unknown_origin_allowed": false,
-      "cookies_allowed": false,
-      "verify_jwt": true
-    },
-    "published_credential_fence": "Backend efetivo deve ser inequivocamente gklhhhyosgasnyoxlrui antes de preencher credenciais; falha/ambiguidade bloqueia. Não confundir com SHA.",
-    "sdk_proof": {
-      "version": "2.118.0",
-      "runtime": "bun install --frozen-lockfile no runner canônico",
-      "source_blobs": [
-        "a92fec00afaa5d81638df2a56bec46c50839fe85",
-        "803f6948701fed3997ce7037d663c1b645cf3465",
-        "8c194c8cb6489db78ed8cd9f98c5c48639e8e69c"
-      ],
-      "local_node_modules_not_pin": "2.119.0"
-    },
-    "gate_merge": "42a737acdcdb17f3b0684e8daf82f042696eb9ea",
-    "popup_safety_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "policy": "DENY_NEW_WEB_CONTENTS",
-      "material_enabled": false,
-      "source_head": "2454c855975fa2e5df4a4d6d97226975989504f8",
-      "source_run": 42436054090,
-      "popup_rendering": "NAO_CERTIFICADO",
-      "partial_proofs": [
-        "EDGE_CORS_UI_REAL",
-        "SIGNED_GET_INTEGRITY_BOUNDED_NO_REDIRECT"
-      ],
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 140,
-      "gate_head": "af5b62d4ce6ea8bb6d66e56ea3d3c3c730856971",
-      "gate_merge": "765dac8aa1033f6c0ac6478738fac4ab768426e4",
-      "build_state": "EM_VALIDACAO",
-      "browser_worker_policy": {
-        "dedicated": "UNEXPECTED_FAIL_CLOSED_HTTP_BLOB_DATA_ZERO_EFFECTS_REQUIRED",
-        "shared": "NATIVE_SHARED_WORKER_FEATURE_DISABLED_NOT_CERTIFIED",
-        "backend_queue_worker": "REAL_NORMAL_PROCESSING_PROOF_STILL_REQUIRED"
-      }
-    },
-    "browser_worker_csp_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "APPEND_DOCUMENT_CSP_WORKER_SRC_NONE",
-      "source_head": "f94595306886c358c73400a3a83424344fb75180",
-      "source_run": 42440477002,
-      "artifact": 13600703885,
-      "sha256": "be23f1399bcd6515b909431c1faa1861c5225f8dde87d0a00510729433dc790a",
-      "browser_workers": "NAO_CERTIFICADOS",
-      "final_counters": "AFTER_CONTEXT_CLOSE_AND_SERVER_TCP_DRAIN",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 141,
-      "gate_merge": "7ecdf3bda151fb9956beab8cca390f5074548cf2",
-      "state": "NAO_ENFORCED_CI_FAIL_PRESERVADO",
-      "build_state": "EM_VALIDACAO_CI_REAL",
-      "local_tdd": {
-        "red": "51PASS/1FAIL helper absent",
-        "green_protocol": 52,
-        "green_full": 258
-      }
-    },
-    "native_destination_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "NATIVE_CONTEXT_PROXY_DENY_EXACT_ORIGIN_BYPASS",
-      "source_head": "2447807580249d57b0e8215c4a078e9b2ae4a0cf",
-      "source_run": 42441727347,
-      "artifact": 13601469706,
-      "sha256": "27445c61bd0c0b3dae9b401fd831beec77886f9d71af6a3967eaeda86e090721",
-      "no_forwarding": true,
-      "no_direct_fallback": true,
-      "browser_workers": "NAO_CERTIFICADOS",
-      "unexpected_product_worker": "FAIL",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 142,
-      "gate_merge": "15dbd2e8644e559607302c7f8279b7e1c77f810a",
-      "state": "INTEGRADO_ANTES_BUILD",
-      "build_state": "EM_VALIDACAO_CI_REAL",
-      "local_tdd": {
-        "red": "52PASS/2FAIL proxy helpers absent",
-        "worker_latch_red": "53PASS/1FAIL finalizer absent",
-        "green_protocol": 55,
-        "green_full": 261,
-        "retired_test": "CSP header helper obsolete under GATE142; baseline257 retained",
-        "data_origin_red": "54PASS/1FAIL validator absent"
-      }
-    },
-    "paused_document_gate": {
-      "phase": "GATE_COMPLEMENTAR",
-      "material_enabled": false,
-      "policy": "EXACT_PAUSED_DOCUMENT_FULL_GRAPH_AST_BEFORE_CONTINUE",
-      "source_head": "544026099abbe613b39f8ec0f6142ce47208653b",
-      "source_run": 42444107587,
-      "artifact": 13603076801,
-      "sha256": "a935fdcd3d9f73a8eaeb365261cef928a1c2569fc8fcdb902c44cd3815e26b34",
-      "no_normalization": true,
-      "no_self_hash_without_ast": true,
-      "published_source_parity": "NAO_VERIFICADA",
-      "full_document_crud_v1_certification": false,
-      "gate_pr": 143,
-      "gate_merge": "f53304fbdab7570fa0f5167a9bcd0c76cded6be6",
-      "state": "INTEGRADO_ANTES_BUILD"
-    },
-    "paused_document_build": {
-      "state": "EM_VALIDACAO_CI_REAL",
-      "base_head": "846a256f485aa0f81c092e7b4f6e3bc6f0663dea",
-      "local_protocol": 63,
-      "local_full_suite": 269,
-      "red": "56PASS/2FAIL inspector absent; nested real path regression FAIL then GREEN; late-failure VM rejects response",
-      "real_ast_local": "SDK2.118.0/rolldown1.2.1, two distinct exact-body HTML variants HML_CONFIG_CONFIRMED",
-      "chromium_local": "NOT_EXECUTED_DOWNLOAD_INVALID_ZIP",
-      "material_enabled": false,
-      "global_complete": false,
-      "first_ci": {
-        "head": "7bf439d6dc439ff29c69cd197648363276db0a6b",
-        "run": 42448576211,
-        "artifact": 13604377240,
-        "sha256": "6b1ffaf4b2d7439f766f6b26dd33afdb7d872365224dd33fad9817d89085fcb2",
-        "state": "FAIL_CHANGED_SCRIPT",
-        "local_red": "failure latch false before awaited native abort; fixed synchronously"
-      },
-      "second_ci": {
-        "head": "49275f778cf2a5551e41be8a3f40dd55bf14f353",
-        "run": 42448737328,
-        "artifact": 13604452311,
-        "sha256": "809fbc88de08da0e2106dbd87b8ab8ebdf3122911de31f9b132148054f4da85f",
-        "state": "FAIL_BEFORE_FIRST_PAUSED_FIXTURE_EVIDENCE",
-        "local_reproduction": "Node inert fetch keeps1idleTCP after1100ms; original fixture server Connection:close drains0 naturally; no socket destroy"
-      },
-      "first_public_success": {
-        "head": "2b2bb2cf172d654966ec76d7764b215a37326d00",
-        "run": 42448929569,
-        "artifact": 13604249723,
-        "sha256": "e3bd0eb6e147afe93991596bfc70d07df39460ecfdf193124b4320b5b8be62e4",
-        "assertions": 12,
-        "document_modules": 114,
-        "loaded_script_hashes": 49,
-        "material_enabled": false
-      },
-      "late_fence_fix": "Finalizers capture original provenance and persist/reject failed snapshot after browser/deny close; RED helper absent then63/63protocol269/269suite"
-    }
-  },
+  "technical_subtask": "GATE_ONLY_SCOPE_AUTHORIZATION",
   "forbidden_paths": [
     "src/**",
     "public/**",
     "AI_CONTEXT_MANIFEST.md",
     "PROD/**"
   ],
-  "objective": "Validar em HML a resposta contextual com fundamentação atual obrigatória, mantendo todas as provas de JWT, quotas, isolamento, revogação e limpeza.",
+  "objective": "Autorizar exclusivamente o controlador persistente read-only e seus testes; nenhuma alteração C13, HML, PROD ou gates.",
   "upload_material_proof": {
     "date": "2026-11-08",
     "backend_merge": "cb074f501b8b0d527bda3c0840248e4e8c589d56",
@@ -2334,7 +2117,7 @@
     ],
     "api_mode_requires_frontend_checkout_or_c13_freshness": false
   },
-  "previous_task_id": "C-CHAT-008-PROVIDER-DIAGNOSTIC-20261109",
+  "previous_task_id": "C-CHAT-013-CONTEXTUAL-CITATION-REPLAY-20261109",
   "fence_document_barrier": {
     "base": "87c18599fc72d658dabcf1b07a534b42b08691fd",
     "authorization": "Titular: diagnosticar e corrigir a fence antes de repetir as cinco provas",
@@ -2366,10 +2149,15 @@
   "authorization": {
     "by": "titular",
     "date": "2026-11-08",
-    "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates."
+    "scope": "Conclusão integralTrilhaC e testesautenticados comfixturespróprias ecleanup autorizados; estePRsomentedocumental,semPROD/relaxamentosegurança;BUILDposteriorapósgates.",
+    "controller_state_gate": "PENDING_INDEPENDENT_REVIEW",
+    "controller_scope_only": true,
+    "previous_active_task": "C-CHAT-013-CONTEXTUAL-CITATION-REPLAY-20261109",
+    "no_prod": true,
+    "no_c13_mutation": true
   },
   "auth_configuration_changes_allowed": false,
-  "title": "Replay API C13 após alinhamento da orientação contextual",
+  "title": "GATE: autorização isolada do controlador persistente horário",
   "edge_function_changes_allowed": true,
   "context_pack_version": "4.1",
   "restore_synthetic_plan": {
@@ -2596,7 +2384,7 @@
       "global_complete": false
     }
   },
-  "id": "C-CHAT-013-CONTEXTUAL-CITATION-REPLAY-20261109",
+  "id": "GATE-EXECUTOR-PERSISTENT-STATE-20261110",
   "handoff": {
     "source_task_id": "P0-CRUD-GLOBAL-HML-20261107",
     "archive_path": "docs/tasks/archive/P0-CRUD-GLOBAL-HML-20261107_snapshot_20261108.json",
