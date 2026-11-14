@@ -59,8 +59,8 @@ test('paginação lê até fim e preserva último ID',async()=>{
  const p=Array.from({length:100},(_,i)=>({...old,id:i+1}));
  const x=await readState(api({comments:null,run:run(),pr:pr()}));assert.equal(x.checkpoint_comment_id,100);
  const y=await readState(async path=>{
-   if(path.includes('page=1'))return p;
-   if(path.includes('page=2'))return [latest];
+   if(/[?&]page=1$/.test(path))return p;
+   if(/[?&]page=2$/.test(path))return [latest];
    if(path.includes('/actions/runs/'))return run();
    if(path.includes('/pulls/'))return pr();
    throw Error('unexpected');
