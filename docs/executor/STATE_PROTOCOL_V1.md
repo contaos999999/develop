@@ -16,3 +16,15 @@ Este documento **não é certificado V1**, nem instrução para reabrir fases co
 
 ## Segurança e limites
 Este leitor valida apenas **identidade estrutural** da informação consultada; sem um processo de aprovação de checkpoint por revisão independente e CAS para novos escritores, comentários não são autorização para dispatch. NÃO implementar dispatch automático com este módulo. Não reconstruir históricos aprovados, não recertificar V1 e não tocar produção.
+
+
+## Recibo técnico local reproduzível (Node, sem credenciais)
+
+**Execução:** Node.js `v22.16.0`, `node --test executor-state-controller.test.mjs` em diretório temporário isolado, com arquivos de fonte idênticos byte a byte aos blobs desta PR.
+
+- Fonte `scripts/executor-state-controller.mjs`: Git blob `f7509100509da7054908849e64304c02ba01f707`.
+- Teste `scripts/executor-state-controller.test.mjs`: Git blob `b53932349aefb3e89215efb5098ea25f506945d4`.
+- Resultado TAP: **23 testes, 23 PASS, 0 FAIL, 0 SKIPPED**, `duration_ms: 226.244467`.
+- Casos incluem token ausente (exit 2), nenhuma autorização de dispatch, comentários externos não confiáveis, comentário autorizado malformado FAIL-closed, paginação em duas páginas, Run ID/repositório/HEAD divergentes, PR de outro repositório/HEAD antigo, run falha, run em andamento e SUCESSO apenas como `VALIDATING`.
+- O teste de paginação utiliza correspondência exata de `page`, não substring `per_page=100`, após RED detectado em mock anterior.
+- **Qualificação:** é execução nativa local real, não job GitHub Actions de testes. A CI do backend verifica seus guards; seu SUCCESS não deve ser descrito como se tivesse executado esta suíte. Não há execução privada HML nem certificação V1.
