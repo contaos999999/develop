@@ -402,7 +402,10 @@
     ".github/workflows/copilot-c13-final-readback-recovery.yml",
     "plans/c13-hml-cors-origin-20261109.md",
     "supabase/functions/copilot-query/index.ts",
-    ".github/workflows/c13-v8-focal-security.yml"
+    ".github/workflows/c13-v8-focal-security.yml",
+    "docs/executor/STATE_PROTOCOL_V1.md",
+    "scripts/executor-state-controller.mjs",
+    "scripts/executor-state-controller.test.mjs"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -2981,6 +2984,27 @@
     "origin": "https://contaos-41-nygkrrbkq-contaos9999.vercel.app",
     "scope": "Only exact CORS allowlist; HML only; preserve JWT RLS",
     "review_required": true
+  },
+  "p0_executor_controller_gate": {
+    "gate": "P0-SAN-FASE3-PR220",
+    "proposal": "Aditiva; preserva integralmente C13 ativa, histórico e technical_subtask",
+    "parent_plan": "https://github.com/contaos999999/contaos-hml-control/pull/670",
+    "parent_review": "https://github.com/contaos999999/contaos-hml-control/pull/670#pullrequestreview-5904456627",
+    "pr_gate": 220,
+    "pr_build": 219,
+    "allowed_paths": [
+      "docs/executor/STATE_PROTOCOL_V1.md",
+      "scripts/executor-state-controller.mjs",
+      "scripts/executor-state-controller.test.mjs"
+    ],
+    "mode": "READ_ONLY",
+    "dispatch_allowed": false,
+    "metadata_only": true,
+    "proof_required": true,
+    "admin_cron_changes": false,
+    "backend_product_changes": false,
+    "prod": false,
+    "certification_lock": "Sem reabrir certificados V1 historicos e fases 1/2 aprovadas"
   },
   "c13_v8_security_focal": {
     "scope": "HML HTTP read-only OPTIONS and no-auth negative",
