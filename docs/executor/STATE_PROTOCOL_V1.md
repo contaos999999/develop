@@ -1,22 +1,18 @@
-# ContaOS V1 — protocolo de estado persistente (proposta)
-## Escopo
-Executor ChatGPT permanece horário. Este controlador apenas **lê** checkpoints no GATE #138 e reconcilia um Run ID real com GitHub Actions. Não dispara, altera ou certifica nada. Não requer Codex, cron de cinco minutos ou OpenAI API Key.
-## Persistência
-Um comentário GitHub com marcador `CONTAOS_EXECUTOR_STATE_V1` e JSON é um evento append-only. O comentário mais recente válido (por ID crescente) prevalece. O executor deve registrar um novo comentário após cada transição. Não modificar checkpoints anteriores. O GitHub é fonte da verdade; não confiar em resumos de conversa.
-Exemplo:
-```html
-<!-- CONTAOS_EXECUTOR_STATE_V1
-{"schema":1,"phase_id":3,"task_id":"fixtures-schema","head_sha":"5eca44aebead3183e81b5c1af0d1dffa5fb8feb6","pr_number":null,"run_id":null,"status":"BLOCKED","conclusion":null,"evidence":[],"next_action":"Reconciliar SHA e Run ID do workflow original"}
--->
-```
-## Ciclo obrigatório (horário)
-1. Executar leitura do último comentário válido, recuperar phase/task/HEAD/PR/run.
-2. Consultar GitHub real e reconciliar HEAD do run; se pendente, **aguardar**.
-3. Se falhou, investigar causa e registrar BLOQUEADO; não repetir cegamente.
-4. Se sucesso, verificar CI, LOCK, Zero-Drift, revisão independente e evidências; sucesso do workflow não certifica a fase.
-5. Somente então escolher próxima ação autorizada e gravar novo comentário.
-## Limites
-Leitor é read-only e sempre devolve `dispatch_allowed:false`. Não fornece exclusão mútua transacional entre múltiplos escritores; para habilitar dispatch automático concorrente é obrigatório adicionar lease/CAS com fencing e testes. Nunca usar comentário como autorização para bypass de gates. O GATE #138 está fechado e é usado somente como histórico de checkpoint.
-## Uso
-`GITHUB_TOKEN=<token read-only> node scripts/executor-state-controller.mjs`.
-Nunca registrar tokens em logs. O ChatGPT pode executar o mesmo protocolo por ferramentas GitHub sem acessar segredos.
+# ContaOS V1 — protocolo persistente somente-leitura (GATE #138)
+
+Este documento **não é certificado V1**, nem instrução para reabrir fases concluídas. Origem: PLAN P0 saneamento #670, Fase 3 GATE backend #220 integrado `0f7725be5feb8efa028157a57f7629374366b913`, preservando C13 ativa. Construção da PR #219 restrita a este documento e a `scripts/executor-state-controller.mjs/.test.mjs`.
+
+## Semântica
+- O GATE #138 é **histórico e somente-leitura**. O programa não publica comentários, não cria PR, não dispara workflow, não opera autenticação, banco, HML ou PROD.
+- Comment com marcador `CONTAOS_EXECUTOR_STATE_V1` e JSON validado é evento append-only. Autor permitido `contaos9999` ou `Edivan5002`. Comentário externo não dá autoridade. Registro malformado de autor autorizado bloqueia a leitura e não faz fallback silencioso para estado anterior.
+- Ler **todas** as páginas de comentários, ordenar por ID, selecionar o mais recente válido; paginação incompleta bloqueia. Estado `UNINITIALIZED` é possível, não é PASS.
+- Campos obrigatórios: `schema=1`, `phase_id=1..8`, `task_id`, `head_sha` SHA-40, `status` em PENDING/RUNNING/BLOCKED/VALIDATING/COMPLETED e `next_action`. PR/Run ID devem ser inteiros positivos ou null. Evidências são referências, não autorização.
+- Se existir `run_id`, consultar GitHub Actions real por GET e conferir ID, repositório, HEAD, status e resultado. Se `pr_number`, consultar PR real e conferir repositório e HEAD.
+- Run em progresso → RUNNING; failure/cancelled/mismatch/API ausente → BLOCKED; run SUCCESS → apenas **VALIDATING**, com revisão de CI, LOCK, Zero-Drift, provas e auditoria independente ainda necessária. Nunca converter `COMPLETED` do JSON em certificação.
+- Saída sempre contém `dispatch_allowed:false`. Não há cron de 5 minutos, mutações, locks de concorrência nem credenciais em logs. Tokens são somente leitura e jamais publicados.
+
+## Execução segura
+`GITHUB_TOKEN=<read-only token> node scripts/executor-state-controller.mjs`; `node --test scripts/executor-state-controller.test.mjs`. Erro bloqueado resulta exit 2; `UNINITIALIZED` ou `VALIDATING` não significa certificação.
+
+## Segurança e limites
+Este leitor valida apenas **identidade estrutural** da informação consultada; sem um processo de aprovação de checkpoint por revisão independente e CAS para novos escritores, comentários não são autorização para dispatch. NÃO implementar dispatch automático com este módulo. Não reconstruir históricos aprovados, não recertificar V1 e não tocar produção.
