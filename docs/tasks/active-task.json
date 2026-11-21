@@ -405,7 +405,8 @@
     ".github/workflows/c13-v8-focal-security.yml",
     "docs/executor/STATE_PROTOCOL_V1.md",
     "scripts/executor-state-controller.mjs",
-    "scripts/executor-state-controller.test.mjs"
+    "scripts/executor-state-controller.test.mjs",
+    "docs/backend/PROPOSTA_EMENDA_NORMATIVA_CSDI_2026-11-21.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3011,5 +3012,17 @@
     "workflow": ".github/workflows/c13-v8-focal-security.yml",
     "no_secrets": true,
     "no_deploy": true
+  },
+  "csdi_parallel_plan_scope": {
+    "status": "PROPOSAL_ONLY_NOT_VIGENT",
+    "purpose": "Permit a documentary normative proposal for protected review without transferring ownership of the active C13 HML task",
+    "path": "docs/backend/PROPOSTA_EMENDA_NORMATIVA_CSDI_2026-11-21.md",
+    "pr": 223,
+    "prohibitions": [
+      "No modification to existing C13 scope, owner, state or evidence",
+      "No backend implementation, migrations, RLS, Auth, Edge, PROD or gate activation",
+      "No implicit normative approval or semantic PASS"
+    ],
+    "requires": "Separate authorized transition before any normative activation or implementation"
   }
 }
