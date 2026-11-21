@@ -1,0 +1,156 @@
+{
+  "schema": "contaos.context-read-task.v1",
+  "task_id": "CSDI-PROTOCOL-20261121",
+  "context_pack_version": "4.1",
+  "context_read_acknowledged": true,
+  "read_method": "GitHub fetch_file at backend main; entire UTF-8 contents returned and processed for all listed files",
+  "read_scope": "canonical 00-20 including 08A-08D, active task, HML certificate",
+  "source_repository": "contaos999999/develop",
+  "source_ref": "main",
+  "source_commit_sha": "1504af465b45afc846458d00e5cb63513fa298ed",
+  "fingerprint_kind": "ordered Git blob SHA-1 per path, bound to source commit (not a claimed SHA-256)",
+  "context_files": [
+    {
+      "path": "00_AI_LEIA_ANTES_DE_ALTERAR.md",
+      "git_blob_sha": "58b4192f81d413ba08f2a3f220070c109e445e0c"
+    },
+    {
+      "path": "01_PRD_MESTRE_4_1.md",
+      "git_blob_sha": "9b195117be78e7daa0e8b8111e0434e5fbd641b9"
+    },
+    {
+      "path": "02_PREMISSAS_FUNCIONAIS_TECNICAS_4_1.md",
+      "git_blob_sha": "ec41b2a6dd0eb05f31834ad4aa130b4d0cc165eb"
+    },
+    {
+      "path": "03_ARQUITETURA_OFICIAL_4_1.md",
+      "git_blob_sha": "e6ae96dfbccdac6f321b9d073233c87ae4a9f922"
+    },
+    {
+      "path": "04_MANUAL_AMBIENTE_E_PROMOCAO_4_1.md",
+      "git_blob_sha": "4f67575673a3d36d682716794dd794187a229531"
+    },
+    {
+      "path": "05_BACKEND_SUPABASE_CERTIFICADO_4_1.md",
+      "git_blob_sha": "3628f7d39bcc886e2e40a6a4be9ba8aeebadb15c"
+    },
+    {
+      "path": "06_FRONTEND_LOVABLE_ESPECIFICACAO_4_1.md",
+      "git_blob_sha": "c5d91e774f6ae7f356ea2608cfbb437057a545bb"
+    },
+    {
+      "path": "07_ZERO_DRIFT_GOVERNANCA_4_1.md",
+      "git_blob_sha": "8983971ff65addc75bc0638cb5886d54b3780877"
+    },
+    {
+      "path": "08_REQUISITOS_96_E_CRITERIOS_ACEITE_4_1.md",
+      "git_blob_sha": "6c647b120ce2584bb7c61d68aa3561cd70c666f8"
+    },
+    {
+      "path": "08A_REQUISITOS_001_024_4_1.md",
+      "git_blob_sha": "0cfcffeda97244f62f2c7a3886987778c072e4d2"
+    },
+    {
+      "path": "08B_REQUISITOS_025_048_4_1.md",
+      "git_blob_sha": "6d6059512954d48a9345aab24d4aad09ebbf95ce"
+    },
+    {
+      "path": "08C_REQUISITOS_049_072_4_1.md",
+      "git_blob_sha": "336e16653b121ed1462646ccfca507e4ff3bb9ee"
+    },
+    {
+      "path": "08D_REQUISITOS_073_096_4_1.md",
+      "git_blob_sha": "46d720921f27cdf9ff15c5730d7b67a6005ca34b"
+    },
+    {
+      "path": "09_RASTREABILIDADE_FONTES_AUDITORIA_4_1.md",
+      "git_blob_sha": "8aeb6c650d0373a491a4367393cecb52756eea2f"
+    },
+    {
+      "path": "10_IA_OCR_RAG_E_PRECEDENTES_4_1.md",
+      "git_blob_sha": "9d49f59ca840d92d7e381bbb84255a54228ce538"
+    },
+    {
+      "path": "11_RNF_PERFORMANCE_CONCORRENCIA_RESILIENCIA_4_1.md",
+      "git_blob_sha": "0bf4eeaa33b9d44c744b0b38eb4481a2ccd5d6b5"
+    },
+    {
+      "path": "12_PROMPTS_PROTOCOLO_IMPLEMENTACAO_4_1.md",
+      "git_blob_sha": "a199be35a87647220ed60a35a4ed9696581f5f68"
+    },
+    {
+      "path": "13_MAPA_DOCUMENTOS_PACOTE_4_1.md",
+      "git_blob_sha": "5143fbba70a56932ee09f67d7caac74211b26e58"
+    },
+    {
+      "path": "14_CHECKLIST_PRE_ALTERACAO.md",
+      "git_blob_sha": "ebf7f3348b4b0f409845649495c50670828d0f00"
+    },
+    {
+      "path": "15_ESTADO_CERTIFICADO_HML_4_1.md",
+      "git_blob_sha": "0f7974ccc2f7b3ff9d0e72056029387e89970c55"
+    },
+    {
+      "path": "16_CUSTOS_E_PLANOS_REFERENCIA_4_1.md",
+      "git_blob_sha": "5618a8ef93973ad8093005ef8525f2d2b34125c4"
+    },
+    {
+      "path": "17_FONTES_TECNICAS_E_QA_4_1.md",
+      "git_blob_sha": "31c580b014338349251e622d8c9fe9e13607ed64"
+    },
+    {
+      "path": "18_SCHEMA_RLS_EDGE_QUEUES_CRON_4_1.md",
+      "git_blob_sha": "b5fd6b94c2894aed87ae73076c47dadba20def3a"
+    },
+    {
+      "path": "19_IDENTIDADE_VISUAL_OFICIAL_BRAND_1_0.md",
+      "git_blob_sha": "a5e26aa52bee5b3184443b5c9f13728501eee701"
+    },
+    {
+      "path": "20_PROMPT_000_BRAND_01.md",
+      "git_blob_sha": "44aa2b4cde873f1a218ef8e705fc2b5f07d4cdc5"
+    },
+    {
+      "path": "docs/tasks/active-task.json",
+      "git_blob_sha": "d6f1d7cd463e8d796c9283152104a292d6cd801a"
+    },
+    {
+      "path": "docs/CERTIFICACAO_BACKEND_HML_4_1.md",
+      "git_blob_sha": "d9202f0905f3a8257c278028a910eaba218baae7"
+    }
+  ],
+  "objective": "Propor substituição do requisito de parecer independente pelo gate CSDI com certificação semântica integral, sem dispensar provas nem autorizações de ativação",
+  "approved_product_decision": "Responsável autorizou expressamente em 2026-11-21 a substituição normativa e execução",
+  "existing_active_task_preserved": true,
+  "existing_active_task_objective": "Validar em HML a resposta contextual com fundamentação atual obrigatória, mantendo todas as provas de JWT, quotas, isolamento, revogação e limpeza",
+  "scope_boundary": "Task de governança documental independente da tarefa ativa do backend; nenhuma mudança em Supabase, auth, RLS, edge, storage, migrations, PROD ou runtime",
+  "allowed_paths": [
+    "docs/tasks/CSDI_PROTOCOL_CONTEXT_20261121.json",
+    "docs/governanca/CSDI_PROPOSTA_NORMATIVA.md"
+  ],
+  "forbidden_paths": [
+    "supabase/**",
+    "src/**",
+    ".github/workflows/**",
+    "docs/tasks/active-task.json",
+    "migrations/**"
+  ],
+  "database_changes_allowed": false,
+  "rls_changes_allowed": false,
+  "auth_changes_allowed": false,
+  "edge_function_changes_allowed": false,
+  "storage_changes_allowed": false,
+  "prod_untouched": true,
+  "affected_requirements": "Governança do gate semântico de PR #690; matriz funcional 96/96 não é modificada",
+  "affected_screens": [],
+  "test_plan": [
+    "Confirmar readback exato dos 27 Git blobs e commit base",
+    "Revisar todas as referências do PLAN protegido e emendas",
+    "Testar novo gate com caso positivo e ausência de auditor externo",
+    "Testar fail-closed com cobertura parcial, interações pendentes, evidência ausente, SHA divergente e revogação",
+    "Rodar CI/Zero-Drift/Architecture Guard antes de qualquer integração"
+  ],
+  "readiness": "CONTEXT_READ_AND_TASK_MANIFEST_RECORDED_ONLY",
+  "semantic_completeness": "INCONCLUSIVE",
+  "activation_authorized": false
+}
