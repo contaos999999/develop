@@ -407,7 +407,11 @@
     "scripts/executor-state-controller.mjs",
     "scripts/executor-state-controller.test.mjs",
     "docs/backend/PROPOSTA_EMENDA_NORMATIVA_CSDI_2026-11-21.md",
-    "docs/backend/PLAN_P0_BACKEND_HML_SHA_PARITY_2026-11-22.md"
+    "docs/backend/PLAN_P0_BACKEND_HML_SHA_PARITY_2026-11-22.md",
+    "supabase/functions/queue-worker-historico/index.ts",
+    "supabase/functions/notify-user/index.js",
+    "supabase/tests/p0_backend_edge_source_parity.test.mjs",
+    "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3036,6 +3040,28 @@
       "Nenhum DDL, DML, Auth, RLS, Storage, Edge deploy ou código backend",
       "Nenhuma alteração PROD ou reivindicação de PASS",
       "Qualquer BUILD futuro requer nova autorização separada, revisão e CI"
+    ]
+  },
+  "p0_edge_hml_source_scope": {
+    "status": "PLAN_SCOPE_ONLY_REQUIRES_BUILD_PR_AND_PROOF",
+    "purpose": "Reconciliar HML 20 Edge functions with exact canonical Git sources without modifying C13 ownership, task, functions, migrations or authorization gates",
+    "base_source_sha": "5b844be04f80b5e320e17666d3e659ff4ee7f574",
+    "source_plan": "docs/backend/PLAN_P0_BACKEND_HML_SHA_PARITY_2026-11-22.md",
+    "permitted_paths": [
+      "supabase/functions/queue-worker-historico/index.ts",
+      "supabase/functions/notify-user/index.js",
+      "supabase/tests/p0_backend_edge_source_parity.test.mjs",
+      "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md"
+    ],
+    "deployment_authorized": false,
+    "authorization_status": "HML source recovery only, deployment after protected review and test evidence",
+    "restrictions": [
+      "Do not touch C13 copilot-query or owner",
+      "Never enable PROD",
+      "No DB/Auth/RLS/grant changes",
+      "Do not disable JWT or internal-token validations",
+      "No direct Edge deployment in this PLAN",
+      "Live parity requires review, approved BUILD and exact provider source readback"
     ]
   }
 }
