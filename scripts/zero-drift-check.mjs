@@ -11,8 +11,25 @@ else {
 }
 const esc = s => s.replace(/[.+^${}()|[\]\\]/g,'\\$&').replaceAll('**','§§').replaceAll('*','[^/]*').replaceAll('§§','.*');
 const match = (path,patterns=[]) => patterns.some(p => new RegExp('^'+esc(p)+'$').test(path));
-const forbidden = changed.filter(f=>match(f,task.forbidden_paths));
-const outside = changed.filter(f=>!match(f,task.allowed_paths));
+// P0 parallel authorization: only a manifest committed to the protected base
+// may authorize a PR; the PR cannot authorize itself. The active task is unchanged.
+const base = process.env.GITHUB_BASE_REF || 'main';
+const pr = Number(process.env.GITHUB_EVENT_PATH && JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')).pull_request?.number);
+let parallel = null;
+if (Number.isSafeInteger(pr) && pr > 0) {
+  const authPath = 'docs/tasks/authorizations/P0_CERT_LIVE_001_PR' + pr + '.json';
+  try {
+    const raw = execSync('git show origin/' + base + ':' + authPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']});
+    const candidate = JSON.parse(raw);
+    const exact = ['docs/tasks/P0_CERT_LIVE_001_2026-11-22.md','docs/prompts/P0_CERT_LIVE_001_2026-11-22.md','docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md','scripts/zero-drift-check.mjs','scripts/zero-drift-check.test.mjs'];
+    if (candidate.schema === 'contaos.p0.parallel-task-authorization.v1' && candidate.task_id === 'P0-CERT-LIVE-001' && candidate.repository === 'contaos999999/develop' && candidate.pr_number === pr &&
+        Array.isArray(candidate.approved_scope) && candidate.approved_scope.length === exact.length && exact.every(x=>candidate.approved_scope.includes(x)) &&
+        Array.isArray(candidate.forbidden_paths) && ['docs/tasks/active-task.json','PROD/**','src/**','public/**'].every(x=>candidate.forbidden_paths.includes(x))) parallel = candidate;
+  } catch { /* fail closed: active task rules remain in force */ }
+}
+const isParallel = !!parallel && changed.length > 0 && changed.every(f=>parallel.approved_scope.includes(f));
+const forbidden = changed.filter(f=>match(f,task.forbidden_paths) || (isParallel && match(f,parallel.forbidden_paths)));
+const outside = changed.filter(f=>!match(f,task.allowed_paths) && !(isParallel && parallel.approved_scope.includes(f)));
 const sql = changed.filter(f=>f.startsWith('supabase/migrations/') && f.endsWith('.sql'));
 const edge = changed.filter(f=>f.startsWith('supabase/functions/'));
 const errors=[];
