@@ -406,7 +406,8 @@
     "docs/executor/STATE_PROTOCOL_V1.md",
     "scripts/executor-state-controller.mjs",
     "scripts/executor-state-controller.test.mjs",
-    "docs/backend/PROPOSTA_EMENDA_NORMATIVA_CSDI_2026-11-21.md"
+    "docs/backend/PROPOSTA_EMENDA_NORMATIVA_CSDI_2026-11-21.md",
+    "docs/backend/PLAN_P0_BACKEND_HML_SHA_PARITY_2026-11-22.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3024,5 +3025,17 @@
       "No implicit normative approval or semantic PASS"
     ],
     "requires": "Separate authorized transition before any normative activation or implementation"
+  },
+  "p0_backend_hml_sha_plan_scope": {
+    "purpose": "Autorizar exclusivamente o arquivo documental de diagnóstico HML SHA/Edge sem assumir ownership da tarefa C13 e sem disponibilizar BUILD",
+    "path": "docs/backend/PLAN_P0_BACKEND_HML_SHA_PARITY_2026-11-22.md",
+    "pr": 224,
+    "plan_base_sha": "ffb9fa0558f87925ed5b9bf945a96741c1fa5ae6",
+    "limits": [
+      "Preservar integralmente active-task C13 e suas permissões",
+      "Nenhum DDL, DML, Auth, RLS, Storage, Edge deploy ou código backend",
+      "Nenhuma alteração PROD ou reivindicação de PASS",
+      "Qualquer BUILD futuro requer nova autorização separada, revisão e CI"
+    ]
   }
 }
