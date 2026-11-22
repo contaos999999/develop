@@ -27,7 +27,8 @@ if (Number.isSafeInteger(pr) && pr > 0) {
     const planSha = execSync('git rev-parse origin/' + base + ':' + planPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
     const baseCommit = execSync('git rev-parse origin/' + base, {encoding:'utf8'}).trim();
     const headCommit = execSync('git rev-parse HEAD', {encoding:'utf8'}).trim();
-    const parentCheck = execSync('git merge-base --is-ancestor ' + candidate.authorized_base_commit + ' ' + baseCommit + ' && echo yes', {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
+    const authorizedBaseValid = /^[0-9a-f]{40}$/.test(candidate.authorized_base_commit);
+    const parentCheck = authorizedBaseValid && execSync('git merge-base --is-ancestor ' + candidate.authorized_base_commit + ' ' + baseCommit + ' && git merge-base --is-ancestor ' + candidate.authorized_base_commit + ' ' + headCommit + ' && echo yes', {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
     if (candidate.schema === 'contaos.p0.parallel-task-authorization.v1' && candidate.task_id === 'P0-CERT-LIVE-001' && candidate.repository === 'contaos999999/develop' && candidate.pr_number === pr &&
         candidate.protected_plan_path === planPath && candidate.protected_plan_blob_sha === planSha &&
         /^[0-9a-f]{40}$/.test(candidate.authorized_base_commit) && parentCheck === 'yes' && /^[0-9a-f]{40}$/.test(headCommit) &&
