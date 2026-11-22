@@ -2,6 +2,8 @@
 
 **DECISÃO EXPRESSA DO RESPONSÁVEL PELO CONTAOS 4.1: 04/11/2026, Brasília.** Regra constitucional de **PRIORIDADE ZERO, ADITIVA** a PRD/Premissas/Arquitetura, 96 requisitos, Brand-01, Zero-Drift, RLS, LGPD, tipo imutável, TDD/CI/Teste C e aprovações humanas já existentes. **É obrigatória a leitura antes de PLAN, BUILD, teste, auditoria ou documentação** por qualquer desenvolvedor, pessoa, agente ou automação, seja frontend GitHub, Lovable, backend Supabase ou IDE. Nenhum agente pode usar a antiga ordem meramente numérica dos prompts para avançar de versão.
 
+> **Emenda P0-CERT-LIVE-001 (22/11/2026; vigência após merge protegido):** V1–V5 são certificadas por provas automatizadas de código, integração, segurança, regressões, CI e revisão independente. Contraprovas LIVE autenticadas não bloqueiam individualmente V1–V5; ficam obrigatórias no GATE PROD após todas as cinco versões, sem PASS presumido ou autorização automática de PROD. Ver `P0_CERT_LIVE_001_2026-11-22.md`.
+
 ## Regra mandatória
 
 **Executar, com comprovação individual, TODOS os 100 prompts regulares 00–99 e TODOS os 97 prompts atômicos 000–096, mas ORGANIZAR o desenvolvimento por VERSÃO DO PRODUTO: concluir, validar, homologar e certificar V1 antes de iniciar V2; repetir V2→V3→V4→V5; por último executar a auditoria transversal/certificação global e decidir GO/NO-GO de produção.**

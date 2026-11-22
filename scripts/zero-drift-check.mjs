@@ -11,8 +11,39 @@ else {
 }
 const esc = s => s.replace(/[.+^${}()|[\]\\]/g,'\\$&').replaceAll('**','§§').replaceAll('*','[^/]*').replaceAll('§§','.*');
 const match = (path,patterns=[]) => patterns.some(p => new RegExp('^'+esc(p)+'$').test(path));
-const forbidden = changed.filter(f=>match(f,task.forbidden_paths));
-const outside = changed.filter(f=>!match(f,task.allowed_paths));
+// P0 parallel authorization: only a manifest committed to the protected base
+// may authorize a PR; the PR cannot authorize itself. The active task is unchanged.
+const base = process.env.GITHUB_BASE_REF || 'main';
+const pr = Number(process.env.GITHUB_EVENT_PATH && JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')).pull_request?.number);
+let parallel = null;
+if (Number.isSafeInteger(pr) && pr > 0) {
+  const authPath = 'docs/tasks/authorizations/P0_CERT_LIVE_001_PR' + pr + '.json';
+  try {
+    const raw = execSync('git show origin/' + base + ':' + authPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']});
+    const candidate = JSON.parse(raw);
+    // Scope is taken from the protected authorization, never from the PR branch.
+    // No wildcard or directory-level scope is permitted for a parallel P0 task.
+    const approved = candidate.approved_scope;
+    const scopeValid = Array.isArray(approved) && approved.length > 0 &&
+      new Set(approved).size === approved.length &&
+      approved.every(p => typeof p === 'string' && !p.includes('*') && !p.includes('..') && !p.startsWith('/'));
+    // The protected PLAN must pre-exist the BUILD and match the immutable blob SHA.
+    const planPath = 'docs/tasks/P0_CERT_LIVE_001_2026-11-22.md';
+    const planSha = execSync('git rev-parse origin/' + base + ':' + planPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
+    const baseCommit = execSync('git rev-parse origin/' + base, {encoding:'utf8'}).trim();
+    const headCommit = execSync('git rev-parse HEAD', {encoding:'utf8'}).trim();
+    const authorizedBaseValid = /^[0-9a-f]{40}$/.test(candidate.authorized_base_commit);
+    const parentCheck = authorizedBaseValid && execSync('git merge-base --is-ancestor ' + candidate.authorized_base_commit + ' ' + baseCommit + ' && git merge-base --is-ancestor ' + candidate.authorized_base_commit + ' ' + headCommit + ' && echo yes', {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
+    if (candidate.schema === 'contaos.p0.parallel-task-authorization.v1' && candidate.task_id === 'P0-CERT-LIVE-001' && candidate.repository === 'contaos999999/develop' && candidate.pr_number === pr &&
+        candidate.protected_plan_path === planPath && candidate.protected_plan_blob_sha === planSha &&
+        /^[0-9a-f]{40}$/.test(candidate.authorized_base_commit) && parentCheck === 'yes' && /^[0-9a-f]{40}$/.test(headCommit) &&
+        scopeValid &&
+        Array.isArray(candidate.forbidden_paths) && ['docs/tasks/active-task.json','PROD/**','src/**','public/**'].every(x=>candidate.forbidden_paths.includes(x))) parallel = candidate;
+  } catch { /* fail closed: active task rules remain in force */ }
+}
+const isParallel = !!parallel && changed.length > 0 && changed.every(f=>parallel.approved_scope.includes(f));
+const forbidden = changed.filter(f=>match(f,task.forbidden_paths) || (isParallel && match(f,parallel.forbidden_paths)));
+const outside = changed.filter(f=>!match(f,task.allowed_paths) && !(isParallel && parallel.approved_scope.includes(f)));
 const sql = changed.filter(f=>f.startsWith('supabase/migrations/') && f.endsWith('.sql'));
 const edge = changed.filter(f=>f.startsWith('supabase/functions/'));
 const errors=[];

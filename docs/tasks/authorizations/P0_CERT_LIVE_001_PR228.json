@@ -1,0 +1,47 @@
+{
+  "schema": "contaos.p0.parallel-task-authorization.v1",
+  "task_id": "P0-CERT-LIVE-001",
+  "repository": "contaos999999/develop",
+  "pr_number": 228,
+  "approved_scope": [
+    "docs/tasks/P0_CERT_LIVE_001_2026-11-22.md",
+    "docs/prompts/P0_CERT_LIVE_001_2026-11-22.md",
+    "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md"
+  ],
+  "forbidden_paths": [
+    "docs/tasks/active-task.json",
+    "PROD/**",
+    "src/**",
+    "public/**"
+  ],
+  "authorization_rule": "Effective only after protected main merge and independent review; no bypass of Context Gate or active C-CHAT-013 task",
+  "prod": "NO-GO",
+  "bootstrap_exception": {
+    "authorization": "EXPRESS_USER_APPROVAL_2026-11-22",
+    "scope": "one-time governance bootstrap only",
+    "target_pr": 230,
+    "target_paths": [
+      ".github/workflows/zero-drift.yml",
+      "scripts/zero-drift-check.mjs",
+      "scripts/zero-drift-check.test.mjs",
+      "docs/tasks/P0_CERT_LIVE_001_2026-11-22.md",
+      "docs/prompts/P0_CERT_LIVE_001_2026-11-22.md",
+      "docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md",
+      "docs/tasks/authorizations/P0_CERT_LIVE_001_PR228.json"
+    ],
+    "invariants": [
+      "do not modify docs/tasks/active-task.json",
+      "do not disable Zero-Drift or Context Gate",
+      "do not claim failing required CI as PASS",
+      "independent review required before integration",
+      "no PROD changes",
+      "no permanent bypass"
+    ],
+    "status": "SINGLE_PR230_PENDING_INDEPENDENT_REVIEW",
+    "reason": "legacy guard cannot authorize changes to itself while active C-CHAT-013 task remains unchanged"
+  },
+  "protected_plan_path": "docs/tasks/P0_CERT_LIVE_001_2026-11-22.md",
+  "protected_plan_blob_sha": "2038b6e2210ea6605476d9b8e714f072cc832ddc",
+  "provenance_note": "Consolidated one-time bootstrap PR230; PLAN immutable blob SHA 2038b6e2210ea6605476d9b8e714f072cc832ddc; authorized base commit 69cd66d5ef24d16eea6f7d15c6289f8d7c5e991e; no authority until integrated into main; PR228 to be superseded by consolidated PR230.",
+  "authorized_base_commit": "69cd66d5ef24d16eea6f7d15c6289f8d7c5e991e"
+}
