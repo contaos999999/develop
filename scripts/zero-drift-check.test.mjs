@@ -20,7 +20,7 @@ function run({pr=228,changed=['docs/tasks/P0_CERT_LIVE_001_2026-11-22.md'],manif
   const baseSha=capture('rev-parse','HEAD');
   const planSha=capture('rev-parse','HEAD:'+plan);
   if(protectedBase&&manifest)put('docs/tasks/authorizations/P0_CERT_LIVE_001_PR228.json',JSON.stringify({...manifest,protected_plan_path:plan,protected_plan_blob_sha:planSha,authorized_base_commit:baseSha,...overrides}));
-  git('add','.');git('commit','-qm','protected authorization');git('branch','-M','main');git('remote','add','origin','.');git('fetch','-q','origin','main:refs/remotes/origin/main');
+  git('add','.');git('commit','--allow-empty','-qm','protected authorization');git('branch','-M','main');git('remote','add','origin','.');git('fetch','-q','origin','main:refs/remotes/origin/main');
   put('event.json',JSON.stringify({pull_request:{number:pr}}));
   return spawnSync(process.execPath,[script],{cwd:dir,encoding:'utf8',env:{...process.env,GITHUB_EVENT_PATH:join(dir,'event.json'),GITHUB_BASE_REF:'main',ZERO_DRIFT_CHANGED_FILES:changed.join('\n')}});
  } finally {rmSync(dir,{recursive:true,force:true})}
