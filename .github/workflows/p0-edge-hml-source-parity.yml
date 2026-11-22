@@ -1,0 +1,25 @@
+name: ContaOS P0 Edge HML source parity (no secrets)
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/**'
+      - 'supabase/tests/p0_backend_edge_source_parity.test.mjs'
+      - '.github/workflows/p0-edge-hml-source-parity.yml'
+permissions:
+  contents: read
+jobs:
+  source-parity:
+    name: HML Edge inventory and RTF regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout immutable PR merge
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Node LTS for deterministic source tests
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: GREEN/RED — 20 Edge files, internal auth and RTF negative
+        run: node --test supabase/tests/p0_backend_edge_source_parity.test.mjs
