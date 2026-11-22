@@ -36,5 +36,8 @@
     ],
     "status": "AUTHORIZED_NOT_INTEGRATED",
     "reason": "legacy guard cannot authorize changes to itself while active C-CHAT-013 task remains unchanged"
-  }
+  },
+  "protected_plan_path": "docs/tasks/P0_CERT_LIVE_001_2026-11-22.md",
+  "protected_plan_blob_sha": "2038b6e",
+  "provenance_note": "PLAN blob abbreviated SHA from PR #228 diff; replace with full immutable 40-character blob SHA after protected PLAN integration. Not effective authorization until then."
 }
