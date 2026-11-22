@@ -22,7 +22,16 @@ if (Number.isSafeInteger(pr) && pr > 0) {
     const raw = execSync('git show origin/' + base + ':' + authPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']});
     const candidate = JSON.parse(raw);
     const exact = ['docs/tasks/P0_CERT_LIVE_001_2026-11-22.md','docs/prompts/P0_CERT_LIVE_001_2026-11-22.md','docs/prompts/P0_PRIORIDADE_ZERO_ORDEM_POR_VERSAO_4_1.md','scripts/zero-drift-check.mjs','scripts/zero-drift-check.test.mjs'];
+    // The protected PLAN must pre-exist the BUILD and match the immutable blob SHA.
+    const planPath = 'docs/tasks/P0_CERT_LIVE_001_2026-11-22.md';
+    const planSha = execSync('git rev-parse origin/' + base + ':' + planPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
+    const authSha = execSync('git rev-parse origin/' + base + ':' + authPath, {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
+    const baseCommit = execSync('git rev-parse origin/' + base, {encoding:'utf8'}).trim();
+    const headCommit = execSync('git rev-parse HEAD', {encoding:'utf8'}).trim();
+    const parentCheck = execSync('git merge-base --is-ancestor ' + candidate.authorized_base_commit + ' ' + baseCommit + ' && echo yes', {encoding:'utf8',stdio:['ignore','pipe','ignore']}).trim();
     if (candidate.schema === 'contaos.p0.parallel-task-authorization.v1' && candidate.task_id === 'P0-CERT-LIVE-001' && candidate.repository === 'contaos999999/develop' && candidate.pr_number === pr &&
+        candidate.protected_plan_path === planPath && candidate.protected_plan_blob_sha === planSha && candidate.authorization_blob_sha === authSha &&
+        /^[0-9a-f]{40}$/.test(candidate.authorized_base_commit) && parentCheck === 'yes' && /^[0-9a-f]{40}$/.test(headCommit) &&
         Array.isArray(candidate.approved_scope) && candidate.approved_scope.length === exact.length && exact.every(x=>candidate.approved_scope.includes(x)) &&
         Array.isArray(candidate.forbidden_paths) && ['docs/tasks/active-task.json','PROD/**','src/**','public/**'].every(x=>candidate.forbidden_paths.includes(x))) parallel = candidate;
   } catch { /* fail closed: active task rules remain in force */ }
