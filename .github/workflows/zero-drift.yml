@@ -34,6 +34,8 @@ jobs:
           } >> "$GITHUB_ENV"
       - name: Context Gate — leitura obrigatória 4.1
         run: node scripts/ai-context-gate.mjs
+      - name: Zero-Drift authorization regression tests
+        run: node --test scripts/zero-drift-check.test.mjs
       - name: Zero-Drift
         run: node scripts/zero-drift-check.mjs
       - name: Prompt Crosswalk — regular 00–99 x atômico 000–096
