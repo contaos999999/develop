@@ -411,7 +411,8 @@
     "supabase/functions/queue-worker-historico/index.ts",
     "supabase/functions/notify-user/index.js",
     "supabase/tests/p0_backend_edge_source_parity.test.mjs",
-    "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md"
+    "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md",
+    ".github/workflows/p0-edge-hml-source-parity.yml"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3051,7 +3052,8 @@
       "supabase/functions/queue-worker-historico/index.ts",
       "supabase/functions/notify-user/index.js",
       "supabase/tests/p0_backend_edge_source_parity.test.mjs",
-      "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md"
+      "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md",
+      ".github/workflows/p0-edge-hml-source-parity.yml"
     ],
     "deployment_authorized": false,
     "authorization_status": "HML source recovery only, deployment after protected review and test evidence",
@@ -3062,6 +3064,11 @@
       "Do not disable JWT or internal-token validations",
       "No direct Edge deployment in this PLAN",
       "Live parity requires review, approved BUILD and exact provider source readback"
-    ]
+    ],
+    "ci_workflow": {
+      "path": ".github/workflows/p0-edge-hml-source-parity.yml",
+      "scope": "PR-only node:test for restored source, no secrets, no HML, no PROD",
+      "requires": "protected PLAN merge before BUILD #226 may add workflow"
+    }
   }
 }
