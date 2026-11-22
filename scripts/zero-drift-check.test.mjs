@@ -37,3 +37,9 @@ test('unlisted path fails closed',()=>assert.notEqual(run({changed:['docs/prompt
 test('active task modification denied',()=>assert.notEqual(run({changed:['docs/tasks/active-task.json']}).status,0));
 test('PROD denied',()=>assert.notEqual(run({changed:['PROD/release.json']}).status,0));
 test('mixed authorized and unauthorized denied',()=>assert.notEqual(run({changed:['docs/tasks/P0_CERT_LIVE_001_2026-11-22.md','src/app.ts']}).status,0));
+
+test('duplicate authorized paths fail closed',()=>assert.notEqual(run({manifest:{...auth,approved_scope:[auth.approved_scope[0],auth.approved_scope[0]]}}).status,0));
+test('parent traversal authorization fails closed',()=>assert.notEqual(run({manifest:{...auth,approved_scope:['../outside.md']}}).status,0));
+test('protected exact custom scope is accepted',()=>assert.equal(run({manifest:{...auth,approved_scope:['docs/custom/authorized.md']},changed:['docs/custom/authorized.md']}).status,0));
+test('scope does not permit wildcard authorization',()=>assert.notEqual(run({manifest:{...auth,approved_scope:['docs/**']},changed:['docs/other.md']}).status,0));
+test('wrong protected base ancestor fails closed',()=>assert.notEqual(run({overrides:{authorized_base_commit:'f'.repeat(40)}}).status,0));
