@@ -17,5 +17,24 @@
     "public/**"
   ],
   "authorization_rule": "Effective only after protected main merge and independent review; no bypass of Context Gate or active C-CHAT-013 task",
-  "prod": "NO-GO"
+  "prod": "NO-GO",
+  "bootstrap_exception": {
+    "authorization": "EXPRESS_USER_APPROVAL_2026-11-22",
+    "scope": "one-time governance bootstrap only",
+    "target_pr": 230,
+    "target_paths": [
+      "scripts/zero-drift-check.mjs",
+      "scripts/zero-drift-check.test.mjs"
+    ],
+    "invariants": [
+      "do not modify docs/tasks/active-task.json",
+      "do not disable Zero-Drift or Context Gate",
+      "do not claim failing required CI as PASS",
+      "independent review required before integration",
+      "no PROD changes",
+      "no permanent bypass"
+    ],
+    "status": "AUTHORIZED_NOT_INTEGRATED",
+    "reason": "legacy guard cannot authorize changes to itself while active C-CHAT-013 task remains unchanged"
+  }
 }
