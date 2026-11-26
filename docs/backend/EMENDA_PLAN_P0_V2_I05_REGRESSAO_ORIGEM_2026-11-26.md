@@ -11,3 +11,7 @@ A emenda legitima um caminho a mais no diff da BUILD:
 A CI própria do I05 passa a buscar histórico necessário pelo checkout e mantém o teste no `.github/workflows/p0-v2-i05-proveniencia-code.yml`, já previsto. Preservar `ai_deploy_gate.py`, o workflow LIVE anterior, contrato de seleção, hashes originais e o arquivo histórico de recibos. O I05 exige sua prova estática, PostgreSQL isolado, revisão assistida e nova prova de paridade após publicar em HML. A correção desta preparação não precisa de alteração de permissões, configuração de fila, backend de produção ou credenciais.
 
 A emenda contém este documento e `docs/tasks/active-task.json`. Somente após merge e readback da emenda a BUILD pode alterar o teste. LIVE `NOT_RUN`. PROD `NO-GO`.
+
+## Versão da migração
+
+A CLI Supabase 2.81.3 gerou `supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql`. Esse caminho substitui a reserva anterior do PLAN #231. A revisão e o diff final usam somente o arquivo gerado pela CLI com a mesma finalidade e a prova em PostgreSQL isolado. O readback de metadados confirmou 138 versões idênticas no GitHub e HML antes desta mudança. Para implantar, usar o workflow canônico `p0-hml-migration-version-parity.yml` em `deploy_one`, com versão 20261126221545, SHA do merge já aprovado, hash do arquivo e paridade. [Regra de paridade](P0_HML_MIGRATION_VERSION_PARITY_2026-11-05.md)

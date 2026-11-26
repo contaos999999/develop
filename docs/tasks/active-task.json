@@ -414,7 +414,7 @@
     "docs/backend/BUILD_P0_EDGE_HML_SOURCE_PARITY_2026-11-22.md",
     ".github/workflows/p0-edge-hml-source-parity.yml",
     "docs/backend/PLAN_P0_V2_I05_PROVENIENCIA_APONTAMENTOS_2026-11-26.md",
-    "supabase/migrations/20261126220000_v2_i05_proveniencia_apontamentos.sql",
+    "supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql",
     "supabase/functions/queue-worker-ai/index.ts",
     "supabase/functions/queue-worker-ai/diligencia-origem.mjs",
     "supabase/tests/v2_i05_proveniencia_fixture.sql",
@@ -3092,7 +3092,7 @@
     "stage": "PLAN",
     "paths": [
       "docs/backend/PLAN_P0_V2_I05_PROVENIENCIA_APONTAMENTOS_2026-11-26.md",
-      "supabase/migrations/20261126220000_v2_i05_proveniencia_apontamentos.sql",
+      "supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql",
       "supabase/functions/queue-worker-ai/index.ts",
       "supabase/functions/queue-worker-ai/diligencia-origem.mjs",
       "supabase/tests/v2_i05_proveniencia_fixture.sql",
@@ -3105,6 +3105,7 @@
     ],
     "live": "NOT_RUN",
     "prod": "NO-GO",
-    "emenda_regressao": "docs/backend/EMENDA_PLAN_P0_V2_I05_REGRESSAO_ORIGEM_2026-11-26.md"
+    "emenda_regressao": "docs/backend/EMENDA_PLAN_P0_V2_I05_REGRESSAO_ORIGEM_2026-11-26.md",
+    "version_cli": "20261126221545"
   }
 }
