@@ -423,7 +423,10 @@
     ".github/workflows/p0-v2-i05-proveniencia-code.yml",
     "docs/backend/RESULTADO_P0_V2_I05_PROVENIENCIA_APONTAMENTOS_2026-11-26.md",
     "docs/backend/EMENDA_PLAN_P0_V2_I05_REGRESSAO_ORIGEM_2026-11-26.md",
-    "supabase/tests/remaining_domains/ai_envelope.test.mjs"
+    "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+    "docs/backend/EMENDA_PLAN_P0_V2_I05_CATALOGO_RESTAURACAO_2026-11-26.md",
+    "supabase/tests/history_catalog_compare.py",
+    "supabase/tests/v2_i05_catalog.test.mjs"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3101,11 +3104,15 @@
       ".github/workflows/p0-v2-i05-proveniencia-code.yml",
       "docs/backend/RESULTADO_P0_V2_I05_PROVENIENCIA_APONTAMENTOS_2026-11-26.md",
       "docs/backend/EMENDA_PLAN_P0_V2_I05_REGRESSAO_ORIGEM_2026-11-26.md",
-      "supabase/tests/remaining_domains/ai_envelope.test.mjs"
+      "supabase/tests/remaining_domains/ai_envelope.test.mjs",
+      "docs/backend/EMENDA_PLAN_P0_V2_I05_CATALOGO_RESTAURACAO_2026-11-26.md",
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/v2_i05_catalog.test.mjs"
     ],
     "live": "NOT_RUN",
     "prod": "NO-GO",
     "emenda_regressao": "docs/backend/EMENDA_PLAN_P0_V2_I05_REGRESSAO_ORIGEM_2026-11-26.md",
-    "version_cli": "20261126221545"
+    "version_cli": "20261126221545",
+    "emenda_catalogo": "docs/backend/EMENDA_PLAN_P0_V2_I05_CATALOGO_RESTAURACAO_2026-11-26.md"
   }
 }
