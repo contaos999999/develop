@@ -1,5 +1,11 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { normalizeAIJob } from './job-envelope.mjs'
+import {
+  conferirHashDaExtracao,
+  registrarItensDaExtracao,
+  validarArquivoDaExtracao,
+  validarParecerDaExtracao,
+} from './diligencia-origem.mjs'
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0'
 
 const URL=Deno.env.get('SUPABASE_URL')!
@@ -52,8 +58,97 @@ async function gerarParecer(job:any){
  const idComp=job.payload?.id_competencia??job.entidade_id;const{data:c}=await sb.from('competencias').select('*').eq('id',idComp).single();if(!c)throw new AppError('IA_FALHOU','Competência não encontrada');const{data:res}=await sb.from('resultados_requisitos').select('resultado,confianca,justificativa,fundamento,id_requisito').eq('id_competencia',idComp).order('criado_em',{ascending:false});const schema={type:'object',properties:{texto:{type:'string'}},required:['texto'],additionalProperties:false};const prompt=`Redija um parecer interno técnico, objetivo e institucional em português do Brasil sobre a competência informada. Baseie-se exclusivamente nos resultados abaixo. Aponte pendências e ressalvas. Não declare aprovação final e não substitua a revisão humana.\n${JSON.stringify({competencia:c.competencia_referencia,resultados:res??[]})}`;const r=await openaiJSON('parecer_interno_contaos',prompt,schema);const{data:ult}=await sb.from('pareceres_internos').select('versao').eq('id_competencia',idComp).order('versao',{ascending:false}).limit(1).maybeSingle();const versao=Number(ult?.versao??0)+1;const h=await sha(r.parsed.texto);const{data:p}=await sb.from('pareceres_internos').insert({id_organizacao:c.id_organizacao,id_contrato:c.id_contrato,id_competencia:idComp,versao,texto:r.parsed.texto,status:'rascunho',autor:null,hash:h}).select('id').single();await registrarRetorno(c.id_organizacao,c.id_contrato,null,null,r.raw,r.parsed,[]);return{id_parecer:p?.id,versao}
 }
 
-async function extrairDiligencia(job:any){
- const id=job.payload?.id_parecer_contratante??job.entidade_id;const{data:p}=await sb.from('pareceres_contratante').select('*').eq('id',id).single();if(!p)throw new AppError('IA_FALHOU','Parecer do contratante não encontrado');const{data:a}=await sb.from('arquivos').select('*').eq('id',p.id_arquivo).single();if(!a)throw new AppError('IA_FALHOU','Arquivo do parecer não encontrado');const{data:blob,error}=await sb.storage.from(a.bucket).download(a.path);if(error||!blob)throw new AppError('IA_FALHOU','Arquivo do parecer indisponível');const bytes=new Uint8Array(await blob.arrayBuffer());if(bytes.length>=50*1024*1024)throw new AppError('IA_FALHOU','Arquivo acima de 50 MB');let bin='';for(let i=0;i<bytes.length;i+=32768)bin+=String.fromCharCode(...bytes.subarray(i,Math.min(i+32768,bytes.length)));const b64=btoa(bin);const file={type:'input_file',filename:a.nome_original,file_data:`data:${a.mime||'application/pdf'};base64,${b64}`,detail:'high'};const schema={type:'object',properties:{apontamentos:{type:'array',items:{type:'object',properties:{codigo:{type:['string','null']},descricao:{type:'string'},fundamento:{type:['string','null']},severidade:{type:'string',enum:['baixa','media','alta','critica']},pagina:{type:['integer','null']},trecho:{type:['string','null']},valor_questionado:{type:['number','null']},glosa_potencial:{type:['number','null']}},required:['codigo','descricao','fundamento','severidade','pagina','trecho','valor_questionado','glosa_potencial'],additionalProperties:false}}},required:['apontamentos'],additionalProperties:false};if(!OPENAI)throw new AppError('OPENAI_CHAVE_AUSENTE','Chave ausente');const resp=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{Authorization:`Bearer ${OPENAI}`,'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,input:[{role:'user',content:[file,{type:'input_text',text:'Extraia cada apontamento, diligência, ressalva, glosa ou exigência do documento do contratante. Não invente informações. Preserve página, trecho e valores quando existirem. Retorne somente a estrutura solicitada.'}]}],text:{format:{type:'json_schema',name:'diligencia_contaos',strict:true,schema}},store:false})});if(!resp.ok){const t=await resp.text();throw new AppError(resp.status===429?'OPENAI_LIMITE':'IA_FALHOU',t.slice(0,600))};const raw=await resp.json();const txt=outText(raw);let parsed:any;try{parsed=JSON.parse(txt)}catch{throw new AppError('IA_RESPOSTA_INVALIDA',txt.slice(0,500))};if(!p.id_ciclo)throw new AppError('IA_FALHOU','Ciclo de diligência não informado');for(const x of parsed.apontamentos??[])await sb.from('apontamentos_contratante').insert({id_organizacao:p.id_organizacao,id_contrato:p.id_contrato,id_competencia:p.id_competencia,id_ciclo:p.id_ciclo,codigo:x.codigo,descricao:x.descricao,fundamento:x.fundamento,status:'aberto',severidade:x.severidade,fonte_pagina:x.pagina,fonte_trecho:x.trecho,valor_questionado:x.valor_questionado,glosa_potencial:x.glosa_potencial,classificacao_sugerida:'pendente_analise',confianca_classificacao:null});await registrarRetorno(p.id_organizacao,p.id_contrato,null,null,raw,parsed,[{id_arquivo:p.id_arquivo}]);return{apontamentos:(parsed.apontamentos??[]).length}
+async function extrairDiligencia(job: any) {
+  const { data: parecer } = await sb.from('pareceres_contratante')
+    .select('*').eq('id', job.entidade_id).single()
+  validarParecerDaExtracao(job, parecer)
+
+  const { data: arquivo } = await sb.from('arquivos')
+    .select('*').eq('id', parecer.id_arquivo).single()
+  validarArquivoDaExtracao(parecer, arquivo)
+  if (parecer.extracao_apontamentos_concluida_em) {
+    return await registrarItensDaExtracao(sb, parecer, arquivo, arquivo.sha256.toLowerCase(), [])
+  }
+
+  const { data: blob, error } = await sb.storage.from(arquivo.bucket).download(arquivo.path)
+  if (error || !blob) throw new AppError('IA_FALHOU', 'Arquivo do parecer indisponível')
+  const bytes = new Uint8Array(await blob.arrayBuffer())
+  if (bytes.length >= 50 * 1024 * 1024) throw new AppError('IA_FALHOU', 'Arquivo acima de 50 MB')
+  const hash = await conferirHashDaExtracao(arquivo, bytes)
+  let bin = ''
+  for (let i = 0; i < bytes.length; i += 32768) {
+    bin += String.fromCharCode(...bytes.subarray(i, Math.min(i + 32768, bytes.length)))
+  }
+  const file = {
+    type: 'input_file',
+    filename: arquivo.nome_original,
+    file_data: `data:${arquivo.mime || 'application/pdf'};base64,${btoa(bin)}`,
+    detail: 'high',
+  }
+  const schema = {
+    type: 'object',
+    properties: {
+      apontamentos: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            codigo: { type: ['string', 'null'] },
+            descricao: { type: 'string' },
+            fundamento: { type: ['string', 'null'] },
+            severidade: { type: 'string', enum: ['baixa', 'media', 'alta', 'critica'] },
+            pagina: { type: ['integer', 'null'] },
+            trecho: { type: ['string', 'null'] },
+            valor_questionado: { type: ['number', 'null'] },
+            glosa_potencial: { type: ['number', 'null'] },
+          },
+          required: ['codigo', 'descricao', 'fundamento', 'severidade', 'pagina', 'trecho', 'valor_questionado', 'glosa_potencial'],
+          additionalProperties: false,
+        },
+      },
+    },
+    required: ['apontamentos'],
+    additionalProperties: false,
+  }
+  if (!OPENAI) throw new AppError('OPENAI_CHAVE_AUSENTE', 'Chave ausente')
+  const resp = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${OPENAI}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODEL,
+      input: [{
+        role: 'user',
+        content: [
+          file,
+          { type: 'input_text', text: 'Extraia cada apontamento, diligência, ressalva, glosa ou exigência do documento do contratante. Não invente informações. Preserve página, trecho e valores quando existirem. Retorne somente a estrutura solicitada.' },
+        ],
+      }],
+      text: { format: { type: 'json_schema', name: 'diligencia_contaos', strict: true, schema } },
+      store: false,
+    }),
+  })
+  if (!resp.ok) {
+    const t = await resp.text()
+    throw new AppError(resp.status === 429 ? 'OPENAI_LIMITE' : 'IA_FALHOU', t.slice(0, 600))
+  }
+  const raw = await resp.json()
+  const txt = outText(raw)
+  let parsed: any
+  try {
+    parsed = JSON.parse(txt)
+  } catch {
+    throw new AppError('IA_RESPOSTA_INVALIDA', txt.slice(0, 500))
+  }
+  const resultado = await registrarItensDaExtracao(sb, parecer, arquivo, hash, parsed?.apontamentos)
+  if (!resultado.reutilizado) {
+    await registrarRetorno(parecer.id_organizacao, parecer.id_contrato, null, null, raw, parsed, [{
+      id_arquivo: resultado.id_arquivo,
+      id_parecer: resultado.id_parecer,
+      arquivo_sha256: resultado.arquivo_sha256,
+      ids_apontamentos: resultado.ids_apontamentos,
+    }])
+  }
+  return resultado
 }
 
 async function revalidarApontamento(job:any){

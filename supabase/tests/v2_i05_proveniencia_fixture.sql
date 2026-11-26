@@ -47,6 +47,7 @@ create table public.apontamentos_contratante (
   status text not null default 'aberto'
 );
 create table public.eventos_auditoria (
+  id uuid primary key default gen_random_uuid(),
   id_organizacao uuid not null,
   evento text not null,
   entidade text not null,
@@ -57,8 +58,9 @@ create table public.eventos_auditoria (
 );
 create function privado.registrar_evento_auditoria(
   uuid,text,text,uuid,jsonb,jsonb,jsonb
-) returns void language sql set search_path = '' as $$
-  insert into public.eventos_auditoria values ($1,$2,$3,$4,$5,$6,$7)
+) returns uuid language sql set search_path = '' as $$
+  insert into public.eventos_auditoria (id_organizacao,evento,entidade,id_entidade,antes,depois,metadados)
+  values ($1,$2,$3,$4,$5,$6,$7) returning id
 $$;
 revoke all on function privado.registrar_evento_auditoria(uuid,text,text,uuid,jsonb,jsonb,jsonb) from public, anon, authenticated, service_role;
 
@@ -73,6 +75,8 @@ begin
   end loop;
 end $$;
 grant select, insert, update on public.apontamentos_contratante to service_role;
+create policy fixture_origem_visivel on public.arquivos as restrictive for select to authenticated
+  using (current_setting('contaos.fixture.nega_arquivo', true) is distinct from id::text);
 
 insert into public.ciclos_diligencia values
 ('00000000-0000-4000-8000-000000000401','00000000-0000-4000-8000-000000000101','00000000-0000-4000-8000-000000000201','00000000-0000-4000-8000-000000000301'),
