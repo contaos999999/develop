@@ -1,5 +1,5 @@
 """Compare metadata only; no user rows, no secrets, isolated PostgreSQL only."""
-import os,json,pathlib,subprocess
+import hashlib,os,json,pathlib,subprocess
 def reconcile_document_upload_wrapper(expected,actual):
  # GATE149/151: one exact attribute delta; never remove actual catalog records.
  prior={'schema':'public','name':'criar_documento_contrato_completo',
@@ -69,6 +69,152 @@ def reconcile_copilot_raw_catalog(expected, actual, native):
   result['policies'].append(policy)
  return result
 
+
+I05_MIGRATION_SHA256 = '28fd2190e3f61555d461597658b0d7b72c858848766fede460d4ecfb10571733'
+I05_COLUMNS = json.loads(r'''[
+  {
+    "default": null,
+    "name": "extracao_apontamentos_concluida_em",
+    "notnull": false,
+    "schema": "public",
+    "table": "pareceres_contratante",
+    "type": "timestamp with time zone"
+  },
+  {
+    "default": null,
+    "name": "extracao_apontamentos_sha256",
+    "notnull": false,
+    "schema": "public",
+    "table": "pareceres_contratante",
+    "type": "text"
+  },
+  {
+    "default": null,
+    "name": "id_arquivo_origem",
+    "notnull": false,
+    "schema": "public",
+    "table": "apontamentos_contratante",
+    "type": "uuid"
+  },
+  {
+    "default": null,
+    "name": "id_parecer_origem",
+    "notnull": false,
+    "schema": "public",
+    "table": "apontamentos_contratante",
+    "type": "uuid"
+  },
+  {
+    "default": null,
+    "name": "sha256_arquivo_origem",
+    "notnull": false,
+    "schema": "public",
+    "table": "apontamentos_contratante",
+    "type": "text"
+  }
+]''')
+I05_NATIVE = json.loads(r'''[
+  {
+    "acl": [
+      {
+        "grantee": "postgres",
+        "grantable": false,
+        "privilege": "EXECUTE"
+      }
+    ],
+    "args": "",
+    "name": "preservar_origem_apontamento",
+    "owner": "postgres",
+    "config": [
+      "search_path=\"\""
+    ],
+    "schema": "privado",
+    "definer": false,
+    "returns": "trigger",
+    "body_md5": "ce442fceb5474a4cfda3c6e9edea844c",
+    "language": "plpgsql",
+    "anon_exec": false,
+    "auth_exec": false,
+    "public_exec": false,
+    "service_exec": false
+  },
+  {
+    "acl": [
+      {
+        "grantee": "authenticated",
+        "grantable": false,
+        "privilege": "EXECUTE"
+      },
+      {
+        "grantee": "postgres",
+        "grantable": false,
+        "privilege": "EXECUTE"
+      }
+    ],
+    "args": "p_id_ciclo uuid, p_id_apontamento uuid",
+    "name": "obter_fonte_apontamento_contratante",
+    "owner": "postgres",
+    "config": [
+      "search_path=\"\""
+    ],
+    "schema": "public",
+    "definer": false,
+    "returns": "jsonb",
+    "body_md5": "23e478cb79707d48d04a300e52387d43",
+    "language": "sql",
+    "anon_exec": false,
+    "auth_exec": true,
+    "public_exec": false,
+    "service_exec": false
+  },
+  {
+    "acl": [
+      {
+        "grantee": "postgres",
+        "grantable": false,
+        "privilege": "EXECUTE"
+      },
+      {
+        "grantee": "service_role",
+        "grantable": false,
+        "privilege": "EXECUTE"
+      }
+    ],
+    "args": "p_id_parecer uuid, p_id_arquivo uuid, p_sha256 text, p_apontamentos jsonb",
+    "name": "registrar_extracao_apontamentos",
+    "owner": "postgres",
+    "config": [
+      "search_path=\"\""
+    ],
+    "schema": "public",
+    "definer": true,
+    "returns": "jsonb",
+    "body_md5": "8d148fe549006a213fd79b254ba63069",
+    "language": "plpgsql",
+    "anon_exec": false,
+    "auth_exec": false,
+    "public_exec": false,
+    "service_exec": true
+  }
+]''')
+
+def reconcile_v2_i05_catalog(expected, actual, native, migration_sha):
+ if migration_sha != I05_MIGRATION_SHA256:
+  raise SystemExit('V2_I05_CATALOG_FAIL: migration SHA-256 mismatch')
+ identity=lambda r: (r['schema'],r['name'],r['args'])
+ if sorted(native,key=identity)!=sorted(I05_NATIVE,key=identity):
+  raise SystemExit('V2_I05_CATALOG_FAIL: exact function signatures, bodies, owners and ACLs required')
+ keys=('schema','name','args','definer','config','auth_exec','anon_exec')
+ functions=[{key:record[key] for key in keys} for record in I05_NATIVE]
+ result={**expected}
+ for section, additions in (('columns',I05_COLUMNS),('functions',functions)):
+  result[section]=list(expected[section])
+  for entry in additions:
+   if actual[section].count(entry)!=1 or entry in result[section]:
+    raise SystemExit('V2_I05_CATALOG_FAIL: exact unique additive record required '+json.dumps(entry,sort_keys=True))
+   result[section].append(entry)
+ return result
+
 root=pathlib.Path(__file__).parent
 db=os.environ['DB_URL']
 assert '@127.0.0.1:' in db or '@localhost:' in db,'Isolated restore required'
@@ -87,6 +233,16 @@ expected=reconcile_copilot_catalog(expected,actual,copilot_native)
 raw_query=copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]+"where n.nspname='privado' and p.proname='copilot_retorno_e_chat';"
 raw_native=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',raw_query],text=True))
 expected=reconcile_copilot_raw_catalog(expected,actual,raw_native)
+i05_migration=root.parent/'migrations'/'20261126221545_v2_i05_proveniencia_apontamentos.sql'
+if i05_migration.is_file():
+ i05_query=copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]+(
+  "where (n.nspname,p.proname) in (('privado','preservar_origem_apontamento'),"
+  "('public','obter_fonte_apontamento_contratante'),('public','registrar_extracao_apontamentos'));"
+ )
+ i05_native=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',i05_query],text=True))
+ expected=reconcile_v2_i05_catalog(expected,actual,i05_native,hashlib.sha256(i05_migration.read_bytes()).hexdigest())
+ print('V2_I05_CATALOG_PASS: exact five columns and three function signatures, bodies, owners and ACLs')
+
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
 expected=reconcile_document_vigency_wrapper(expected,actual)

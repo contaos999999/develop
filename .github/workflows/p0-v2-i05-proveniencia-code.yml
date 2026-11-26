@@ -108,4 +108,4 @@ jobs:
           echo V2_I05_CONCORRENCIA_PASS
       - name: Worker e regressão de envelopes
         run: |
-          node --test supabase/tests/v2_i05_worker.test.mjs supabase/tests/remaining_domains/ai_envelope.test.mjs
+          node --test supabase/tests/v2_i05_worker.test.mjs supabase/tests/v2_i05_catalog.test.mjs supabase/tests/remaining_domains/ai_envelope.test.mjs
