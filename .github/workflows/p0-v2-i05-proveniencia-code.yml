@@ -5,14 +5,14 @@ on:
     paths:
       - ".github/workflows/p0-v2-i05-proveniencia-code.yml"
       - "supabase/functions/queue-worker-ai/**"
-      - "supabase/migrations/20261126220000_v2_i05_proveniencia_apontamentos.sql"
+      - "supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql"
       - "supabase/tests/v2_i05*"
   push:
     branches: [main]
     paths:
       - ".github/workflows/p0-v2-i05-proveniencia-code.yml"
       - "supabase/functions/queue-worker-ai/**"
-      - "supabase/migrations/20261126220000_v2_i05_proveniencia_apontamentos.sql"
+      - "supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql"
       - "supabase/tests/v2_i05*"
 
 permissions:
@@ -41,6 +41,9 @@ jobs:
       PGPASSWORD: fixture-only-i05
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
@@ -48,7 +51,7 @@ jobs:
         run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_i05_proveniencia_fixture.sql
       - name: Aplicar a migração candidata ao PostgreSQL isolado
         run: |
-          migration=supabase/migrations/20261126220000_v2_i05_proveniencia_apontamentos.sql
+          migration=supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql
           if [[ -f "$migration" ]]; then
             psql -X -v ON_ERROR_STOP=1 -f "$migration"
           fi
