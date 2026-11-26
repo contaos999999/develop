@@ -79,19 +79,41 @@ for event,patch,ok,applicable in [('workflow_run',{},True,True),('workflow_dispa
 });
 
 test('actual runtime readiness gate revalidates unchanged deployed source against current CI and original receipt',()=>{
- const code=String.raw`import os,pathlib,subprocess,tempfile,json,copy
+ const code=String.raw`import os,pathlib,subprocess,tempfile,json,copy,hashlib
 source=pathlib.Path('.github/workflows/p0-crud-remaining-hml.yml').read_text();start=source.index('  runtime-ready:');section=source[start:source.index('  public-probe:',start)]
 assert 'environment:' not in section and 'secrets.' not in section
 assert "needs: [scope, runtime-ready]" in source and "needs.runtime-ready.result == 'success'" in source
 script=section.split('        run: |\n',1)[1];script='\n'.join(x[10:] if x.startswith('          ') else x for x in script.splitlines())
 head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip();task=json.load(open('docs/tasks/active-task.json'));p=task['remaining_certification']['approved_ai_worker_runtime'];approval=p['origin_approval']
+repo=pathlib.Path.cwd()
+git_dir=subprocess.check_output(['git','rev-parse','--absolute-git-dir'],text=True).strip()
+historical_files={
+ path:subprocess.check_output(['git','show',p['origin_backend_head']+':'+path])
+ for path in p['source_sha256']
+}
+assert all(hashlib.sha256(source).hexdigest()==p['source_sha256'][path] for path,source in historical_files.items())
 origin={'schema':'contaos.ai-worker-deployment.v1','backend_head':p['origin_backend_head'],'project':p['project'],'function_slug':p['function_slug'],'version':5,'prior_version':4,'verify_jwt':False,'status':'ACTIVE','readback_equal':True,'source_sha256':p['source_sha256'],'prior_source_sha256':approval['prior_source_sha256'],'management_bundle_sha256':p['expected_bundle_sha256'],'active_ai_jobs_before':0,'active_ai_jobs_after':0,'deployed_at':p['expected_deployed_at'],'verified_at':'2026-11-08T20:27:30Z'}
 r={**origin,'schema':'contaos.ai-worker-runtime.v1','backend_head':head,'verified_at':'2026-11-08T21:02:01Z','origin_deployment_receipt_id':p['origin_receipt_comment_id']}
 comment={'id':22,'created_at':'2026-11-08T21:02:02Z','user':{'login':'contaos9999'},'issue_url':'https://api.github.com/repos/contaos999999/develop/issues/138','body':json.dumps(r)}
 parent={'id':p['origin_receipt_comment_id'],'created_at':'2026-11-08T20:28:06Z','user':{'login':'contaos9999'},'issue_url':comment['issue_url'],'body':json.dumps(origin)}
-for case in ['valid','missing','ambiguous','stale_restore','failed_backup','advanced_head','stale_comment','altered_deployment_time','early_verification','newer_failed_backup','origin_adulterated','origin_foreign_actor','origin_changed_bundle','initial_receipt_instead_of_runtime','current_source_changed']:
+for case in ['valid','missing','ambiguous','stale_restore','failed_backup','advanced_head','stale_comment','altered_deployment_time','early_verification','newer_failed_backup','origin_adulterated','origin_foreign_actor','origin_changed_bundle','initial_receipt_instead_of_runtime','current_source_changed','worker_bytes_changed']:
  with tempfile.TemporaryDirectory() as d:
-  base=pathlib.Path(d);(base/'bin').mkdir();gh=base/'bin/gh'
+  base=pathlib.Path(d)
+  (base/'bin').mkdir()
+  gh=base/'bin/gh'
+  worker_root=base/'runtime-fixture'
+  fixture_files={
+   'docs/tasks/active-task.json':(repo/'docs/tasks/active-task.json').read_bytes(),
+   'supabase/tests/remaining_domains/ai_deploy_gate.py':(repo/'supabase/tests/remaining_domains/ai_deploy_gate.py').read_bytes(),
+   **historical_files,
+  }
+  if case=='worker_bytes_changed':
+   changed='supabase/functions/queue-worker-ai/index.ts'
+   fixture_files[changed]+=b'\n// arquivo divergente da prova v5\n'
+  for relative,contents in fixture_files.items():
+   target=worker_root/relative
+   target.parent.mkdir(parents=True,exist_ok=True)
+   target.write_bytes(contents)
   gh.write_text("#!/usr/bin/env python3\nimport json,sys,os\nd=json.load(open(os.environ['FIXTURE']));p=sys.argv[-1]\nif p.endswith('/commits/main'):v={'sha':d['live']}\nelif '/check-runs?' in p:v={'check_runs':d['checks']}\nelif '/actions/runs/' in p:v=d['restore']\nelif '/issues/138/comments?' in p:v=d['comments']\nelif '/issues/comments/' in p:v=d['origin']\nelse:raise SystemExit('Unexpected API')\nprint(json.dumps(v))\n");gh.chmod(0o700)
   data={'live':head,'checks':[{'id':10+i,'name':n,'head_sha':head,'conclusion':'success','completed_at':'2026-11-08T21:01:00Z'} for i,n in enumerate(['guard','reconstruir-banco-do-zero','prova-backup-dados-sinteticos-duas-instancias'])],'restore':{'head_sha':head,'head_branch':'main','event':'push','status':'completed','conclusion':'success','name':'ContaOS Restore Isolado','created_at':'2026-11-08T21:00:00Z','updated_at':'2026-11-08T21:01:00Z'},'comments':[copy.deepcopy(comment)],'origin':copy.deepcopy(parent)}
   if case=='missing':data['comments']=[]
@@ -115,7 +137,8 @@ for case in ['valid','missing','ambiguous','stale_restore','failed_backup','adva
    if case=='current_source_changed':bad['source_sha256']['supabase/functions/queue-worker-ai/index.ts']='0'*64
    data['comments'][0]['body']=json.dumps(bad)
   (base/'fixture').write_text(json.dumps(data));env={'PATH':str(base/'bin')+':'+os.environ['PATH'],'FIXTURE':str(base/'fixture'),'TESTED_HEAD':head,'RESTORE_RUN_ID':'11','GITHUB_OUTPUT':str(base/'out'),'DEPLOY_RECEIPT_COMMENT_ID':''}
-  result=subprocess.run(['bash','-e','-o','pipefail','-c',script],env=env,capture_output=True,text=True)
+  env.update(GIT_DIR=git_dir,GIT_WORK_TREE=str(worker_root),PYTHONDONTWRITEBYTECODE='1')
+  result=subprocess.run(['bash','-e','-o','pipefail','-c',script],cwd=worker_root,env=env,capture_output=True,text=True)
   assert (result.returncode==0)==(case=='valid'),(case,result.stderr)
   if case=='valid':assert (base/'out').read_text()=='receipt_comment_id=22\n'
 `;

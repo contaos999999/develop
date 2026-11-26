@@ -1,0 +1,111 @@
+name: ContaOS V2 I05 CODE
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p0-v2-i05-proveniencia-code.yml"
+      - "supabase/functions/queue-worker-ai/**"
+      - "supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql"
+      - "supabase/tests/v2_i05*"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/p0-v2-i05-proveniencia-code.yml"
+      - "supabase/functions/queue-worker-ai/**"
+      - "supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql"
+      - "supabase/tests/v2_i05*"
+
+permissions:
+  contents: read
+
+jobs:
+  v2-i05:
+    name: V2 I05 | PostgreSQL isolado
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: contaos_i05_fixture
+          POSTGRES_PASSWORD: fixture-only-i05
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d contaos_i05_fixture"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGDATABASE: contaos_i05_fixture
+      PGUSER: postgres
+      PGPASSWORD: fixture-only-i05
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Preparar catálogo de origem sintético
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_i05_proveniencia_fixture.sql
+      - name: Aplicar a migração candidata ao PostgreSQL isolado
+        run: |
+          migration=supabase/migrations/20261126221545_v2_i05_proveniencia_apontamentos.sql
+          if [[ -f "$migration" ]]; then
+            psql -X -v ON_ERROR_STOP=1 -f "$migration"
+          fi
+      - name: Executar prova material de proveniência I05
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_i05_proveniencia.test.sql
+      - name: Concorrência e retry confirmam um único lote
+        shell: bash
+        run: |
+          primeiro="$RUNNER_TEMP/v2-i05-extracao-primeira.log"
+          segundo="$RUNNER_TEMP/v2-i05-extracao-segunda.log"
+          PGAPPNAME=v2-i05-writer-1 psql -XAqt -v ON_ERROR_STOP=1 > "$primeiro" <<'SQL' &
+          begin;
+          set local role service_role;
+          select public.registrar_extracao_apontamentos(
+            '00000000-0000-4000-8000-000000000604','00000000-0000-4000-8000-000000000504',
+            repeat('d',64),'[{"descricao":"Lote original","severidade":"media"}]'
+          )->>'reutilizado';
+          select pg_sleep(4);
+          commit;
+          SQL
+          pid_primeiro=$!
+          aguardando=false
+          for intento in {1..32}; do
+            if psql -XAqt -c "select exists(select 1 from pg_stat_activity where application_name='v2-i05-writer-1' and wait_event='PgSleep')" | grep -qx t; then
+              aguardando=true
+              break
+            fi
+            sleep 0.1
+          done
+          test "$aguardando" = true
+          PGAPPNAME=v2-i05-writer-2 psql -XAqt -v ON_ERROR_STOP=1 > "$segundo" <<'SQL' &
+          set role service_role;
+          select public.registrar_extracao_apontamentos(
+            '00000000-0000-4000-8000-000000000604','00000000-0000-4000-8000-000000000504',
+            repeat('d',64),'[{"descricao":"Reenvio divergente","severidade":"alta"}]'
+          )->>'reutilizado';
+          SQL
+          pid_segundo=$!
+          concorrente=false
+          for intento in {1..25}; do
+            if psql -XAqt -c "select exists(select 1 from pg_stat_activity where application_name='v2-i05-writer-2' and wait_event_type='Lock')" | grep -qx t; then
+              concorrente=true
+              break
+            fi
+            sleep 0.1
+          done
+          wait "$pid_primeiro"
+          wait "$pid_segundo"
+          test "$concorrente" = true
+          grep -qx false "$primeiro"
+          grep -qx true "$segundo"
+          psql -XAqt -c "select (count(*)=1 and min(descricao)='Lote original') from public.apontamentos_contratante where id_parecer_origem='00000000-0000-4000-8000-000000000604'" | grep -qx t
+          psql -XAqt -c "select count(*)=1 from public.eventos_auditoria where id_entidade='00000000-0000-4000-8000-000000000604'" | grep -qx t
+          echo V2_I05_CONCORRENCIA_PASS
+      - name: Worker e regressão de envelopes
+        run: |
+          node --test supabase/tests/v2_i05_worker.test.mjs supabase/tests/v2_i05_catalog.test.mjs supabase/tests/remaining_domains/ai_envelope.test.mjs
