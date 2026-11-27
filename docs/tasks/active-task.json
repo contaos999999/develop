@@ -471,7 +471,8 @@
     "supabase/tests/v2_76_prazo.test.sql",
     "supabase/tests/v2_76_prazo_catalog_pins.json",
     "docs/backend/RESULTADO_P0_V2_76_PRAZO_EXTERNO_2026-11-27.md",
-    "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md"
+    "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md",
+    ".github/workflows/p0-v2-77-cli-generate.yml"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3342,10 +3343,10 @@
     "id": "P0-V2-77-DESFECHOS-LINHA-TEMPO-20261127",
     "authorized_by": "Titular solicitou execução do regular 77; governança P0-ECO preservada.",
     "regular": "77",
-    "stage": "PLAN_DIAGNOSTICO",
+    "stage": "PLAN_PREPARACAO_CLI",
     "environment": "HML",
     "mode": "CODE",
-    "backend_base": "b45532dc6397b2c34763ff20ced56f3d0f604d8e",
+    "backend_base": "51f8ac4b5a828a8e88f2e652f6b042d6cd3b1fa0",
     "frontend_predecessor_receipt_pr": 850,
     "frontend_predecessor_merge": "d1d5ecbe5641a2c698b99c1768927a4d9d8163e6",
     "atomicos": [
@@ -3359,11 +3360,18 @@
     ],
     "paths": [
       "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md",
-      "docs/tasks/active-task.json"
+      "docs/tasks/active-task.json",
+      ".github/workflows/p0-v2-77-cli-generate.yml"
     ],
     "build_authorized": false,
-    "authority": "Diagnóstico e fechamento do contrato; emenda com caminhos exatos antes da BUILD.",
+    "authority": "Preparação offline da migração e diagnóstico ampliado; BUILD continua bloqueada.",
     "live": "NOT_RUN",
-    "prod": "NO-GO"
+    "prod": "NO-GO",
+    "cli_generator": {
+      "path": ".github/workflows/p0-v2-77-cli-generate.yml",
+      "version": "2.81.3",
+      "permissions": "contents:read",
+      "database_access": false
+    }
   }
 }
