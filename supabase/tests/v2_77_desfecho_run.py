@@ -67,4 +67,57 @@ assert sql('-c',"select count(*) from public.desfechos_apontamentos where id_apo
 assert sql('-c',"select count(*) from public.eventos_auditoria where id_entidade=fixture_id(408)").strip()=='1'
 assert sql('-c',"select count(*) from public.execucoes_assincronas where payload->>'id_desfecho'='"+replies[0][3:]+"'").strip()=='2'
 print('V2_77_CONCORRENCIA_PASS: um desfecho, uma auditoria e duas execuções previstas')
+# Exercise all terminal outcomes; use the same RPC and independent item scopes.
+def outcome(n, result, description):
+    return sql('-c',f"""set role authenticated;
+select set_config('fixture.actor',fixture_id(8)::text,false);
+select fixture_tentar({n},'{result}','{description}');""").splitlines()[-1]
+
+for n,result,status,confidence in [(409,'rejeitada','em_tratamento','0.45000'),
+                                   (410,'parcialmente_aceita','encerrado','0.65000')]:
+    receipt=outcome(n,result,'Resultado externo')
+    assert receipt.startswith('OK:'),receipt
+    assert outcome(n,result,'Resultado externo')==receipt
+    assert sql('-c',f"""select count(*)=1 and min(d.tipo_desfecho)='contestacao_{result}'
+       and bool_and(d.id_contestacao=c.id) and bool_and(c.resultado_final='{result}')
+       and bool_and(a.status='{status}')
+       from public.desfechos_apontamentos d join public.contestacoes c on c.id=d.id_contestacao
+       join public.apontamentos_contratante a on a.id=d.id_apontamento
+       where c.id=fixture_id({n})""").strip()=='t'
+    assert sql('-c',f"""select count(*)=1 and min(confianca)={confidence} and min(confirmacoes)=1
+       and min(desfecho)='{result}' from public.precedentes where fonte_id=fixture_id({n-100})""").strip()=='t'
+    assert sql('-c',f"""select count(*) from public.execucoes_assincronas
+       where payload->>'id_desfecho'='{receipt[3:]}'""").strip()=='2'
+    assert sql('-c',f"""select count(*) from public.eventos_auditoria
+       where id_entidade=fixture_id({n}) and evento='DesfechoContestacaoRegistrado'""").strip()=='1'
+    print('V2_77_RESULTADO_PASS|'+result,flush=True)
+
+# Fail the last side effect (audit insert), after the state, precedent and queue
+# writes. The caller's exception block must roll back the entire RPC.
+sql('-c',"""create function privado.fixture_falhar_auditoria() returns trigger language plpgsql as $
+begin
+ if new.id_entidade=public.fixture_id(412) then raise exception using errcode='P7777',message='Falha sintética após efeitos'; end if;
+ return new;
+end$;
+create trigger fixture_falha_auditoria before insert on public.eventos_auditoria
+ for each row execute function privado.fixture_falhar_auditoria();""")
+def snapshot():
+    return sql('-c',"""select jsonb_build_object(
+ 'contestacao',(select to_jsonb(c) from public.contestacoes c where id=fixture_id(412)),
+ 'item',(select to_jsonb(a) from public.apontamentos_contratante a where id=fixture_id(312)),
+ 'desfechos',(select count(*) from public.desfechos_apontamentos),
+ 'precedentes',(select count(*) from public.precedentes),
+ 'fila',(select count(*) from public.execucoes_assincronas),
+ 'auditoria',(select count(*) from public.eventos_auditoria));""").strip()
+before=snapshot()
+assert outcome(412,'aceita','Decisão com falha interna')=='ERR:P7777'
+assert snapshot()==before,'efeitos parciais persistiram após falha de auditoria'
+sql('-c','drop trigger fixture_falha_auditoria on public.eventos_auditoria;')
+recovered=outcome(412,'aceita','Decisão com falha interna')
+assert recovered.startswith('OK:') and outcome(412,'aceita','Decisão com falha interna')==recovered
+assert sql('-c',"select count(*) from public.desfechos_apontamentos where id_apontamento=fixture_id(312)").strip()=='1'
+assert sql('-c',"select count(*) from public.eventos_auditoria where id_entidade=fixture_id(412)").strip()=='1'
+assert sql('-c',"select count(*) from public.execucoes_assincronas where payload->>'id_desfecho'='"+recovered[3:]+"'").strip()=='2'
+print('V2_77_ROLLBACK_RECUPERACAO_PASS: zero efeitos parciais e repetição segura',flush=True)
+
 print('V2_77_GREEN: escopo, aprovação, idempotência, linhagem, confiança e auditoria')
