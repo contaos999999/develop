@@ -1,0 +1,66 @@
+name: ContaOS V2 77A Desfechos CODE
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p0-v2-77-desfecho-code.yml"
+      - "supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql"
+      - "supabase/tests/v2_77*"
+      - "supabase/tests/history_catalog_compare.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/p0-v2-77-desfecho-code.yml"
+      - "supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql"
+      - "supabase/tests/v2_77*"
+      - "supabase/tests/history_catalog_compare.py"
+permissions:
+  contents: read
+jobs:
+  codigo:
+    name: V2 77A | PostgreSQL isolado
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: contaos_v277_fixture
+          POSTGRES_PASSWORD: fixture-only-v277
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d contaos_v277_fixture"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGDATABASE: contaos_v277_fixture
+      PGUSER: postgres
+      PGPASSWORD: fixture-only-v277
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Provar desfechos no PostgreSQL isolado
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provas-v2-77
+          python3 supabase/tests/v2_77_desfecho_run.py 2>&1 | tee provas-v2-77/postgres.log
+      - name: Selar origem e artefato
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p provas-v2-77
+          git rev-parse HEAD HEAD^{tree} > provas-v2-77/checkout.txt
+          printf '%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_JOB" > provas-v2-77/proveniencia.txt
+          sha256sum supabase/migrations/20261101214949_0030_fechamento_funcional_v1_v2.sql supabase/migrations/20261102174252_v105_confiar_mutacao_interna_escopo.sql supabase/tests/v2_77* .github/workflows/p0-v2-77-desfecho-code.yml > provas-v2-77/FONTES-SHA256SUMS
+          if test -f supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql; then sha256sum supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql >> provas-v2-77/FONTES-SHA256SUMS; fi
+          (cd provas-v2-77 && sha256sum ./* > ../SHA256SUMS-v2-77)
+          mv SHA256SUMS-v2-77 provas-v2-77/SHA256SUMS
+      - name: Preservar a prova do regular 77A
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-77a-backend-code
+          path: provas-v2-77/
+          if-no-files-found: error

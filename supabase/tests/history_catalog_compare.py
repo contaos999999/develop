@@ -410,6 +410,51 @@ if v276_migration.is_file():
    raise SystemExit('V276_CATALOG_FAIL: assinatura legada foi alterada')
  print('V276_CATALOG_PASS: quatro funções e ACLs exatas')
 
+
+v277_migration=root.parent/'migrations'/'20261127233223_p0_v2_77_desfechos_linha_tempo.sql'
+if v277_migration.is_file():
+ v277_pins=json.loads((root/'v2_77_catalog_pins.json').read_text())
+ if hashlib.sha256(v277_migration.read_bytes()).hexdigest()!=v277_pins['migration_sha256']:
+  raise SystemExit('V277_CATALOG_FAIL: migration SHA-256 mismatch')
+ v277_query=copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]+(
+  "where n.nspname in ('privado','public') and p.proname='registrar_desfecho_contestacao';"
+ )
+ v277_functions=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',v277_query],text=True))
+ if v277_functions!=v277_pins['functions']:
+  raise SystemExit('V277_CATALOG_FAIL: corpos, assinaturas, proprietários ou ACL divergentes')
+ for f in v277_functions:
+  registro={key:f[key] for key in ('schema','name','args','definer','config','auth_exec','anon_exec')}
+  if expected['functions'].count(registro)!=1 or actual['functions'].count(registro)!=1:
+   raise SystemExit('V277_CATALOG_FAIL: assinatura legada divergente')
+ column=v277_pins['column']
+ if actual['columns'].count(column)!=1 or column in expected['columns']:
+  raise SystemExit('V277_CATALOG_FAIL: coluna de origem deve ser aditiva e única')
+ guards_query="""
+ select
+   (select count(*)=1 from pg_constraint c
+    where c.conrelid='public.desfechos_apontamentos'::regclass
+      and c.conname='desfechos_apontamentos_id_contestacao_fkey'
+      and c.contype='f' and c.confrelid='public.contestacoes'::regclass
+      and c.convalidated and c.confdeltype='r'
+      and c.conkey=array[(select attnum from pg_attribute where attrelid=c.conrelid and attname='id_contestacao')]
+      and c.confkey=array[(select attnum from pg_attribute where attrelid=c.confrelid and attname='id')])
+   and (select count(*)=1 from pg_index i where i.indexrelid=to_regclass('public.desfechos_contestacao_resultado_uidx')
+     and i.indrelid='public.desfechos_apontamentos'::regclass and i.indisunique and i.indisvalid and i.indisready
+     and i.indnkeyatts=2 and i.indnatts=2
+     and pg_get_indexdef(i.indexrelid,1,true)='id_contestacao'
+     and pg_get_indexdef(i.indexrelid,2,true)='tipo_desfecho'
+     and pg_get_expr(i.indpred,i.indrelid)='(id_contestacao IS NOT NULL)')
+   and (select relrowsecurity from pg_class where oid='public.desfechos_apontamentos'::regclass)
+   and has_table_privilege('authenticated','public.desfechos_apontamentos','SELECT')
+   and not has_any_column_privilege('authenticated','public.desfechos_apontamentos','INSERT')
+   and not has_any_column_privilege('authenticated','public.desfechos_apontamentos','UPDATE')
+   and not has_table_privilege('authenticated','public.desfechos_apontamentos','DELETE');
+ """
+ if subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',guards_query],text=True).strip()!='t':
+  raise SystemExit('V277_CATALOG_FAIL: FK, índice, RLS ou privilégios divergentes')
+ expected['columns'].append(column)
+ print('V277_CATALOG_PASS: corpo e ACL exatos, FK, índice e RLS conferidos')
+
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
 expected=reconcile_document_vigency_wrapper(expected,actual)
