@@ -464,7 +464,13 @@
     "supabase/tests/v2_76_parecer_run.py",
     "supabase/tests/v2_76_catalog_pins.json",
     ".github/workflows/p0-v2-76-parecer-code.yml",
-    "docs/backend/RESULTADO_P0_V2_76_PARECER_APRESENTACAO_2026-11-27.md"
+    "docs/backend/RESULTADO_P0_V2_76_PARECER_APRESENTACAO_2026-11-27.md",
+    "docs/backend/PLAN_P0_V2_76_PRAZO_EXTERNO_2026-11-27.md",
+    "supabase/migrations/20261127213828_p0_v2_76_prazo_externo.sql",
+    "supabase/tests/v2_76_prazo_fixture.sql",
+    "supabase/tests/v2_76_prazo.test.sql",
+    "supabase/tests/v2_76_prazo_catalog_pins.json",
+    "docs/backend/RESULTADO_P0_V2_76_PRAZO_EXTERNO_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3328,6 +3334,7 @@
     ],
     "authority": "Cálculo de prazo externo conforme configuração do contrato no corpo privado de registro.",
     "live": "NOT_RUN",
-    "prod": "NO-GO"
+    "prod": "NO-GO",
+    "scope_validation_note": "Zero-Drift do primeiro candidato (46071702123) exigiu o registro dos caminhos fechados no campo allowed_paths. Conferidos o manifesto e o diff deste PLAN."
   }
 }
