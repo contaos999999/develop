@@ -9,6 +9,7 @@ on:
       - "supabase/tests/v2_48*"
       - "supabase/tests/history_catalog_compare.py"
       - "supabase/tests/v2_i05_worker.test.mjs"
+      - "supabase/tests/v2_47_worker.test.mjs"
   push:
     branches: [main]
     paths:
@@ -18,6 +19,7 @@ on:
       - "supabase/tests/v2_48*"
       - "supabase/tests/history_catalog_compare.py"
       - "supabase/tests/v2_i05_worker.test.mjs"
+      - "supabase/tests/v2_47_worker.test.mjs"
 
 permissions:
   contents: read
@@ -54,5 +56,33 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Verificar as operações de âmbito e versão
-        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_48_contestacao.test.sql
+      - name: Restaurar o escopo sintético e aplicar as migrações versionadas
+        run: |
+          psql -X -v ON_ERROR_STOP=1 \
+            -f supabase/tests/v2_47_tarefas_fixture.sql \
+            -f supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql \
+            -f supabase/tests/v2_48_contestacao_fixture.sql \
+            -f supabase/migrations/20261127105223_p0_v2_48_contestacao_evidencia.sql
+      - name: Provar versão, escopo, mapa, decisão e concorrência
+        run: |
+          mkdir -p provas-v2-48
+          psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_48_contestacao.test.sql | tee provas-v2-48/postgres.log
+          python3 supabase/tests/v2_48_contestacao_concorrencia.py | tee provas-v2-48/concorrencia.log
+      - name: Provar catálogo e worker com as regressões I05 e V2 47
+        run: |
+          node --test supabase/tests/v2_48_{worker,catalog}.test.mjs \
+            supabase/tests/v2_47_worker.test.mjs supabase/tests/v2_i05_worker.test.mjs | tee provas-v2-48/node.tap
+      - name: Registrar origem e selar o artefato
+        run: |
+          git rev-parse HEAD HEAD^{tree} > provas-v2-48/checkout.txt
+          printf '%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_JOB" > provas-v2-48/proveniencia.txt
+          sha256sum supabase/migrations/20261127105223_p0_v2_48_contestacao_evidencia.sql \
+            supabase/tests/v2_48_catalog_pins.json supabase/functions/queue-worker-ai/* > provas-v2-48/FONTES-SHA256SUMS
+          (cd provas-v2-48 && sha256sum ./* > ../SHA256SUMS-v2-48)
+          mv SHA256SUMS-v2-48 provas-v2-48/SHA256SUMS
+      - name: Preservar o artefato do regular 48
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-48-backend-code
+          path: provas-v2-48/
+          if-no-files-found: error

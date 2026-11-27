@@ -273,6 +273,50 @@ def reconcile_v247_catalog(expected, actual, native, migration_sha, pins):
    functions.append(entry)
  return {**expected,'columns':columns,'functions':functions}
 
+def v248_queries(common_functions):
+ return {
+  'functions': common_functions + """
+    where (n.nspname='privado' and (left(p.proname,5)='v248_' or p.proname in (
+        'aprovar_contestacao','criar_contestacao','solicitar_minuta_contestacao')))
+      or (n.nspname='public' and p.proname in ('obter_contestacoes_v2','salvar_contestacao_v2',
+        'revisar_contestacao_v2','solicitar_minuta_contestacao_v2','obter_contexto_minuta_contestacao_v2',
+        'registrar_minuta_contestacao_v2'));
+  """,
+  'guards': """
+    set search_path='';
+    select jsonb_agg(jsonb_build_object(
+      'table',c.relname,'role',r.rolname,'rls',c.relrowsecurity,
+      'select',has_table_privilege(r.oid,c.oid,'SELECT'),
+      'insert',has_any_column_privilege(r.oid,c.oid,'INSERT'),
+      'update',has_any_column_privilege(r.oid,c.oid,'UPDATE'),
+      'delete',has_table_privilege(r.oid,c.oid,'DELETE')) order by c.relname,r.rolname)
+      from pg_class c cross join pg_roles r where r.rolname in ('anon','authenticated','service_role')
+        and c.oid in ('public.contestacoes'::regclass,'public.mapas_evidencias_contestacao'::regclass);
+  """,
+ }
+
+def reconcile_v248_catalog(expected, actual, native, migration_sha, pins):
+ if migration_sha!=pins['migration_sha256']:
+  raise SystemExit('V248_CATALOG_FAIL: migration SHA-256 mismatch')
+ if native['functions']!=pins['functions'] or native['guards']!=pins['guards']:
+  raise SystemExit('V248_CATALOG_FAIL: exact signatures, bodies, ACLs and table privileges required')
+ keys=('schema','name','args','definer','config','auth_exec','anon_exec')
+ functions=list(expected['functions'])
+ for record in pins['functions']:
+  entry={key:record[key] for key in keys}
+  entry['args']=entry['args'].replace('p_item public.apontamentos_contratante','p_item apontamentos_contratante')
+  entry['args']=entry['args'].replace('p_versao public.contestacoes','p_versao contestacoes')
+  if actual['functions'].count(entry)!=1:
+   raise SystemExit('V248_CATALOG_FAIL: exact function metadata required '+json.dumps(entry,sort_keys=True))
+  if record['name'] in ('aprovar_contestacao','criar_contestacao','solicitar_minuta_contestacao'):
+   if functions.count(entry)!=1:
+    raise SystemExit('V248_CATALOG_FAIL: original callable signature changed '+json.dumps(entry,sort_keys=True))
+  elif entry in functions:
+   raise SystemExit('V248_CATALOG_FAIL: additive function already present '+json.dumps(entry,sort_keys=True))
+  else:
+   functions.append(entry)
+ return {**expected,'functions':functions}
+
 root=pathlib.Path(__file__).parent
 db=os.environ['DB_URL']
 assert '@127.0.0.1:' in db or '@localhost:' in db,'Isolated restore required'
@@ -308,6 +352,14 @@ if v247_migration.is_file():
               for k,sql in v247_queries(copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]).items()}
  expected=reconcile_v247_catalog(expected,actual,v247_native,hashlib.sha256(v247_migration.read_bytes()).hexdigest(),v247_pins)
  print('V247_CATALOG_PASS: coluna, chave, índice, RLS, ACLs e corpos exatos')
+
+v248_migration=root.parent/'migrations'/'20261127105223_p0_v2_48_contestacao_evidencia.sql'
+if v248_migration.is_file():
+ v248_pins=json.loads((root/'v2_48_catalog_pins.json').read_text())
+ v248_native={k:json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',sql],text=True))
+              for k,sql in v248_queries(copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]).items()}
+ expected=reconcile_v248_catalog(expected,actual,v248_native,hashlib.sha256(v248_migration.read_bytes()).hexdigest(),v248_pins)
+ print('V248_CATALOG_PASS: corpos, assinaturas, ACLs, RLS e privilégios exatos')
 
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
