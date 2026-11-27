@@ -470,7 +470,8 @@
     "supabase/tests/v2_76_prazo_fixture.sql",
     "supabase/tests/v2_76_prazo.test.sql",
     "supabase/tests/v2_76_prazo_catalog_pins.json",
-    "docs/backend/RESULTADO_P0_V2_76_PRAZO_EXTERNO_2026-11-27.md"
+    "docs/backend/RESULTADO_P0_V2_76_PRAZO_EXTERNO_2026-11-27.md",
+    "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3336,5 +3337,33 @@
     "live": "NOT_RUN",
     "prod": "NO-GO",
     "scope_validation_note": "Zero-Drift do primeiro candidato (46071702123) exigiu o registro dos caminhos fechados no campo allowed_paths. Conferidos o manifesto e o diff deste PLAN."
+  },
+  "authority_scope_v2_77": {
+    "id": "P0-V2-77-DESFECHOS-LINHA-TEMPO-20261127",
+    "authorized_by": "Titular solicitou execução do regular 77; governança P0-ECO preservada.",
+    "regular": "77",
+    "stage": "PLAN_DIAGNOSTICO",
+    "environment": "HML",
+    "mode": "CODE",
+    "backend_base": "b45532dc6397b2c34763ff20ced56f3d0f604d8e",
+    "frontend_predecessor_receipt_pr": 850,
+    "frontend_predecessor_merge": "d1d5ecbe5641a2c698b99c1768927a4d9d8163e6",
+    "atomicos": [
+      "037",
+      "038",
+      "039",
+      "040",
+      "041",
+      "042",
+      "043"
+    ],
+    "paths": [
+      "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md",
+      "docs/tasks/active-task.json"
+    ],
+    "build_authorized": false,
+    "authority": "Diagnóstico e fechamento do contrato; emenda com caminhos exatos antes da BUILD.",
+    "live": "NOT_RUN",
+    "prod": "NO-GO"
   }
 }
