@@ -456,7 +456,15 @@
     "supabase/tests/v2_49_reapresentacao_run.py",
     "supabase/tests/v2_49_catalog_pins.json",
     ".github/workflows/p0-v2-49-reapresentacao-code.yml",
-    "docs/backend/RESULTADO_P0_V2_49_REAPRESENTACAO_2026-11-27.md"
+    "docs/backend/RESULTADO_P0_V2_49_REAPRESENTACAO_2026-11-27.md",
+    "docs/backend/PLAN_P0_V2_76_PARECER_APRESENTACAO_2026-11-27.md",
+    "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql",
+    "supabase/tests/v2_76_parecer_fixture.sql",
+    "supabase/tests/v2_76_parecer.test.sql",
+    "supabase/tests/v2_76_parecer_run.py",
+    "supabase/tests/v2_76_catalog_pins.json",
+    ".github/workflows/p0-v2-76-parecer-code.yml",
+    "docs/backend/RESULTADO_P0_V2_76_PARECER_APRESENTACAO_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3249,6 +3257,46 @@
       "037",
       "038",
       "039"
+    ],
+    "live": "NOT_RUN",
+    "prod": "NO-GO"
+  },
+  "authority_scope_v2_76": {
+    "id": "P0-V2-76-PARECER-APRESENTACAO-20261127",
+    "authorized_by": "Titular, continuidade autorizada nesta sessão para os gates do planejamento V2, inclusive correções dentro de HML.",
+    "predecessor": {
+      "regular": "49",
+      "receipt_pr": 847,
+      "receipt_merge": "e1abed0218cc864cdd0e483ac160bb85f846c02f"
+    },
+    "backend_base": "369c9b9640cb06963eda3878685417d1c815d763",
+    "frontend_checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7228238595",
+    "regular": "76",
+    "stage": "PLAN",
+    "environment": "HML",
+    "mode": "CODE",
+    "migration": "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql",
+    "paths": [
+      "docs/backend/PLAN_P0_V2_76_PARECER_APRESENTACAO_2026-11-27.md",
+      "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql",
+      "supabase/tests/v2_76_parecer_fixture.sql",
+      "supabase/tests/v2_76_parecer.test.sql",
+      "supabase/tests/v2_76_parecer_run.py",
+      "supabase/tests/v2_76_catalog_pins.json",
+      "supabase/tests/history_catalog_compare.py",
+      ".github/workflows/p0-v2-76-parecer-code.yml",
+      "docs/backend/RESULTADO_P0_V2_76_PARECER_APRESENTACAO_2026-11-27.md"
+    ],
+    "authority": "Vínculo exato do parecer à apresentação e ao arquivo aprovado, idempotência e leitura restrita do processamento.",
+    "atomicos": [
+      "025",
+      "026",
+      "027",
+      "028",
+      "029",
+      "030",
+      "031",
+      "032"
     ],
     "live": "NOT_RUN",
     "prod": "NO-GO"
