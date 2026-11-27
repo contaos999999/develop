@@ -472,7 +472,14 @@
     "supabase/tests/v2_76_prazo_catalog_pins.json",
     "docs/backend/RESULTADO_P0_V2_76_PRAZO_EXTERNO_2026-11-27.md",
     "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md",
-    ".github/workflows/p0-v2-77-cli-generate.yml"
+    ".github/workflows/p0-v2-77-cli-generate.yml",
+    "supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql",
+    "supabase/tests/v2_77_desfecho_fixture.sql",
+    "supabase/tests/v2_77_desfecho.test.sql",
+    "supabase/tests/v2_77_desfecho_run.py",
+    "supabase/tests/v2_77_catalog_pins.json",
+    ".github/workflows/p0-v2-77-desfecho-code.yml",
+    "docs/backend/RESULTADO_P0_V2_77_DESFECHOS_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3343,10 +3350,10 @@
     "id": "P0-V2-77-DESFECHOS-LINHA-TEMPO-20261127",
     "authorized_by": "Titular solicitou execução do regular 77; governança P0-ECO preservada.",
     "regular": "77",
-    "stage": "PLAN_PREPARACAO_CLI",
+    "stage": "PLAN_FECHADO_77A",
     "environment": "HML",
     "mode": "CODE",
-    "backend_base": "51f8ac4b5a828a8e88f2e652f6b042d6cd3b1fa0",
+    "backend_base": "0524ac71af6c1f945611e730f8b9c734c4c08ded",
     "frontend_predecessor_receipt_pr": 850,
     "frontend_predecessor_merge": "d1d5ecbe5641a2c698b99c1768927a4d9d8163e6",
     "atomicos": [
@@ -3359,19 +3366,30 @@
       "043"
     ],
     "paths": [
-      "docs/backend/PLAN_P0_V2_77_DESFECHOS_LINHA_TEMPO_2026-11-27.md",
-      "docs/tasks/active-task.json",
-      ".github/workflows/p0-v2-77-cli-generate.yml"
+      "supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql",
+      "supabase/tests/v2_77_desfecho_fixture.sql",
+      "supabase/tests/v2_77_desfecho.test.sql",
+      "supabase/tests/v2_77_desfecho_run.py",
+      "supabase/tests/v2_77_catalog_pins.json",
+      "supabase/tests/history_catalog_compare.py",
+      ".github/workflows/p0-v2-77-desfecho-code.yml",
+      "docs/backend/RESULTADO_P0_V2_77_DESFECHOS_2026-11-27.md"
     ],
-    "build_authorized": false,
-    "authority": "Preparação offline da migração e diagnóstico ampliado; BUILD continua bloqueada.",
+    "build_authorized": true,
+    "authority": "Fatia 77A: registro de desfecho com escopo, aprovação, replay e origem. RED antes de implementação; 77B separada, sem certificação parcial como global.",
     "live": "NOT_RUN",
     "prod": "NO-GO",
     "cli_generator": {
       "path": ".github/workflows/p0-v2-77-cli-generate.yml",
       "version": "2.81.3",
       "permissions": "contents:read",
-      "database_access": false
-    }
+      "database_access": false,
+      "run": 46083039436,
+      "attempt": 1,
+      "job": 140786194860,
+      "artifact": 15237569772,
+      "sha256": "2309689aec113c11baa914b33700f0167532678036b8c71c3de3621c39acfa84"
+    },
+    "migration": "supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql"
   }
 }
