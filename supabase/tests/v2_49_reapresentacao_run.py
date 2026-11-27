@@ -44,4 +44,22 @@ contagem = sql(
     check=True, capture_output=True, text=True,
 ).stdout.strip()
 assert contagem == "1", contagem
-print("V2_49_CONCORRENCIA_PASS: um pacote e o mesmo recibo")
+def solicitar_entre_rodadas(ciclo):
+    assert ciclo in (27, 28)
+    statement = f"""select set_config('fixture.actor',fixture_id(8)::text,false);
+do $$
+begin
+  perform public.registrar_reapresentacao(fixture_id({ciclo}),'corrida-entre-rodadas','P-CORRIDA','eletronica',fixture_id(40));
+  raise notice 'VERSAO_REGISTRADA';
+exception when sqlstate 'PT409' then
+  raise notice 'CHAVE_EM_CONFLITO';
+end
+$$;"""
+    return sql("-c", statement, capture_output=True, text=True, check=True).stderr
+
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+    retornos = list(pool.map(solicitar_entre_rodadas, (27, 28)))
+assert sum("VERSAO_REGISTRADA" in linha for linha in retornos) == 1, retornos
+assert sum("CHAVE_EM_CONFLITO" in linha for linha in retornos) == 1, retornos
+print("V2_49_CONCORRENCIA_PASS: um pacote por intenção e conflito entre rodadas")

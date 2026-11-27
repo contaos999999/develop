@@ -1,0 +1,73 @@
+{
+  "migration_sha256": "ab364a7150f413b29b7f4d7b2ab053d594053d7585c1c64e3547164a1243356d",
+  "functions": [
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_ciclo uuid, p_idempotency_key text, p_protocolo text, p_forma_apresentacao text, p_id_comprovante_arquivo uuid",
+      "name": "registrar_reapresentacao",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "uuid",
+      "body_md5": "35bb3248e4329c5c9497157731a19ba7",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_ciclo uuid, p_idempotency_key text, p_protocolo text, p_forma_apresentacao text, p_id_comprovante_arquivo uuid",
+      "name": "registrar_reapresentacao",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": false,
+      "returns": "uuid",
+      "body_md5": "b3c925d218a9288f0106ef8f40cd049d",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    }
+  ]
+}
