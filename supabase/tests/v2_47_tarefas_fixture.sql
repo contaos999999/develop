@@ -426,4 +426,5 @@ insert into public.versoes_documento(id,id_organizacao,id_contrato,id_documento_
   from public.documentos_competencia where id=fixture.id(301);
 
 insert into public.preferencias_notificacao(id_organizacao,id_usuario,evento,canal,habilitado)
-  values (fixture.id(11),fixture.id(2),'TarefaDiligenciaAtribuida','in_app',false);
+  values (fixture.id(11),fixture.id(2),'TarefaDiligenciaAtribuida','in_app',false),
+         (fixture.id(11),fixture.id(2),'TarefaDiligenciaPrazoAlterado:leitor','in_app',true);

@@ -100,6 +100,23 @@ begin
 end
 $$;
 
+create function privado.v247_notificar_tarefa(
+  p_tarefa public.tarefas_diligencia,p_evento text,p_titulo text,p_mensagem text
+) returns void language plpgsql set search_path='' as $$
+declare evento_papel text;
+begin
+  select p_evento||':'||v.perfil into evento_papel from public.vinculos_usuarios v
+    where v.id_organizacao=p_tarefa.id_organizacao and v.id_usuario=p_tarefa.responsavel
+      and v.ativo and v.inicio_em<=now() and (v.fim_em is null or v.fim_em>now());
+  if not exists(select 1 from public.preferencias_notificacao p where p.id_organizacao=p_tarefa.id_organizacao
+    and p.id_usuario=p_tarefa.responsavel and p.evento=evento_papel) then
+    evento_papel:=p_evento;
+  end if;
+  perform privado.criar_notificacao(p_tarefa.id_organizacao,p_tarefa.responsavel,evento_papel,
+    p_titulo,p_mensagem,'tarefas_diligencia',p_tarefa.id);
+end
+$$;
+
 create function public.salvar_tarefa_diligencia_v2(
   p_id_ciclo uuid,p_id_apontamento uuid,p_id_tarefa uuid,p_versao_esperada bigint,
   p_dados jsonb,p_chave_idempotencia text
@@ -230,11 +247,11 @@ begin
       where id=tarefa.id returning * into tarefa;
   end if;
   if tarefa.responsavel is not null and tarefa.responsavel is distinct from responsavel_anterior then
-    perform privado.criar_notificacao(tarefa.id_organizacao,tarefa.responsavel,'TarefaDiligenciaAtribuida',
-      'Tarefa de diligência atribuída','Consulte o plano de ação da rodada.','tarefas_diligencia',tarefa.id);
+    perform privado.v247_notificar_tarefa(tarefa,'TarefaDiligenciaAtribuida',
+      'Tarefa de diligência atribuída','Consulte o plano de ação da rodada.');
   elsif tarefa.responsavel is not null and tarefa.prazo is distinct from prazo_anterior then
-    perform privado.criar_notificacao(tarefa.id_organizacao,tarefa.responsavel,'TarefaDiligenciaPrazoAlterado',
-      'Prazo da tarefa alterado','Consulte o prazo atualizado no plano de ação.','tarefas_diligencia',tarefa.id);
+    perform privado.v247_notificar_tarefa(tarefa,'TarefaDiligenciaPrazoAlterado',
+      'Prazo da tarefa alterado','Consulte o prazo atualizado no plano de ação.');
   end if;
   return privado.v247_recibo((comando->>'id')::uuid,tarefa,
     case when anterior is null then 'TarefaDiligenciaCriada' else 'TarefaDiligenciaAtualizada' end,anterior);
@@ -501,6 +518,7 @@ declare
   editavel boolean;
   gestor boolean;
   revisor boolean;
+  perfil text;
   tarefas jsonb;
   total integer;
 begin
@@ -520,6 +538,16 @@ begin
   editavel:=privado.v247_escopo_editavel(rodada.id);
   gestor:=privado.v247_pode_gerir(rodada.id_organizacao);
   revisor:=privado.v247_pode_revisar(rodada.id_organizacao);
+  if not gestor and not revisor and not exists (
+    select 1 from public.tarefas_diligencia t where t.id_apontamento=p_id_apontamento and t.responsavel=auth.uid()
+      and (t.id_organizacao,t.id_contrato,t.id_competencia,t.id_ciclo)=
+        (rodada.id_organizacao,rodada.id_contrato,rodada.id_competencia,rodada.id)
+  ) then
+    raise exception using errcode='42501',message='Seu perfil não tem atribuição neste plano de ação.';
+  end if;
+  select v.perfil into perfil from public.vinculos_usuarios v
+    where v.id_organizacao=rodada.id_organizacao and v.id_usuario=auth.uid() and v.ativo and v.inicio_em<=now()
+      and (v.fim_em is null or v.fim_em>now());
   select count(*) into total from public.tarefas_diligencia t
     where t.id_apontamento=p_id_apontamento and (t.id_organizacao,t.id_contrato,t.id_competencia,t.id_ciclo)=
       (rodada.id_organizacao,rodada.id_contrato,rodada.id_competencia,rodada.id);
@@ -550,7 +578,7 @@ begin
 
   return jsonb_build_object(
     'id_ciclo',rodada.id,'id_apontamento',p_id_apontamento,'total',total,'offset',p_offset,'limite',p_limite,
-    'criar',editavel and gestor,'tarefas',tarefas,
+    'criar',editavel and gestor,'tarefas',tarefas,'perfil_preferencia',perfil,
     'planos',coalesce((select jsonb_agg(jsonb_build_object('id',p.id,'titulo',p.titulo,'status',p.status) order by p.titulo,p.id)
       from public.planos_acao p where (p.id_organizacao,p.id_contrato,p.id_competencia,p.id_ciclo)=
         (rodada.id_organizacao,rodada.id_contrato,rodada.id_competencia,rodada.id)), '[]'::jsonb),
@@ -569,6 +597,7 @@ revoke all on function
   privado.v247_travar_rodada(uuid,boolean),privado.v247_travar_tarefa(uuid,boolean),privado.v247_escopo_editavel(uuid),
   privado.v247_evidencia_da_tarefa(public.tarefas_diligencia,uuid),
   privado.v247_recibo(uuid,public.tarefas_diligencia,text,jsonb,jsonb),
+  privado.v247_notificar_tarefa(public.tarefas_diligencia,text,text,text),
   privado.v247_prova(public.tarefas_diligencia),privado.v247_pode_reenviar(public.tarefas_diligencia),
   public.salvar_tarefa_diligencia_v2(uuid,uuid,uuid,bigint,jsonb,text),
   public.submeter_solucao_tarefa_diligencia_v2(uuid,uuid,bigint,text),

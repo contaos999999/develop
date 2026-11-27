@@ -1,5 +1,5 @@
 {
-  "migration_sha256": "5f61ef328507d08f918944eb23050fc7c7adab33d8b4ab4195e8e3460a271f3b",
+  "migration_sha256": "7235e308597091c3a27257caed9c91ac45dea1cc886121e59af3bba87f980fae",
   "functions": [
     {
       "acl": [
@@ -131,6 +131,30 @@
       "returns": "boolean",
       "body_md5": "714adf273040061521a6a3d6cd54d372",
       "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_tarefa public.tarefas_diligencia, p_evento text, p_titulo text, p_mensagem text",
+      "name": "v247_notificar_tarefa",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "void",
+      "body_md5": "f389762cc9e80b6f0671b0d7feedead2",
+      "language": "plpgsql",
       "anon_exec": false,
       "auth_exec": false,
       "public_exec": false,
@@ -350,7 +374,7 @@
       "schema": "public",
       "definer": true,
       "returns": "jsonb",
-      "body_md5": "714f566b4165504332592ecd33002414",
+      "body_md5": "34cb63e2e4dc0103c2fae8c240cb8c7c",
       "language": "plpgsql",
       "anon_exec": false,
       "auth_exec": true,
@@ -466,7 +490,7 @@
       "schema": "public",
       "definer": true,
       "returns": "jsonb",
-      "body_md5": "f9d4daf7a6da565cbe1dac032071e9f3",
+      "body_md5": "06616fc6c10a953bceafdb249f1e3be1",
       "language": "plpgsql",
       "anon_exec": false,
       "auth_exec": true,

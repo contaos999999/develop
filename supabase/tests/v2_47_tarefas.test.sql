@@ -79,10 +79,13 @@ select set_config('contaos.fixture.ator',fixture.id(5)::text,true);
 select fixture.rejeitar($q$select public.obter_plano_acao_diligencia_v2(fixture.id(101),fixture.id(201))$q$,'42501');
 select fixture.exigir((select count(*)=0 from public.tarefas_diligencia),'RLS no contrato da outra organização');
 select set_config('contaos.fixture.ator',fixture.id(4)::text,true);
+select fixture.rejeitar($q$select public.obter_plano_acao_diligencia_v2(fixture.id(101),fixture.id(201))$q$,'42501');
 select fixture.rejeitar($q$select fixture.salvar('leitor')$q$,'42501');
 select fixture.rejeitar($q$select public.submeter_solucao_tarefa_diligencia_v2(fixture.cfg('tarefa'),fixture.id(401),2,'nao-responsavel')$q$,'42501');
 
 select set_config('contaos.fixture.ator',fixture.id(2)::text,true);
+select fixture.exigir(public.obter_plano_acao_diligencia_v2(fixture.id(101),fixture.id(201))
+  ->>'perfil_preferencia'='leitor','responsável consulta o plano e a preferência do seu papel');
 select fixture.rejeitar($q$select public.submeter_solucao_tarefa_diligencia_v2(fixture.cfg('dependente'),fixture.id(401),1,'deps-pendentes')$q$,'PT409');
 select fixture.rejeitar($q$select public.submeter_solucao_tarefa_diligencia_v2(fixture.cfg('tarefa'),fixture.id(402),2,'fora-competencia')$q$,'PT400');
 select fixture.rejeitar($q$select public.submeter_solucao_tarefa_diligencia_v2(fixture.cfg('tarefa'),fixture.id(403),2,'fora-organizacao')$q$,'PT400');
@@ -101,8 +104,8 @@ select set_config('contaos.fixture.ator','',true);
 select fixture.exigir((select status='em_tratamento' from public.apontamentos_contratante where id=fixture.id(201)),
   'apontamento aguarda a decisão humana');
 select fixture.exigir((select count(*)=1 from public.notificacoes) and
-  (select evento='TarefaDiligenciaPrazoAlterado' from public.notificacoes),
-  'atribuição respeitou preferência desabilitada e o prazo gerou uma notificação sintética');
+  (select evento='TarefaDiligenciaPrazoAlterado:leitor' from public.notificacoes),
+  'atribuição respeitou preferência pessoal desabilitada e prazo usou a preferência do papel');
 select fixture.exigir((select count(*)=1 from pgmq.mensagens where fila='ai'
   and payload->>'id_tarefa'=fixture.cfg('tarefa')::text and payload->>'id_evidencia'=fixture.id(401)::text),
   'transporte contém a referência exata');
