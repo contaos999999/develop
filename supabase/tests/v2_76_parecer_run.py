@@ -2,6 +2,7 @@ import concurrent.futures
 import os
 import pathlib
 import re
+import select
 import subprocess
 
 root = pathlib.Path(__file__).resolve().parent
@@ -43,3 +44,24 @@ join public.execucoes_assincronas e on e.entidade_id=p.id
 where p.id_competencia=fixture_id(24) and e.entidade_tipo='extrair_diligencia'"""
 assert sql('-c', cmd, text=True, capture_output=True, check=True).stdout.strip() == '1'
 print('V2_76_CONCORRENCIA_PASS: um parecer, um ciclo e uma execução')
+
+# A reapresentação trava primeiro o ciclo. O recebimento deve devolver conflito
+# recuperável se encontrar esse ciclo bloqueado, sem aguardar na ordem inversa.
+with subprocess.Popen(
+    ['psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1'],
+    text=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+) as locked:
+
+    locked.stdin.write("""begin;
+select id from public.ciclos_diligencia where id_competencia=fixture_id(20) for update;
+""")
+    locked.stdin.flush()
+    try:
+        ready, _, _ = select.select([locked.stdout], [], [], 10)
+        assert ready and locked.stdout.readline().strip(), 'bloqueio de fixture não adquirido'
+        sql('-c', """set statement_timeout='4s';
+select set_config('fixture.actor',fixture_id(8)::text,false);
+select fixture_negar(20,120,45,'PT409');""", check=True)
+    finally:
+        locked.communicate('rollback;\n', timeout=10)
+print('V2_76_TRAVA_PASS: conflito recuperável durante reapresentação concorrente')
