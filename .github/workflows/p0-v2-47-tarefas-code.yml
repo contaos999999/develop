@@ -1,0 +1,59 @@
+name: ContaOS V2 47 Tarefas CODE
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p0-v2-47-tarefas-code.yml"
+      - "supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql"
+      - "supabase/functions/queue-worker-ai/**"
+      - "supabase/tests/v2_47*"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/p0-v2-47-tarefas-code.yml"
+      - "supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql"
+      - "supabase/functions/queue-worker-ai/**"
+      - "supabase/tests/v2_47*"
+
+permissions:
+  contents: read
+
+jobs:
+  codigo:
+    name: V2 47 | PostgreSQL isolado
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: contaos_v247_fixture
+          POSTGRES_PASSWORD: fixture-only-v247
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d contaos_v247_fixture"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGDATABASE: contaos_v247_fixture
+      PGUSER: postgres
+      PGPASSWORD: fixture-only-v247
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Preparar organizações, rodadas e papéis sintéticos
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_47_tarefas_fixture.sql
+      - name: Aplicar apenas a migração candidata ao PostgreSQL descartável
+        run: |
+          migration=supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql
+          if [[ -f "$migration" ]]; then
+            psql -X -v ON_ERROR_STOP=1 -f "$migration"
+          fi
+      - name: Executar prova transacional de tarefas e revalidação
+        run: psql -X -v ON_ERROR_STOP=1 -f supabase/tests/v2_47_tarefas.test.sql
