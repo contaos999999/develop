@@ -448,7 +448,15 @@
     "supabase/tests/v2_48_catalog_pins.json",
     "supabase/tests/v2_48_catalog.test.mjs",
     ".github/workflows/p0-v2-48-contestacao-code.yml",
-    "docs/backend/RESULTADO_P0_V2_48_CONTESTACAO_EVIDENCIAS_2026-11-27.md"
+    "docs/backend/RESULTADO_P0_V2_48_CONTESTACAO_EVIDENCIAS_2026-11-27.md",
+    "docs/backend/PLAN_P0_V2_49_REAPRESENTACAO_2026-11-27.md",
+    "supabase/migrations/20261127160826_p0_v2_49_reapresentacao_escopo.sql",
+    "supabase/tests/v2_49_reapresentacao_fixture.sql",
+    "supabase/tests/v2_49_reapresentacao.test.sql",
+    "supabase/tests/v2_49_reapresentacao_run.py",
+    "supabase/tests/v2_49_catalog_pins.json",
+    ".github/workflows/p0-v2-49-reapresentacao-code.yml",
+    "docs/backend/RESULTADO_P0_V2_49_REAPRESENTACAO_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3203,6 +3211,41 @@
     ],
     "authority": "Escopo de contestação, mapa e minuta assistida do regular 48. Auth, Storage, RBAC geral e PROD preservados.",
     "atolicos": [
+      "037",
+      "038",
+      "039"
+    ],
+    "live": "NOT_RUN",
+    "prod": "NO-GO"
+  },
+  "authority_scope_v2_49": {
+    "id": "P0-V2-49-REAPRESENTACAO-20261127",
+    "authorized_by": "Titular, 27/11/2026. Correção das duas lacunas em HML e continuidade nesta sessão com os gates vigentes.",
+    "predecessor": {
+      "regular": "48",
+      "receipt_pr": 844,
+      "receipt_merge": "ffe2727e4e3c2b556b876bff4d4c1181fc09a8aa"
+    },
+    "backend_base": "6998cf2625c3affe0313e2472ffaa0de78693c3a",
+    "frontend_checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7222679419",
+    "regular": "49",
+    "stage": "PLAN",
+    "environment": "HML",
+    "mode": "CODE",
+    "migration": "supabase/migrations/20261127160826_p0_v2_49_reapresentacao_escopo.sql",
+    "paths": [
+      "docs/backend/PLAN_P0_V2_49_REAPRESENTACAO_2026-11-27.md",
+      "supabase/migrations/20261127160826_p0_v2_49_reapresentacao_escopo.sql",
+      "supabase/tests/v2_49_reapresentacao_fixture.sql",
+      "supabase/tests/v2_49_reapresentacao.test.sql",
+      "supabase/tests/v2_49_reapresentacao_run.py",
+      "supabase/tests/v2_49_catalog_pins.json",
+      "supabase/tests/history_catalog_compare.py",
+      ".github/workflows/p0-v2-49-reapresentacao-code.yml",
+      "docs/backend/RESULTADO_P0_V2_49_REAPRESENTACAO_2026-11-27.md"
+    ],
+    "authority": "Idempotência e validação do comprovante de reapresentação no backend HML.",
+    "atomicos": [
       "037",
       "038",
       "039"
