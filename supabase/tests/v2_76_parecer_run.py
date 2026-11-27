@@ -7,6 +7,7 @@ import subprocess
 
 root = pathlib.Path(__file__).resolve().parent
 migration = root.parent / 'migrations' / '20261127211427_p0_v2_76_parecer_apresentacao.sql'
+prazo_migration = root.parent / 'migrations' / '20261127213828_p0_v2_76_prazo_externo.sql'
 original = root.parent / 'migrations' / '20261101211140_0010_diligencias_v2.sql'
 wrappers = root.parent / 'migrations' / '20261101211533_0016_rpc_privadas_wrappers.sql'
 assert os.environ['PGDATABASE'] == 'contaos_v276_fixture'
@@ -65,3 +66,8 @@ select fixture_negar(20,120,45,'PT409');""", check=True)
     finally:
         locked.communicate('rollback;\n', timeout=10)
 print('V2_76_TRAVA_PASS: conflito recuperável durante reapresentação concorrente')
+
+sql('-f', str(root / 'v2_76_prazo_fixture.sql'), check=True)
+if prazo_migration.is_file():
+    sql('-f', str(prazo_migration), check=True)
+sql('-f', str(root / 'v2_76_prazo.test.sql'), check=True)
