@@ -17,17 +17,24 @@ select fixture_negacao(23,'fora-da-org','P-23',42,'42501');
 select fixture_negacao(23,'quarentena','P-23',43,'42501');
 
 do $$
-declare original uuid;
+declare original uuid; repetido uuid; quantidade integer; rastreado boolean;
 begin
   original:=public.registrar_reapresentacao(fixture_id(20),'chave-original','P-20','eletronica',fixture_id(40));
-  if original is distinct from public.registrar_reapresentacao(fixture_id(20),'chave-original','P-20','eletronica',fixture_id(40))
-     or (select count(*) from public.pacotes_reapresentacao where id_ciclo=fixture_id(20))<>1
-     or not exists(select 1 from public.apresentacoes_contratante a
-        join public.pacotes_competencia p on p.id=a.id_pacote
-        join public.pacotes_reapresentacao r on r.id_ciclo=fixture_id(20) and r.hash=p.hash_pacote
-        join public.eventos_auditoria e on e.id_entidade=a.id and e.depois->>'id_ciclo'=r.id::text
-        where a.id=original and a.id_comprovante_arquivo=fixture_id(40) and a.numero_rodada=2)
-  then raise exception 'Recibo, pacote e auditoria precisam corresponder à mesma rodada'; end if;
+  repetido:=public.registrar_reapresentacao(fixture_id(20),'chave-original','P-20','eletronica',fixture_id(40));
+  select count(*) into quantidade from public.pacotes_reapresentacao where id_ciclo=fixture_id(20);
+  select exists(
+    select 1 from public.apresentacoes_contratante a
+    join public.pacotes_competencia p on p.id=a.id_pacote
+    join public.pacotes_reapresentacao r on r.id_ciclo=fixture_id(20) and r.hash=p.hash_pacote
+    join public.eventos_auditoria e on e.id_entidade=a.id
+       and e.depois->>'id_ciclo'=r.id_ciclo::text
+       and e.depois->>'id_pacote_reapresentacao'=r.id::text
+       and e.depois->>'id_pacote_competencia'=p.id::text
+    where a.id=original and a.id_comprovante_arquivo=fixture_id(40) and a.numero_rodada=2
+  ) into rastreado;
+  if original is null or original is distinct from repetido or quantidade<>1 or not rastreado then
+    raise exception 'Recibo, pacote e auditoria precisam corresponder à mesma rodada';
+  end if;
 end
 $$;
 select fixture_negacao(21,'chave-original','P-20',40,'PT409');
