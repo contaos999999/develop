@@ -94,11 +94,11 @@ for n,result,status,confidence in [(409,'rejeitada','em_tratamento','0.45000'),
 
 # Fail the last side effect (audit insert), after the state, precedent and queue
 # writes. The caller's exception block must roll back the entire RPC.
-sql('-c',"""create function privado.fixture_falhar_auditoria() returns trigger language plpgsql as $
+sql('-c',"""create function privado.fixture_falhar_auditoria() returns trigger language plpgsql as $fixture$
 begin
  if new.id_entidade=public.fixture_id(412) then raise exception using errcode='P7777',message='Falha sintética após efeitos'; end if;
  return new;
-end$;
+end$fixture$;
 create trigger fixture_falha_auditoria before insert on public.eventos_auditoria
  for each row execute function privado.fixture_falhar_auditoria();""")
 def snapshot():
