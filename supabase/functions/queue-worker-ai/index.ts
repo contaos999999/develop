@@ -165,8 +165,13 @@ async function revalidarApontamento(job: any) {
   additionalProperties: false,
  }
  return revalidarSolucaoDiligencia(job, {
-  rpc: async (nome: string, parametros: Record<string, unknown>) => {
-   const { data, error } = await sb.rpc(nome, parametros)
+  obterSubmissao: async (referencia: Record<string, string | null>) => {
+   const { data, error } = await sb.rpc('obter_revalidacao_tarefa_diligencia_v2', referencia)
+   if (error) throw new AppError('IA_FALHOU', 'Não foi possível confirmar a submissão da tarefa.')
+   return data
+  },
+  registrarProva: async (prova: Record<string, string | number | boolean | null>) => {
+   const { data, error } = await sb.rpc('registrar_revalidacao_tarefa_diligencia_v2', prova)
    if (error) throw new AppError('IA_FALHOU', 'Falha no registro oficial da revalidação da tarefa.')
    return data
   },

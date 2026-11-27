@@ -22,14 +22,16 @@ const parametros = {
 
 function infraestrutura(respostas = [leitura, recibo], resultado = decisao) {
   const chamadas = [];
+  const responder = (nome) => async (argumentos) => {
+    chamadas.push([nome, argumentos]);
+    const resposta = respostas.shift();
+    if (resposta instanceof Error) throw resposta;
+    return resposta;
+  };
   return {
     chamadas,
-    rpc: async (nome, argumentos) => {
-      chamadas.push([nome, argumentos]);
-      const resposta = respostas.shift();
-      if (resposta instanceof Error) throw resposta;
-      return resposta;
-    },
+    obterSubmissao: responder("obter_revalidacao_tarefa_diligencia_v2"),
+    registrarProva: responder("registrar_revalidacao_tarefa_diligencia_v2"),
     lerPaginas: async (versao) => {
       chamadas.push(["lerPaginas", versao]);
       return [{ numero_pagina: 2, texto_extraido: "Documento exclusivamente sintético" }];

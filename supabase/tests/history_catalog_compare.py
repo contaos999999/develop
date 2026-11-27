@@ -260,6 +260,8 @@ def reconcile_v247_catalog(expected, actual, native, migration_sha, pins):
   columns.append(entry)
  for record in pins['functions']:
   entry={key:record[key] for key in keys}
+  # A consulta histórica mantém public no search_path. O selo nativo usa search_path vazio.
+  entry['args']=entry['args'].replace('p_tarefa public.tarefas_diligencia','p_tarefa tarefas_diligencia')
   if actual['functions'].count(entry)!=1:
    raise SystemExit('V247_CATALOG_FAIL: exact unique function required '+json.dumps(entry,sort_keys=True))
   if record['name'] in ('atualizar_tarefa_diligencia','concluir_tarefa_diligencia','revisar_solucao_tarefa_diligencia'):

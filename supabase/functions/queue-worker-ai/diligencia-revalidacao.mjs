@@ -9,7 +9,7 @@ const uuid = (value) =>
   typeof value === "string" &&
   /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(value);
 
-export async function revalidarSolucaoDiligencia(job, { rpc, lerPaginas, avaliar }) {
+export async function revalidarSolucaoDiligencia(job, { obterSubmissao, registrarProva, lerPaginas, avaliar }) {
   const { id_tarefa, id_evidencia } = job.payload;
   if (
     !uuid(job.id_execucao) || !uuid(job.entidade_id) || !uuid(id_evidencia) ||
@@ -23,7 +23,7 @@ export async function revalidarSolucaoDiligencia(job, { rpc, lerPaginas, avaliar
     p_id_apontamento: job.entidade_id,
     p_id_evidencia: id_evidencia,
   };
-  const leitura = await rpc("obter_revalidacao_tarefa_diligencia_v2", referencia);
+  const leitura = await obterSubmissao(referencia);
   if (leitura?.estado === "registrada" || leitura?.estado === "obsoleta") return leitura;
   if (
     leitura?.estado !== "pendente" || !uuid(id_tarefa) || typeof leitura.descricao !== "string" ||
@@ -54,7 +54,7 @@ export async function revalidarSolucaoDiligencia(job, { rpc, lerPaginas, avaliar
   ) {
     throw new Error("V247_RESULTADO_INVALIDO");
   }
-  const recibo = await rpc("registrar_revalidacao_tarefa_diligencia_v2", {
+  const recibo = await registrarProva({
     ...referencia,
     p_classificacao: resultado.classificacao,
     p_fundamento: resultado.fundamento.trim(),

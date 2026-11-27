@@ -16,6 +16,8 @@ sha=hashlib.sha256((root.parent/'migrations'/'20261127050308_p0_v2_47_tarefa_vin
 keys=('schema','name','args','definer','config','auth_exec','anon_exec')
 legacy={'atualizar_tarefa_diligencia','concluir_tarefa_diligencia','revisar_solucao_tarefa_diligencia'}
 functions=[{k:r[k] for k in keys} for r in pins['functions']]
+for r in functions:
+ r['args']=r['args'].replace('p_tarefa public.tarefas_diligencia','p_tarefa tarefas_diligencia')
 base={'columns':[],'functions':[r for r in functions if r['name'] in legacy],'policies':[{'name':'original'}]}
 actual={**base,'columns':pins['columns'],'functions':functions}
 native={key:pins[key] for key in ('functions','guards')}
