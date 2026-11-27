@@ -1,0 +1,76 @@
+{
+  "migration_sha256": "0d514556f23df00b80e8eaf25c6232fc025212c8ff6c9665e257da4c2430125e",
+  "functions": [
+    {
+      "name": "registrar_desfecho_contestacao",
+      "args": "p_id_contestacao uuid, p_resultado text, p_texto text",
+      "owner": "postgres",
+      "returns": "uuid",
+      "config": [
+        "search_path=\"\""
+      ],
+      "auth_exec": true,
+      "anon_exec": false,
+      "public_exec": false,
+      "schema": "privado",
+      "definer": true,
+      "language": "plpgsql",
+      "body_md5": "a34ccb5f7876c6a12367e8b90e6f6a4e",
+      "service_exec": false,
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "privilege": "EXECUTE",
+          "grantable": false
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "EXECUTE",
+          "grantable": false
+        }
+      ]
+    },
+    {
+      "name": "registrar_desfecho_contestacao",
+      "args": "p_id_contestacao uuid, p_resultado text, p_texto text",
+      "owner": "postgres",
+      "returns": "uuid",
+      "config": [
+        "search_path=\"\""
+      ],
+      "auth_exec": true,
+      "anon_exec": false,
+      "public_exec": false,
+      "schema": "public",
+      "definer": false,
+      "language": "sql",
+      "body_md5": "d0ab48d663b55914cf23893eae49c2a5",
+      "service_exec": true,
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "privilege": "EXECUTE",
+          "grantable": false
+        },
+        {
+          "grantee": "postgres",
+          "privilege": "EXECUTE",
+          "grantable": false
+        },
+        {
+          "grantee": "service_role",
+          "privilege": "EXECUTE",
+          "grantable": false
+        }
+      ]
+    }
+  ],
+  "column": {
+    "schema": "public",
+    "table": "desfechos_apontamentos",
+    "name": "id_contestacao",
+    "type": "uuid",
+    "default": null,
+    "notnull": false
+  }
+}
