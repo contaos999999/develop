@@ -426,7 +426,18 @@
     "supabase/tests/remaining_domains/ai_envelope.test.mjs",
     "docs/backend/EMENDA_PLAN_P0_V2_I05_CATALOGO_RESTAURACAO_2026-11-26.md",
     "supabase/tests/history_catalog_compare.py",
-    "supabase/tests/v2_i05_catalog.test.mjs"
+    "supabase/tests/v2_i05_catalog.test.mjs",
+    "docs/backend/PLAN_P0_V2_47_TAREFAS_DILIGENCIA_2026-11-27.md",
+    "supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql",
+    "supabase/functions/queue-worker-ai/diligencia-revalidacao.mjs",
+    "supabase/tests/v2_47_tarefas_fixture.sql",
+    "supabase/tests/v2_47_tarefas.test.sql",
+    "supabase/tests/v2_47_tarefas_concorrencia.py",
+    "supabase/tests/v2_47_worker.test.mjs",
+    "supabase/tests/v2_47_catalog_pins.json",
+    "supabase/tests/v2_47_catalog.test.mjs",
+    ".github/workflows/p0-v2-47-tarefas-code.yml",
+    "docs/backend/RESULTADO_P0_V2_47_TAREFAS_DILIGENCIA_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3114,5 +3125,39 @@
     "emenda_regressao": "docs/backend/EMENDA_PLAN_P0_V2_I05_REGRESSAO_ORIGEM_2026-11-26.md",
     "version_cli": "20261126221545",
     "emenda_catalogo": "docs/backend/EMENDA_PLAN_P0_V2_I05_CATALOGO_RESTAURACAO_2026-11-26.md"
+  },
+  "authority_scope_v2_47": {
+    "id": "P0-V2-47-TAREFAS-DILIGENCIA-20261127",
+    "authorized_by": "Titular, 27/11/2026. PLAN P0 próprio e correção de vínculos e validação de tarefas do regular 47, somente HML após CI e revisão do HEAD.",
+    "predecessor": {
+      "regular": "46",
+      "receipt_pr": 837,
+      "receipt_merge": "74bb3273a5bbad2cb58903eb9dd6bc2972b80333"
+    },
+    "backend_base": "cbf247724ecede59fdcba0d18d7b0e37c76f247f",
+    "frontend_checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7210481228",
+    "stage": "PLAN",
+    "regular": "47",
+    "environment": "HML",
+    "mode": "CODE",
+    "migration": "supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql",
+    "paths": [
+      "docs/backend/PLAN_P0_V2_47_TAREFAS_DILIGENCIA_2026-11-27.md",
+      "supabase/migrations/20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql",
+      "supabase/functions/queue-worker-ai/index.ts",
+      "supabase/functions/queue-worker-ai/diligencia-revalidacao.mjs",
+      "supabase/tests/v2_47_tarefas_fixture.sql",
+      "supabase/tests/v2_47_tarefas.test.sql",
+      "supabase/tests/v2_47_tarefas_concorrencia.py",
+      "supabase/tests/v2_47_worker.test.mjs",
+      "supabase/tests/history_catalog_compare.py",
+      "supabase/tests/v2_47_catalog_pins.json",
+      "supabase/tests/v2_47_catalog.test.mjs",
+      ".github/workflows/p0-v2-47-tarefas-code.yml",
+      "docs/backend/RESULTADO_P0_V2_47_TAREFAS_DILIGENCIA_2026-11-27.md"
+    ],
+    "authority": "Escopo das tarefas, do plano associado e da revalidação em queue-worker-ai. Leitura autorizada, ACL específica, revisão humana e trilha. Auth, Storage, RLS geral e PROD preservados.",
+    "live": "NOT_RUN",
+    "prod": "NO-GO"
   }
 }
