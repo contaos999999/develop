@@ -361,6 +361,19 @@ if v248_migration.is_file():
  expected=reconcile_v248_catalog(expected,actual,v248_native,hashlib.sha256(v248_migration.read_bytes()).hexdigest(),v248_pins)
  print('V248_CATALOG_PASS: corpos, assinaturas, ACLs, RLS e privilégios exatos')
 
+v249_migration=root.parent/'migrations'/'20261127160826_p0_v2_49_reapresentacao_escopo.sql'
+if v249_migration.is_file():
+ v249_pins=json.loads((root/'v2_49_catalog_pins.json').read_text())
+ if hashlib.sha256(v249_migration.read_bytes()).hexdigest()!=v249_pins['migration_sha256']:
+  raise SystemExit('V249_CATALOG_FAIL: migration SHA-256 mismatch')
+ v249_query=copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]+(
+  "where n.nspname in ('privado','public') and p.proname='registrar_reapresentacao';"
+ )
+ v249_functions=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',v249_query],text=True))
+ if v249_functions!=v249_pins['functions']:
+  raise SystemExit('V249_CATALOG_FAIL: corpos, assinaturas, proprietário ou ACL divergentes')
+ print('V249_CATALOG_PASS: corpos e ACLs exatos; catálogo original preservado')
+
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
 expected=reconcile_document_vigency_wrapper(expected,actual)
