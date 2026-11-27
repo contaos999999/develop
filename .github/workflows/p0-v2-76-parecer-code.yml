@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/p0-v2-76-parecer-code.yml"
       - "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql"
+      - "supabase/migrations/20261127213828_p0_v2_76_prazo_externo.sql"
       - "supabase/tests/v2_76*"
       - "supabase/tests/history_catalog_compare.py"
   push:
@@ -12,6 +13,7 @@ on:
     paths:
       - ".github/workflows/p0-v2-76-parecer-code.yml"
       - "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql"
+      - "supabase/migrations/20261127213828_p0_v2_76_prazo_externo.sql"
       - "supabase/tests/v2_76*"
       - "supabase/tests/history_catalog_compare.py"
 
@@ -53,7 +55,7 @@ jobs:
         run: |
           git rev-parse HEAD HEAD^{tree} > provas-v2-76/checkout.txt
           printf '%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_JOB" > provas-v2-76/proveniencia.txt
-          sha256sum supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql             supabase/tests/v2_76* > provas-v2-76/FONTES-SHA256SUMS
+          sha256sum supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql supabase/migrations/20261127213828_p0_v2_76_prazo_externo.sql supabase/tests/v2_76* > provas-v2-76/FONTES-SHA256SUMS
           (cd provas-v2-76 && sha256sum ./* > ../SHA256SUMS-v2-76)
           mv SHA256SUMS-v2-76 provas-v2-76/SHA256SUMS
       - name: Preservar a prova do regular 76
