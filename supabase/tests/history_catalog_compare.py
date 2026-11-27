@@ -215,6 +215,64 @@ def reconcile_v2_i05_catalog(expected, actual, native, migration_sha):
    result[section].append(entry)
  return result
 
+def v247_queries(common_functions):
+ return {
+  'functions': common_functions + """
+    where (n.nspname='privado' and (left(p.proname,5)='v247_' or p.proname in (
+      'atualizar_tarefa_diligencia','concluir_tarefa_diligencia','revisar_solucao_tarefa_diligencia')))
+      or (n.nspname='public' and p.proname in ('salvar_tarefa_diligencia_v2',
+        'submeter_solucao_tarefa_diligencia_v2','revisar_solucao_tarefa_diligencia_v2',
+        'obter_plano_acao_diligencia_v2','obter_revalidacao_tarefa_diligencia_v2',
+        'registrar_revalidacao_tarefa_diligencia_v2'));
+  """,
+  'guards': """
+    set search_path='';
+    select jsonb_build_object(
+      'foreign_keys',(select coalesce(jsonb_agg(jsonb_build_object(
+        'name',c.conname,'definition',pg_get_constraintdef(c.oid),'validated',c.convalidated)
+        order by c.conname),'[]')
+        from pg_constraint c where c.conrelid='public.tarefas_diligencia'::regclass and c.contype='f'
+          and (select attnum from pg_attribute where attrelid=c.conrelid and attname='id_execucao_revalidacao')=any(c.conkey)),
+      'index',(select jsonb_build_object('definition',pg_get_indexdef(i.indexrelid),'valid',i.indisvalid)
+        from pg_index i where i.indexrelid=to_regclass('public.tarefas_diligencia_revalidacao_uidx')),
+      'table_privileges',(select jsonb_agg(jsonb_build_object(
+        'table',c.relname,'role',r.rolname,'rls',c.relrowsecurity,
+        'select',has_table_privilege(r.oid,c.oid,'SELECT'),
+        'insert',has_any_column_privilege(r.oid,c.oid,'INSERT'),
+        'update',has_any_column_privilege(r.oid,c.oid,'UPDATE'),
+        'delete',has_table_privilege(r.oid,c.oid,'DELETE')) order by c.relname,r.rolname)
+        from pg_class c cross join pg_roles r where r.rolname in ('anon','authenticated','service_role')
+          and c.oid in ('public.tarefas_diligencia'::regclass,'public.planos_acao'::regclass)));
+  """,
+ }
+
+def reconcile_v247_catalog(expected, actual, native, migration_sha, pins):
+ if migration_sha!=pins['migration_sha256']:
+  raise SystemExit('V247_CATALOG_FAIL: migration SHA-256 mismatch')
+ if native['functions']!=pins['functions'] or native['guards']!=pins['guards']:
+  raise SystemExit('V247_CATALOG_FAIL: exact functions, bodies, ACLs, relationship and table privileges required')
+ keys=('schema','name','args','definer','config','auth_exec','anon_exec')
+ columns=list(expected['columns'])
+ functions=list(expected['functions'])
+ for entry in pins['columns']:
+  if actual['columns'].count(entry)!=1 or entry in columns:
+   raise SystemExit('V247_CATALOG_FAIL: exact unique additive column required '+json.dumps(entry,sort_keys=True))
+  columns.append(entry)
+ for record in pins['functions']:
+  entry={key:record[key] for key in keys}
+  # A consulta histórica mantém public no search_path. O selo nativo usa search_path vazio.
+  entry['args']=entry['args'].replace('p_tarefa public.tarefas_diligencia','p_tarefa tarefas_diligencia')
+  if actual['functions'].count(entry)!=1:
+   raise SystemExit('V247_CATALOG_FAIL: exact unique function required '+json.dumps(entry,sort_keys=True))
+  if record['name'] in ('atualizar_tarefa_diligencia','concluir_tarefa_diligencia','revisar_solucao_tarefa_diligencia'):
+   if functions.count(entry)!=1:
+    raise SystemExit('V247_CATALOG_FAIL: original callable signature changed '+json.dumps(entry,sort_keys=True))
+  elif entry in functions:
+   raise SystemExit('V247_CATALOG_FAIL: additive function already present '+json.dumps(entry,sort_keys=True))
+  else:
+   functions.append(entry)
+ return {**expected,'columns':columns,'functions':functions}
+
 root=pathlib.Path(__file__).parent
 db=os.environ['DB_URL']
 assert '@127.0.0.1:' in db or '@localhost:' in db,'Isolated restore required'
@@ -242,6 +300,14 @@ if i05_migration.is_file():
  i05_native=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',i05_query],text=True))
  expected=reconcile_v2_i05_catalog(expected,actual,i05_native,hashlib.sha256(i05_migration.read_bytes()).hexdigest())
  print('V2_I05_CATALOG_PASS: exact five columns and three function signatures, bodies, owners and ACLs')
+
+v247_migration=root.parent/'migrations'/'20261127050308_p0_v2_47_tarefa_vinculo_revalidacao.sql'
+if v247_migration.is_file():
+ v247_pins=json.loads((root/'v2_47_catalog_pins.json').read_text())
+ v247_native={k:json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',sql],text=True))
+              for k,sql in v247_queries(copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]).items()}
+ expected=reconcile_v247_catalog(expected,actual,v247_native,hashlib.sha256(v247_migration.read_bytes()).hexdigest(),v247_pins)
+ print('V247_CATALOG_PASS: coluna, chave, índice, RLS, ACLs e corpos exatos')
 
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)

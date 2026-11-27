@@ -1,0 +1,609 @@
+{
+  "migration_sha256": "7235e308597091c3a27257caed9c91ac45dea1cc886121e59af3bba87f980fae",
+  "functions": [
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_tarefa uuid, p_descricao text, p_responsavel uuid, p_prazo date",
+      "name": "atualizar_tarefa_diligencia",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "void",
+      "body_md5": "9c055b071fb7f4916901686780e4413a",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_tarefa uuid, p_id_evidencia_versao_documento uuid",
+      "name": "concluir_tarefa_diligencia",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "void",
+      "body_md5": "5beb43fe47c4f9d8e367b8edfd6f025a",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_tarefa uuid, p_aprovar boolean, p_fundamento text",
+      "name": "revisar_solucao_tarefa_diligencia",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "9ecc73c3434f13db74157a8a80f140db",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_ciclo uuid",
+      "name": "v247_escopo_editavel",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "3131ac4fd1de5d91c7780e77835b1853",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_tarefa public.tarefas_diligencia, p_versao uuid",
+      "name": "v247_evidencia_da_tarefa",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "714adf273040061521a6a3d6cd54d372",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_tarefa public.tarefas_diligencia, p_evento text, p_titulo text, p_mensagem text",
+      "name": "v247_notificar_tarefa",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "void",
+      "body_md5": "f389762cc9e80b6f0671b0d7feedead2",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_org uuid",
+      "name": "v247_pode_gerir",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "8209cc447029f5f5c33ab7ae7975b6ad",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_tarefa public.tarefas_diligencia",
+      "name": "v247_pode_reenviar",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "4101bb6366cce4d69fb083b9a9929e3d",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_org uuid",
+      "name": "v247_pode_revisar",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "ca56a426de685630d7c862bfa916efe3",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_tarefa public.tarefas_diligencia",
+      "name": "v247_prova",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "jsonb",
+      "body_md5": "df44f8918be7ed300932f6fb0529ac6c",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_comando uuid, p_tarefa public.tarefas_diligencia, p_evento text, p_antes jsonb, p_detalhe jsonb",
+      "name": "v247_recibo",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "jsonb",
+      "body_md5": "1dfa8664edc61fbab84536355806e9c5",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_org uuid, p_contrato uuid",
+      "name": "v247_responsaveis",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "TABLE(id uuid, nome text)",
+      "body_md5": "fcb2f5e5fcd052da36806bf5aa531818",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_ciclo uuid, p_interno boolean",
+      "name": "v247_travar_rodada",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "public.ciclos_diligencia",
+      "body_md5": "1854bd8c3b9f2e00d65d1468d1c37898",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_tarefa uuid, p_interno boolean",
+      "name": "v247_travar_tarefa",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "public.tarefas_diligencia",
+      "body_md5": "c8e3d3947df951e5bc067427d6d04c4a",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_ciclo uuid, p_id_apontamento uuid, p_offset integer, p_limite integer",
+      "name": "obter_plano_acao_diligencia_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "34cb63e2e4dc0103c2fae8c240cb8c7c",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_execucao uuid, p_id_tarefa uuid, p_id_apontamento uuid, p_id_evidencia uuid",
+      "name": "obter_revalidacao_tarefa_diligencia_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "0ef50f690f97920b2ba910ce2d772b56",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_execucao uuid, p_id_tarefa uuid, p_id_apontamento uuid, p_id_evidencia uuid, p_classificacao text, p_fundamento text, p_confianca numeric, p_evidencia_suficiente boolean",
+      "name": "registrar_revalidacao_tarefa_diligencia_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "9003fbed2ae813b9cad9650d5d1e3921",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_tarefa uuid, p_versao_esperada bigint, p_aprovar boolean, p_fundamento text, p_chave_idempotencia text",
+      "name": "revisar_solucao_tarefa_diligencia_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "6e2f00b01738f1e307ea1f8ab4561340",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_ciclo uuid, p_id_apontamento uuid, p_id_tarefa uuid, p_versao_esperada bigint, p_dados jsonb, p_chave_idempotencia text",
+      "name": "salvar_tarefa_diligencia_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "06616fc6c10a953bceafdb249f1e3be1",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_tarefa uuid, p_id_evidencia uuid, p_versao_esperada bigint, p_chave_idempotencia text",
+      "name": "submeter_solucao_tarefa_diligencia_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "5f1a6d071781b26379d5afc311cdebee",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    }
+  ],
+  "guards": {
+    "index": {
+      "valid": true,
+      "definition": "CREATE UNIQUE INDEX tarefas_diligencia_revalidacao_uidx ON public.tarefas_diligencia USING btree (id_execucao_revalidacao) WHERE (id_execucao_revalidacao IS NOT NULL)"
+    },
+    "foreign_keys": [
+      {
+        "name": "tarefas_diligencia_id_execucao_revalidacao_fkey",
+        "validated": true,
+        "definition": "FOREIGN KEY (id_execucao_revalidacao) REFERENCES public.execucoes_assincronas(id) ON DELETE RESTRICT"
+      }
+    ],
+    "table_privileges": [
+      {
+        "rls": true,
+        "role": "anon",
+        "table": "planos_acao",
+        "delete": false,
+        "insert": false,
+        "select": false,
+        "update": false
+      },
+      {
+        "rls": true,
+        "role": "authenticated",
+        "table": "planos_acao",
+        "delete": false,
+        "insert": false,
+        "select": true,
+        "update": false
+      },
+      {
+        "rls": true,
+        "role": "service_role",
+        "table": "planos_acao",
+        "delete": true,
+        "insert": true,
+        "select": true,
+        "update": true
+      },
+      {
+        "rls": true,
+        "role": "anon",
+        "table": "tarefas_diligencia",
+        "delete": false,
+        "insert": false,
+        "select": false,
+        "update": false
+      },
+      {
+        "rls": true,
+        "role": "authenticated",
+        "table": "tarefas_diligencia",
+        "delete": false,
+        "insert": false,
+        "select": true,
+        "update": false
+      },
+      {
+        "rls": true,
+        "role": "service_role",
+        "table": "tarefas_diligencia",
+        "delete": true,
+        "insert": true,
+        "select": true,
+        "update": true
+      }
+    ]
+  },
+  "columns": [
+    {
+      "name": "id_execucao_revalidacao",
+      "type": "uuid",
+      "table": "tarefas_diligencia",
+      "schema": "public",
+      "default": null,
+      "notnull": false
+    }
+  ]
+}
