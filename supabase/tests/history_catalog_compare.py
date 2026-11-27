@@ -374,6 +374,30 @@ if v249_migration.is_file():
   raise SystemExit('V249_CATALOG_FAIL: corpos, assinaturas, proprietário ou ACL divergentes')
  print('V249_CATALOG_PASS: corpos e ACLs exatos; catálogo original preservado')
 
+v276_migration=root.parent/'migrations'/'20261127211427_p0_v2_76_parecer_apresentacao.sql'
+if v276_migration.is_file():
+ v276_pins=json.loads((root/'v2_76_catalog_pins.json').read_text())
+ if hashlib.sha256(v276_migration.read_bytes()).hexdigest()!=v276_pins['migration_sha256']:
+  raise SystemExit('V276_CATALOG_FAIL: migration SHA-256 mismatch')
+ v276_query=copilot_query[:copilot_query.rindex('where (n.nspname,p.proname) in (')]+(
+  "where n.nspname in ('privado','public') and p.proname in ('registrar_parecer_contratante','obter_processamento_parecer_v2');"
+ )
+ v276_functions=json.loads(subprocess.check_output(['psql',db,'-X','-qAt','-v','ON_ERROR_STOP=1','-c',v276_query],text=True))
+ if v276_functions!=v276_pins['functions']:
+  raise SystemExit('V276_CATALOG_FAIL: corpos, assinaturas, proprietário ou ACL divergentes')
+ v276_keys=('schema','name','args','definer','config','auth_exec','anon_exec')
+ for item in v276_functions:
+  registro={key:item[key] for key in v276_keys}
+  if actual['functions'].count(registro)!=1:
+   raise SystemExit('V276_CATALOG_FAIL: assinatura precisa existir uma vez')
+  if item['name']=='obter_processamento_parecer_v2':
+   if registro in expected['functions']:
+    raise SystemExit('V276_CATALOG_FAIL: assinatura aditiva já existia')
+   expected['functions'].append(registro)
+  elif expected['functions'].count(registro)!=1:
+   raise SystemExit('V276_CATALOG_FAIL: assinatura legada foi alterada')
+ print('V276_CATALOG_PASS: quatro funções e ACLs exatas')
+
 expected=reconcile_document_upload_wrapper(expected,actual)
 expected=reconcile_document_version_wrapper(expected,actual)
 expected=reconcile_document_vigency_wrapper(expected,actual)

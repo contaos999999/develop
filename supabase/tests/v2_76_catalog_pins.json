@@ -1,0 +1,141 @@
+{
+  "migration_sha256": "33d1bc9258203cc2d59394becfc314979ebe323415313c3ba607b0e2dde7d0a4",
+  "functions": [
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_competencia uuid, p_id_parecer uuid",
+      "name": "obter_processamento_parecer_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "6fef0b8fbd4ff2f9f6dc92e480c0fe5b",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_competencia uuid, p_id_apresentacao uuid, p_id_arquivo uuid, p_resultado_geral text, p_parecer_final_favoravel boolean, p_numero_documento text, p_data_emissao date, p_prazo_resposta date",
+      "name": "registrar_parecer_contratante",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "uuid",
+      "body_md5": "79d33ea933bb99f73b7cb57c15a1495f",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_competencia uuid, p_id_parecer uuid",
+      "name": "obter_processamento_parecer_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": false,
+      "returns": "jsonb",
+      "body_md5": "013f2bb6882b01bfc6010d977b4ec75a",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_competencia uuid, p_id_apresentacao uuid, p_id_arquivo uuid, p_resultado_geral text, p_parecer_final_favoravel boolean, p_numero_documento text, p_data_emissao date, p_prazo_resposta date",
+      "name": "registrar_parecer_contratante",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": false,
+      "returns": "uuid",
+      "body_md5": "36bcdc97f60eda06561f6d395de09648",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    }
+  ]
+}

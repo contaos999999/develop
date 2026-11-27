@@ -1,0 +1,64 @@
+name: ContaOS V2 76 Parecer CODE
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/p0-v2-76-parecer-code.yml"
+      - "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql"
+      - "supabase/tests/v2_76*"
+      - "supabase/tests/history_catalog_compare.py"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/p0-v2-76-parecer-code.yml"
+      - "supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql"
+      - "supabase/tests/v2_76*"
+      - "supabase/tests/history_catalog_compare.py"
+
+permissions:
+  contents: read
+
+jobs:
+  codigo:
+    name: V2 76 | PostgreSQL isolado
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: contaos_v276_fixture
+          POSTGRES_PASSWORD: fixture-only-v276
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d contaos_v276_fixture"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGDATABASE: contaos_v276_fixture
+      PGUSER: postgres
+      PGPASSWORD: fixture-only-v276
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Provar parecer isolado e concorrência
+        shell: bash
+        run: |
+          mkdir -p provas-v2-76
+          python3 supabase/tests/v2_76_parecer_run.py 2>&1 | tee provas-v2-76/postgres.log
+      - name: Selar origem e artefato
+        run: |
+          git rev-parse HEAD HEAD^{tree} > provas-v2-76/checkout.txt
+          printf '%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_JOB" > provas-v2-76/proveniencia.txt
+          sha256sum supabase/migrations/20261127211427_p0_v2_76_parecer_apresentacao.sql             supabase/tests/v2_76* > provas-v2-76/FONTES-SHA256SUMS
+          (cd provas-v2-76 && sha256sum ./* > ../SHA256SUMS-v2-76)
+          mv SHA256SUMS-v2-76 provas-v2-76/SHA256SUMS
+      - name: Preservar a prova do regular 76
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: v2-76-backend-code
+          path: provas-v2-76/
+          if-no-files-found: error
