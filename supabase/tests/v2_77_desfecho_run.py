@@ -14,8 +14,11 @@ assert os.environ['PGDATABASE'] == 'contaos_v277_fixture'
 assert os.environ['PGHOST'] == '127.0.0.1'
 
 def sql(*args):
-    return subprocess.run(['psql','-X','-qAt','-v','ON_ERROR_STOP=1',*args],
-                          check=True,text=True,capture_output=True).stdout
+    proc=subprocess.run(['psql','-X','-qAt','-v','ON_ERROR_STOP=1',*args],text=True,capture_output=True)
+    if proc.returncode:
+        print(proc.stdout,proc.stderr,flush=True)
+        proc.check_returncode()
+    return proc.stdout
 
 def func(path,schema,name):
     match=re.search(r'create (?:or replace )?function '+schema+r'\.'+name+r'\([\s\S]+?\$\$;',path.read_text(),re.I)
@@ -41,10 +44,16 @@ if migration.is_file():
 out=sql('-f',str(root/'v2_77_desfecho.test.sql'))
 print(out,flush=True)
 cases=[line for line in out.splitlines() if line.startswith('V2_77_CASO|')]
-assert len(cases)==24, ('inventário incompleto',len(cases))
+assert len(cases)==25, ('inventário incompleto',len(cases))
 failures=[line for line in cases if line.endswith('|FAIL')]
 if failures:
-    print('V2_77_RED_CAUSAL: '+str(len(failures))+' casos falharam',flush=True)
+    if not migration.is_file():
+        observed=dict(line.split('|',2)[1:] for line in out.splitlines() if line.startswith('V2_77_OBSERVADO|'))
+        assert observed['contrato_B'].startswith('OK:') and observed['rascunho'].startswith('OK:'), observed
+        assert observed['final'].startswith('OK:') and observed['replay_final'].startswith('OK:') and observed['final']!=observed['replay_final'], observed
+        print('V2_77_RED_CAUSAL: '+str(len(failures))+' casos falharam; mutacao cruzada, rascunho e duplicacao confirmados',flush=True)
+    else:
+        print('V2_77_GREEN_FAIL: '+str(len(failures))+' casos falharam',flush=True)
     raise SystemExit(1)
 assert migration.is_file(), 'baseline inesperadamente passou'
 def registrar(_):

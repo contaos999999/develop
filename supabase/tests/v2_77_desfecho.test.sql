@@ -66,3 +66,5 @@ insert into fixture_vereditos values
  ('sem_efeitos_negados',(select count(*)=0 from desfechos_apontamentos where id_apontamento between fixture_id(301) and fixture_id(306))),
  ('legado_preservado',(select count(*)=1 from desfechos_apontamentos where id_apontamento=fixture_id(311)));
 select 'V2_77_CASO|'||caso||'|'||case when pass then 'PASS' else 'FAIL' end from fixture_vereditos order by caso;
+
+select 'V2_77_OBSERVADO|'||caso||'|'||resposta from fixture_resultados order by caso;
