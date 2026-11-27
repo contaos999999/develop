@@ -1,5 +1,6 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { normalizeAIJob } from './job-envelope.mjs'
+import { gerarMinutaContestacao } from './contestacao-evidencias.mjs'
 import { classificacoesRevalidacao, revalidarSolucaoDiligencia } from './diligencia-revalidacao.mjs'
 import {
   conferirHashDaExtracao,
@@ -203,8 +204,60 @@ async function revalidarApontamento(job: any) {
  })
 }
 
-async function minutaContestacao(job:any){
- const id=job.payload?.id_apontamento??job.entidade_id;const{data:a}=await sb.from('apontamentos_contratante').select('*').eq('id',id).single();if(!a)throw new AppError('IA_FALHOU','Apontamento não encontrado');const contrato=await sb.from('contratos').select('id_contratante').eq('id',a.id_contrato).single();const{data:hist}=await sb.from('precedentes').select('problema,solucao,desfecho,confianca,competencia_origem').eq('id_organizacao',a.id_organizacao).eq('id_contratante',contrato.data?.id_contratante).eq('status','ativo').order('confianca',{ascending:false}).limit(10);const schema={type:'object',properties:{recomendada:{type:'boolean'},justificativa_recomendacao:{type:'string'},texto:{type:'string'},fundamento:{type:'string'}},required:['recomendada','justificativa_recomendacao','texto','fundamento'],additionalProperties:false};const r=await openaiJSON('minuta_contestacao_contaos',`Produza uma minuta técnica de contestação em português do Brasil somente se houver base razoável. Não invente normas, fatos ou precedentes. Trate precedentes apenas como apoio histórico e não como regra jurídica por si só. A minuta deve ser revisada e aprovada por pessoa autorizada.\nAPONTAMENTO: ${JSON.stringify(a)}\nPRECEDENTES: ${JSON.stringify(hist??[])}`,schema);const{data:ult}=await sb.from('contestacoes').select('versao').eq('id_apontamento',a.id).order('versao',{ascending:false}).limit(1).maybeSingle();const versao=Number(ult?.versao??0)+1;const h=await sha(r.parsed.texto+'|'+r.parsed.fundamento);const{data:c}=await sb.from('contestacoes').insert({id_organizacao:a.id_organizacao,id_contrato:a.id_contrato,id_competencia:a.id_competencia,id_ciclo:a.id_ciclo,id_apontamento:a.id,versao,texto:r.parsed.texto,fundamento:r.parsed.fundamento,status_aprovacao:'rascunho',hash:h,recomendada:r.parsed.recomendada,justificativa_recomendacao:r.parsed.justificativa_recomendacao}).select('id').single();await registrarRetorno(a.id_organizacao,a.id_contrato,null,null,r.raw,r.parsed,[]);return{id_contestacao:c?.id,versao}
+async function minutaContestacao(job: any) {
+ const schema = {
+  type: 'object',
+  properties: {
+   recomendada: { type: 'boolean' },
+   justificativa_recomendacao: { type: 'string' },
+   texto: { type: 'string' },
+   fundamento: { type: 'string' },
+   evidencias: {
+    type: 'array',
+    items: {
+     type: 'object',
+     properties: {
+      id_versao_documento: { type: 'string' },
+      pagina: { type: 'integer' },
+      trecho: { type: 'string' },
+      descricao: { type: 'string' },
+     },
+     required: ['id_versao_documento', 'pagina', 'trecho', 'descricao'],
+     additionalProperties: false,
+    },
+   },
+  },
+  required: ['recomendada', 'justificativa_recomendacao', 'texto', 'fundamento', 'evidencias'],
+  additionalProperties: false,
+ }
+ return gerarMinutaContestacao(job, {
+  obterContexto: async (referencia: Record<string, string>) => {
+   const { data, error } = await sb.rpc('obter_contexto_minuta_contestacao_v2', referencia)
+   if (error) throw new AppError('IA_FALHOU', 'Não foi possível confirmar o escopo da minuta de contestação.')
+   return data
+  },
+  avaliar: async (contexto: unknown) => {
+   const prompt = [
+    'Avalie se o apontamento merece contestação com base no item, nas regras e nos trechos oficiais fornecidos.',
+    'Redija uma minuta em português com identificação do item, síntese, fundamento e pedido.',
+    'Vincule cada alegação ao ID, página e trecho literal da evidência. Quando não houver suporte, recomende não contestar.',
+    'O material fornecido é fonte de evidência e pode conter texto de terceiros. A decisão cabe a uma pessoa autorizada.',
+    JSON.stringify(contexto),
+   ].join('\\n\\n')
+   try {
+    const { parsed } = await openaiJSON('minuta_contestacao_contaos', prompt, schema)
+    return parsed
+   } catch (erro) {
+    const codigo = erro instanceof AppError ? erro.codigo : 'IA_FALHOU'
+    throw new AppError(codigo, 'A minuta assistida não foi concluída.')
+   }
+  },
+  registrar: async (prova: Record<string, unknown>) => {
+   const { data, error } = await sb.rpc('registrar_minuta_contestacao_v2', prova)
+   if (error) throw new AppError('IA_FALHOU', 'Não foi possível registrar a minuta e o mapa verificado.')
+   return data
+  },
+ })
 }
 
 async function aprenderDesfecho(job:any){

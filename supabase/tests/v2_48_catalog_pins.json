@@ -1,0 +1,591 @@
+{
+  "migration_sha256": "27c5acd2e614d8cccf60f9fc55c895c0827121215822db7b356f87589274bc16",
+  "functions": [
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_contestacao uuid, p_aprovar boolean, p_fundamento text",
+      "name": "aprovar_contestacao",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "void",
+      "body_md5": "2e1b172e43f9869b34389707876cf153",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_apontamento uuid, p_texto text, p_fundamento text, p_evidencias jsonb",
+      "name": "criar_contestacao",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "uuid",
+      "body_md5": "a6b2b40b277c18f30e4ab5ad3e8b9914",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_apontamento uuid",
+      "name": "solicitar_minuta_contestacao",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": true,
+      "returns": "uuid",
+      "body_md5": "aac223154c8a82d83a10a2f34b360760",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_execucao uuid, p_id_apontamento uuid",
+      "name": "v248_contexto_worker",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "jsonb",
+      "body_md5": "5b6775b658f03dc532108d68338b8691",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item uuid, p_versao integer, p_texto text, p_fundamento text, p_mapa jsonb",
+      "name": "v248_hash",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "text",
+      "body_md5": "ea93bb1736cf52b76ff7b965cca3356b",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item public.apontamentos_contratante, p_versao integer, p_texto text, p_fundamento text, p_mapa jsonb, p_status text, p_recomendada boolean, p_justificativa text",
+      "name": "v248_inserir",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "public.contestacoes",
+      "body_md5": "5b67f29da0bd32976bfb76d341d8f501",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item public.apontamentos_contratante",
+      "name": "v248_item_editavel",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "dd8a12cd1ded283909f66c2a63d61cb4",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item public.apontamentos_contratante, p_evidencias jsonb, p_interno boolean",
+      "name": "v248_mapa",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "jsonb",
+      "body_md5": "a744dcfa54839baaaceb6982ca5c12ae",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_org uuid",
+      "name": "v248_pode_revisar",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "cfdc5fc591a8910dd32aa0865df549c1",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_org uuid",
+      "name": "v248_pode_submeter",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "boolean",
+      "body_md5": "89eaa8084a70643f1e9c91192a27d70d",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_comando uuid, p_versao public.contestacoes, p_evento text, p_antes jsonb, p_detalhes jsonb",
+      "name": "v248_recibo",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "jsonb",
+      "body_md5": "ef7473200effebcc0004a99ea6766e78",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item uuid, p_interno boolean",
+      "name": "v248_travar_item",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "public.apontamentos_contratante",
+      "body_md5": "572a337e63a410bb5827c0f053716582",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item uuid",
+      "name": "v248_versao",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "integer",
+      "body_md5": "dd296d322ffe7d80e9516b050c9ea6e2",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_item public.apontamentos_contratante, p_interno boolean",
+      "name": "v248_versoes",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "privado",
+      "definer": false,
+      "returns": "TABLE(id uuid, titulo text, numero integer, hash text, vigente boolean)",
+      "body_md5": "f65ef1a922d6b47e0d1b39d7954a9041",
+      "language": "sql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_ciclo uuid, p_id_apontamento uuid, p_offset integer, p_limite integer, p_offset_fontes integer",
+      "name": "obter_contestacoes_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "47d22566f2157a698669b2c4ee036d42",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_execucao uuid, p_id_apontamento uuid",
+      "name": "obter_contexto_minuta_contestacao_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "2c8844c70ebe8767bacdd6a1cf1fdd7c",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "service_role",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_execucao uuid, p_id_apontamento uuid, p_recomendada boolean, p_justificativa text, p_texto text, p_fundamento text, p_evidencias jsonb",
+      "name": "registrar_minuta_contestacao_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "ae3097e1d826fa7592f30df3408dd965",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": false,
+      "public_exec": false,
+      "service_exec": true
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_contestacao uuid, p_versao_esperada integer, p_aprovar boolean, p_fundamento text, p_chave text",
+      "name": "revisar_contestacao_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "8d9630666603476ed7e127c918e06cc5",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_apontamento uuid, p_versao_esperada integer, p_texto text, p_fundamento text, p_evidencias jsonb, p_chave text",
+      "name": "salvar_contestacao_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "4eb4452bb17790c231dff7fb8e9838b3",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    },
+    {
+      "acl": [
+        {
+          "grantee": "authenticated",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        },
+        {
+          "grantee": "postgres",
+          "grantable": false,
+          "privilege": "EXECUTE"
+        }
+      ],
+      "args": "p_id_apontamento uuid, p_versao_esperada integer, p_chave text",
+      "name": "solicitar_minuta_contestacao_v2",
+      "owner": "postgres",
+      "config": [
+        "search_path=\"\""
+      ],
+      "schema": "public",
+      "definer": true,
+      "returns": "jsonb",
+      "body_md5": "c77de6938e07980adf4a8d59050da08d",
+      "language": "plpgsql",
+      "anon_exec": false,
+      "auth_exec": true,
+      "public_exec": false,
+      "service_exec": false
+    }
+  ],
+  "guards": [
+    {
+      "rls": true,
+      "role": "anon",
+      "table": "contestacoes",
+      "delete": false,
+      "insert": false,
+      "select": false,
+      "update": false
+    },
+    {
+      "rls": true,
+      "role": "authenticated",
+      "table": "contestacoes",
+      "delete": false,
+      "insert": false,
+      "select": true,
+      "update": false
+    },
+    {
+      "rls": true,
+      "role": "service_role",
+      "table": "contestacoes",
+      "delete": true,
+      "insert": true,
+      "select": true,
+      "update": true
+    },
+    {
+      "rls": true,
+      "role": "anon",
+      "table": "mapas_evidencias_contestacao",
+      "delete": false,
+      "insert": false,
+      "select": false,
+      "update": false
+    },
+    {
+      "rls": true,
+      "role": "authenticated",
+      "table": "mapas_evidencias_contestacao",
+      "delete": false,
+      "insert": false,
+      "select": true,
+      "update": false
+    },
+    {
+      "rls": true,
+      "role": "service_role",
+      "table": "mapas_evidencias_contestacao",
+      "delete": true,
+      "insert": true,
+      "select": true,
+      "update": true
+    }
+  ]
+}
