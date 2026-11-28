@@ -37,6 +37,12 @@ jobs:
           set -euo pipefail
           mkdir -p provas-p0-actions
           node --test scripts/p0-actions-request.test.mjs 2>&1 | tee provas-p0-actions/test.log
+      - name: Regressão do controlador histórico sem execução
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provas-p0-actions
+          node --test scripts/executor-state-controller.test.mjs 2>&1 | tee provas-p0-actions/regression.log
       - name: Selar evidências e origem
         if: always()
         shell: bash
