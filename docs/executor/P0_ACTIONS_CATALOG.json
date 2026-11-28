@@ -1,0 +1,1 @@
+{"schema":"contaos.p0.actions-catalog.v1","repository":"contaos999999/develop","operations":[{"operation":"CANARY_CODE","environment":"CODE","mode":"CODE_FIXTURE_ONLY","enabled":true},{"operation":"HML_DEPLOY_ONE","environment":"HML","mode":"DISABLED","enabled":false}]}
