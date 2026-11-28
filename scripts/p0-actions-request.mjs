@@ -181,7 +181,7 @@ function reader(fetcher, token) {
   const deadline = Date.now() + 30_000;
   let calls = 0;
   async function one(path, query = {}, allow404 = false) {
-    demand(text(path) && safePath(path), "INVALID_API_PATH");
+    demand(text(path) && (safePath(path) || /^compare\/[0-9a-f]{40}\.\.\.[0-9a-f]{40}$/.test(path)), "INVALID_API_PATH");
     const url = new URL(PREFIX + path, ORIGIN);
     for (const [k, v] of Object.entries(query)) url.searchParams.set(k, String(v));
     demand(++calls <= 80 && Date.now() < deadline, "API_BUDGET");
@@ -306,7 +306,7 @@ function apiPath(p) {
 async function readMerge(api, number, mergeSha, rules) {
   demand(pos(number) && sha(mergeSha), "MERGE_IDENTITY");
   const pr = await api.get("pulls/" + number);
-  demand(pr?.number === number && pr.merge_commit_sha === mergeSha, "MERGE_IDENTITY");
+  demand(pr?.number === number && pr.merge_commit_sha === mergeSha && sha(pr.head?.sha) && sha(pr.base?.sha), "MERGE_IDENTITY");
   const commit = await api.get("commits/" + mergeSha);
   demand(commit?.sha === mergeSha && Array.isArray(commit.parents), "MERGE_IDENTITY");
   const reviews = await api.list("pulls/" + number + "/reviews");
