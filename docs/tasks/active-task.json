@@ -3417,9 +3417,18 @@
     ],
     "build_authorized": false,
     "activation_authorized": false,
-    "backend_branch_protection": "BLOCKED_EXTERNAL_PROOF_REQUIRED",
+    "backend_branch_protection": "CONFIG_VERIFIED_RULESET_28271968",
     "scope": "Transporte nativo, sem nova autoridade. Preserva integralmente authority_scope_v2_77 e p0_executor_controller_gate.",
     "live": "NOT_RUN",
-    "prod": "NO-GO"
+    "prod": "NO-GO",
+    "protection_evidence": {
+      "ruleset_id": 28271968,
+      "protected": true,
+      "bypass_actors": [],
+      "before_approval_mergeable_state": "blocked",
+      "checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7231066880",
+      "hml_environment": "NOT_VERIFIED",
+      "negative_material": "PENDING"
+    }
   }
 }
