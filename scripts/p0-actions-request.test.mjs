@@ -4,7 +4,8 @@ import { existsSync } from 'node:fs';
 
 const repo = 'contaos999999/develop';
 const disabled = 'HML_DEPLOY_ONE';
-const guard = 'ContaOS Zero-Drift';
+const guard = "guard";
+const requiredChecks = ["guard"];
 const id = '11111111-1111-4111-8111-111111111111';
 const sha = (c) => c.repeat(40);
 const source = sha('a'), req = sha('b'), plan = sha('c'), auth = sha('d');
@@ -27,15 +28,15 @@ const catalog = () => ({
 const merge = (number, mergeSha, headSha, baseSha) => ({
   number, repository: repo, headRepository: repo, baseRef: 'main',
   merged: true, mergeSha, headSha, baseSha, parents: [baseSha, headSha],
-  tree: sha('f'), author: 'author', mergedAt: '2026-11-27T18:00:00Z',
+  tree: sha('f'), author: 'author', createdAt: '2026-11-27T16:00:00Z', mergedAt: '2026-11-27T18:00:00Z',
   reviews: [{ actor: 'Edivan5002', eligible: true, state: 'APPROVED', commit: headSha, submittedAt: '2026-11-27T17:00:00Z' }],
-  checks: [{ name: guard, sha: headSha, appId: 15368, status: 'completed', conclusion: 'success' }]
+  checks: requiredChecks.map(name => ({ name, sha: headSha, appId: 15368, status: 'completed', conclusion: 'success', startedAt: '2026-11-27T16:10:00Z', completedAt: '2026-11-27T17:00:00Z' }))
 });
 const evidence = () => ({
   repository: repo, requestCommit: req, main: { sha: req, tree: sha('f'), protected: true },
   ruleset: { id: 28271968, active: true, target: 'branch', defaultBranch: true,
     bypassActors: [], canBypass: 'never', pullRequest: true, approvals: 1, strictChecks: true,
-    checks: [{ name: guard, appId: 15368 }], deletion: true, nonFastForward: true,
+    checks: requiredChecks.map(name => ({ name, appId: 15368 })), deletion: true, nonFastForward: true,
     dismissStale: true, lastPushApproval: true, reviewThreadResolution: true },
   source: merge(1, source, sha('1'), sha('2')),
   request: { ...merge(2, req, sha('3'), sha('4')), files: [{ path, status: 'added' }], previousExists: false, raw: raw(request()) },
@@ -161,4 +162,44 @@ for (const [name, response] of [
     return response();
   }});
   assert.ok(calls > 0); assert.equal(result.status,'BLOCKED');
+});
+
+test('collector rejects incomplete or untrusted evidence without exposing token', async () => {
+  const m = await api();
+  let calls = 0;
+  const result = await m.collectEvidence({
+    request: request(), repository: repo, requestCommit: req, token: 'fixture-only',
+    fetcher: async (url, options) => {
+      calls++;
+      assert.equal(new URL(url).origin, 'https://api.github.com');
+      assert.equal(options.method, 'GET');
+      assert.equal(options.redirect, 'error');
+      assert.ok(options.signal);
+      return new Response(JSON.stringify({protected:true,commit:{sha:req}}), {status:200});
+    }
+  });
+  assert.ok(calls > 0);
+  assert.equal(result.status, 'BLOCKED');
+  assert.equal(result.executionAllowed, false);
+  assert.ok(!JSON.stringify(result).includes('fixture-only'));
+});
+for (const [name, mutate] of [
+  ['source invalid author', e => {e.source.author = '';}],
+  ['source invalid tree', e => {e.source.tree = 'not-a-sha';}],
+  ['wrong plan commit', e => {e.plan.commit = sha('0');}],
+  ['wrong authorization commit', e => {e.authorization.commit = sha('0');}],
+  ['ambiguous duplicate check', e => {e.request.checks.push({...e.request.checks[0]});}],
+  ['check after merge', e => {e.request.checks[0].completedAt = '2026-11-28T00:00:00Z';}],
+  ['dangerous authorized delta', e => {e.changedPaths = ['supabase/migrations/x.sql']; e.authorization.allowedDelta = [...e.changedPaths];}],
+  ['unknown request commit', e => {e.requestCommit = sha('0');}],
+  ['missing required checks', e => {e.ruleset.checks.pop();}],
+  ['invalid rule id', e => {e.ruleset.id = 999;}],
+  ['expired authorization malformed date', e => {e.authorization.expiresAt = 'invalid';}],
+  ['self-authorized review', e => {e.source.reviews[0].actor = e.source.author;}],
+  ['invalid evidence timestamp', e => {e.now = 'invalid';}]
+]) test('additional evidence rejects ' + name, async () => {
+  const m = await api(), e = evidence(); mutate(e);
+  const result = await m.authorizeRequest(request(), catalog(), e);
+  assert.equal(result.status, 'BLOCKED');
+  assert.equal(result.executionAllowed, false);
 });
