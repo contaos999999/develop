@@ -14,6 +14,7 @@ const SHA = /^[0-9a-f]{40}$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const ID = /^[1-9][0-9]{0,19}$/;
 const LIMIT = 8192;
+const SOURCE_PATHS = ['scripts/p0-actions-request.mjs','scripts/p0-actions-transport.mjs',WORKFLOW,'.github/workflows/p0-actions-orchestrator-code.yml'];
 const API = 'https://api.github.com/repos/' + REPO + '/';
 const sha = v => typeof v === 'string' && SHA.test(v);
 const id = v => typeof v === 'string' && ID.test(v);
@@ -56,9 +57,10 @@ export function validatePush({context:c,checkout:g,catalog}={}) {
     catch { throw new Denial('REQUEST_CONTRACT'); }
     demand(q.operation==='CANARY_CODE' && q.environment==='CODE','OPERATION_DISABLED');
     demand(f.path===pathFor(q),'REQUEST_FILE');
+    demand(g.sourceHashes===undefined || (g.sourceHashes && equal(Object.keys(g.sourceHashes),SOURCE_PATHS) && Object.values(g.sourceHashes).every(x=>typeof x==='string' && /^[0-9a-f]{64}$/.test(x))),'CHECKOUT_IDENTITY');
     return {status:'VALIDATED_PUSH',executionAllowed:false,request:q,catalog:k,
       provenance:{request_commit:g.head,tree:g.tree,parents:[...g.parents],run_id:c.runId,
-        run_attempt:1,job:'canary',request_sha256:digest(f.raw),catalog_sha256:digest(catalog)}};
+        run_attempt:1,job:'canary',request_sha256:digest(f.raw),catalog_sha256:digest(catalog),source_sha256:g.sourceHashes??null}};
   } catch (e) { return deny(e); }
 }
 export function buildCanaryReceipt(validated, outcome={}) {
@@ -76,7 +78,7 @@ export function buildCanaryReceipt(validated, outcome={}) {
     request_commit:p?.request_commit??null,tree:p?.tree??null,parents:p?.parents??null,
     run_id:p?.run_id??null,run_attempt:p?.run_attempt??null,job:p?.job??null,
     predecessor_checkpoint_ref:q?.predecessor_checkpoint_ref??null,
-    request_sha256:p?.request_sha256??null,catalog_sha256:p?.catalog_sha256??null,
+    request_sha256:p?.request_sha256??null,catalog_sha256:p?.catalog_sha256??null,source_sha256:p?.source_sha256??null,
     result:real?'CANARY_LOCAL_EFFECT':fixture?'COLLECTED_FIXTURE':'BLOCKED',
     reason:real?'LOCAL_CODE_ONLY':fixture?'CODE_FIXTURE_ONLY':
       allowedReasons.has(outcome.reason)?outcome.reason:'UNVERIFIED_EVIDENCE',
@@ -183,15 +185,16 @@ export function readCheckout(cwd) {
   const entry=git(['ls-tree','-z',head,'--',path],cwd).toString('utf8');
   const m=/^100644 blob ([0-9a-f]{40})\t([^\0]+)\0$/.exec(entry);
   demand(m&&m[2]===path,'REQUEST_FILE');
-  function readBlob(spec) {
+  function readBlob(spec,limit=LIMIT) {
     const size=Number(git(['cat-file','-s',spec],cwd).toString().trim());
-    demand(Number.isSafeInteger(size)&&size>0&&size<=LIMIT,'REQUEST_FILE');
-    const b=git(['cat-file','blob',spec],cwd,LIMIT+1);
+    demand(Number.isSafeInteger(size)&&size>0&&size<=limit,'REQUEST_FILE');
+    const b=git(['cat-file','blob',spec],cwd,limit+1);
     const s=b.toString('utf8');demand(b.length===size&&Buffer.from(s).equals(b),'REQUEST_FILE');
     return s;
   }
   const body=readBlob(m[1]),catalog=readBlob(head+':'+ROOT+'P0_ACTIONS_CATALOG.json');
-  return {checkout:{head,tree,parents,files:[{path,status:'A',mode:'100644',raw:body}]},catalog};
+  const sourceHashes=Object.fromEntries(SOURCE_PATHS.map(p=>[p,digest(readBlob(head+':'+p,1048576))]));
+  return {checkout:{head,tree,parents,sourceHashes,files:[{path,status:'A',mode:'100644',raw:body}]},catalog};
 }
 async function cli() {
   let v=null,outcome={status:'BLOCKED',reason:'RUNTIME_IDENTITY'};
@@ -208,6 +211,7 @@ async function cli() {
       ref:process.env.GITHUB_REF,sha:process.env.GITHUB_SHA,before:event.before,
       runId:process.env.GITHUB_RUN_ID,attempt:process.env.GITHUB_RUN_ATTEMPT,job:process.env.GITHUB_JOB,event};
     const data=readCheckout(process.cwd());
+    demand(data.checkout.sourceHashes && Object.keys(data.checkout.sourceHashes).length===SOURCE_PATHS.length,'CHECKOUT_IDENTITY');
     const result=await verified({context:c,...data,token:process.env.GITHUB_TOKEN,fetcher:fetch});
     v=result.v;outcome=result.outcome;
     if(outcome.status==='COLLECTED_FIXTURE') outcome={...outcome,status:'CANARY_LOCAL_EFFECT'};
