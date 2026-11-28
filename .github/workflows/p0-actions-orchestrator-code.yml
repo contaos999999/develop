@@ -1,0 +1,59 @@
+name: ContaOS P0 Actions Validator CODE
+on:
+  pull_request:
+    paths:
+      - scripts/p0-actions-request.mjs
+      - scripts/p0-actions-request.test.mjs
+      - .github/workflows/p0-actions-orchestrator-code.yml
+      - docs/executor/P0_ACTIONS_CATALOG.json
+  push:
+    branches: [main]
+    paths:
+      - scripts/p0-actions-request.mjs
+      - scripts/p0-actions-request.test.mjs
+      - .github/workflows/p0-actions-orchestrator-code.yml
+      - docs/executor/P0_ACTIONS_CATALOG.json
+permissions:
+  contents: read
+  actions: read
+  checks: read
+  pull-requests: read
+jobs:
+  validator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Executar testes CODE fixture (RED ou GREEN)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provas-p0-actions
+          node --test scripts/p0-actions-request.test.mjs 2>&1 | tee provas-p0-actions/test.log
+      - name: Selar evidências e origem
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provas-p0-actions
+          git rev-parse HEAD HEAD^{tree} > provas-p0-actions/checkout.txt
+          printf '%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_JOB" > provas-p0-actions/proveniencia.txt
+          sha256sum scripts/p0-actions-request.test.mjs .github/workflows/p0-actions-orchestrator-code.yml > provas-p0-actions/FONTES-SHA256SUMS
+          if test -f scripts/p0-actions-request.mjs; then sha256sum scripts/p0-actions-request.mjs >> provas-p0-actions/FONTES-SHA256SUMS; fi
+          if test -f docs/executor/P0_ACTIONS_CATALOG.json; then sha256sum docs/executor/P0_ACTIONS_CATALOG.json >> provas-p0-actions/FONTES-SHA256SUMS; fi
+          (cd provas-p0-actions && sha256sum ./* > ../SHA256SUMS-p0-actions)
+          mv SHA256SUMS-p0-actions provas-p0-actions/SHA256SUMS
+      - name: Preservar artefatos de teste
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: p0-actions-validator-code
+          path: provas-p0-actions/
+          if-no-files-found: error
