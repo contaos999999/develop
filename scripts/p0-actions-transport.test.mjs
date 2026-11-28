@@ -204,3 +204,42 @@ for(const [name,mutate] of [
   const v=await m.runTransport(f.input);assert.equal(v.status,'BLOCKED');assert.equal(v.executionAllowed,false);
   assert.equal(v.receipt.result,'BLOCKED');assert.equal(v.receipt.certification,'NOT_CERTIFIED');
 });
+
+
+test('B2 real git checkout binds append-only diff and source hashes',async()=>{
+  const m=await api();
+  const {mkdtempSync,mkdirSync,writeFileSync,rmSync,symlinkSync}=await import('node:fs');
+  const {tmpdir}=await import('node:os');
+  const {join,dirname}=await import('node:path');
+  const {execFileSync}=await import('node:child_process');
+  const {createHash}=await import('node:crypto');
+  const dir=mkdtempSync(join(tmpdir(),'p0-transport-'));
+  const git=(...args)=>execFileSync('git',args,{cwd:dir,stdio:['ignore','pipe','pipe'],
+    env:{PATH:process.env.PATH,LANG:'C',GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:'/dev/null',
+      GIT_AUTHOR_NAME:'Fixture',GIT_AUTHOR_EMAIL:'fixture@example.invalid',
+      GIT_COMMITTER_NAME:'Fixture',GIT_COMMITTER_EMAIL:'fixture@example.invalid'}}).toString().trim();
+  const file=(path,body)=>{mkdirSync(dirname(join(dir,path)),{recursive:true});writeFileSync(join(dir,path),body);};
+  try {
+    git('init','-b','main');git('config','commit.gpgsign','false');
+    const sources=['scripts/p0-actions-request.mjs','scripts/p0-actions-transport.mjs',
+      '.github/workflows/p0-actions-orchestrator-request.yml','.github/workflows/p0-actions-orchestrator-code.yml'];
+    for(const p of sources)file(p,'synthetic '+p+'\n');
+    file('docs/executor/P0_ACTIONS_CATALOG.json',raw(catalog()));
+    git('add','.');git('commit','-m','fixture base');
+    const base=git('rev-parse','HEAD');
+    git('switch','-c','request');file(requestPath,raw(request()));git('add','.');git('commit','-m','one request');
+    git('switch','main');git('merge','--no-ff','-m','fixture merge','request');
+    const data=m.readCheckout(dir);
+    const c=context();c.sha=data.checkout.head;c.before=base;c.event.after=c.sha;c.event.before=base;
+    const validated=m.validatePush({context:c,...data});assert.equal(validated.status,'VALIDATED_PUSH',validated.reason);
+    assert.equal(data.checkout.parents[0],base);assert.deepEqual(Object.keys(data.checkout.sourceHashes),sources);
+    for(const p of sources)assert.equal(data.checkout.sourceHashes[p],createHash('sha256').update('synthetic '+p+'\n').digest('hex'));
+    assert.deepEqual(validated.provenance.source_sha256,data.checkout.sourceHashes);
+    git('switch','-c','invalid');file('docs/executor/requests/22222222-2222-4222-8222-222222222222.json',raw(request()));
+    file('extra.txt','extra');git('add','.');git('commit','-m','invalid two paths');git('switch','main');git('merge','--no-ff','-m','invalid merge','invalid');
+    assert.throws(()=>m.readCheckout(dir),/REQUEST_DIFF/);
+    git('switch','-c','link');symlinkSync('missing',join(dir,'docs/executor/requests/33333333-3333-4333-8333-333333333333.json'));
+    git('add','.');git('commit','-m','invalid symlink');git('switch','main');git('merge','--no-ff','-m','link merge','link');
+    assert.throws(()=>m.readCheckout(dir),/REQUEST_FILE/);
+  } finally {rmSync(dir,{recursive:true,force:true});}
+});
