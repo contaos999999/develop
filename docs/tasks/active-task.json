@@ -484,7 +484,10 @@
     "scripts/p0-actions-request.mjs",
     "scripts/p0-actions-request.test.mjs",
     ".github/workflows/p0-actions-orchestrator-code.yml",
-    "docs/executor/P0_ACTIONS_CATALOG.json"
+    "docs/executor/P0_ACTIONS_CATALOG.json",
+    "scripts/p0-actions-transport.mjs",
+    "scripts/p0-actions-transport.test.mjs",
+    ".github/workflows/p0-actions-orchestrator-request.yml"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3441,5 +3444,26 @@
     "hml_environment": "NOT_VERIFIED",
     "fiscal_universal": "PENDING",
     "authority": "B1 exclusivamente validador offline e CI, sem chamada de workflow ou acesso privilegiado, RED obrigatório antes de implementação."
+  },
+  "authority_scope_p0_actions_b2": {
+    "id": "P0-ORQ-ACTIONS-001-B2",
+    "stage": "PLAN",
+    "base": "93f14f051af6d04cf8cc5098d26118869a6c1c29",
+    "environment": "CODE",
+    "operation": "CANARY_CODE",
+    "paths": [
+      "scripts/p0-actions-transport.mjs",
+      "scripts/p0-actions-transport.test.mjs",
+      ".github/workflows/p0-actions-orchestrator-request.yml",
+      ".github/workflows/p0-actions-orchestrator-code.yml"
+    ],
+    "preconditions": [
+      "PLAN integrado e aprovado",
+      "RED causal confirmado",
+      "proteção estrita em ambos os repositórios antes de canário real",
+      "autorização própria por solicitação"
+    ],
+    "hml": "NO-GO",
+    "prod": "NO-GO"
   }
 }

@@ -51,3 +51,23 @@ Caminhos B1 autorizados após integração desta emenda:
 - .github/workflows/p0-actions-orchestrator-code.yml
 - docs/executor/P0_ACTIONS_CATALOG.json
 Esta PR altera somente PLAN e active-task; B1 não se autoautoriza. Sequenciar a integração da emenda após #851 (reancoragem frontend na main atual) para não causar novo drift. LIVE NOT_RUN; PROD NO-GO.
+## Emenda operacional B2/F2 — canário CODE nativo e leitura protegida
+
+Escopo desta fatia. Receber somente uma solicitação `CANARY_CODE / CODE` adicionada a `main` por merge protegido. O canário gera uma evidência sanitizada e um artefato local do Actions. Consome o validador B1/F1 real para o repositório fixo. Não utiliza ambientes, credenciais externas, escrita no GitHub, execução de comandos recebidos, downloads externos, produção ou banco. `HML_DEPLOY_ONE` e `TESTE_C_FULL_CODE` seguem desabilitados até seus GATEs próprios. Preservar o modo fixture para suas provas atuais.
+
+### Recepção e continuidade
+
+- Workflow estático em `.github/workflows/p0-actions-orchestrator-request.yml`, acionado somente por `push` em `main` no diretório de solicitações do repositório. Checkout com `persist-credentials: false` e ações fixadas por SHA. Usar `GITHUB_TOKEN` somente para ler origem, proteção, revisões, checks, diff e HEAD. O ambiente da etapa de canário recebe apenas o comprovante sanitizado.
+- Ref, evento, repositório, arquivo, HEAD, árvore, tentativa e job provêm do contexto GitHub. Conferir localmente pais e árvore do checkout, diff contra o primeiro pai com um único JSON regular adicionado e caminho exato do UUID declarado. Recusar symlink, arquivo modificado/removido, dois manifestos, tentativa maior que 1, operação/ambiente fora do catálogo e referência obsoleta.
+- A autoridade da solicitação vem de PLAN e autorização prévios integrados e revisão elegível no HEAD, com checks realmente executados. Exigir a prova histórica já implementada no coletor, correlacionar a solicitação aos pais e à árvore do checkout e repetir a leitura da main imediatamente antes de produzir o artefato. Sem efeito, nem recibo de sucesso, se o estado real divergir.
+- Concorrência por repositório, cancel-in-progress false e um pedido ativo de cada vez. Em caso de fila, alteração posterior da main ou resultado incerto, registrar o resultado observado e reconciliar antes de nova autorização. Nunca reaplicar a solicitação do mesmo UUID. Nenhum retry automático.
+- Artefato de canário com esquema fechado, request ID, repositório, missão, operação, source SHA, request commit, PR da autorização, run, tentativa, job, árvore, checkpoint predecessor e resultado. Hash de fontes, arquivo e ZIP conferidos por leitura real. Evidência de bloqueio sem payload bruto. O ledger permanente B3/F3 e sua verificação de consumo ficam em BUILD e GATE separados, conforme plano mestre.
+- Canário positivo e caso de negação no GitHub real somente após proteção estrita comprovada nas duas mains, com pedidos e autorizações versionados sob PLAN próprio e checks contemporâneos. Nenhum PASS de fiscalização presumido a partir de teste fixture. Submeter as evidências ao fluxo de fiscalização aplicável e preservar a PR #690. HML permanece pendente de certificação CODE e PLAN de ativação.
+
+Caminhos exatos BUILD backend:
+- `scripts/p0-actions-transport.mjs`
+- `scripts/p0-actions-transport.test.mjs`
+- `.github/workflows/p0-actions-orchestrator-request.yml`
+- `.github/workflows/p0-actions-orchestrator-code.yml`
+
+PLAN documental com active-task. RED causal em Actions antes da implementação. GREEN com execução no checkout esperado, efeito somente local, tentativa concorrente/duplicada, evento inválido, catálogo, revisão, check ausente e stale. CI, leitura pós-merge e evidências no GATE #138. LIVE NOT_RUN. PROD NO-GO.
