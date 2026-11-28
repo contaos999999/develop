@@ -4,6 +4,9 @@ on:
     paths:
       - scripts/p0-actions-request.mjs
       - scripts/p0-actions-request.test.mjs
+      - scripts/p0-actions-transport.mjs
+      - scripts/p0-actions-transport.test.mjs
+      - .github/workflows/p0-actions-orchestrator-request.yml
       - .github/workflows/p0-actions-orchestrator-code.yml
       - docs/executor/P0_ACTIONS_CATALOG.json
   push:
@@ -11,6 +14,9 @@ on:
     paths:
       - scripts/p0-actions-request.mjs
       - scripts/p0-actions-request.test.mjs
+      - scripts/p0-actions-transport.mjs
+      - scripts/p0-actions-transport.test.mjs
+      - .github/workflows/p0-actions-orchestrator-request.yml
       - .github/workflows/p0-actions-orchestrator-code.yml
       - docs/executor/P0_ACTIONS_CATALOG.json
 permissions:
@@ -37,6 +43,12 @@ jobs:
           set -euo pipefail
           mkdir -p provas-p0-actions
           node --test scripts/p0-actions-request.test.mjs 2>&1 | tee provas-p0-actions/test.log
+      - name: Testes do transporte B2 CODE fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p provas-p0-actions
+          node --test scripts/p0-actions-transport.test.mjs 2>&1 | tee provas-p0-actions/transport.log
       - name: Regressão do controlador histórico sem execução
         shell: bash
         run: |
@@ -54,6 +66,9 @@ jobs:
           sha256sum scripts/p0-actions-request.test.mjs .github/workflows/p0-actions-orchestrator-code.yml > provas-p0-actions/FONTES-SHA256SUMS
           if test -f scripts/p0-actions-request.mjs; then sha256sum scripts/p0-actions-request.mjs >> provas-p0-actions/FONTES-SHA256SUMS; fi
           if test -f docs/executor/P0_ACTIONS_CATALOG.json; then sha256sum docs/executor/P0_ACTIONS_CATALOG.json >> provas-p0-actions/FONTES-SHA256SUMS; fi
+          sha256sum scripts/p0-actions-transport.test.mjs >> provas-p0-actions/FONTES-SHA256SUMS
+          if test -f scripts/p0-actions-transport.mjs; then sha256sum scripts/p0-actions-transport.mjs >> provas-p0-actions/FONTES-SHA256SUMS; fi
+          if test -f .github/workflows/p0-actions-orchestrator-request.yml; then sha256sum .github/workflows/p0-actions-orchestrator-request.yml >> provas-p0-actions/FONTES-SHA256SUMS; fi
           (cd provas-p0-actions && sha256sum ./* > ../SHA256SUMS-p0-actions)
           mv SHA256SUMS-p0-actions provas-p0-actions/SHA256SUMS
       - name: Preservar artefatos de teste
