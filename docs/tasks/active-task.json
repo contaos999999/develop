@@ -3465,5 +3465,29 @@
     ],
     "hml": "NO-GO",
     "prod": "NO-GO"
+  },
+  "authority_scope_p0_actions_b3": {
+    "id": "P0-ORQ-ACTIONS-001-B3",
+    "stage": "PLAN",
+    "base": "32c5595c7af27436b20502b10fc67b7908ca811d",
+    "environment": "CODE",
+    "operation": "CANARY_CODE",
+    "paths": [
+      "scripts/p0-actions-ledger.mjs",
+      "scripts/p0-actions-ledger.test.mjs",
+      "scripts/p0-actions-transport.mjs",
+      "scripts/p0-actions-transport.test.mjs",
+      ".github/workflows/p0-actions-orchestrator-request.yml",
+      ".github/workflows/p0-actions-orchestrator-code.yml",
+      "docs/executor/P0_ACTIONS_LEDGER.json"
+    ],
+    "preconditions": [
+      "PLAN protegido integrado após estabilização fiscal e reancoragem",
+      "RED causal comprovado antes do BUILD",
+      "nenhuma escrita automática ou ativação",
+      "canários reais com autorização própria"
+    ],
+    "hml": "NO-GO",
+    "prod": "NO-GO"
   }
 }
