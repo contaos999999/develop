@@ -480,7 +480,11 @@
     "supabase/tests/v2_77_catalog_pins.json",
     ".github/workflows/p0-v2-77-desfecho-code.yml",
     "docs/backend/RESULTADO_P0_V2_77_DESFECHOS_2026-11-27.md",
-    "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md"
+    "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md",
+    "scripts/p0-actions-request.mjs",
+    "scripts/p0-actions-request.test.mjs",
+    ".github/workflows/p0-actions-orchestrator-code.yml",
+    "docs/executor/P0_ACTIONS_CATALOG.json"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3395,15 +3399,17 @@
   },
   "authority_scope_p0_actions": {
     "id": "P0-ORQ-ACTIONS-001",
-    "status": "PLAN_PROPOSTO",
+    "status": "PLAN_FECHADO_B1_CODE",
     "parent_regular": "77A",
     "backend_source": "4828191c9399135b4f0700be2a7e5abd4597ae7b",
     "frontend_source": "d1d5ecbe5641a2c698b99c1768927a4d9d8163e6",
     "checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7230658822",
     "plan": "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md",
     "paths": [
-      "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md",
-      "docs/tasks/active-task.json"
+      "scripts/p0-actions-request.mjs",
+      "scripts/p0-actions-request.test.mjs",
+      ".github/workflows/p0-actions-orchestrator-code.yml",
+      "docs/executor/P0_ACTIONS_CATALOG.json"
     ],
     "candidate_build_paths": [
       "scripts/p0-actions-request.mjs",
@@ -3415,7 +3421,7 @@
       "docs/executor/P0_ACTIONS_LEDGER.md",
       "docs/backend/RESULTADO_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md"
     ],
-    "build_authorized": false,
+    "build_authorized": true,
     "activation_authorized": false,
     "backend_branch_protection": "CONFIG_VERIFIED_RULESET_28271968",
     "scope": "Transporte nativo, sem nova autoridade. Preserva integralmente authority_scope_v2_77 e p0_executor_controller_gate.",
@@ -3429,6 +3435,11 @@
       "checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7231066880",
       "hml_environment": "NOT_VERIFIED",
       "negative_material": "PENDING"
-    }
+    },
+    "backend_base": "ab240aee0356d5c0d61236973a6f72ad24c6d0a5",
+    "mode": "CODE_FIXTURE_ONLY",
+    "hml_environment": "NOT_VERIFIED",
+    "fiscal_universal": "PENDING",
+    "authority": "B1 exclusivamente validador offline e CI, sem chamada de workflow ou acesso privilegiado, RED obrigatório antes de implementação."
   }
 }
