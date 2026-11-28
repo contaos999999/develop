@@ -479,7 +479,8 @@
     "supabase/tests/v2_77_desfecho_run.py",
     "supabase/tests/v2_77_catalog_pins.json",
     ".github/workflows/p0-v2-77-desfecho-code.yml",
-    "docs/backend/RESULTADO_P0_V2_77_DESFECHOS_2026-11-27.md"
+    "docs/backend/RESULTADO_P0_V2_77_DESFECHOS_2026-11-27.md",
+    "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md"
   ],
   "prompt_000_brand_01_read": true,
   "acceptance": [
@@ -3391,5 +3392,43 @@
       "sha256": "2309689aec113c11baa914b33700f0167532678036b8c71c3de3621c39acfa84"
     },
     "migration": "supabase/migrations/20261127233223_p0_v2_77_desfechos_linha_tempo.sql"
+  },
+  "authority_scope_p0_actions": {
+    "id": "P0-ORQ-ACTIONS-001",
+    "status": "PLAN_PROPOSTO",
+    "parent_regular": "77A",
+    "backend_source": "4828191c9399135b4f0700be2a7e5abd4597ae7b",
+    "frontend_source": "d1d5ecbe5641a2c698b99c1768927a4d9d8163e6",
+    "checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7230658822",
+    "plan": "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md",
+    "paths": [
+      "docs/backend/PLAN_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md",
+      "docs/tasks/active-task.json"
+    ],
+    "candidate_build_paths": [
+      "scripts/p0-actions-request.mjs",
+      "scripts/p0-actions-request.test.mjs",
+      ".github/workflows/p0-actions-orchestrator-code.yml",
+      ".github/workflows/p0-actions-orchestrator-request.yml",
+      ".github/workflows/p0-hml-migration-version-parity.yml",
+      "docs/executor/P0_ACTIONS_CATALOG.json",
+      "docs/executor/P0_ACTIONS_LEDGER.md",
+      "docs/backend/RESULTADO_P0_ORQUESTRADOR_ACTIONS_2026-11-27.md"
+    ],
+    "build_authorized": false,
+    "activation_authorized": false,
+    "backend_branch_protection": "CONFIG_VERIFIED_RULESET_28271968",
+    "scope": "Transporte nativo, sem nova autoridade. Preserva integralmente authority_scope_v2_77 e p0_executor_controller_gate.",
+    "live": "NOT_RUN",
+    "prod": "NO-GO",
+    "protection_evidence": {
+      "ruleset_id": 28271968,
+      "protected": true,
+      "bypass_actors": [],
+      "before_approval_mergeable_state": "blocked",
+      "checkpoint": "https://github.com/contaos999999/contaos-hml-control/issues/708#issuecomment-7231066880",
+      "hml_environment": "NOT_VERIFIED",
+      "negative_material": "PENDING"
+    }
   }
 }
